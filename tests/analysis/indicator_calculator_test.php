@@ -181,7 +181,51 @@ final class indicator_calculator_test extends \basic_testcase {
         $this->assertSame(['filecount' => 1, 'logicalbytes' => 5 * self::MB, 'uniquecount' => 1,
             'uniquebytes' => 5 * self::MB], $result->categories['backup']);
         $this->assertSame(5 * self::MB, $result->categories['recyclebin']['logicalbytes']);
-        $this->assertArrayNotHasKey('material', $result->categories);
+        $this->assertSame(['filecount' => 3, 'logicalbytes' => 30 * self::MB, 'uniquecount' => 1,
+            'uniquebytes' => 10 * self::MB], $result->categories['material']);
+        $this->assertTrue(indicator_calculator::invariants_hold($result));
+    }
+
+    /**
+     * Main categories (T055): a row only for categories with records, the sum of A_c is A, the unique content of
+     * each category comes from Q2, and a content shared by two categories counts in both (sum of B_c above B).
+     */
+    public function test_main_categories(): void {
+        $rows = [
+            self::row(10, 'course', 'summary', 1, self::MB),
+            self::row(20, 'mod_resource', 'content', 2, 4 * self::MB),
+            self::row(20, 'assignsubmission_file', 'submission_files', 3, 6 * self::MB),
+            self::row(20, 'local_fake', 'stuff', 1, 2 * self::MB),
+            self::row(20, 'mod_folder', 'temp', 2, 9 * self::MB),
+            self::row(10, 'backup', 'course', 1, 40 * self::MB),
+        ];
+        $groups = [
+            indicator_calculator::GROUP_MAIN => (object)['contents' => 5, 'bytes' => 9 * self::MB],
+            indicator_calculator::GROUP_BACKUP => (object)['contents' => 1, 'bytes' => 40 * self::MB],
+        ];
+        $uniques = [
+            'material' => (object)['contents' => 3, 'bytes' => 5 * self::MB],
+            'submission' => (object)['contents' => 2, 'bytes' => 4 * self::MB],
+            'unclassified' => (object)['contents' => 1, 'bytes' => 2 * self::MB],
+            'backup' => (object)['contents' => 1, 'bytes' => 40 * self::MB],
+        ];
+        $result = (new indicator_calculator(50 * self::MB))->calculate(self::contexts(), $rows, $groups, $uniques);
+
+        $this->assertSame(['material', 'submission', 'unclassified', 'backup'], array_keys($result->categories));
+        $this->assertArrayNotHasKey('other', $result->categories);
+        $this->assertSame(['filecount' => 3, 'logicalbytes' => 5 * self::MB, 'uniquecount' => 3,
+            'uniquebytes' => 5 * self::MB], $result->categories['material']);
+        $this->assertSame(['filecount' => 3, 'logicalbytes' => 6 * self::MB, 'uniquecount' => 2,
+            'uniquebytes' => 4 * self::MB], $result->categories['submission']);
+        $this->assertSame(2 * self::MB, $result->categories['unclassified']['logicalbytes']);
+
+        $main = array_intersect_key($result->categories, array_flip(['material', 'submission', 'other', 'unclassified']));
+        $this->assertSame($result->summary['logicalbytes'], array_sum(array_column($main, 'logicalbytes')));
+        $this->assertSame($result->summary['filecount'], array_sum(array_column($main, 'filecount')));
+        $this->assertGreaterThan($result->summary['uniquebytes'], array_sum(array_column($main, 'uniquebytes')));
+        $this->assertSame(1, $result->summary['unclassifiedcount']);
+        $this->assertSame(2 * self::MB, $result->summary['unclassifiedbytes']);
+        $this->assertSame(1, $result->summary['partial']);
         $this->assertTrue(indicator_calculator::invariants_hold($result));
     }
 
@@ -228,6 +272,14 @@ final class indicator_calculator_test extends \basic_testcase {
 
         $category = ['filecount' => 1, 'logicalbytes' => 5, 'uniquecount' => 1, 'uniquebytes' => 6];
         $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, ['backup' => $category])));
+
+        // The main categories must add up to A and to the record count.
+        $material = ['filecount' => 2, 'logicalbytes' => 100, 'uniquecount' => 1, 'uniquebytes' => 50];
+        $this->assertTrue(indicator_calculator::invariants_hold(new diagnostic_result($summary, ['material' => $material])));
+        $short = ['logicalbytes' => 90] + $material;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, ['material' => $short])));
+        $fewer = ['filecount' => 1] + $material;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, ['material' => $fewer])));
     }
 
     /**

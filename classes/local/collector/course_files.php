@@ -144,7 +144,8 @@ class course_files {
     }
 
     /**
-     * Unique content by category (Q2), including the backup and recycle bin categories; references are out.
+     * Unique content by category (Q2), including the backup and recycle bin categories; references and excluded
+     * transient areas are out.
      *
      * Each distinct content (contenthash) is counted once per category, with its recorded size.
      *
@@ -156,7 +157,7 @@ class course_files {
 
         [$where, $params] = $this->scope_condition($context, 'ctx', 'q2');
         [$case, $caseparams] = $this->category_case('q2');
-        $params += $caseparams + ['q2dot' => '.'];
+        $params += $caseparams + ['q2dot' => '.', 'q2excluded' => classification_rules::EXCLUDED];
 
         $sql = "SELECT u.category, COUNT(1) AS contents, SUM(u.sz) AS bytes
                   FROM (
@@ -169,6 +170,7 @@ class course_files {
                                    AND f.filename <> :q2dot
                                    AND f.referencefileid IS NULL
                                ) c
+                         WHERE c.category <> :q2excluded
                       GROUP BY c.category, c.contenthash
                        ) u
               GROUP BY u.category";

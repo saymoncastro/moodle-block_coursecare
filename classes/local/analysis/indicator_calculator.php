@@ -83,6 +83,7 @@ class indicator_calculator {
             self::REF_EXTERNAL => ['filecount' => 0, 'bytes' => 0],
             self::REF_UNDETERMINED => ['filecount' => 0, 'bytes' => 0],
         ];
+        $maincategories = array_fill_keys(classification_rules::MAIN_CATEGORIES, ['filecount' => 0, 'bytes' => 0]);
         $backup = array_fill_keys(classification_rules::BACKUP_CATEGORIES, ['filecount' => 0, 'bytes' => 0]);
 
         foreach ($arearows as $row) {
@@ -101,10 +102,12 @@ class indicator_calculator {
                 $backup[$result]['bytes'] += (int)$row->bytes;
                 continue;
             }
-            if (!in_array($result, classification_rules::MAIN_CATEGORIES, true)) {
+            if (!isset($maincategories[$result])) {
                 // Excluded transient areas.
                 continue;
             }
+            $maincategories[$result]['filecount'] += (int)$row->filecount;
+            $maincategories[$result]['bytes'] += (int)$row->bytes;
             $main['filecount'] += (int)$row->filecount;
             $main['bytes'] += (int)$row->bytes;
             $main['largecount'] += (int)$row->largecount;
@@ -142,7 +145,8 @@ class indicator_calculator {
 
         $categories = [];
         if ($categoryuniques !== null) {
-            foreach ($backup as $category => $totals) {
+            // Only categories with records get a row; the main scope first, then the backup aggregate.
+            foreach ($maincategories + $backup as $category => $totals) {
                 if ($totals['filecount'] > 0) {
                     $categories[$category] = [
                         'filecount' => $totals['filecount'],
@@ -185,11 +189,19 @@ class indicator_calculator {
                 return false;
             }
         }
-        foreach ($result->categories as $row) {
+        $main = ['filecount' => 0, 'logicalbytes' => 0];
+        $hasmain = false;
+        foreach ($result->categories as $category => $row) {
             if ($row['uniquebytes'] > $row['logicalbytes'] || $row['uniquecount'] > $row['filecount']) {
                 return false;
             }
+            if (in_array($category, classification_rules::MAIN_CATEGORIES, true)) {
+                $hasmain = true;
+                $main['filecount'] += $row['filecount'];
+                $main['logicalbytes'] += $row['logicalbytes'];
+            }
         }
-        return true;
+        // The main categories partition the main scope: their sums are A and the record count.
+        return !$hasmain || ($main['filecount'] === $s['filecount'] && $main['logicalbytes'] === $s['logicalbytes']);
     }
 }

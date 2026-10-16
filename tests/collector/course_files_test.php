@@ -60,10 +60,11 @@ final class course_files_test extends \advanced_testcase {
      *
      * @param string $modname Module name.
      * @param \stdClass $course Course.
+     * @param array $record Extra settings of the module.
      * @return \context_module
      */
-    private function module(string $modname, \stdClass $course): \context_module {
-        $module = $this->getDataGenerator()->create_module($modname, ['course' => $course->id]);
+    private function module(string $modname, \stdClass $course, array $record = []): \context_module {
+        $module = $this->getDataGenerator()->create_module($modname, ['course' => $course->id] + $record);
         $context = \context_module::instance($module->cmid);
         get_file_storage()->delete_area_files($context->id);
         return $context;
@@ -496,5 +497,173 @@ final class course_files_test extends \advanced_testcase {
         $categories = (new diagnostic_store())->get_categories((int)$record->id);
         $this->assertSame(5 * self::MB, (int)$categories['backup']->uniquebytes);
         $this->assertSame(5 * self::MB, (int)$categories['recyclebin']->uniquebytes);
+    }
+
+    /**
+     * Expected totals of one category row.
+     *
+     * @param int $filecount Records.
+     * @param int $logicalbytes Logical bytes.
+     * @param int $uniquecount Distinct contents.
+     * @param int $uniquebytes Unique bytes.
+     * @return array<string, int>
+     */
+    private static function totals(int $filecount, int $logicalbytes, int $uniquecount, int $uniquebytes): array {
+        return compact('filecount', 'logicalbytes', 'uniquecount', 'uniquebytes');
+    }
+
+    /**
+     * Stored categories of a course result, with integer values.
+     *
+     * @param \stdClass $record Diagnostic record.
+     * @return array<string, array<string, int>>
+     */
+    private function categories(\stdClass $record): array {
+        $rows = [];
+        foreach ((new diagnostic_store())->get_categories((int)$record->id) as $category => $row) {
+            $rows[$category] = [
+                'filecount' => (int)$row->filecount,
+                'logicalbytes' => (int)$row->logicalbytes,
+                'uniquecount' => (int)$row->uniquecount,
+                'uniquebytes' => (int)$row->uniquebytes,
+            ];
+        }
+        return $rows;
+    }
+
+    /**
+     * Submit a file and an online text with an embedded image through the assignment API, as the student.
+     *
+     * @param \context_module $context Assignment context.
+     * @param \stdClass $user Enrolled student.
+     * @param string $file Content of the submitted file.
+     * @param string $image Content of the image embedded in the online text.
+     */
+    private function submit(\context_module $context, \stdClass $user, string $file, string $image): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/assign/locallib.php');
+        [$course, $cm] = get_course_and_cm_from_cmid($context->instanceid, 'assign');
+        $assign = new \assign($context, $cm, $course);
+
+        $this->setUser($user);
+        $usercontext = \context_user::instance($user->id);
+        $fs = get_file_storage();
+        $fileitem = file_get_unused_draft_itemid();
+        $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft',
+            'itemid' => $fileitem, 'filepath' => '/', 'filename' => 'work.bin'], $file);
+        $textitem = file_get_unused_draft_itemid();
+        $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft',
+            'itemid' => $textitem, 'filepath' => '/', 'filename' => 'image.png'], $image);
+
+        // The editor references draft files by their draft URL; unreferenced drafts are discarded on save.
+        $text = file_rewrite_pluginfile_urls(
+            '<p><img src="@@PLUGINFILE@@/image.png" alt=""></p>',
+            'draftfile.php',
+            $usercontext->id,
+            'user',
+            'draft',
+            $textitem
+        );
+        $data = (object)[
+            'userid' => $user->id,
+            'files_filemanager' => $fileitem,
+            'onlinetext_editor' => ['itemid' => $textitem, 'text' => $text, 'format' => FORMAT_HTML],
+        ];
+        $notices = [];
+        $this->assertTrue($assign->save_submission($data, $notices), implode(' ', $notices));
+        $this->setAdminUser();
+    }
+
+    /**
+     * CT-06, CT-07 and CT-08: each area of the matrix lands in its category; the categories add up to A.
+     */
+    public function test_categories(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $coursecontext = \context_course::instance($course->id);
+
+        // CT-06: materials in the course summary, a section, File, Folder, Page, Book, Label and a text block.
+        $this->add_file($coursecontext, 'course', 'summary', self::content(1000, 'summary'));
+        $this->add_file($coursecontext, 'course', 'section', self::content(1100, 'section'));
+        $this->add_file($this->module('resource', $course), 'mod_resource', 'content', self::content(1200, 'resource'));
+        $this->add_file($this->module('folder', $course), 'mod_folder', 'content', self::content(1300, 'folder'));
+        $this->add_file($this->module('page', $course), 'mod_page', 'content', self::content(1400, 'page'));
+        $this->add_file($this->module('book', $course), 'mod_book', 'chapter', self::content(1500, 'book'));
+        $this->add_file($this->module('label', $course), 'mod_label', 'intro', self::content(1600, 'label'));
+        $html = $this->getDataGenerator()->create_block('html', ['parentcontextid' => $coursecontext->id]);
+        $this->add_file(\context_block::instance($html->id), 'block_html', 'content', self::content(1700, 'html'));
+
+        // CT-07: a file and an online text with an image submitted through the assignment, and an essay attachment
+        // of a quiz attempt (rule 21).
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign = $this->module('assign', $course, [
+            'assignsubmission_file_enabled' => 1,
+            'assignsubmission_file_maxfiles' => 1,
+            'assignsubmission_file_maxsizebytes' => self::MB,
+            'assignsubmission_onlinetext_enabled' => 1,
+        ]);
+        $this->submit($assign, $student, self::content(2000, 'work'), self::content(2100, 'image'));
+        $this->add_file($this->module('quiz', $course), 'question', 'response_attachments', self::content(2200, 'essay'));
+
+        // CT-08: feedback file, feedback comment with a file, grade feedback and a forum attachment.
+        $this->add_file($assign, 'assignfeedback_file', 'feedback_files', self::content(3000, 'feedback'));
+        $this->add_file($assign, 'assignfeedback_comments', 'feedback', self::content(3100, 'comment'));
+        $this->add_file($assign, 'grade', 'feedback', self::content(3200, 'grade'));
+        $this->add_file($this->module('forum', $course), 'mod_forum', 'attachment', self::content(3300, 'forum'));
+
+        $record = $this->analyse($course);
+        $categories = $this->categories($record);
+
+        $this->assertSame(['material', 'other', 'submission'], array_keys($categories));
+        $this->assertSame(self::totals(8, 10800, 8, 10800), $categories['material']);
+        $this->assertSame(self::totals(3, 6300, 3, 6300), $categories['submission']);
+        $this->assertSame(self::totals(4, 12600, 4, 12600), $categories['other']);
+        $this->assertSame(29700, (int)$record->logicalbytes);
+        $this->assertSame(15, (int)$record->filecount);
+        $this->assertSame(0, (int)$record->unclassifiedcount);
+        $this->assertSame(0, (int)$record->partial);
+    }
+
+    /**
+     * CT-11: a third-party area is unclassified, still counted in A and B, and marks the result as partial.
+     */
+    public function test_unclassified_component(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $page = $this->module('page', $course);
+        $this->add_file($page, 'mod_page', 'content', self::content(1000, 'page'));
+        $this->add_file($page, 'local_fake', 'stuff', self::content(4000, 'fake'));
+
+        $record = $this->analyse($course);
+        $categories = $this->categories($record);
+        $this->assertSame(5000, (int)$record->logicalbytes);
+        $this->assertSame(5000, (int)$record->uniquebytes);
+        $this->assertSame(1, (int)$record->unclassifiedcount);
+        $this->assertSame(4000, (int)$record->unclassifiedbytes);
+        $this->assertSame(1, (int)$record->partial);
+        $this->assertSame(self::totals(1, 4000, 1, 4000), $categories['unclassified']);
+        $this->assertSame(1000, $categories['material']['logicalbytes']);
+    }
+
+    /**
+     * CT-21: the same content in a material and a submission counts in both categories and once in B.
+     */
+    public function test_same_content_in_two_categories(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $content = self::content(10 * self::MB, 'shared');
+        $this->add_file($this->module('resource', $course), 'mod_resource', 'content', $content);
+        $this->add_file($this->module('assign', $course), 'assignsubmission_file', 'submission_files', $content);
+
+        $record = $this->analyse($course);
+        $categories = $this->categories($record);
+        $this->assertSame(20 * self::MB, (int)$record->logicalbytes);
+        $this->assertSame(10 * self::MB, (int)$record->uniquebytes);
+        $this->assertSame(10 * self::MB, $categories['material']['uniquebytes']);
+        $this->assertSame(10 * self::MB, $categories['submission']['uniquebytes']);
+        $this->assertGreaterThan(
+            (int)$record->uniquebytes,
+            $categories['material']['uniquebytes'] + $categories['submission']['uniquebytes']
+        );
     }
 }

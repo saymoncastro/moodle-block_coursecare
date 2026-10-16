@@ -457,23 +457,23 @@ PHPUnit e na CLI `--show`.
 
 ### Tests for User Story 6 (escrever antes de T057)
 
-- [ ] T054 [P] [US6] Em `tests/collector/course_files_test.php`: CT-06 (resumo, seção, Arquivo, Pasta,
+- [X] T054 [P] [US6] Em `tests/collector/course_files_test.php`: CT-06 (resumo, seção, Arquivo, Pasta,
   Página, Livro, Rótulo e bloco de texto → Materiais), CT-07 (envio de arquivo e texto online com
   imagem feitos pela API da tarefa, e resposta de redação com anexo num Questionário → Envios,
   regra 21), CT-08 (retorno em arquivo, comentário de retorno com arquivo, `grade/feedback` e
   fórum → Outros), CT-11 (componente fictício `local_fake` → Não classificado, `partial = 1`) e
   CT-21 (mesmo conteúdo num material e num envio → nas duas categorias; B da sala conta uma vez;
   Σ B_c > B).
-- [ ] T055 [P] [US6] Em `tests/analysis/indicator_calculator_test.php`: `Σ A_c = A`; únicos por
+- [X] T055 [P] [US6] Em `tests/analysis/indicator_calculator_test.php`: `Σ A_c = A`; únicos por
   categoria a partir de Q2; `unclassifiedcount`, `unclassifiedbytes` e `partial` (também para
   referência indeterminada).
 
 ### Implementation for User Story 6
 
-- [ ] T056 [US6] Em `classes/local/collector/course_files.php`: Q2 (únicos por categoria a partir da
+- [X] T056 [US6] Em `classes/local/collector/course_files.php`: Q2 (únicos por categoria a partir da
   expressão `CASE` gerada com um prefixo de parâmetros próprio desta consulta, excluindo
   `excluded`, por subconsultas aninhadas).
-- [ ] T057 [US6] Em `classes/local/analysis/indicator_calculator.php` e `diagnostic_store.php`:
+- [X] T057 [US6] Em `classes/local/analysis/indicator_calculator.php` e `diagnostic_store.php`:
   linhas `material`, `submission`, `other` e `unclassified` de `block_coursecare_cat` (só categorias
   com registros), `unclassifiedcount`, `unclassifiedbytes` e `partial`. Depende de T056.
 
@@ -813,3 +813,23 @@ Resultado local: PHPUnit 142 testes verdes, Behat 23 cenários verdes, `moodle-c
   sem a mensagem, e outra sala analisada normalmente pelo cron em seguida; invariantes que falham duas
   vezes gravam `inconsistent`.
 
+CI da US5 verde: run 38967792551 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `17b0a97`.
+
+### US6 (T054–T057) — 2026-10-17
+
+Resultado local: PHPUnit 146 testes verdes, Behat 23 cenários verdes, `moodle-cs` sem erros, i18n sem
+erros.
+
+- O cálculo grava uma linha de `block_coursecare_cat` para cada categoria do escopo principal com
+  registros (`material`, `submission`, `other`, `unclassified`), antes das linhas de backup e lixeira.
+  Os únicos de cada categoria vêm da Q2, que já existia desde a US2; T056 ficou reduzida a excluir as
+  áreas `excluded` dentro da própria consulta (`WHERE c.category <> :q2excluded`).
+- Nova invariante: quando há linhas do escopo principal, a soma de A_c é A e a soma das contagens é
+  `filecount`. Σ B_c pode passar de B (conteúdo em mais de uma categoria) e não é verificada.
+- CT-07 usa a API da tarefa (`assign::save_submission`) para o arquivo enviado e para o texto online
+  com imagem; a imagem é referenciada pela URL de rascunho, como faz o editor, porque o envio descarta
+  rascunhos não referenciados. A resposta de redação do Questionário e os retornos de CT-08 são
+  gravados direto nas áreas reais (`question/response_attachments`, `assignfeedback_file`,
+  `assignfeedback_comments`, `grade/feedback`, `mod_forum/attachment`).
+- Conferência manual no site de desenvolvimento (sala 2, `--run` e `--show`): Materiais 15 registros,
+  Outros 5, Envios 5; soma 25 = `filecount` e 13.726 bytes = A; Σ B_c 13.726 > B 12.970.
