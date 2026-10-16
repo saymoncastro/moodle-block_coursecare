@@ -524,19 +524,20 @@ aprovação do proprietário do produto.
     2.2 AA aplicáveis ao bloco (axe + manual)", nunca como conformidade integral.
   - **Aprovação**: CA-10 e CA-12 marcados com os links.
   - Depende de T026 e T030.
-  - **Estado (2026-10-16)**: executada com Playwright no sistema real, com axe no CI. Falta só a parte
-    humana: leitor de tela real (VoiceOver/NVDA) e alto contraste real do sistema operacional
+  - **Estado (2026-10-16)**: pendência registrada pelo proprietário do produto (não bloqueia o merge).
+    Executada com Playwright no sistema real, com axe no CI. Falta só a parte humana: leitor de tela real (VoiceOver/NVDA) e alto contraste real do sistema operacional
     (ver `evidence/accessibility.md`). Por isso a tarefa continua aberta.
-- [ ] T046 Apresentar as evidências visuais de T030 e T045 ao proprietário do produto para revisão
+- [X] T046 Apresentar as evidências visuais de T030 e T045 ao proprietário do produto para revisão
   da clareza dos textos (SC-002) e aprovação do ativo visual e dos textos en/pt_BR (FR-014, FR-015).
   - Registrar em `evidence/README.md`, seção "Aprovações", **somente depois** da manifestação do
     proprietário: data, itens aprovados ou ajustes pedidos.
   - Se houver ajustes, aplicá-los nas tarefas de origem (T007, T024–T028) e reapresentar.
   - A revisão opcional por um ou dois docentes é registrada quando houver e não bloqueia a entrega.
   - Não registrar nenhuma aprovação antecipada. Depende de T045.
-  - **Estado (2026-10-16)**: evidências prontas em `evidence/`. Aguarda a manifestação do proprietário do
-    produto. Nenhuma aprovação registrada.
-- [ ] T047 Fechar a feature:
+  - **Estado (2026-10-16)**: concluída. O proprietário do produto aprovou o ícone e os textos en/pt_BR
+    com base nas capturas reais. A aprovação está registrada em `evidence/README.md`, seção
+    "Aprovações".
+- [X] T047 Fechar a feature:
   - preencher a tabela CA-01 a CA-13 em `evidence/README.md` só com itens que tenham link de
     evidência (SC-010);
   - reexecutar a Constitution Check do plan.md contra a constituição 1.2.0;
@@ -544,8 +545,9 @@ aprovação do proprietário do produto.
   - atualizar `CHANGES.md`;
   - deixar a branch pronta para PR à `main`.
   Depende de T039–T046.
-  - **Estado (2026-10-16)**: depende de T045 (parte humana) e T046 (aprovação). O CI está verde no
-    último commit validado.
+  - **Estado (2026-10-16)**: concluída com a pendência de T045 registrada pelo proprietário do produto
+    como não bloqueante. Tabela de CAs preenchida, CI verde (PR #3), Constitution Check sem novas
+    violações e merge na `main` autorizado pelo proprietário.
 ---
 
 ## Dependencies & Execution Order
@@ -721,9 +723,9 @@ Com mais de uma pessoa, depois da Phase 2:
 
 ## Execução (2026-10-16)
 
-- **Concluídas**: 44 de 47 (T001–T044), cada uma com evidência em `evidence/`.
-- **Abertas**: T045 (parte humana de acessibilidade), T046 (aprovação do proprietário) e T047
-  (fechamento).
+- **Concluídas**: 46 de 47 (T001–T044, T046, T047), cada uma com evidência em `evidence/`.
+- **Aberta**: T045, só a parte humana (leitor de tela real e alto contraste real), registrada como
+  pendência pelo proprietário do produto.
 - **Desvios registrados**:
   - T020/V3: a configuração "qualquer página + exibir em subcontextos" foi aplicada no banco (campos
     nativos `pagetypepattern` e `showinsubcontexts` da instância), não pelo formulário. O Behat do CI

@@ -22,7 +22,7 @@ fictícios.
 | --- | --- | --- | --- | --- |
 | CA-01 Instalação no Moodle 4.5 | [install](logs/install.txt) (site com o plugin montado); [instalação do ZIP em site sem o plugin, E2](logs/zip-install.txt) (7 s, sem erros); [atualização](logs/upgrade.txt); [desabilitar e reabilitar com instância, E1](logs/playwright-e1.json) + `screenshots/boost-en-1280-{disabled,reenabled}.png`; [desinstalação com instâncias](logs/uninstall-with-instances.txt); [sem instâncias](logs/uninstall-empty.txt) | Boost | en | ✅ |
 | CA-02 Adição por usuário autorizado | [fluxo de adição pela interface](logs/playwright-add.json) (oferecido 1×, adicionado, não oferecido de novo); [matriz T020](display-matrix.md) (19/19, inclui seção, atividade e troca de formato); [restauração sem duplicar](logs/restore-merge.txt); Behat `block_coursecare_permissions` e `_display` no CI | Boost | en | ✅ |
-| CA-03 Identidade e mensagem inicial | Behat `block_coursecare_ui`; PHPUnit `test_initial_content`; capturas `screenshots/boost-{en,pt_br}-1280-main*.png` e `classic-*` | Boost, Classic | en, pt_BR | ⏳ validado tecnicamente; aprovação visual e textual pendente (FR-014, FR-015, SC-002) |
+| CA-03 Identidade e mensagem inicial | Behat `block_coursecare_ui`; PHPUnit `test_initial_content`; capturas `screenshots/boost-{en,pt_br}-1280-main*.png` e `classic-*` | Boost, Classic | en, pt_BR | ✅ validado e aprovado pelo proprietário do produto em 2026-10-16 (ver Aprovações) |
 | CA-04 Bloqueio sem permissão | [matriz T020](display-matrix.md) (professor sem edição, estudante, visitante, concessão de view, `addinstance` proibido com controle); [RK2](logs/playwright-visual.json); PHPUnit (arquétipos, visitante, overrides); Behat de permissões | Boost | en | ✅ |
 | CA-05 Funciona em inglês | `screenshots/boost-en-*`, `classic-en-*`; [visual](logs/playwright-visual.json) | Boost, Classic | en | ✅ |
 | CA-06 Funciona em pt_BR (tradução de desenvolvimento) | [importação com tool_customlang](logs/customlang-import.txt); `screenshots/boost-pt_br-*`, `classic-pt_br-*`; PHPUnit `translation_test` (CI) | Boost, Classic | pt_BR | ✅ |
@@ -32,7 +32,7 @@ fictícios.
 | CA-10 Responsivo e acessível | [acessibilidade](accessibility.md) (axe no CI, contraste de 16,2:1 e 15,4:1, 320 px, 200%, teclado, árvore de acessibilidade, ícone que não carrega) | Boost, Classic | en, pt_BR | ⚠️ falta leitor de tela real e alto contraste real do sistema operacional |
 | CA-11 Sem modificação do core | [git status do core](logs/core-git-status.txt) (vazio) | — | — | ✅ |
 | CA-12 Independente do tema | Behat Classic com axe; `screenshots/classic-*` | Boost, Classic | en, pt_BR | ✅ |
-| CA-13 Evidências documentadas | este diretório | — | — | ⏳ completa após as aprovações e o fechamento de CA-10 |
+| CA-13 Evidências documentadas | este diretório | — | — | ⚠️ completo, exceto a verificação humana de acessibilidade de CA-10, registrada como pendência pelo proprietário |
 
 ## Execuções de CI
 
@@ -47,8 +47,11 @@ fictícios.
 ## Aprovações
 
 Preenchida somente pelo proprietário do produto, ou por solicitação dele com data, depois da
-apresentação das capturas reais (FR-014, FR-015, SC-002). **Nenhuma aprovação registrada até o
-momento.**
+apresentação das capturas reais (FR-014, FR-015, SC-002).
 
 | Item | Decisão | Data | Observações |
 | --- | --- | --- | --- |
+| Ícone (`pix/sprout.svg`) | Aprovado | 2026-10-16 | Manifestação do proprietário do produto no chat da sessão de implementação, após as capturas reais (en desktop, pt_BR desktop, pt_BR móvel, Classic): "Aprovo o ícone e os textos em inglês e português com base nas capturas apresentadas." |
+| Textos em inglês (`lang/en`) | Aprovado | 2026-10-16 | Mesma manifestação. Vale também como verificação inicial da clareza dos textos (SC-002). |
+| Textos em português brasileiro (`translations/pt_br`) | Aprovado | 2026-10-16 | Mesma manifestação. |
+| Verificação humana de acessibilidade (T045: leitor de tela real e alto contraste real do sistema operacional) | **Pendência registrada** pelo proprietário; não bloqueia o merge da Feature 001 | 2026-10-16 | "A verificação humana de acessibilidade (T045) fica registrada como pendência." |
