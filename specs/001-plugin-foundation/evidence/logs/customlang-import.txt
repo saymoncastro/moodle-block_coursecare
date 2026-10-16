@@ -1,0 +1,35 @@
+# tool_customlang import (quickstart §4) — 2026-10-16
+
+## Run 1 — pt_br pack extracted manually, caches NOT purged before import
+== Files to import into pt_br ==
+Open language pack for editing
+Language pack loaded
+/var/www/html/blocks/coursecare/translations/pt_br/block_coursecare.php
+== Import files string (mode all) ==
+String block_coursecare/coursecare:addinstance updated successfully.
+String block_coursecare/coursecare:view updated successfully.
+String block_coursecare/intro updated successfully.
+String block_coursecare/pluginname updated successfully.
+String block_coursecare/privacy:metadata updated successfully.
+String block_coursecare/tagline updated successfully.
+Save changes to the language pack
+
+Result: strings stored in tool_customlang (modified=1) but NO pt_br_local file was written.
+Cause: tool_customlang_utils::checkin() returns early when clean_param($lang, PARAM_LANG) fails;
+the list of installed translations is cached and predated the manual extraction of the pack.
+
+## Run 2 — after admin/cli/purge_caches.php
+== Files to import into pt_br ==
+Open language pack for editing
+Language pack loaded
+/var/www/html/blocks/coursecare/translations/pt_br/block_coursecare.php
+== Import files string (mode all) ==
+String block_coursecare/coursecare:addinstance updated successfully.
+String block_coursecare/coursecare:view updated successfully.
+String block_coursecare/intro updated successfully.
+String block_coursecare/pluginname updated successfully.
+String block_coursecare/privacy:metadata updated successfully.
+String block_coursecare/tagline updated successfully.
+Save changes to the language pack
+
+Result: /var/www/moodledata/lang/pt_br_local/block_coursecare.php written with 6 strings; modified flags cleared (0 rows with modified=1).

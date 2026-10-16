@@ -1,0 +1,169 @@
+# CI run 38914763604 — https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38914763604 (commit 49d0484)
+
+## moodle (8.3, MOODLE_405_STABLE, mariadb)
+Check out repository code | Working directory is '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin'
+Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+Check out repository code | [command]/usr/bin/git init /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+Check out repository code | Initialized empty Git repository in /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path /home/runner/work/_temp/git-credentials-0fb63c83-b5b6-481a-b03a-2a455888bf52.config
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-0fb63c83-b5b6-481a-b03a-2a455888bf52.config
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path /home/runner/work/_temp/git-credentials-0fb63c83-b5b6-481a-b03a-2a455888bf52.config
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-0fb63c83-b5b6-481a-b03a-2a455888bf52.config
+Initialise moodle-plugin-ci | Created project in /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/ci
+Install moodle-plugin-ci | Found '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/.nvmrc' with version <lts/jod>
+Install moodle-plugin-ci | Found '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/.nvmrc' with version <lts/jod>
+PHP Lint |  RUN  PHP Lint on block_coursecare
+PHP Lint | Checked 8 files in 0.1 seconds
+PHP Mess Detector |  RUN  PHP Mess Detector on block_coursecare
+Moodle Code Checker |  RUN  Moodle CodeSniffer standard on block_coursecare
+Moodle Code Checker | ........ 8 / 8 (100%)
+Moodle PHPDoc Checker |  RUN  Moodle PHPDoc Checker on block_coursecare
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/classes/privacy/provider.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/block_coursecare.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/translation_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/privacy/provider_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/block_coursecare_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/db/access.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/version.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/lang/en/block_coursecare.php
+Validating |  RUN  Validating block_coursecare
+Check upgrade savepoints |  RUN  Check upgrade savepoints on block_coursecare
+Mustache Lint | shell: /usr/bin/bash -e {0}
+Mustache Lint | env:
+Mustache Lint |   COMPOSER_PROCESS_TIMEOUT: 0
+Mustache Lint |   COMPOSER_NO_INTERACTION: 1
+Mustache Lint |   COMPOSER_NO_AUDIT: 1
+Mustache Lint |   NVM_DIR: /home/runner/.nvm
+Mustache Lint | ##[endgroup]
+Mustache Lint |  RUN  Mustache Lint on block_coursecare
+Mustache Lint | INFO: ESLint did run
+Mustache Lint | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/templates/content.mustache - OK: Mustache rendered html succesfully
+Grunt |  RUN  Grunt on block_coursecare
+Grunt | >> Linted 1 files without errors
+PHPUnit tests |  RUN  PHPUnit tests for block_coursecare
+PHPUnit tests | Moodle 4.5.15 (Build: 20261005), 215f44380bdc3ccf852a3a22e34f8423ff64033a
+PHPUnit tests | Php: 8.3.35, mariadb: 11.8.9, OS: Linux 6.17.0-1022-azure x86_64
+PHPUnit tests | ..................                                                18 / 18 (100%)
+PHPUnit tests | OK (18 tests, 70 assertions)
+Behat features |  RUN  Behat features for block_coursecare
+Behat features | Moodle 4.5.15 (Build: 20261005), 215f44380bdc3ccf852a3a22e34f8423ff64033a
+Behat features | Php: 8.3.35, mariadb: 11.8.9, OS: Linux 6.17.0-1022-azure x86_64
+Behat features | Run optional tests:
+Behat features | - Accessibility: Yes
+Behat features | 16 scenarios (16 passed)
+Behat features | 140 steps (140 passed)
+Post Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+
+## moodle (8.1, MOODLE_405_STABLE, pgsql)
+Check out repository code | Working directory is '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin'
+Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+Check out repository code | [command]/usr/bin/git init /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+Check out repository code | Initialized empty Git repository in /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path /home/runner/work/_temp/git-credentials-9711842a-5059-4e6c-a889-591b42ab3c46.config
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-9711842a-5059-4e6c-a889-591b42ab3c46.config
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git.path /home/runner/work/_temp/git-credentials-9711842a-5059-4e6c-a889-591b42ab3c46.config
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-9711842a-5059-4e6c-a889-591b42ab3c46.config
+Initialise moodle-plugin-ci | Created project in /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/ci
+Install moodle-plugin-ci | Found '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/.nvmrc' with version <lts/jod>
+Install moodle-plugin-ci | Found '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/.nvmrc' with version <lts/jod>
+PHP Lint |  RUN  PHP Lint on block_coursecare
+PHP Lint | Checked 8 files in 0.1 seconds
+PHP Mess Detector |  RUN  PHP Mess Detector on block_coursecare
+Moodle Code Checker |  RUN  Moodle CodeSniffer standard on block_coursecare
+Moodle Code Checker | ........ 8 / 8 (100%)
+Moodle PHPDoc Checker |  RUN  Moodle PHPDoc Checker on block_coursecare
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/classes/privacy/provider.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/block_coursecare.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/translation_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/privacy/provider_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/tests/block_coursecare_test.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/db/access.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/version.php
+Moodle PHPDoc Checker | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/lang/en/block_coursecare.php
+Validating |  RUN  Validating block_coursecare
+Check upgrade savepoints |  RUN  Check upgrade savepoints on block_coursecare
+Mustache Lint | shell: /usr/bin/bash -e {0}
+Mustache Lint | env:
+Mustache Lint |   COMPOSER_PROCESS_TIMEOUT: 0
+Mustache Lint |   COMPOSER_NO_INTERACTION: 1
+Mustache Lint |   COMPOSER_NO_AUDIT: 1
+Mustache Lint |   NVM_DIR: /home/runner/.nvm
+Mustache Lint | ##[endgroup]
+Mustache Lint |  RUN  Mustache Lint on block_coursecare
+Mustache Lint | INFO: ESLint did run
+Mustache Lint | /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/moodle/blocks/coursecare/templates/content.mustache - OK: Mustache rendered html succesfully
+Grunt |  RUN  Grunt on block_coursecare
+Grunt | >> Linted 1 files without errors
+PHPUnit tests |  RUN  PHPUnit tests for block_coursecare
+PHPUnit tests | Moodle 4.5.15 (Build: 20261005), 215f44380bdc3ccf852a3a22e34f8423ff64033a
+PHPUnit tests | Php: 8.1.34, pgsql: 17.11 (Debian 17.11-1.pgdg13+2), OS: Linux 6.17.0-1022-azure x86_64
+PHPUnit tests | ..................                                                18 / 18 (100%)
+PHPUnit tests | OK (18 tests, 70 assertions)
+Behat features |  RUN  Behat features for block_coursecare
+Behat features | Moodle 4.5.15 (Build: 20261005), 215f44380bdc3ccf852a3a22e34f8423ff64033a
+Behat features | Php: 8.1.34, pgsql: 17.11 (Debian 17.11-1.pgdg13+2), OS: Linux 6.17.0-1022-azure x86_64
+Behat features | Run optional tests:
+Behat features | - Accessibility: Yes
+Behat features | 16 scenarios (16 passed)
+Behat features | 140 steps (140 passed)
+Post Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/plugin
+
+## i18n-package
+Check out repository code | Working directory is '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare'
+Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare
+Check out repository code | Deleting the contents of '/home/runner/work/moodle-block_coursecare/moodle-block_coursecare'
+Check out repository code | [command]/usr/bin/git init /home/runner/work/moodle-block_coursecare/moodle-block_coursecare
+Check out repository code | Initialized empty Git repository in /home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git/
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git.path /home/runner/work/_temp/git-credentials-5d1d2ee2-b5a2-4514-87c3-6551874f63c8.config
+Check out repository code | [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-5d1d2ee2-b5a2-4514-87c3-6551874f63c8.config
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git.path
+Check out repository code | includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git.path /home/runner/work/_temp/git-credentials-5d1d2ee2-b5a2-4514-87c3-6551874f63c8.config
+Check out repository code | [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git/worktrees/*.path
+Check out repository code | [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/moodle-block_coursecare/moodle-block_coursecare/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-5d1d2ee2-b5a2-4514-87c3-6551874f63c8.config
+PHP lint of tools/ and translations/ (excluded from moodle-plugin-ci) | No syntax errors detected in tools/i18n/check.php
+PHP lint of tools/ and translations/ (excluded from moodle-plugin-ci) | No syntax errors detected in tools/i18n/tests/run.php
+PHP lint of tools/ and translations/ (excluded from moodle-plugin-ci) | No syntax errors detected in tools/package/check.php
+PHP lint of tools/ and translations/ (excluded from moodle-plugin-ci) | No syntax errors detected in translations/pt_br/block_coursecare.php
+Repository tools tests | 28 passed, 0 failed, 28 total
+Translation parity | i18n: 0 error(s), 0 warning(s) in 1 language(s)
+Check package content | package: 0 error(s), 17 file(s)
+Check package content |         0  2026-10-16 14:18   coursecare/
+Check package content |       347  2026-10-16 14:18   coursecare/CHANGES.md
+Check package content |     35149  2026-10-16 14:18   coursecare/LICENSE
+Check package content |      3532  2026-10-16 14:18   coursecare/README.md
+Check package content |      3360  2026-10-16 14:18   coursecare/block_coursecare.php
+Check package content |         0  2026-10-16 14:18   coursecare/classes/
+Check package content |         0  2026-10-16 14:18   coursecare/classes/privacy/
+Check package content |      1250  2026-10-16 14:18   coursecare/classes/privacy/provider.php
+Check package content |         0  2026-10-16 14:18   coursecare/db/
+Check package content |      1617  2026-10-16 14:18   coursecare/db/access.php
+Check package content |         0  2026-10-16 14:18   coursecare/lang/
+Check package content |         0  2026-10-16 14:18   coursecare/lang/en/
+Check package content |      1332  2026-10-16 14:18   coursecare/lang/en/block_coursecare.php
+Check package content |         0  2026-10-16 14:18   coursecare/pix/
+Check package content |       889  2026-10-16 14:18   coursecare/pix/sprout.svg
+Check package content |       651  2026-10-16 14:18   coursecare/styles.css
+Check package content |         0  2026-10-16 14:18   coursecare/templates/
+Check package content |      1482  2026-10-16 14:18   coursecare/templates/content.mustache
+Check package content |         0  2026-10-16 14:18   coursecare/tests/
+Check package content |         0  2026-10-16 14:18   coursecare/tests/behat/
+Check package content |      3887  2026-10-16 14:18   coursecare/tests/behat/block_coursecare_display.feature
+Check package content |      3725  2026-10-16 14:18   coursecare/tests/behat/block_coursecare_permissions.feature
+Check package content |      3175  2026-10-16 14:18   coursecare/tests/behat/block_coursecare_ui.feature
+Check package content |      9930  2026-10-16 14:18   coursecare/tests/block_coursecare_test.php
+Check package content |         0  2026-10-16 14:18   coursecare/tests/privacy/
+Check package content |      1546  2026-10-16 14:18   coursecare/tests/privacy/provider_test.php
+Check package content |      5381  2026-10-16 14:18   coursecare/tests/translation_test.php
+Check package content |      1127  2026-10-16 14:18   coursecare/version.php
+Upload package | Artifact download URL: https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38914763604/artifacts/12052186096
+Post Check out repository code | [command]/usr/bin/git config --global --add safe.directory /home/runner/work/moodle-block_coursecare/moodle-block_coursecare
