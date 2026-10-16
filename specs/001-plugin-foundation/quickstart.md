@@ -166,9 +166,15 @@ unzip -l build/block_coursecare-*.zip
 allowlist, sem `translations/`, sem `lang/pt_br` e sem `tools/`, `specs/` ou arquivos ocultos
 (CA-09).
 
-**Instalação a partir do pacote**: remova o `local.yml` e recrie os containers. Extraia o ZIP em
-`moodle/blocks/` e rode `admin/cli/upgrade.php --non-interactive`. O plugin deve instalar sem erros,
-e `tests/translation_test.php` deve ser ignorado por falta de `translations/` (CA-01, CA-09).
+**Instalação a partir do pacote** (US1-1):
+1. Remova o `local.yml` e recrie os containers do zero, com banco novo.
+2. Instale **primeiro o site sem o plugin** (`install_database.php`) e confirme que
+   `block_coursecare` não aparece.
+3. Só então extraia o ZIP em `moodle/blocks/` e rode `admin/cli/upgrade.php --non-interactive` (ou
+   conclua pela página de Notificações).
+
+O plugin deve instalar sem erros, e `tests/translation_test.php` deve ser ignorado por falta de
+`translations/` (CA-01, CA-09; tarefa T042).
 
 ## 9. Atualização e desinstalação
 

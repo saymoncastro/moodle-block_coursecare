@@ -59,5 +59,7 @@ Moodle instalado nem de bibliotecas externas.
 - Executa o verificador de pacote sobre ZIPs montados no próprio teste (um válido e um por regra).
 - Termina com o código `0` somente se todos os casos passarem.
 
-As fixtures são inválidas de propósito. Por isso, são excluídas do `moodle-plugin-ci` via
-`IGNORE_PATHS=tools/i18n/tests/fixtures`.
+As ferramentas e as fixtures (estas, inválidas de propósito) não são código do plugin. Por isso,
+`tools/` e `translations/` são excluídos do `moodle-plugin-ci` via `IGNORE_PATHS: 'tools,translations'`.
+No job `i18n-package`, os PHP de `tools/` (exceto fixtures) e de `translations/` passam por
+`php -l`.

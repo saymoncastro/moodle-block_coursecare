@@ -143,12 +143,14 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
 **Decision**:
 - O título do bloco (cabeçalho nativo) vem de `get_string('pluginname', 'block_coursecare')`: em
   inglês "CourseCare" e em pt_BR "AVA Consciente".
-- O conteúdo é renderizado por `$OUTPUT->render_from_template('block_coursecare/content', $ctx)`.
-  O template contém o ativo decorativo, a frase de identidade e a mensagem inicial, com strings
-  vindas de `{{#str}}`. Não há nenhum título interno duplicado.
-- O ativo é `pix/sprout.svg` (broto de duas folhas, original), servido pelo mecanismo nativo de
-  imagens (`$OUTPUT->image_url('sprout', 'block_coursecare')`). Ele é exibido como
-  `<img alt="">` (imagem decorativa) em tamanho fixo pequeno (cerca de 40 px), sem texto embutido.
+- O conteúdo é renderizado por `$OUTPUT->render_from_template('block_coursecare/content', [])`.
+  O template não recebe contexto. Ele contém o ativo decorativo, a frase de identidade e a mensagem
+  inicial, com strings vindas de `{{#str}}`. Não há nenhum título interno duplicado.
+- O ativo é `pix/sprout.svg` (broto de duas folhas, original). Ele é renderizado pela **Pix Icon
+  API**, como exige o Princípio X ("ícones via `pix_icon`"), pelo helper Mustache
+  `{{#pix}} sprout, block_coursecare {{/pix}}`, que chama `$OUTPUT->pix_icon('sprout', '',
+  'block_coursecare')`. O tamanho é aumentado para cerca de 40 px por CSS restrito ao bloco
+  (`.block_coursecare .icon`). Não há texto embutido.
 - `styles.css` tem seletores restritos a `.block_coursecare`. Sem cores de tema, sem `!important`
   e sem seletores globais. Utilitários Bootstrap só quando existem tanto no Bootstrap 4 (Moodle 4.5)
   quanto no 5 (ex.: `d-flex`, `mb-0`, `small`); espaçamentos direcionais ficam no CSS local.
@@ -158,25 +160,40 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
   por classe do bloco é obrigatório (sem sobrescritas globais; FR-015a).
 - O mecanismo nativo de `pix` permite que temas substituam o ativo
   (`theme/<tema>/pix_plugins/block/coursecare/`) sem alterar o plugin (Princípio V).
-- `alt=""` marca o ativo como decorativo para tecnologias assistivas (FR-015, US3-6). Como o elemento é
-  decorativo, ele não está sujeito ao critério de contraste de componentes informativos (WCAG
-  1.4.11), mas o desenho mantém nitidez em fundo claro e escuro.
+- **[código 4.5]** O helper `pix` (`core\output\mustache_pix_helper`) aceita `chave, componente,
+  alt`. Sem `alt`, ele chama `pix_icon()` com texto vazio, e `core\output\pix_icon` acrescenta
+  `aria-hidden="true"` quando o `alt` é vazio. Assim, o ativo é decorativo para tecnologias
+  assistivas sem marcação própria (FR-015, US3-6). Nos temas com o sistema de ícones Font Awesome
+  (Boost e Classic), um ícone do plugin sem mapeamento cai para a imagem do `pix`
+  (`icon_system_fontawesome`, `unmappedIcon`).
+- Como o elemento é decorativo, ele não está sujeito ao critério de contraste de componentes
+  informativos (WCAG 1.4.11), mas o desenho mantém nitidez em fundo claro e escuro.
 - Boost e Classic, os temas core do 4.5, usam Bootstrap 4. Evitar utilitários que mudaram de nome
   no Bootstrap 5 (`ml-*`/`ms-*`, `gap-*`) facilita a evolução para o Moodle 5.x sem retrabalho.
 
 **Alternatives considered**:
+- `<img>` com `$OUTPUT->image_url()`: rejeitada após a análise de consistência (D1). Cria um padrão
+  próprio de ícone quando o Princípio X exige `pix_icon`, e não traz vantagem, pois os temas também
+  substituem ícones do `pix_icon` por `pix_plugins`.
 - SVG embutido no Mustache (com `currentColor`): rejeitada. Funciona bem com alto contraste, mas
-  impede a substituição pelo mecanismo nativo de `pix` dos temas. Fica como opção se a validação
-  visual em modo de alto contraste falhar.
-- Ícone Font Awesome do core (`pix_icon`): rejeitada, porque não atende à decisão Q2 (ativo próprio).
+  impede a substituição pelo mecanismo nativo de `pix` dos temas e foge do `pix_icon`. Só seria
+  reconsiderada com Complexity Tracking justificado, se a validação em alto contraste falhar de
+  forma que afete a informação.
+- Ícone Font Awesome existente do core: rejeitada, porque não atende à decisão Q2 (ativo próprio).
 - Ilustração grande ou mascote: proibida pela especificação e pelo Princípio X.
 
 ## R5. Internacionalização e regimes do Princípio VIII
 
 **Decision**:
-- **Strings**: `lang/en/block_coursecare.php` contém `pluginname`, `coursecare:addinstance`,
-  `coursecare:view`, `privacy:metadata`, `tagline` e `intro`. `translations/pt_br/block_coursecare.php`
-  tem exatamente as mesmas chaves e o mesmo formato de arquivo de dados.
+- **Strings**: `lang/en/block_coursecare.php` contém, **em ordem alfabética** (`strcmp`),
+  `coursecare:addinstance`, `coursecare:view`, `intro`, `pluginname`, `privacy:metadata` e
+  `tagline`. `translations/pt_br/block_coursecare.php` tem exatamente as mesmas chaves, na mesma
+  ordem, e o mesmo formato de arquivo de dados.
+- **Formato dos arquivos de idioma** (padrão core, ex.: `blocks/html/lang/en/block_html.php` 4.5):
+  cabeçalho GPL, docblock do arquivo, atribuições `$string[...]` sem `defined('MOODLE_INTERNAL')`
+  e sem outros comentários entre as strings. O `moodle-cs` (`LangFilesOrderingSniff`) emite aviso
+  para chaves fora de ordem e para comentários inesperados, e, com `--max-warnings 0`, um aviso
+  reprova o Gate 1.
 - **Desenvolvimento**: importação com a ferramenta nativa
   `php admin/tool/customlang/cli/import.php --lang=pt_br --source=<plugin>/translations/pt_br --checkin`,
   com o pacote oficial pt_br previamente instalado.
@@ -340,10 +357,19 @@ manual (foco, leitor de tela, reflow a 320 px).
    4.5.11). A matriz `MOODLE_405_STABLE` × {PHP 8.1 + pgsql, PHP 8.3 + mariadb} cobre as PHPs mínima
    e máxima suportadas pelo 4.5 e dois bancos. Etapas: phplint, phpmd (informativo), phpcs
    `--max-warnings 0`, phpdoc `--max-warnings 0`, validate, savepoints, mustache, grunt, phpunit
-   `--fail-on-warning` e behat `--profile chrome`. A variável `IGNORE_PATHS` exclui
-   `tools/i18n/tests/fixtures` das análises, porque as fixtures são inválidas de propósito.
-2. **`i18n-package`**: sem Moodle, PHP 8.1. Roda os testes do verificador, o verificador sobre o
-   repositório, a geração do ZIP e a verificação do ZIP. O ZIP verificado fica como artefato do job.
+   `--fail-on-warning` e behat `--profile chrome`. A variável `IGNORE_PATHS: 'tools,translations'`
+   exclui das análises do `moodle-plugin-ci` os diretórios que não são código do plugin nem vão
+   para o pacote. **[código moodle-cs]** O `MoodleInternalSniff` emite **erro** para arquivos PHP
+   que alteram o estado global sem `MOODLE_INTERNAL` ou inclusão de `config.php`. Isso atinge os
+   scripts de linha de comando de `tools/` (independentes do Moodle) e
+   `translations/pt_br/block_coursecare.php`, que não é tratado como arquivo de idioma por não
+   estar em `lang/`. As fixtures de `tools/i18n/tests/fixtures/`, inválidas de propósito, ficam
+   cobertas pela mesma exclusão. A primeira execução deve confirmar nos logs que esses arquivos
+   foram de fato ignorados.
+2. **`i18n-package`**: sem Moodle, PHP 8.1. Roda `php -l` em todo PHP de `tools/` (exceto
+   fixtures) e de `translations/`, os testes do verificador, o verificador sobre o repositório, a
+   geração do ZIP e a verificação do ZIP. O ZIP verificado fica como artefato do job. A
+   integridade da tradução continua garantida pelo verificador de paridade (Quality Gate 4).
 
 **Rationale**: o template oficial já reflete as práticas atuais (Ubuntu 24.04, PostgreSQL 17 e
 MariaDB 11) e a matriz recomendada para o 4.5 (PHP 8.1–8.3). Duas combinações bastam para o escopo,
