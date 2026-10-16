@@ -58,7 +58,9 @@ esse mapeamento e as regras de validação, não para propor um esquema.
 
 ### Ativo visual
 - **Arquivo**: `pix/sprout.svg`. Original, GPL v3+, sem texto, decorativo.
-- **Regra**: integrado somente após aprovação registrada em `evidence/`.
+- **Regra**: proposto e implementado nesta feature. Ele só é integrado à `main` depois que o
+  proprietário do produto o aprova com base em capturas reais, e a aprovação é registrada em
+  `evidence/README.md` só quando ocorre.
 
 ## Dados pessoais
 

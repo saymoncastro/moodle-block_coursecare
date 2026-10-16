@@ -1,6 +1,6 @@
 # Research: CourseCare Plugin Foundation (Feature 001)
 
-**Data**: 2026-10-16 · **Constituição**: 1.1.0 · **Spec**: [spec.md](spec.md)
+**Data**: 2026-10-16 · **Constituição**: 1.2.0 · **Spec**: [spec.md](spec.md)
 
 Fontes primárias: código-fonte do Moodle no branch `MOODLE_405_STABLE` (repositório oficial
 `moodle/moodle`, versão 2024100715, 4.5.x), documentação oficial (moodledev.io, docs.moodle.org) e
@@ -63,10 +63,12 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
   não exibe o bloco (`is_empty()` → `get_content_for_output()` retorna `null`). O controle acontece
   no servidor: o HTML do conteúdo nunca é gerado para quem não tem a permissão, ou seja, não é só
   visual.
-- **Exceção nativa conhecida**: em modo de edição, quem tem `moodle/block:edit` vê o cabeçalho e os
-  controles do bloco mesmo com conteúdo vazio. Assim, um editor sem `:view` (por override
-  institucional) consegue gerenciar o bloco, mas não vê a mensagem. O comportamento é aceitável e
-  está documentado.
+- **Limitação nativa aceita (apenas na página principal)**: em modo de edição, se
+  `instance_can_be_edited()` for verdadeiro, `get_content_for_output()` gera os controles, e o
+  bloco é renderizado com cabeçalho e controles mesmo com conteúdo vazio. Assim, um editor sem
+  `:view` (por override institucional) consegue gerenciar o bloco, mas não vê a mensagem. Ocultar
+  também os controles impediria esse editor de remover ou configurar o bloco. O comportamento é
+  aceito e documentado. Fora da página principal, isso não ocorre (R3).
 - **Administradores**: `has_capability()` retorna `true` para administradores do site, conforme o
   comportamento nativo.
 - **Professor sem edição e estudante**: `:view` não é concedida aos arquétipos `teacher` e `student`.
@@ -87,7 +89,9 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
    resto fica negado pelo fallback `all` vazio.
 2. `instance_allow_multiple()` retorna `false`.
 3. **Guarda de exibição**: `get_content()` só produz conteúdo quando o tipo da página atual começa
-   com `course-view-` e não com `course-view-section-`.
+   com `course-view-` e não com `course-view-section-` (a "página principal").
+4. **Sem cabeçalho vazio fora da página principal**: `instance_can_be_edited()` retorna `true` só na
+   página principal.
 
 **Rationale** **[código 4.5]**:
 - `blocks_name_allowed_in_format()` escolhe a chave de formato **mais específica** (maior número de
@@ -95,21 +99,44 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
   (`course/view.php`). Desde o 4.4, a página de seção é `course-view-section-<formato>`
   (`course/section.php`), que também casaria com `course-view`. Por isso, ela é negada
   explicitamente.
-- `instance_allow_multiple() = false` impede uma segunda instância **na mesma página**
-  (`get_addable_blocks()` usa `is_block_present()`). Com a adição restrita à página principal do
-  curso, isso equivale a uma instância por sala. O core não oferece nenhum mecanismo nativo de
-  "uma instância por curso" além desse.
-- `applicable_formats()` controla apenas a **adição**. A exibição em outras páginas depende do campo
-  nativo "Exibir nos tipos de página" (`course_page_type_list()` oferece `*`, `course-*` e
-  `course-view-*`), e `blocks_remove_inappropriate()` não está implementada no core. Assim, um
-  editor poderia fazer o bloco aparecer em páginas de atividade. A guarda de exibição (item 3)
-  mantém o conteúdo restrito à página principal sem bloquear a configuração nativa (Princípio I).
+- **Unicidade**: a API restringe **por página**, não por curso. `instance_allow_multiple() = false`
+  faz `get_addable_blocks()` excluir o bloco quando `is_block_present()` o encontra entre os
+  carregados na página. Não existe mecanismo nativo de "uma instância por curso". A garantia por
+  sala vem da combinação de três fatos verificados:
+  1. A adição só é possível na página principal (item 1).
+  2. Ao adicionar em `course-view-*`, o core grava `pagetypepattern = 'course-view-*'`, sem o
+     formato (`add_block_at_end_of_default_region`). As opções de "Exibir nos tipos de página" para
+     a página do curso (`*`, `course-*`, `course-view-*`) sempre incluem a página principal. Assim,
+     a instância continua carregada nela mesmo após mudar o formato do curso, e o bloco não é
+     oferecido de novo.
+  3. A restauração (`restore_stepslib.php`) ignora um bloco sem multiplicidade quando já existe
+     um do mesmo tipo exibido no mesmo contexto e tipo de página.
+
+  Ficam **fora** da garantia, como limitação documentada, as instâncias criadas por blocos padrão
+  configurados pelo administrador (`$CFG->defaultblocks_override`) ou por código fora da interface.
+- **Exibição fora da página principal**: `applicable_formats()` controla apenas a **adição**.
+  - O padrão gravado (`course-view-*`) **também casa com as páginas de seção**
+    (`course-view-section-*`), e "Exibir nos tipos de página" pode estender a exibição a atividades
+    (`*`). `blocks_remove_inappropriate()` não está implementada no core.
+  - Só com a guarda (item 3), o bloco ficaria oculto nessas páginas fora do modo de edição. Em modo
+    de edição, porém, `get_content_for_output()` renderiza cabeçalho e controles quando
+    `$this->page->user_is_editing() && $this->instance_can_be_edited()`, mesmo com conteúdo vazio.
+  - Com `instance_can_be_edited() = false` fora da página principal (item 4), não há controles.
+    Como `is_empty()` é verdadeiro, `get_content_for_output()` retorna `null`, e o core não
+    renderiza nada: nem bloco, nem cabeçalho.
+  - `instance_can_be_edited()` é API pública documentada de `block_base` ("If overridden and set to
+    false by the block it will not be editable") e é usada no core por `block_myoverview` para o
+    mesmo fim. Não é um hack.
+  - A gestão do bloco continua disponível na página principal, onde os controles existem.
 
 **Alternatives considered**:
 - Restringir o campo "Exibir nos tipos de página": rejeitada, porque exigiria um formulário
   próprio (`edit_form.php`) que sobrescreve um comportamento core.
 - Verificar no banco a existência de outra instância no curso: rejeitada. Seria uma consulta extra
   sem necessidade, já que a adição só é possível em uma página.
+- Forçar `pagetypepattern` em `instance_create()`: rejeitada. O editor pode alterar o padrão depois,
+  e o padrão nativo já é `course-view-*`.
+- Ocultar por CSS: rejeitada. Seria um controle apenas visual, e o HTML continuaria sendo gerado.
 
 ## R4. Renderização e identidade visual
 
@@ -279,18 +306,26 @@ infraestrutura institucional e é reproduzível por colaboradores com Docker.
 
 **Decision**:
 - **PHPUnit**: capabilities e conteúdo por permissão, guarda de tipo de página,
-  `applicable_formats`/`instance_allow_multiple`, provider de privacidade e tradução e fallback (R7).
+  `instance_can_be_edited()` por tipo de página, `applicable_formats`/`instance_allow_multiple`,
+  provider de privacidade e tradução e fallback (R7).
   O gerador padrão de blocos do core é suficiente; não é preciso `tests/generator/lib.php`
   **[código 4.5, `get_default_plugin_generator`]**.
 - **Behat** (`@block @block_coursecare`): adição por professor com edição; bloco não oferecido pela
   segunda vez (`the add block selector should not contain "CourseCare" block`); ausência para
   estudante, professor sem edição e visitante; ausência após remover a capability de um papel;
-  conteúdo correto; acessibilidade com `the "CourseCare" "block" should meet accessibility
-  standards` (`@javascript`); tamanhos `mobile` (425x750) e `tablet` (768x1024) com
-  `I change viewport size to`; um cenário no tema Classic.
-- **Validação visual manual**: em desktop, tablet e smartphone, nos temas Boost e Classic, em en e
-  pt_BR, com zoom de 200%, navegação por teclado e leitor de tela. As capturas são registradas como
-  evidência.
+  conteúdo correto; bloco e cabeçalho ausentes, em modo de edição, na página de seção e em uma
+  atividade com "Exibir nos tipos de página" = qualquer página (`"CourseCare" "block" should not
+  exist`); mudança de formato do curso sem nova oferta do bloco; acessibilidade com
+  `the "CourseCare" "block" should meet accessibility standards` (`@javascript`); tamanhos `mobile`
+  (425x750) e `tablet` (768x1024) com `I change viewport size to`; um cenário no tema Classic.
+- **Verificação manual proporcional**: em desktop, tablet e smartphone, nos temas Boost e Classic,
+  em en e pt_BR. Inclui navegação só por teclado (ordem e foco visível), leitura da interface com
+  leitor de tela (VoiceOver ou NVDA), zoom de 200% e reflow a 320 px. Os resultados e capturas são
+  registrados como evidência. A restauração de backup sobre uma sala que já tem o bloco também é
+  verificada manualmente, pois o Behat de restauração com mesclagem custa mais do que vale neste
+  escopo.
+- **Declaração de resultado**: "verificação dos critérios WCAG 2.2 AA aplicáveis ao bloco (axe +
+  manual)". Nunca "conformidade integral com a WCAG".
 
 **Rationale** **[código 4.5]**: o passo de acessibilidade usa axe-core com as tags `wcag2a`,
 `wcag21a`, `wcag22a`, `wcag2aa`, `wcag21aa`, `wcag22aa`, `section508`, `cat.aria`,

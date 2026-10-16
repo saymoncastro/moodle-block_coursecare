@@ -87,7 +87,9 @@ existe, e nenhum arquivo do core foi alterado.
 | --- | --- | --- | --- |
 | V1 | Como `editor`, ativar a edição em `CC-DEMO` e adicionar o bloco "CourseCare" | Bloco adicionado; título, ativo, tagline e intro corretos | CA-02, CA-03 |
 | V2 | Com o bloco presente, abrir de novo "Adicionar um bloco" | CourseCare não é oferecido | CA-02 |
-| V3 | Abrir uma página de seção e uma atividade do curso, em modo de edição | CourseCare não é oferecido | CA-02 |
+| V3 | Com o bloco na página principal, abrir uma página de seção em modo de edição. Depois, configurar o bloco com "Exibir nos tipos de página" = qualquer página e abrir uma atividade em modo de edição | CourseCare não é oferecido, e o bloco não aparece, nem com cabeçalho vazio, nas duas páginas | CA-02, US3-7 |
+| V3a | Mudar o formato do curso (ex.: tópicos para semanal) e voltar à página principal em modo de edição | O bloco existente continua exibido, e CourseCare não é oferecido de novo | CA-02, FR-010 |
+| V3b | Fazer backup de `CC-DEMO` e restaurá-lo em "mesclar com o curso existente" no próprio `CC-DEMO` | Continua havendo uma única instância do CourseCare | CA-02, FR-010 |
 | V4 | Entrar como `assistente`, depois `aluno`, depois visitante | Bloco não exibido | CA-04 |
 | V5 | Como admin, conceder `block/coursecare:view` a "Professor" no curso; repetir como `assistente` | Bloco exibido | CA-04 |
 | V6 | Como admin, remover `block/coursecare:addinstance` de "Professor com edição"; repetir V1 em outro curso | CourseCare não é oferecido | CA-04 |
@@ -115,8 +117,14 @@ bin/moodle-docker-compose exec webserver php admin/cli/cfg.php --name=theme --se
 **Esperado**: sem rolagem horizontal, sem sobreposição e sem perda de texto. Registrar capturas em
 `evidence/` (CA-10, CA-12).
 
-**Compreensão (SC-002)**: mostrar o bloco por até 10 segundos a pelo menos 5 professores e perguntar
-"Para que serve este bloco?" e "Alguma análise da sua sala já foi feita?". Registrar as respostas.
+**Acessibilidade**: os passos acima, junto com o axe do Behat, constituem a verificação dos critérios
+WCAG 2.2 AA aplicáveis ao bloco. Registre-a com essa formulação, nunca como "conformidade integral
+com a WCAG".
+
+**Clareza dos textos (SC-002)**: apresentar ao proprietário do produto as capturas reais (en e
+pt_BR, desktop e smartphone) e registrar a confirmação de que a finalidade está clara e de que nada
+sugere análise já realizada. Opcionalmente, mostrar a um ou dois docentes e anotar as observações,
+sem que isso bloqueie a entrega. A avaliação com cinco docentes pertence à Feature 003.
 
 ## 7. Testes automatizados
 
@@ -185,6 +193,19 @@ bin/moodle-docker-compose exec webserver php admin/cli/uninstall_plugins.php --p
 
 ## 10. Evidências (CA-13)
 
-`evidence/README.md` contém uma tabela CA-01 a CA-13 → evidência (link para captura, log de CI ou
-saída de comando), com a data, a versão exata do Moodle (`version.php` do core), o tema, o idioma e
-o navegador. Registra também a aprovação do ativo visual e dos textos (FR-014, FR-015).
+Estrutura, dentro de `specs/001-plugin-foundation/` e, portanto, fora do pacote distribuível:
+
+```text
+evidence/
+├── README.md        # Tabela CA-01..CA-13 → evidência, status e aprovações
+├── screenshots/     # <tema>-<idioma>-<largura>-<cena>.png
+└── logs/            # Saídas de comandos (instalação, upgrade, desinstalação, checks)
+```
+
+- Cada linha da tabela registra a data, a versão exata do Moodle (`version.php` do core), o tema, o
+  idioma e o navegador. Os logs de CI são referenciados por link para a execução.
+- Um CA só é marcado como atendido com o link da evidência. Até lá, o status é "pendente".
+- A seção "Aprovações" (ativo visual, textos en e pt_BR) começa vazia. Ela é preenchida pelo
+  proprietário do produto, ou registrada por solicitação dele com data, só depois que as capturas
+  reais forem apresentadas (FR-014, FR-015).
+- As capturas não contêm dados reais: apenas usuários e cursos fictícios da seção 3.

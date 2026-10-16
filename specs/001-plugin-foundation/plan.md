@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/001-plugin-foundation/spec.md`
 
-**Constituição**: 1.1.1 · **Pesquisa**: [research.md](research.md) · **Contratos**: [contracts/](contracts/)
+**Constituição**: 1.2.0 · **Pesquisa**: [research.md](research.md) · **Contratos**: [contracts/](contracts/)
 · **Validação**: [quickstart.md](quickstart.md)
 
 ## Summary
@@ -66,7 +66,7 @@ Nenhum item está como NEEDS CLARIFICATION: todos foram resolvidos em [research.
 | VI. Desempenho | Sem consultas próprias, sem tarefas, sem varreduras. | ✅ |
 | VII. Segurança e privacidade | Capability própria no contexto do bloco, verificada no servidor. `null_provider`. Não lê nem armazena dados de usuário. | ✅ |
 | VIII. Internacionalização | `lang/en` canônico; `translations/pt_br` versionado; importação por `tool_customlang`; fallback nativo; pacote só com `en`; verificador de paridade. | ✅ |
-| IX. Qualidade e camadas | Só a responsabilidade de **apresentação** existe nesta feature, e ela fica isolada no template, no CSS e no `get_content()`. Coleta, análise e regras não são criadas, conforme o Princípio IX e o C6 esclarecidos na 1.1.1 (camada obrigatória a partir da primeira feature com a responsabilidade). PHPUnit, Behat e `moodle-plugin-ci` completos. | ✅ |
+| IX. Qualidade e camadas | Só a responsabilidade de **apresentação** existe nesta feature, e ela fica isolada no template, no CSS e no `get_content()`. Coleta, análise e regras não são criadas: pelo C6 (emenda 1.2.0), cada camada é obrigatória a partir da primeira feature com a responsabilidade correspondente, e camadas vazias são proibidas. A Feature 002 introduz coleta e análise. PHPUnit, Behat e `moodle-plugin-ci` completos. | ✅ |
 | X. Experiência visual | Ativo decorativo discreto e aprovado; WCAG 2.2 AA verificada por axe e manualmente; sem ludicidade competitiva. | ✅ |
 | XI. Evolução incremental | Sem abstrações, renderer, settings ou JS. Escopo idêntico ao da spec. | ✅ |
 | XII. Software livre | GPL v3+; cabeçalho padrão em todo PHP; sem `thirdpartylibs.xml` (nenhuma biblioteca); README, CHANGES, CONTRIBUTING e LICENSE. | ✅ |
@@ -76,9 +76,10 @@ Nenhum item está como NEEDS CLARIFICATION: todos foram resolvidos em [research.
 en/pt_br e pacote sem `translations/`; 5) matriz com a versão mínima e a mais recente suportada.
 Como `supported = [405, 405]`, as duas coincidem no 4.5.
 
-**Resultado do gate (pré-pesquisa e pós-design)**: **PASSA**, sem violações, contra a constituição
-1.1.1. A observação sobre o IX registrada na 1.1.0 foi resolvida pela emenda 1.1.1 (PR
-saymoncastro/moodle-block_coursecare#1).
+**Resultado do gate (pré-pesquisa e pós-design, reexecutado após a revisão do plano)**: **PASSA**,
+sem violações, contra a constituição 1.2.0. A observação sobre o IX feita contra a 1.1.0 foi
+resolvida pela redefinição do C6 na emenda 1.2.0 (PR saymoncastro/moodle-block_coursecare#2), que
+substitui a 1.1.1 (classificada incorretamente como PATCH).
 
 ## Project Structure
 
@@ -167,18 +168,24 @@ passará a ler dados prontos e entregá-los ao template.
 Página principal da sala (course-view-<formato>)
    └─ block_manager (core) ── moodle/block:view? ──┐
                                                    ▼
+        is_main_page = tipo de página começa com course-view- e não com course-view-section-
         block_coursecare::get_content()
-          1. tipo de página é course-view-* e não course-view-section-*?  → senão conteúdo vazio
-          2. has_capability('block/coursecare:view', contexto do bloco)?  → senão conteúdo vazio
+          1. !is_main_page?                                               → conteúdo vazio
+          2. !has_capability('block/coursecare:view', contexto do bloco)? → conteúdo vazio
           3. render_from_template('block_coursecare/content', {imageurl})
                 └─ {{#str}} tagline / intro, block_coursecare {{/str}}  ← String API
                                                     (lang/en ← pacote AMOS ← pt_br_local)
-   Conteúdo vazio ⇒ o core não exibe o bloco (exceto cabeçalho e controles em modo de edição).
+        block_coursecare::instance_can_be_edited() = is_main_page
+   Conteúdo vazio e sem controles ⇒ o core não exibe o bloco, nem o cabeçalho (R3).
+   Na página principal, em modo de edição, quem edita vê os controles nativos (RK2).
 ```
 
 Métodos de `block_base` sobrescritos: `init()` (título = `pluginname`), `applicable_formats()`,
-`instance_allow_multiple()` (false), `has_config()` (false) e `get_content()`. Não são sobrescritos:
-`instance_allow_config()` (o padrão false basta) e `specialization()`. Detalhes em
+`instance_allow_multiple()` (false), `has_config()` (false), `get_content()` e
+`instance_can_be_edited()`. Este último é API pública documentada ("If overridden and set to false
+by the block it will not be editable"), usada no core por `block_myoverview`. Não são
+sobrescritos: `instance_allow_config()` (o padrão false basta) e `specialization()`. O teste de
+página principal é um método privado do próprio bloco, não uma abstração. Detalhes em
 [contracts/capabilities.md](contracts/capabilities.md) e [contracts/block-ui.md](contracts/block-ui.md).
 
 ## APIs oficiais utilizadas
@@ -243,9 +250,11 @@ Contrato: [contracts/block-ui.md](contracts/block-ui.md).
 - Tagline em destaque moderado (peso ou tamanho levemente maior, sem cor própria) e mensagem em
   texto normal. Contraste herdado do tema.
 - Sem bordas extras, sombras, cartões aninhados, badges, números ou botões.
-- O ativo SVG é original, com duas folhas em tons de verde suaves, traço simples e sem texto.
-  Proposta e aprovação do responsável de produto ficam registradas em `evidence/` antes da
-  integração (FR-015).
+- O ativo SVG é original, com duas folhas em tons de verde suaves, traço simples e sem texto. O
+  agente propõe e implementa o ativo, a apresentação e os textos. O proprietário do produto aprova
+  depois de ver as capturas da implementação real, antes da integração à `main` (FR-014, FR-015).
+  `evidence/README.md` registra a aprovação com data, só quando ela ocorrer, e nunca como
+  antecipada.
 
 ## Ambiente de desenvolvimento
 
@@ -259,14 +268,17 @@ desinstalação (`uninstall_plugins.php`).
 
 | Camada | Ferramenta | Cobre |
 | --- | --- | --- |
-| Unidade e integração do plugin | PHPUnit (`advanced_testcase`) | FR-006 a FR-010, guarda de página, FR-013 (sem indicadores no HTML), FR-005, FR-023 (R7) |
-| Funcional | Behat | US2 (adição, segunda instância, permissões por papel e override), US3 (conteúdo), CA-10 (axe, mobile, tablet), CA-12 (Classic) |
+| Unidade e integração do plugin | PHPUnit (`advanced_testcase`) | FR-006 a FR-010, guarda de página e `instance_can_be_edited()` por tipo de página, FR-013 (sem indicadores no HTML), FR-005, FR-023 (R7) |
+| Funcional | Behat | US2 (adição, segunda instância, permissões por papel e override), US3 (conteúdo), US3-7 (bloco e cabeçalho ausentes na página de seção e em atividade, em modo de edição), mudança de formato do curso sem segunda instância, CA-10 (axe, mobile, tablet), CA-12 (Classic) |
 | Ferramentas | `tools/i18n/tests/run.php` | FR-025, FR-027, FR-028 (cada regra com fixture) |
 | Pacote | `tools/package/check.php` no ZIP real | FR-026, CA-09 |
 | Qualidade | `moodle-plugin-ci` | phplint, phpcs, phpdoc, validate, savepoints, mustache, grunt |
-| Manual com evidência | quickstart | CA-01, CA-06, CA-11; desktop, tablet e smartphone; Boost e Classic; en e pt_BR; teclado; leitor de tela; zoom de 200%; 320 px; SC-002 com professores |
+| Manual com evidência | quickstart | CA-01, CA-06, CA-11; restauração sobre sala com o bloco (FR-010); desktop, tablet e smartphone; Boost e Classic; en e pt_BR; teclado; leitor de tela; zoom de 200%; 320 px; revisão de clareza pelo proprietário do produto (SC-002) e, opcionalmente, por 1–2 docentes |
 
-A feature **não** é considerada concluída só com testes automatizados (CA-13, SC-010).
+A feature **não** é considerada concluída só com testes automatizados (CA-13, SC-010). Para
+acessibilidade, o axe cobre apenas o que é verificável automaticamente. As verificações manuais
+complementam, e o resultado é registrado como verificação dos critérios aplicáveis ao bloco, sem
+declarar conformidade integral com a WCAG (FR-017, SC-007).
 
 ## Estratégia de CI
 
@@ -275,7 +287,7 @@ Arquivo `.github/workflows/ci.yml`, acionado em `push` e `pull_request` (researc
   oficial (phpmd é informativo) e define `IGNORE_PATHS=tools/i18n/tests/fixtures`.
 - **`i18n-package`**: PHP 8.1 sem Moodle. Executa `php tools/i18n/tests/run.php`,
   `php tools/i18n/check.php`, `tools/package/build.sh` e `php tools/package/check.php
-  build/block_coursecare.zip`, e publica o ZIP como artefato.
+  build/block_coursecare-<release>.zip`, e publica o ZIP como artefato.
 
 Qualquer falha bloqueia a integração à `main`.
 
@@ -297,13 +309,14 @@ Qualquer falha bloqueia a integração à `main`.
 
 | # | Risco ou limitação | Mitigação |
 | --- | --- | --- |
-| RK1 | Com "Exibir nos tipos de página" ampliado por um editor, o bloco aparece vazio (só cabeçalho e controles) em outras páginas, em modo de edição | Guarda de exibição (R3). Comportamento documentado no README. |
-| RK2 | Um editor sem `:view` por override vê o cabeçalho e os controles em modo de edição | Comportamento nativo de gestão de blocos, documentado (R2). |
+| RK1 | O padrão nativo `course-view-*` carrega o bloco também nas páginas de seção, e "Exibir nos tipos de página" pode carregá-lo em atividades | **Resolvido nativamente** (R3): guarda em `get_content()` mais `instance_can_be_edited()` falso fora da página principal. Sem conteúdo e sem controles, o core não renderiza o bloco nem o cabeçalho. Verificado por Behat (US3-7). |
+| RK2 | Na página principal, um editor sem `:view` por override vê o cabeçalho e os controles em modo de edição, mas não a mensagem | **Limitação aceita da plataforma**: os controles nativos de gestão são renderizados para quem pode editar o bloco. Sem eles, o editor não conseguiria remover nem configurar o bloco. Documentada no README. |
+| RK9 | A unicidade nativa é por página, não por curso | Garantia nos fluxos de usuário (R3): adição só na página principal; padrão `course-view-*` que mantém a instância carregada em qualquer formato; restauração que ignora duplicatas de blocos sem multiplicidade. **Fora da garantia**, como limitação documentada: blocos padrão configurados pelo administrador (`$CFG->defaultblocks_override`) e criação por código fora da interface. |
 | RK3 | `translation_test.php` (R7) pode ser frágil diante do cache e da lista de idiomas do string manager | Plano B: reduzir a (c) e tornar (a) e (b) verificação manual obrigatória com evidência. |
 | RK4 | O pacote pt_br oficial não pode ser instalado por CLI no 4.5 | Instalação pela interface ou extraindo o ZIP oficial no `dataroot`, documentada no quickstart. |
 | RK5 | Utilitários Bootstrap divergentes entre o 4.5 (BS4) e o 5.x (BS5) | Usar só classes comuns; espaçamento no CSS local. |
 | RK6 | O ativo SVG em `<img>` não se adapta ao modo de alto contraste | Ele é decorativo e some sem perda de informação (FR-015). Alternativa: SVG embutido com `currentColor` (R4). |
-| RK7 | A validação de compreensão (SC-002) depende de professores voluntários | Roteiro curto no quickstart. Resultado registrado mesmo que a amostra seja pequena. |
+| RK7 | A clareza dos textos na Feature 001 é verificada só pelo proprietário do produto e, opcionalmente, por 1–2 docentes | Intencional (decisão do proprietário). A avaliação estruturada com cinco docentes, de diferentes níveis de familiaridade tecnológica e áreas, está na Feature 003. |
 | RK8 | Apenas o Moodle 4.5 é declarado | Intencional (FR-003). Versões 5.x entram após validação, em feature própria ou em emenda da matriz. |
 
 ## Critérios de conclusão
@@ -314,12 +327,15 @@ Qualquer falha bloqueia a integração à `main`.
 4. Roteiro do [quickstart.md](quickstart.md) executado em Moodle 4.5 real: en e pt_BR; fallback;
    desktop, tablet e smartphone; Boost e Classic; teclado, leitor de tela e zoom de 200%;
    atualização e desinstalação.
-5. Ativo SVG e textos (en e pt_BR) aprovados, com registro.
+5. Ativo SVG e textos (en e pt_BR) aprovados pelo proprietário do produto **após** a apresentação
+   das capturas reais, com registro datado em `evidence/README.md` (SC-002, FR-014, FR-015).
 6. `evidence/` com evidência para CA-01 a CA-13 (SC-010), indicando a versão do Moodle e o tema.
+   Nenhum CA é marcado como atendido sem evidência, e `evidence/` fica fora do pacote (dentro de
+   `specs/`).
 7. Constitution Check reavaliada sem novas violações.
 
 ## Complexity Tracking
 
 Nenhuma violação a justificar. O desvio de IX/C6 registrado contra a constituição 1.1.0 foi
-resolvido pela emenda 1.1.1, que esclarece que cada camada só é obrigatória a partir da primeira
-feature com a responsabilidade correspondente.
+resolvido pela emenda 1.2.0, que redefine o C6: cada camada só é obrigatória a partir da primeira
+feature com a responsabilidade correspondente, e camadas vazias são proibidas.
