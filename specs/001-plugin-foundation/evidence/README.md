@@ -41,6 +41,7 @@ fictícios.
 | [38913588080](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38913588080) | 987b5ae | ❌ phpcs (formatação de chamadas multilinha) e Behat (faltava a tag `@accessibility`); PHPUnit 18/18; `i18n-package` ✅. Confirmou que `IGNORE_PATHS` excluiu `tools/` e `translations/` (phpcs analisou 8/8 arquivos do plugin). |
 | [38914763604](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38914763604) | 49d0484 | ✅ todos os jobs: phpcs 8/8, PHPUnit 18/18, Behat 16/16 (com acessibilidade), `i18n-package` (php -l, 28/28, paridade, ZIP). [Resumo](logs/ci-run-38914763604.txt) |
 | [38922204004](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38922204004) | 02d41a5 | ✅ todos os jobs |
+| [38923212618](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/38923212618) | 62b7764 | ✅ todos os jobs: phpcs 8/8, PHPUnit 18/18 (70 asserções; nenhum teste ignorado no CI, onde `translations/` existe), Behat 16/16, ferramentas 28/28, paridade 0 erros, pacote 0 erros e 17 arquivos. **Último commit de código validado.** |
 
 ## Aprovações
 
