@@ -1,0 +1,97 @@
+[
+  {
+    "id": "V1 main page | editor | course main | edit off",
+    "ok": true,
+    "detail": "expected block with content; actual {\"present\":true,\"hasContent\":true,\"hasControls\":false}"
+  },
+  {
+    "id": "V1 main page | editor | course main | edit on",
+    "ok": true,
+    "detail": "expected block with content and controls; actual {\"present\":true,\"hasContent\":true,\"hasControls\":true}"
+  },
+  {
+    "id": "V2 duplicate | editor | course main | edit on",
+    "ok": true,
+    "detail": "expected CourseCare not offered (0); actual 0"
+  },
+  {
+    "id": "V3 section page | editor | section 1 | edit on",
+    "ok": true,
+    "detail": "expected no block, no header; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V3 section page | editor | section 1 | edit on",
+    "ok": true,
+    "detail": "expected CourseCare not offered (0); actual 0"
+  },
+  {
+    "id": "V3 section page | editor | section 1 | edit off",
+    "ok": true,
+    "detail": "expected no block; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V3 activity page (pattern *, subcontexts) | editor | Announcements forum | edit on",
+    "ok": true,
+    "detail": "expected no block, no header; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V3 activity page (pattern *, subcontexts) | editor | Announcements forum | edit off",
+    "ok": true,
+    "detail": "expected no block; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V3 control: same instance on main page | editor | course main | edit off",
+    "ok": true,
+    "detail": "expected block with content; actual {\"present\":true,\"hasContent\":true,\"hasControls\":false}"
+  },
+  {
+    "id": "V4 roles | gestor | course main | edit off",
+    "ok": true,
+    "detail": "expected block with content; actual {\"present\":true,\"hasContent\":true,\"hasControls\":false}"
+  },
+  {
+    "id": "V4 roles | assistente | course main | edit off",
+    "ok": true,
+    "detail": "expected no block; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V4 roles | aluno | course main | edit off",
+    "ok": true,
+    "detail": "expected no block; actual {\"present\":false,\"hasContent\":false,\"hasControls\":false}"
+  },
+  {
+    "id": "V4 visitor | not logged in | course main | edit off",
+    "ok": true,
+    "detail": "expected no block (redirected to login); actual {\"present\":false,\"hasContent\":false,\"hasControls\":false} url=http://localhost:8045/login/index.php"
+  },
+  {
+    "id": "V5 view granted to Teacher | assistente | course main | edit n/a",
+    "ok": true,
+    "detail": "expected block with content, no edit mode toggle; actual {\"present\":true,\"hasContent\":true,\"hasControls\":false} editModeToggle=0"
+  },
+  {
+    "id": "V6 addinstance prohibited | editor | CC-DEMO2 main | edit on",
+    "ok": true,
+    "detail": "expected CourseCare not offered (0); actual 0"
+  },
+  {
+    "id": "V6 control: override removed | editor | CC-DEMO2 main | edit on",
+    "ok": true,
+    "detail": "expected CourseCare offered (1); actual 1"
+  },
+  {
+    "id": "V3a format changed to weeks | editor | course main (page-course-view-weeks) | edit on",
+    "ok": true,
+    "detail": "expected same block with content; actual {\"present\":true,\"hasContent\":true,\"hasControls\":true}"
+  },
+  {
+    "id": "V3a format changed to weeks | editor | course main | edit on",
+    "ok": true,
+    "detail": "expected CourseCare not offered (0); actual 0"
+  },
+  {
+    "id": "V3a instances in database | n/a | n/a | edit n/a",
+    "ok": true,
+    "detail": "expected 1 instance; actual 1"
+  }
+]

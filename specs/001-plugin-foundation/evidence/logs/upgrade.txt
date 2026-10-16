@@ -1,0 +1,20 @@
+# T043 (part 1) — Simulated upgrade — 2026-10-16T15:08:00Z
+Procedure: grant block/coursecare:view to Teacher in CC-DEMO; bump $plugin->version 2026101600 -> 2026101601; admin/cli/upgrade.php --non-interactive; git restore version.php; reset the dev DB version to 2026101600.
+
+## State before
+plugin version: 2026101600
+instance: id=12 region=side-pre weight=0 pattern=course-view-*
+teacher view override in course: '1'
+
+## Upgrade output (tail)
+++ 2026101601: Success (0.02 seconds) ++
+++ Success (0.08 seconds) ++
+-->upgrade_noncore()
+++ Success (0.41 seconds) ++
+== Setting new default values ==
+Command line upgrade from 4.5.15 (Build: 20261005) (2024100715) to 4.5.15 (Build: 20261005) (2024100715) completed successfully.
+
+## State after
+plugin version: 2026101601
+instance: id=12 region=side-pre weight=0 pattern=course-view-*
+teacher view override in course: '1'

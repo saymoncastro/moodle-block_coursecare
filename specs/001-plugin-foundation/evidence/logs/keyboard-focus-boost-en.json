@@ -1,0 +1,14 @@
+[
+  {
+    "label": "Move CourseCare block",
+    "outline": "none 0px rgb(29, 33, 37)",
+    "boxShadow": "rgba(15, 108, 191, 0.75) 0px 0px 0px 3.2px",
+    "focusVisible": true
+  },
+  {
+    "label": "Actions menu",
+    "outline": "none 0px rgb(29, 33, 37)",
+    "boxShadow": "rgba(15, 108, 191, 0.75) 0px 0px 0px 3.2px",
+    "focusVisible": true
+  }
+]

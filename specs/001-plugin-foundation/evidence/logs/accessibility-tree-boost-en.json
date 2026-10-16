@@ -1,0 +1,101 @@
+{
+  "role": "region",
+  "name": "CourseCare",
+  "children": [
+    {
+      "role": "none",
+      "name": "",
+      "children": [
+        {
+          "role": "none",
+          "name": "",
+          "children": [
+            {
+              "role": "heading",
+              "name": "CourseCare",
+              "level": 3,
+              "children": [
+                {
+                  "role": "text",
+                  "name": "CourseCare",
+                  "children": [
+                    {
+                      "role": "InlineTextBox",
+                      "name": "CourseCare"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "none",
+          "name": "",
+          "children": [
+            {
+              "role": "none",
+              "name": "",
+              "children": [
+                {
+                  "role": "generic",
+                  "name": ""
+                },
+                {
+                  "role": "none",
+                  "name": "",
+                  "children": [
+                    {
+                      "role": "paragraph",
+                      "name": "",
+                      "children": [
+                        {
+                          "role": "text",
+                          "name": "Small choices, a better learning space for everyone.",
+                          "children": [
+                            {
+                              "role": "InlineTextBox",
+                              "name": "Small choices, a better "
+                            },
+                            {
+                              "role": "InlineTextBox",
+                              "name": "learning space for everyone."
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "role": "paragraph",
+                      "name": "",
+                      "children": [
+                        {
+                          "role": "text",
+                          "name": "Soon you will find guidance here on using your course resources more mindfully.",
+                          "children": [
+                            {
+                              "role": "InlineTextBox",
+                              "name": "Soon you will find guidance "
+                            },
+                            {
+                              "role": "InlineTextBox",
+                              "name": "here on using your course "
+                            },
+                            {
+                              "role": "InlineTextBox",
+                              "name": "resources more mindfully."
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

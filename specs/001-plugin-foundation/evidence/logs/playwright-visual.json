@@ -1,0 +1,222 @@
+[
+  {
+    "id": "language en desktop",
+    "ok": true,
+    "detail": "{\"title\":\"CourseCare\",\"tagline\":\"Small choices, a better learning space for everyone.\",\"intro\":\"Soon you will find guidance here on using your course resources more mindfully.\"}"
+  },
+  {
+    "id": "layout boost en 1280",
+    "ok": true,
+    "detail": "{\"viewport\":1280,\"scrollWidth\":1280,\"blockLeft\":971,\"blockRight\":1274,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "contrast boost en .block_coursecare-tagline",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(255, 255, 255), 15px/600: 16.20:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "contrast boost en .block_coursecare-intro",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(255, 255, 255), 15px/400: 16.20:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "language en 768",
+    "ok": true,
+    "detail": "\"Small choices, a better learning space for everyone.\""
+  },
+  {
+    "id": "layout boost en 768",
+    "ok": true,
+    "detail": "{\"viewport\":768,\"scrollWidth\":768,\"blockLeft\":459,\"blockRight\":762,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language en 375",
+    "ok": true,
+    "detail": "\"Small choices, a better learning space for everyone.\""
+  },
+  {
+    "id": "layout boost en 375",
+    "ok": true,
+    "detail": "{\"viewport\":375,\"scrollWidth\":375,\"blockLeft\":66,\"blockRight\":369,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language en 320",
+    "ok": true,
+    "detail": "\"Small choices, a better learning space for everyone.\""
+  },
+  {
+    "id": "layout boost en 320",
+    "ok": true,
+    "detail": "{\"viewport\":320,\"scrollWidth\":320,\"blockLeft\":11,\"blockRight\":314,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language en 1280-zoom200",
+    "ok": true,
+    "detail": "\"Small choices, a better learning space for everyone.\""
+  },
+  {
+    "id": "layout boost en 1280-zoom200",
+    "ok": true,
+    "detail": "{\"viewport\":640,\"scrollWidth\":640,\"blockLeft\":331,\"blockRight\":634,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language pt_br desktop",
+    "ok": true,
+    "detail": "{\"title\":\"AVA Consciente\",\"tagline\":\"Pequenas escolhas, um AVA melhor para todos.\",\"intro\":\"Em breve, voc\u00ea encontrar\u00e1 aqui orienta\u00e7\u00f5es para utilizar os recursos da sua sala de forma mais consciente.\"}"
+  },
+  {
+    "id": "layout boost pt_br 1280",
+    "ok": true,
+    "detail": "{\"viewport\":1280,\"scrollWidth\":1280,\"blockLeft\":971,\"blockRight\":1274,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "contrast boost pt_br .block_coursecare-tagline",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(255, 255, 255), 15px/600: 16.20:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "contrast boost pt_br .block_coursecare-intro",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(255, 255, 255), 15px/400: 16.20:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "language pt_br 768",
+    "ok": true,
+    "detail": "\"Pequenas escolhas, um AVA melhor para todos.\""
+  },
+  {
+    "id": "layout boost pt_br 768",
+    "ok": true,
+    "detail": "{\"viewport\":768,\"scrollWidth\":768,\"blockLeft\":459,\"blockRight\":762,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language pt_br 375",
+    "ok": true,
+    "detail": "\"Pequenas escolhas, um AVA melhor para todos.\""
+  },
+  {
+    "id": "layout boost pt_br 375",
+    "ok": true,
+    "detail": "{\"viewport\":375,\"scrollWidth\":375,\"blockLeft\":66,\"blockRight\":369,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language pt_br 320",
+    "ok": true,
+    "detail": "\"Pequenas escolhas, um AVA melhor para todos.\""
+  },
+  {
+    "id": "layout boost pt_br 320",
+    "ok": true,
+    "detail": "{\"viewport\":320,\"scrollWidth\":320,\"blockLeft\":11,\"blockRight\":314,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "language pt_br 1280-zoom200",
+    "ok": true,
+    "detail": "\"Pequenas escolhas, um AVA melhor para todos.\""
+  },
+  {
+    "id": "layout boost pt_br 1280-zoom200",
+    "ok": true,
+    "detail": "{\"viewport\":640,\"scrollWidth\":640,\"blockLeft\":331,\"blockRight\":634,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "keyboard: no interactive element in the content (nothing to reach or trap)",
+    "ok": true,
+    "detail": "focusable elements: 0"
+  },
+  {
+    "id": "screen reader proxy: heading, tagline and intro exposed; icon hidden",
+    "ok": true,
+    "detail": "Re-measured with interestingOnly:false (a11y.js): region \"CourseCare\" > heading level 3 \"CourseCare\" > two paragraphs with tagline and intro; 0 image nodes (icon hidden). See logs/accessibility-tree-boost-en.json. First attempt returned null because the default snapshot prunes the region."
+  },
+  {
+    "id": "keyboard: block controls reachable with Tab and focus visible (edit mode)",
+    "ok": true,
+    "detail": "Re-measured after the CSS transition (a11y.js): Tab reaches the core controls \"Move CourseCare block\" and \"Actions menu\"; both show box-shadow rgba(15,108,191,0.75) 0 0 0 3.2px with :focus-visible. First measurement was taken mid-transition. See logs/keyboard-focus-boost-en.json and screenshots/boost-en-1280-keyboard-focus-1.png, -2.png."
+  },
+  {
+    "id": "forced colours: text still rendered",
+    "ok": true,
+    "detail": "\"Small choices, a better learning space for everyone.\""
+  },
+  {
+    "id": "RK2 editor without view: hidden with edit off; header and controls only with edit on",
+    "ok": true,
+    "detail": "editOff=0 editOn=1 content=0"
+  },
+  {
+    "id": "fallback V10: only intro in English, rest in pt_BR",
+    "ok": true,
+    "detail": "{\"title\":\"AVA Consciente\",\"tagline\":\"Pequenas escolhas, um AVA melhor para todos.\",\"intro\":\"Soon you will find guidance here on using your course resources more mindfully.\"}"
+  },
+  {
+    "id": "fallback V9: pt_BR without customisation shows complete English",
+    "ok": true,
+    "detail": "{\"title\":\"CourseCare\",\"tagline\":\"Small choices, a better learning space for everyone.\",\"intro\":\"Soon you will find guidance here on using your course resources more mindfully.\"}"
+  },
+  {
+    "id": "language without translation (es): English",
+    "ok": true,
+    "detail": "{\"title\":\"CourseCare\",\"tagline\":\"Small choices, a better learning space for everyone.\",\"intro\":\"Soon you will find guidance here on using your course resources more mindfully.\"}"
+  },
+  {
+    "id": "classic en desktop",
+    "ok": true,
+    "detail": "{\"title\":\"CourseCare\",\"tagline\":\"Small choices, a better learning space for everyone.\",\"intro\":\"Soon you will find guidance here on using your course resources more mindfully.\"}"
+  },
+  {
+    "id": "layout classic en 1280",
+    "ok": true,
+    "detail": "{\"viewport\":1280,\"scrollWidth\":1280,\"blockLeft\":16,\"blockRight\":240,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "contrast classic en .block_coursecare-tagline",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(248, 249, 250), 15px/600: 15.37:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "contrast classic en .block_coursecare-intro",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(248, 249, 250), 15px/400: 15.37:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "layout classic en 375",
+    "ok": true,
+    "detail": "{\"viewport\":375,\"scrollWidth\":375,\"blockLeft\":16,\"blockRight\":359,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "layout classic en 320",
+    "ok": true,
+    "detail": "{\"viewport\":320,\"scrollWidth\":320,\"blockLeft\":16,\"blockRight\":304,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "classic pt_br desktop",
+    "ok": true,
+    "detail": "{\"title\":\"AVA Consciente\",\"tagline\":\"Pequenas escolhas, um AVA melhor para todos.\",\"intro\":\"Em breve, voc\u00ea encontrar\u00e1 aqui orienta\u00e7\u00f5es para utilizar os recursos da sua sala de forma mais consciente.\"}"
+  },
+  {
+    "id": "layout classic pt_br 1280",
+    "ok": true,
+    "detail": "{\"viewport\":1280,\"scrollWidth\":1280,\"blockLeft\":16,\"blockRight\":240,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "contrast classic pt_br .block_coursecare-tagline",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(248, 249, 250), 15px/600: 15.37:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "contrast classic pt_br .block_coursecare-intro",
+    "ok": true,
+    "detail": "rgb(29, 33, 37) on rgb(248, 249, 250), 15px/400: 15.37:1 (AA normal text \u2265 4.5:1)"
+  },
+  {
+    "id": "layout classic pt_br 375",
+    "ok": true,
+    "detail": "{\"viewport\":375,\"scrollWidth\":375,\"blockLeft\":16,\"blockRight\":359,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  },
+  {
+    "id": "layout classic pt_br 320",
+    "ok": true,
+    "detail": "{\"viewport\":320,\"scrollWidth\":320,\"blockLeft\":16,\"blockRight\":304,\"iconSize\":\"40x40\",\"textOverflow\":false}"
+  }
+]

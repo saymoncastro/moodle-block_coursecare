@@ -12,9 +12,12 @@
     line-height: 0;
 }
 
+/* Core themes cap .icon at 24px; the decorative illustration is intentionally larger, inside this block only. */
 .block_coursecare .block_coursecare-illustration .icon {
     width: 40px;
     height: 40px;
+    max-width: 40px;
+    max-height: 40px;
     margin: 0;
     font-size: 40px;
 }
