@@ -193,10 +193,6 @@ conflitos de precedência, sem atrasar a validação da tradução brasileira.
   3. **Regras de recomendação** — decisões puras sobre dados já analisados, sem acesso a banco,
      sessão ou saída.
   4. **Apresentação** — renderers, templates Mustache e JavaScript.
-
-  Cada camada passa a existir na primeira feature que tiver a responsabilidade correspondente.
-  Camadas sem responsabilidade concreta MUST NOT ser criadas vazias ou antecipadamente. Quando uma
-  responsabilidade existir, ela MUST ficar na sua camada, nunca misturada a outra.
 - Toda regra de negócio MUST ter testes PHPUnit. Todo fluxo de interface MUST ter cenário Behat
   quando a feature introduzir interface.
 - Toda funcionalidade MUST possuir critérios de aceitação objetivos e verificáveis na especificação.
@@ -310,10 +306,13 @@ Os conflitos identificados na ratificação e a resolução vinculante de cada u
   categoria, protegidas por capability própria, em linguagem não punitiva e sem identificar ou
   ordenar professores. Cada visão exige especificação própria e Constitution Check específica.
 - **C6 — Evolução incremental (XI) × Extensibilidade e separação de camadas (IX, V).**
-  **Resolução** (esclarecida em 1.1.1): a separação das quatro camadas de IX é obrigatória desde a
-  primeira feature que contenha cada responsabilidade. A camada é então criada com implementação
-  mínima (classes simples), e nenhuma camada é criada vazia para cumprir a estrutura. Mecanismos
-  genéricos de extensão só entram quando houver ao menos dois casos concretos (Princípio XI).
+  **Resolução** (emenda 1.2.0): a separação de IX vale para as responsabilidades que existem na
+  implementação. Cada camada (coleta, análise, regras de recomendação, apresentação) MUST ser
+  introduzida na primeira feature que tiver a responsabilidade correspondente, com implementação
+  mínima (classes simples). Camadas, classes ou abstrações sem responsabilidade concreta MUST NOT
+  ser criadas para cumprir formalmente a estrutura. Uma vez existente, a responsabilidade MUST
+  permanecer na sua camada, sem se misturar às demais. Mecanismos genéricos de extensão só entram
+  quando houver ao menos dois casos concretos (Princípio XI).
 - **C7 — pt_BR obrigatório (VIII) × Política do diretório de plugins (XII).** O diretório do
   Moodle orienta que o plugin traga apenas as strings em inglês e que as traduções sejam
   contribuídas ao AMOS. **Resolução** (emenda 1.1.0): os regimes de desenvolvimento, distribuição
@@ -351,7 +350,25 @@ da feature e, se recorrente, incorporado a esta seção por emenda.
 
 ### Histórico de emendas
 
-- **1.1.1 (2026-10-16)** — Esclarece o conflito C6 e o Princípio IX: cada camada (coleta, análise,
+- **1.2.0 (2026-10-16)** — Redefine a resolução do conflito C6 e substitui a emenda 1.1.1.
+  - **Mudança normativa**: a obrigação "as quatro camadas são obrigatórias desde a primeira
+    feature" (1.0.0) passa a valer por responsabilidade. Cada camada é obrigatória a partir da
+    primeira feature que tiver a responsabilidade correspondente. Fica expressamente proibido criar
+    camadas, classes ou abstrações vazias só para cumprir a estrutura.
+  - **Escopo**: a alteração se limita ao C6. O texto do Princípio IX volta à redação da 1.1.0, e o
+    trecho que a 1.1.1 havia acrescentado a ele foi incorporado à resolução do C6.
+  - **Justificativa**: a leitura literal da 1.0.0 exigia camadas sem conteúdo na Feature 001, que só
+    tem apresentação, em contradição com o Princípio XI. Decisão do proprietário do produto: a
+    Feature 001 só introduz apresentação, e a Feature 002 introduz coleta e análise conforme a
+    necessidade.
+  - **Versão MINOR, não PATCH**: a emenda altera o alcance de uma obrigação vinculante e acrescenta
+    uma proibição explícita, ou seja, tem efeito semântico. Por isso a classificação PATCH da 1.1.1
+    estava incorreta.
+  - **Por que não MAJOR**: nenhum princípio nem regra de governança é removido. A separação de
+    camadas (IX) continua íntegra para todo código existente, e nenhum artefato produzido sob as
+    versões anteriores se torna não conforme, porque ainda não existe código de aplicação.
+- **1.1.1 (2026-10-16)** — *Substituída pela 1.2.0 (classificação PATCH incorreta).* Esclarece o
+  conflito C6 e o Princípio IX: cada camada (coleta, análise,
   regras, apresentação) é obrigatória a partir da primeira feature que tenha a responsabilidade
   correspondente, e nenhuma camada é criada vazia. **Justificativa**: o texto anterior ("desde a
   primeira feature") podia ser lido como exigência de criar camadas sem conteúdo. Essa leitura
@@ -370,4 +387,4 @@ da feature e, se recorrente, incorporado a esta seção por emenda.
   ampliação material de orientação. Nenhum princípio foi removido ou redefinido.
 - **1.0.0 (2026-10-16)** — Ratificação inicial.
 
-**Version**: 1.1.1 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
+**Version**: 1.2.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
