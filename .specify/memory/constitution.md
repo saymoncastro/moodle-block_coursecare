@@ -141,16 +141,49 @@ se transformar em exposição de estudantes nem em vigilância.
 
 ### VIII. Internacionalização desde a origem
 
-- O idioma-base do código, comentários, identificadores e strings é o inglês
-  (`lang/en/block_coursecare.php`).
-- A interface MUST oferecer português brasileiro. O nome exibido em pt_BR é "AVA Consciente".
+- O idioma-base do código, comentários, identificadores e strings é o inglês. O arquivo canônico
+  de strings é `lang/en/block_coursecare.php`. Toda chave de string MUST existir nele.
+- O português brasileiro (`pt_br`) é a tradução oficialmente mantida pelo projeto. O nome exibido
+  em pt_BR é "AVA Consciente".
 - Textos de interface MUST NOT ser inseridos diretamente no código ou nos templates. Toda string
   visível passa pela String API (`get_string`, `{{#str}}`, `core/str`).
+- Mensagens MUST ser strings completas, com parâmetros `{$a}`. Frases MUST NOT ser montadas por
+  concatenação de strings, pois uma tradução parcial misturaria idiomas na mesma frase.
 - Novas traduções MUST ser possíveis sem alterar regras de negócio.
 - Strings MUST NOT presumir terminologia, infraestrutura ou políticas de uma instituição
   específica. Termos como "sala", "AVA" ou "disciplina" pertencem à tradução, não às regras.
+- A tradução pt_BR MUST usar terminologia genérica do português brasileiro e MUST NOT depender de
+  customizações de qualquer instituição. Adaptações institucionais são feitas por cada site com a
+  personalização de idioma do Moodle, fora do projeto.
 
-**Rationale**: o produto é internacional por desenho, não por adaptação posterior.
+**Disponibilidade, distribuição e fallback da tradução** — três regimes distintos:
+
+1. **Durante o desenvolvimento.** A tradução pt_BR é desenvolvida e validada desde a primeira
+   feature com interface. A cópia versionada fica em `translations/pt_br/block_coursecare.php`,
+   fora de `lang/`, com o mesmo formato de arquivo de dados e o mesmo cabeçalho de licença.
+   Em ambientes de desenvolvimento e homologação, ela é instalada como personalização local de
+   idioma, com a ferramenta nativa `tool_customlang` (interface "Personalização de idioma" ou
+   `admin/tool/customlang/cli/import.php --lang=pt_br --source=<repo>/translations/pt_br
+   --checkin`), com o pacote de idioma pt_br instalado e sem alterar arquivos do core.
+2. **Distribuição pública.** A distribuição pública de traduções segue o AMOS. O pacote
+   distribuível do plugin (ZIP de release e envio ao Marketplace) MUST conter apenas `lang/en`, e
+   `translations/` MUST ser excluído dele (ex.: `export-ignore` em `.gitattributes`). Após a
+   publicação no Marketplace, a tradução pt_BR MUST ser contribuída ao AMOS. A partir daí, os sites
+   a recebem pelo pacote oficial de idioma pt_br (`tool_langimport`). Até a publicação, o
+   repositório é a fonte da tradução. Depois dela, o AMOS passa a ser a fonte canônica, e
+   `translations/pt_br/` guarda apenas as strings novas ou alteradas ainda não contribuídas,
+   reconciliadas a cada release.
+3. **Fallback.** Quando a tradução não está instalada, ou quando falta uma chave específica, vale o
+   fallback nativo do Moodle: a string em inglês de `lang/en`. A interface MUST permanecer correta
+   e compreensível com tradução parcial ou ausente.
+
+A personalização local de idioma tem prioridade sobre o pacote oficial do AMOS. Por isso, a
+instalação via `tool_customlang` MUST ficar restrita a ambientes de desenvolvimento e homologação,
+e a documentação MUST NOT orientar sites de produção a usá-la para obter a tradução do projeto.
+
+**Rationale**: o produto é internacional por desenho, não por adaptação posterior. Seguir o fluxo
+oficial do Moodle (inglês no pacote, traduções no AMOS) garante distribuição a todos os sites sem
+conflitos de precedência, sem atrasar a validação da tradução brasileira.
 
 ### IX. Qualidade, testabilidade e manutenibilidade
 
@@ -220,6 +253,8 @@ Moodle populado e revisar cada decisão de forma isolada.
   de esquema MUST vir com `db/upgrade.php` e savepoints.
 - **JavaScript**: apenas módulos AMD/ES do próprio plugin, compilados com o Grunt do Moodle. Sem
   CDN nem chamadas a serviços externos.
+- **Idiomas**: `lang/` contém apenas `en`. A tradução mantida fica em `translations/pt_br/`,
+  excluída do pacote distribuível (Princípio VIII).
 - **Rede**: o plugin MUST NOT enviar dados para fora do site Moodle (sem telemetria).
 - **Armazenamento próprio**: apenas dados agregados (ex.: medições periódicas por sala), com
   retenção definida na especificação que os introduzir.
@@ -239,7 +274,9 @@ Moodle populado e revisar cada decisão de forma isolada.
   2. PHPUnit verde, com testes para toda regra de negócio nova ou alterada.
   3. Behat verde para fluxos de interface, incluindo a verificação de acessibilidade do Moodle
      (`the page should meet accessibility standards`) nas telas novas.
-  4. Strings novas presentes em inglês e em pt_BR.
+  4. Strings novas ou alteradas presentes em `lang/en` e em `translations/pt_br`, com paridade de
+     chaves e de parâmetros `{$a}`, e revisadas no idioma. O pacote distribuível não contém
+     `translations/` nem idiomas além de `en` em `lang/`.
   5. Matriz de CI cobrindo ao menos a versão mínima e a versão estável mais recente suportada.
 - Revisões MUST verificar explicitamente o tom das mensagens (Princípios I e III) e os rótulos
   dos indicadores (Princípio IV), além do código.
@@ -273,10 +310,13 @@ Os conflitos identificados na ratificação e a resolução vinculante de cada u
   implementação mínima (classes simples). Mecanismos genéricos de extensão só entram quando
   houver ao menos dois casos concretos (Princípio XI).
 - **C7 — pt_BR obrigatório (VIII) × Política do diretório de plugins (XII).** O diretório do
-  Moodle distribui traduções preferencialmente via AMOS, e não pelo pacote do plugin.
-  **Resolução**: as strings pt_BR são critério de aceitação de toda feature com interface. A forma
-  de distribuição (arquivo `lang/pt_br` no repositório e/ou envio ao AMOS) será decidida na feature
-  de empacotamento e publicação, conforme a política vigente — TODO(PT_BR_DISTRIBUTION).
+  Moodle orienta que o plugin traga apenas as strings em inglês e que as traduções sejam
+  contribuídas ao AMOS. **Resolução** (emenda 1.1.0): os regimes de desenvolvimento, distribuição
+  e fallback definidos no Princípio VIII. A tradução pt_BR é critério de aceitação de toda feature
+  com interface. Ela é mantida em `translations/pt_br/`, instalada em desenvolvimento por
+  personalização local de idioma e contribuída ao AMOS após a publicação. O pacote distribuível
+  contém apenas `lang/en`. Assim, a tradução é oficialmente mantida sem violar o fluxo oficial de
+  distribuição.
 - **C8 — Ludicidade (X) × Educação, não fiscalização (I).** **Resolução**: elementos lúdicos são
   apenas de reforço positivo e individual, sem comparação entre salas ou pessoas, sem pontuação
   competitiva e sem mensagens de culpa.
@@ -304,4 +344,17 @@ da feature e, se recorrente, incorporado a esta seção por emenda.
 - **Revisão periódica**: a constituição MUST ser revisada a cada nova versão LTS do Moodle e
   antes da primeira publicação no diretório de plugins.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
+### Histórico de emendas
+
+- **1.1.0 (2026-10-16)** — Resolve o TODO(PT_BR_DISTRIBUTION) e o conflito C7. Define três regimes
+  para a tradução pt_BR (desenvolvimento, distribuição pública e fallback) no Princípio VIII,
+  além de restrição de idiomas e gate de paridade de strings. **Justificativa**: a decisão não
+  podia aguardar a feature de empacotamento, pois a tradução precisa ser validada desde a primeira
+  feature com interface. Ela segue a orientação oficial do Moodle (apenas inglês no pacote do
+  plugin, traduções via AMOS) e a ordem nativa de precedência de strings (`lang/xx` do plugin <
+  pacote de idioma < personalização local). **Versão MINOR, não PATCH**: a emenda cria obrigações
+  novas (estrutura `translations/`, exclusão do pacote, gate de paridade), o que constitui
+  ampliação material de orientação. Nenhum princípio foi removido ou redefinido.
+- **1.0.0 (2026-10-16)** — Ratificação inicial.
+
+**Version**: 1.1.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
