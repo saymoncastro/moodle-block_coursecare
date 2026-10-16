@@ -415,7 +415,7 @@ anterior com data e aviso.
 
 ### Test infrastructure for User Story 5 (antes dos testes)
 
-- [ ] T048 [US5] Criar o gerador de dados de teste `tests/generator/lib.php`
+- [X] T048 [US5] Criar o gerador de dados de teste `tests/generator/lib.php`
   (`block_coursecare_generator::create_diagnostic()`, que grava `block_coursecare_diag` com datas,
   `requeststatus`, falha e resultado controlados, sem passar pela análise) e o passo de dados Behat
   em `tests/generator/behat_block_coursecare_generator.php` (entidade `diagnostics`, com colunas
@@ -424,24 +424,24 @@ anterior com data e aviso.
 
 ### Tests for User Story 5 (escrever antes de T052)
 
-- [ ] T049 [P] [US5] Em `tests/analysis/state_resolver_test.php`: E (idade > limite), F com resultado
+- [X] T049 [P] [US5] Em `tests/analysis/state_resolver_test.php`: E (idade > limite), F com resultado
   (aviso de atualização não concluída), F sem resultado (exibido como A), precedência F → E → G/D, e
   CT-23 (sem processamento, o resultado passa a E após o limite).
-- [ ] T050 [P] [US5] Em `tests/task/analyse_course_test.php`: CT-14 — coleta injetada que lança
+- [X] T050 [P] [US5] Em `tests/task/analyse_course_test.php`: CT-14 — coleta injetada que lança
   exceção numa sala com resultado anterior → resultado intacto, `lastattemptfailed = 1`,
   `failurecount` incrementado, `failurereason` com o nome curto da classe (no máximo 30 caracteres);
   outra sala na mesma execução de cron é analisada; falha de invariante duas vezes → `inconsistent`.
   Depende de T048.
-- [ ] T051 [P] [US5] Em `tests/behat/block_coursecare_diagnostic.feature`: com o limite de
+- [X] T051 [P] [US5] Em `tests/behat/block_coursecare_diagnostic.feature`: com o limite de
   atualidade em 1 hora e um diagnóstico criado pelo passo de dados de T048 com `timecompleted` de
   2 horas atrás, o bloco mostra o valor, a data e o aviso de desatualização (CT-15); com falha
   registrada, o aviso de atualização não concluída. Depende de T048.
 
 ### Implementation for User Story 5
 
-- [ ] T052 [US5] Em `classes/local/analysis/state_resolver.php`: estados E e F e a precedência de
+- [X] T052 [US5] Em `classes/local/analysis/state_resolver.php`: estados E e F e a precedência de
   data-model.md. Depende de T023.
-- [ ] T053 [US5] Em `classes/output/diagnostic_line.php`: frases `diagnostic:mayoutdated` e
+- [X] T053 [US5] Em `classes/output/diagnostic_line.php`: frases `diagnostic:mayoutdated` e
   `diagnostic:updatefailed` (en e pt_br) acrescentadas à linha de D. Depende de T052.
 
 **Checkpoint**: T049–T051 verdes.
@@ -796,4 +796,20 @@ CI da US3 verde: run 38966216241 (8.1/pgsql, 8.3/mariadb e i18n-package), commit
 - **T047 continua aberta**: a revisão das ligações de arquivos grandes depende da Q4 (T060, US7). A parte
   de consultas já está cumprida (nenhuma consulta seleciona `userid`, `filename`, `filepath`, `author` ou
   `source`).
+
+CI da US4 verde: run 38966922553 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `1f90ae8`.
+
+### US5 (T048–T053) — 2026-10-17
+
+Resultado local: PHPUnit 142 testes verdes, Behat 23 cenários verdes, `moodle-cs` sem erros.
+
+- Estados E (desatualizado) e F (falha com resultado) com a precedência F → E → G/D. Num estado E ou
+  F sem arquivos, a linha mantém "nenhum arquivo encontrado" (o `diagnostic_state` passou a carregar
+  `filecount`).
+- Geradores de teste: `block_coursecare_generator::create_diagnostic()` (estende
+  `testing_block_generator`, então também cria instâncias do bloco) e a entidade Behat
+  `block_coursecare > diagnostics`, com `timecompletedago` em segundos.
+- CT-14 com coleta injetada que lança `dml_read_exception`: resultado anterior intacto, código curto
+  sem a mensagem, e outra sala analisada normalmente pelo cron em seguida; invariantes que falham duas
+  vezes gravam `inconsistent`.
 

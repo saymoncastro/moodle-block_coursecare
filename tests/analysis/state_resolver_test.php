@@ -117,4 +117,54 @@ final class state_resolver_test extends \basic_testcase {
         $this->assertSame(diagnostic_state::COMPLETE, $state->state);
         $this->assertTrue($state->partial);
     }
+
+    /**
+     * E: a result older than the out-of-date limit keeps its value and date (CT-15, CT-23).
+     */
+    public function test_outdated(): void {
+        $state = self::resolve(self::record(['timecompleted' => self::NOW - self::STALE - 1]));
+        $this->assertSame(diagnostic_state::OUTDATED, $state->state);
+        $this->assertSame(6291456, $state->logicalbytes);
+        $this->assertSame(self::NOW - self::STALE - 1, $state->timecompleted);
+        $atlimit = self::resolve(self::record(['timecompleted' => self::NOW - self::STALE]));
+        $this->assertSame(diagnostic_state::COMPLETE, $atlimit->state);
+        // An outdated analysis without files is outdated too; the line still says that no file was found.
+        $state = self::resolve(self::record(['timecompleted' => self::NOW - self::STALE - 1, 'filecount' => 0,
+            'logicalbytes' => 0]));
+        $this->assertSame(diagnostic_state::OUTDATED, $state->state);
+        $this->assertSame(0, $state->filecount);
+    }
+
+    /**
+     * F: a failed last attempt with a previous result keeps the result; without result it reads as A.
+     */
+    public function test_failed(): void {
+        $state = self::resolve(self::record(['lastattemptfailed' => 1, 'timeattempted' => self::NOW]));
+        $this->assertSame(diagnostic_state::FAILED, $state->state);
+        $this->assertSame(6291456, $state->logicalbytes);
+
+        $state = self::resolve(self::record(['lastattemptfailed' => 1, 'timecompleted' => null, 'filecount' => null,
+            'logicalbytes' => null]));
+        $this->assertSame(diagnostic_state::NOT_ANALYSED, $state->state);
+        $this->assertFalse($state->hasresult);
+    }
+
+    /**
+     * Precedence with a result: F before E before G or D.
+     */
+    public function test_precedence(): void {
+        $old = self::NOW - self::STALE - 1;
+        $this->assertSame(
+            diagnostic_state::FAILED,
+            self::resolve(self::record(['lastattemptfailed' => 1, 'timecompleted' => $old]))->state
+        );
+        $this->assertSame(
+            diagnostic_state::OUTDATED,
+            self::resolve(self::record(['timecompleted' => $old, 'filecount' => 0, 'logicalbytes' => 0]))->state
+        );
+        $this->assertSame(
+            diagnostic_state::NO_FILES,
+            self::resolve(self::record(['filecount' => 0, 'logicalbytes' => 0]))->state
+        );
+    }
 }

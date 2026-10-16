@@ -39,6 +39,10 @@ final class diagnostic_state {
     public const RUNNING = 'running';
     /** @var string D. Completed and within the out-of-date limit. */
     public const COMPLETE = 'complete';
+    /** @var string E. Completed result older than the out-of-date limit. */
+    public const OUTDATED = 'outdated';
+    /** @var string F. The last attempt failed; a previous result exists and is kept. */
+    public const FAILED = 'failed';
     /** @var string G. Completed analysis that found no file in the main scope. */
     public const NO_FILES = 'nofiles';
 
@@ -57,6 +61,9 @@ final class diagnostic_state {
     /** @var int|null Completion time of the result, or null without result. */
     public readonly ?int $timecompleted;
 
+    /** @var int|null Records of the main scope in the result, or null without result. */
+    public readonly ?int $filecount;
+
     /**
      * Constructor.
      *
@@ -65,12 +72,21 @@ final class diagnostic_state {
      * @param bool $partial H marker.
      * @param int|null $logicalbytes Logical storage of the result.
      * @param int|null $timecompleted Completion time of the result.
+     * @param int|null $filecount Records of the main scope in the result.
      */
-    public function __construct(string $state, bool $hasresult, bool $partial, ?int $logicalbytes, ?int $timecompleted) {
+    public function __construct(
+        string $state,
+        bool $hasresult,
+        bool $partial,
+        ?int $logicalbytes,
+        ?int $timecompleted,
+        ?int $filecount = null
+    ) {
         $this->state = $state;
         $this->hasresult = $hasresult;
         $this->partial = $partial;
         $this->logicalbytes = $logicalbytes;
         $this->timecompleted = $timecompleted;
+        $this->filecount = $filecount;
     }
 }

@@ -49,13 +49,23 @@ class state_resolver {
             return new diagnostic_state($state, false, false, null, null);
         }
 
-        $state = (int)$record->filecount === 0 ? diagnostic_state::NO_FILES : diagnostic_state::COMPLETE;
+        // Precedence with a result: F, then E, then G or D (data-model.md).
+        if ((int)$record->lastattemptfailed === 1) {
+            $state = diagnostic_state::FAILED;
+        } else if ($now - (int)$record->timecompleted > $stalenessseconds) {
+            $state = diagnostic_state::OUTDATED;
+        } else if ((int)$record->filecount === 0) {
+            $state = diagnostic_state::NO_FILES;
+        } else {
+            $state = diagnostic_state::COMPLETE;
+        }
         return new diagnostic_state(
             $state,
             true,
             (int)($record->partial ?? 0) === 1,
             (int)$record->logicalbytes,
-            (int)$record->timecompleted
+            (int)$record->timecompleted,
+            (int)$record->filecount
         );
     }
 }

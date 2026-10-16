@@ -131,4 +131,71 @@ final class analyse_course_test extends \advanced_testcase {
         ob_end_clean();
         $this->assertNull((new diagnostic_store())->get_summary(123));
     }
+
+    /**
+     * CT-14: a failing collection keeps the previous result, records the failure without a message, and does not
+     * stop the analysis of another course in the same cron run.
+     */
+    public function test_failure_keeps_previous_result(): void {
+        $this->resetAfterTest();
+        $failing = $this->requested_course();
+        $this->assertSame(course_analysis::DONE, (new course_analysis())->run($failing->id, true));
+        $previous = (new diagnostic_store())->get_summary($failing->id);
+
+        $collector = new class extends \block_coursecare\local\collector\course_files {
+            /**
+             * Fail as a broken database would.
+             *
+             * @param \context_course $context Course context.
+             * @return array
+             */
+            public function get_contexts(\context_course $context): array {
+                throw new \dml_read_exception('Simulated failure with a private detail');
+            }
+        };
+        $analysis = new course_analysis($collector);
+        $this->assertSame(course_analysis::FAILED, $analysis->run($failing->id, true));
+        $this->assertSame('dml_read_exception', $analysis->get_last_failure());
+
+        $record = (new diagnostic_store())->get_summary($failing->id);
+        $this->assertSame((int)$previous->timecompleted, (int)$record->timecompleted);
+        $this->assertSame((int)$previous->logicalbytes, (int)$record->logicalbytes);
+        $this->assertSame(1, (int)$record->lastattemptfailed);
+        $this->assertSame(1, (int)$record->failurecount);
+        $this->assertSame('dml_read_exception', $record->failurereason);
+
+        // The next course of the same cron run is analysed normally.
+        $other = $this->requested_course();
+        \core\task\manager::queue_adhoc_task(analyse_course::instance($other->id));
+        ob_start();
+        $this->runAdhocTasks(analyse_course::class);
+        ob_end_clean();
+        $this->assertNotNull((new diagnostic_store())->get_summary($other->id)->timecompleted);
+    }
+
+    /**
+     * Invariants that fail twice record "inconsistent" and keep the previous result (research R11).
+     */
+    public function test_inconsistent_result(): void {
+        $this->resetAfterTest();
+        $course = $this->requested_course();
+        $this->assertSame(course_analysis::DONE, (new course_analysis())->run($course->id, true));
+
+        $collector = new class extends \block_coursecare\local\collector\course_files {
+            /**
+             * More unique content than logical storage: impossible.
+             *
+             * @param \context_course $context Course context.
+             * @return array
+             */
+            public function get_group_uniques(\context_course $context): array {
+                return ['main' => (object)['contents' => 1, 'bytes' => 999]];
+            }
+        };
+        $analysis = new course_analysis($collector);
+        $this->assertSame(course_analysis::FAILED, $analysis->run($course->id, true));
+        $record = (new diagnostic_store())->get_summary($course->id);
+        $this->assertSame('inconsistent', $record->failurereason);
+        $this->assertSame(0, (int)$record->logicalbytes);
+    }
 }

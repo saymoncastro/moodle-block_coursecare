@@ -55,12 +55,18 @@ class diagnostic_line implements \renderable, \templatable {
                 $sentences[] = get_string('diagnostic:preparing', 'block_coursecare');
                 break;
             case diagnostic_state::NO_FILES:
-                $sentences[] = get_string('diagnostic:nofiles', 'block_coursecare');
-                $sentences[] = $this->calculated_on();
-                break;
             case diagnostic_state::COMPLETE:
-                $sentences[] = get_string('diagnostic:volume', 'block_coursecare', display_size($this->state->logicalbytes));
+            case diagnostic_state::OUTDATED:
+            case diagnostic_state::FAILED:
+                $sentences[] = $this->state->filecount === 0
+                    ? get_string('diagnostic:nofiles', 'block_coursecare')
+                    : get_string('diagnostic:volume', 'block_coursecare', display_size($this->state->logicalbytes));
                 $sentences[] = $this->calculated_on();
+                if ($this->state->state === diagnostic_state::OUTDATED) {
+                    $sentences[] = get_string('diagnostic:mayoutdated', 'block_coursecare');
+                } else if ($this->state->state === diagnostic_state::FAILED) {
+                    $sentences[] = get_string('diagnostic:updatefailed', 'block_coursecare');
+                }
                 break;
             default:
                 $sentences[] = get_string('diagnostic:notavailable', 'block_coursecare');
