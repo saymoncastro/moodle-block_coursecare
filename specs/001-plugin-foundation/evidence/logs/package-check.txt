@@ -1,0 +1,49 @@
+# Package build and real ZIP inspection (T038) — 2026-10-16T14:34:15Z, commit 7fd91ed
+
+$ tools/package/build.sh && php tools/package/check.php build/block_coursecare-0.1.0.zip
+build/block_coursecare-0.1.0.zip
+package: 0 error(s), 17 file(s)   (exit 0)
+
+$ unzip -l build/block_coursecare-0.1.0.zip
+Archive:  build/block_coursecare-0.1.0.zip
+7fd91ed304e94f1be09f7630a1619ba91bc0c441
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  10-16-2026 11:34   coursecare/
+      347  10-16-2026 11:34   coursecare/CHANGES.md
+    35149  10-16-2026 11:34   coursecare/LICENSE
+     3532  10-16-2026 11:34   coursecare/README.md
+     3360  10-16-2026 11:34   coursecare/block_coursecare.php
+        0  10-16-2026 11:34   coursecare/classes/
+        0  10-16-2026 11:34   coursecare/classes/privacy/
+     1250  10-16-2026 11:34   coursecare/classes/privacy/provider.php
+        0  10-16-2026 11:34   coursecare/db/
+     1617  10-16-2026 11:34   coursecare/db/access.php
+        0  10-16-2026 11:34   coursecare/lang/
+        0  10-16-2026 11:34   coursecare/lang/en/
+     1332  10-16-2026 11:34   coursecare/lang/en/block_coursecare.php
+        0  10-16-2026 11:34   coursecare/pix/
+      889  10-16-2026 11:34   coursecare/pix/sprout.svg
+      651  10-16-2026 11:34   coursecare/styles.css
+        0  10-16-2026 11:34   coursecare/templates/
+     1482  10-16-2026 11:34   coursecare/templates/content.mustache
+        0  10-16-2026 11:34   coursecare/tests/
+        0  10-16-2026 11:34   coursecare/tests/behat/
+     3887  10-16-2026 11:34   coursecare/tests/behat/block_coursecare_display.feature
+     3725  10-16-2026 11:34   coursecare/tests/behat/block_coursecare_permissions.feature
+     3175  10-16-2026 11:34   coursecare/tests/behat/block_coursecare_ui.feature
+     9930  10-16-2026 11:34   coursecare/tests/block_coursecare_test.php
+        0  10-16-2026 11:34   coursecare/tests/privacy/
+     1546  10-16-2026 11:34   coursecare/tests/privacy/provider_test.php
+     5381  10-16-2026 11:34   coursecare/tests/translation_test.php
+     1127  10-16-2026 11:34   coursecare/version.php
+---------                     -------
+    78380                     28 files
+
+## Control: ZIP of a plain copy of all tracked files (no git archive / export-ignore)
+exit 1; errors by rule:
+   1 195
+ 137 forbidden-path
+  57 hidden-file
+   1 not-allowed
+package: 195 error(s), 105 file(s)

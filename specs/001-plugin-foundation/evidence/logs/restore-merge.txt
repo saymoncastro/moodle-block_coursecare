@@ -1,0 +1,17 @@
+# T021 — Restore of a backup onto a course that already has the block — 2026-10-16T15:07:09Z
+Moodle 4.5.15; backup/restore API (backup::MODE_IMPORT, restore target backup::TARGET_EXISTING_ADDING = adding into an existing course, same restore_block_instance_structure_step as the 'merge' restore).
+
+## Merge CC-DEMO backup into CC-DEMO itself
+course id: 2
+CourseCare blocks before: 1
+backup setting 'blocks': yes
+restore setting 'blocks': yes
+CourseCare blocks after restore (adding to existing course): 1
+
+## Control: same backup into CC-DEMO2 (no CourseCare block)
+CC-DEMO2 CourseCare blocks before: 0
+CC-DEMO2 CourseCare blocks after restoring the CC-DEMO backup: 1
+CC-DEMO CourseCare blocks (unchanged source): 1
+
+Conclusion: the block is restored when absent (0 -> 1) and is not duplicated when the target course already has it (1 -> 1),
+because restore_stepslib skips non-multiple blocks already displayed on the same page (instance_allow_multiple() = false).

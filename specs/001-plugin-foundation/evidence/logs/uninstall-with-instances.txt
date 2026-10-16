@@ -1,0 +1,23 @@
+# T044 — Uninstall WITH instances — 2026-10-16T15:12:58Z (Moodle 4.5.15)
+
+## Before
+block_instances(coursecare)=1
+capabilities(block/coursecare:*)=2
+role_capabilities(block/coursecare:*)=4
+block_record(coursecare)=1
+orphan_block_contexts=0
+plugin_version=2026101600
+
+## $ php admin/cli/uninstall_plugins.php --plugins=block_coursecare --run
+Uninstalling: block_coursecare	CourseCare
+-->block_coursecare
+++ Success ++
+
+
+## After uninstall
+block_instances(coursecare)=0
+capabilities(block/coursecare:*)=0
+role_capabilities(block/coursecare:*)=0
+block_record(coursecare)=0
+orphan_block_contexts=0
+plugin_version=(none)

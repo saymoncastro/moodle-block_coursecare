@@ -1,0 +1,12 @@
+[
+  {
+    "id": "E1 block type disabled: instance hidden and not offered",
+    "ok": true,
+    "detail": "{\"present\":0,\"offered\":0}"
+  },
+  {
+    "id": "E1 block type re-enabled: same instance back, still not offered twice",
+    "ok": true,
+    "detail": "{\"present\":1,\"offered\":0}"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "V1 offered before adding",
+    "ok": true,
+    "detail": "CourseCare links in \"Add a block\" list: 1"
+  },
+  {
+    "id": "V1 block added",
+    "ok": true,
+    "detail": "section.block_coursecare elements after adding: 1"
+  },
+  {
+    "id": "V2 not offered a second time",
+    "ok": true,
+    "detail": "CourseCare links in \"Add a block\" list after adding: 0"
+  }
+]
