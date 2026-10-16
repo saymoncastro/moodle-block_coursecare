@@ -26,6 +26,10 @@ use block_coursecare\local\analysis\indicator_calculator;
  * content is read and no reference is synchronised. The user, file name, path, author and source columns are
  * never selected. Every named parameter appears once per statement (the DML rejects repeated placeholders).
  *
+ * Large-file links (D10): Q4 returns every large record of the course, because D counts all of them, but
+ * indicator_calculator keeps a link only for records of the material category, at most 1,000 per course. A
+ * submission, a feedback or any other participant's file never gets a link.
+ *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -175,6 +179,46 @@ class course_files {
                        ) u
               GROUP BY u.category";
         return $this->unique_rows($DB->get_records_sql($sql, $params), 'category');
+    }
+
+    /**
+     * Large file records that are not references (Q4), read with a recordset closed at the end.
+     *
+     * The content hash is returned only to count distinct large contents in memory; it is never stored. No name,
+     * path, author, source or user of a file is selected.
+     *
+     * @param \context_course $context Course context.
+     * @param int $threshold Large-file threshold in bytes.
+     * @return \stdClass[] Rows with id, contextid, component, filearea, contenthash and filesize.
+     */
+    public function get_large_files(\context_course $context, int $threshold): array {
+        global $DB;
+
+        [$where, $params] = $this->scope_condition($context, 'ctx', 'q4');
+        $params += ['q4dot' => '.', 'q4threshold' => $threshold];
+
+        $sql = "SELECT f.id, f.contextid, f.component, f.filearea, f.contenthash, f.filesize
+                  FROM {files} f
+                  JOIN {context} ctx ON ctx.id = f.contextid
+                 WHERE {$where}
+                   AND f.filename <> :q4dot
+                   AND f.referencefileid IS NULL
+                   AND f.filesize >= :q4threshold";
+
+        $rows = [];
+        $recordset = $DB->get_recordset_sql($sql, $params);
+        foreach ($recordset as $record) {
+            $rows[] = (object)[
+                'id' => (int)$record->id,
+                'contextid' => (int)$record->contextid,
+                'component' => (string)$record->component,
+                'filearea' => (string)$record->filearea,
+                'contenthash' => (string)$record->contenthash,
+                'filesize' => (int)$record->filesize,
+            ];
+        }
+        $recordset->close();
+        return $rows;
     }
 
     /**

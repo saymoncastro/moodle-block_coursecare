@@ -150,6 +150,10 @@ final class indicator_calculator_test extends \basic_testcase {
         $this->assertNull($result->summary['uniquecount']);
         $this->assertNull($result->summary['bruniquebytes']);
         $this->assertSame([], $result->categories);
+        $this->assertNull($result->summary['largeuniquebytes']);
+        $this->assertNull($result->summary['largelinkstruncated']);
+        $this->assertSame([], $result->activities);
+        $this->assertSame([], $result->largelinks);
     }
 
     /**
@@ -290,5 +294,150 @@ final class indicator_calculator_test extends \basic_testcase {
         $summary['logicalbytes'] = '100';
         $this->expectException(\coding_exception::class);
         new diagnostic_result($summary);
+    }
+
+    /**
+     * Build a Q4 row (one large file record).
+     *
+     * @param int $id File id.
+     * @param int $contextid Context.
+     * @param string $component Component.
+     * @param string $filearea Area.
+     * @param string $contenthash Content hash.
+     * @param int $filesize Size.
+     * @return \stdClass
+     */
+    private static function large(
+        int $id,
+        int $contextid,
+        string $component,
+        string $filearea,
+        string $contenthash,
+        int $filesize
+    ): \stdClass {
+        return (object)compact('id', 'contextid', 'component', 'filearea', 'contenthash', 'filesize');
+    }
+
+    /**
+     * Contexts with two activities, a block inside the first one and a block of the course.
+     *
+     * @return array
+     */
+    private static function activity_contexts(): array {
+        return self::contexts() + [
+            21 => (object)['id' => 21, 'contextlevel' => CONTEXT_MODULE, 'instanceid' => 8, 'path' => '/1/3/10/21'],
+            30 => (object)['id' => 30, 'contextlevel' => CONTEXT_BLOCK, 'instanceid' => 4, 'path' => '/1/3/10/20/30'],
+            40 => (object)['id' => 40, 'contextlevel' => CONTEXT_BLOCK, 'instanceid' => 5, 'path' => '/1/3/10/40'],
+        ];
+    }
+
+    /**
+     * T059: each context goes to the activity it belongs to by its path; the course and its blocks go to 0.
+     */
+    public function test_cmid_map(): void {
+        $this->assertSame(
+            [10 => 0, 20 => 7, 21 => 8, 30 => 7, 40 => 0],
+            indicator_calculator::cmid_map(self::activity_contexts())
+        );
+    }
+
+    /**
+     * T059: rows by activity with volume by category, A as the sum of the activities, and D unique overall and by
+     * activity; only large material files get a link, the largest first.
+     */
+    public function test_activities_and_large_files(): void {
+        $mb = self::MB;
+        $rows = [
+            self::row(10, 'course', 'summary', 1, $mb),
+            self::row(40, 'block_html', 'content', 1, 2 * $mb),
+            self::row(20, 'mod_resource', 'content', 2, 120 * $mb, 2, 120 * $mb),
+            self::row(30, 'block_html', 'content', 1, 3 * $mb),
+            self::row(21, 'assignsubmission_file', 'submission_files', 2, 130 * $mb, 2, 130 * $mb),
+            self::row(21, 'assignfeedback_file', 'feedback_files', 1, 4 * $mb),
+            self::row(10, 'backup', 'course', 1, 400 * $mb, 1, 400 * $mb),
+        ];
+        $large = [
+            self::large(101, 20, 'mod_resource', 'content', 'h1', 60 * $mb),
+            self::large(102, 20, 'mod_resource', 'content', 'h1', 60 * $mb),
+            self::large(103, 21, 'assignsubmission_file', 'submission_files', 'h2', 60 * $mb),
+            self::large(104, 21, 'assignsubmission_file', 'submission_files', 'h3', 70 * $mb),
+            self::large(105, 10, 'backup', 'course', 'h4', 400 * $mb),
+        ];
+        $result = (new indicator_calculator(50 * $mb))->calculate(self::activity_contexts(), $rows, [], [], $large);
+
+        $this->assertSame([0, 7, 8], array_keys($result->activities));
+        $this->assertSame([
+            'filecount' => 2, 'logicalbytes' => 3 * $mb, 'materialbytes' => 3 * $mb, 'submissionbytes' => 0,
+            'otherbytes' => 0, 'unclassifiedbytes' => 0, 'largecount' => 0, 'largebytes' => 0,
+            'largeuniquecount' => 0, 'largeuniquebytes' => 0,
+        ], $result->activities[0]);
+        $this->assertSame([
+            'filecount' => 3, 'logicalbytes' => 123 * $mb, 'materialbytes' => 123 * $mb, 'submissionbytes' => 0,
+            'otherbytes' => 0, 'unclassifiedbytes' => 0, 'largecount' => 2, 'largebytes' => 120 * $mb,
+            'largeuniquecount' => 1, 'largeuniquebytes' => 60 * $mb,
+        ], $result->activities[7]);
+        $this->assertSame([
+            'filecount' => 3, 'logicalbytes' => 134 * $mb, 'materialbytes' => 0, 'submissionbytes' => 130 * $mb,
+            'otherbytes' => 4 * $mb, 'unclassifiedbytes' => 0, 'largecount' => 2, 'largebytes' => 130 * $mb,
+            'largeuniquecount' => 2, 'largeuniquebytes' => 130 * $mb,
+        ], $result->activities[8]);
+        $this->assertSame($result->summary['logicalbytes'], array_sum(array_column($result->activities, 'logicalbytes')));
+
+        $this->assertSame(4, $result->summary['largecount']);
+        $this->assertSame(250 * $mb, $result->summary['largebytes']);
+        $this->assertSame(3, $result->summary['largeuniquecount']);
+        $this->assertSame(190 * $mb, $result->summary['largeuniquebytes']);
+        $this->assertSame(0, $result->summary['largelinkstruncated']);
+        $this->assertSame([
+            ['fileid' => 101, 'cmid' => 7, 'filesize' => 60 * $mb],
+            ['fileid' => 102, 'cmid' => 7, 'filesize' => 60 * $mb],
+        ], $result->largelinks);
+        $this->assertTrue(indicator_calculator::invariants_hold($result));
+    }
+
+    /**
+     * T059: above 1,000 large material files, only the 1,000 largest get a link; the totals keep every file.
+     */
+    public function test_large_links_truncated(): void {
+        $mb = self::MB;
+        $large = [];
+        $bytes = 0;
+        for ($i = 1; $i <= indicator_calculator::MAX_LARGE_LINKS + 1; $i++) {
+            $large[] = self::large($i, 20, 'mod_resource', 'content', "h{$i}", 50 * $mb + $i);
+            $bytes += 50 * $mb + $i;
+        }
+        $count = count($large);
+        $rows = [self::row(20, 'mod_resource', 'content', $count, $bytes, $count, $bytes)];
+        $result = (new indicator_calculator(50 * $mb))->calculate(self::contexts(), $rows, [], [], $large);
+
+        $this->assertCount(indicator_calculator::MAX_LARGE_LINKS, $result->largelinks);
+        $this->assertSame(1, $result->summary['largelinkstruncated']);
+        $this->assertSame($count, $result->summary['largecount']);
+        $this->assertSame($bytes, $result->summary['largebytes']);
+        $this->assertSame($count, $result->summary['largeuniquecount']);
+        $this->assertSame($count, $result->largelinks[0]['fileid']);
+        $this->assertNotContains(1, array_column($result->largelinks, 'fileid'));
+        $this->assertTrue(indicator_calculator::invariants_hold($result));
+    }
+
+    /**
+     * T059: the activities must add up to A and the large-file uniques cannot exceed the large files.
+     */
+    public function test_activity_invariants(): void {
+        $summary = array_fill_keys(diagnostic_result::SUMMARY_FIELDS, null);
+        $summary = ['filecount' => 2, 'logicalbytes' => 100, 'largecount' => 1, 'largebytes' => 60] + $summary;
+        $activity = array_fill_keys(diagnostic_result::ACTIVITY_FIELDS, 0);
+        $activity = ['filecount' => 2, 'logicalbytes' => 100, 'materialbytes' => 100, 'largecount' => 1,
+            'largebytes' => 60] + $activity;
+        $this->assertTrue(indicator_calculator::invariants_hold(new diagnostic_result($summary, [], [5 => $activity])));
+
+        $short = ['logicalbytes' => 90] + $activity;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, [], [5 => $short])));
+        $nolarge = ['largecount' => 0, 'largebytes' => 0] + $activity;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, [], [5 => $nolarge])));
+        $unique = ['largeuniquecount' => 2] + $activity;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, [], [5 => $unique])));
+        $broken = ['largeuniquecount' => 2] + $summary;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($broken)));
     }
 }

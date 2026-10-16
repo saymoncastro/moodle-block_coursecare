@@ -47,8 +47,14 @@ Storage diagnostic of course 42
   uniquebytes: 12970 (12.7 KB)
   brbytes: 41943040 (40.0 MB)
   backup.logicalbytes: 41943040 (40.0 MB)
+  activity.0.logicalbytes: 2048 (2.0 KB)
+  activity.57.logicalbytes: 11678 (11.4 KB)
+  largelinks: 0
   ...
 ```
+
+Atividades aparecem só pelo `cmid` (`activity.<cmid>.<campo>`; `0` = nível da sala). Das ligações a
+arquivos grandes, só a quantidade (`largelinks`) é mostrada.
 
 A ajuda, as mensagens e o título passam pela String API (`get_string`, chaves `cli:*`), com tradução
 pt_br e paridade, como toda frase visível (Princípio VIII). As chaves de dados (texto e JSON) ficam em

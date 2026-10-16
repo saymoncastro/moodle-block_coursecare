@@ -22,8 +22,10 @@ use block_coursecare\local\analysis\diagnostic_state;
 /**
  * Reads and writes the plugin's own diagnostic tables (data-model.md). Single access point to the results (FR-053).
  *
- * It stores aggregates only: no user id, file name or path. Readers must check permissions before calling it and
- * must pass the course of their own context, never a request parameter (FR-041).
+ * It stores aggregates only: no user id, file name, path or content hash. The only per-file rows are the large-file
+ * links (file id, cmid and recorded size), which the calculator restricts to course materials (D10, at most 1,000
+ * per course). Readers must check permissions before calling it and must pass the course of their own context, never
+ * a request parameter (FR-041).
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -72,6 +74,34 @@ class diagnostic_store {
             $rows[$record->category] = $record;
         }
         return $rows;
+    }
+
+    /**
+     * Activity rows of a diagnostic, keyed by cmid (0 = course level).
+     *
+     * @param int $diagid Diagnostic id.
+     * @return array<int, \stdClass>
+     */
+    public function get_activities(int $diagid): array {
+        global $DB;
+
+        $rows = [];
+        foreach ($DB->get_records('block_coursecare_act', ['diagid' => $diagid], 'cmid') as $record) {
+            $rows[(int)$record->cmid] = $record;
+        }
+        return $rows;
+    }
+
+    /**
+     * Number of large-file links of a diagnostic.
+     *
+     * @param int $diagid Diagnostic id.
+     * @return int
+     */
+    public function count_large_links(int $diagid): int {
+        global $DB;
+
+        return $DB->count_records('block_coursecare_large', ['diagid' => $diagid]);
     }
 
     /**

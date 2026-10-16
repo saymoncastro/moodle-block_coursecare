@@ -11,12 +11,12 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-03 | T009, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: total da sala (T009) verde; por atividade (T058) pendente |
 | CT-04 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-05 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
-| CT-06 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI pendente |
-| CT-07 | T042, T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | privacidade (T042) com CI verde (run 38966922553); classificação (T054) verde local (US6), CI pendente |
-| CT-08 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI pendente |
+| CT-06 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
+| CT-07 | T042, T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | privacidade (T042) com CI verde (run 38966922553); classificação (T054) com CI verde (run 38968677593) |
+| CT-08 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
 | CT-09 | T028 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-10 | T009 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local; CI verde (run 38962129016) |
-| CT-11 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI pendente |
+| CT-11 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
 | CT-12 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-13 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-14 | T050 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
@@ -26,7 +26,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-18 | T011, T034 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (T011, T034); CI verde (run 38966216241) |
 | CT-19 | T042, T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | CT-20 | T043 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
-| CT-21 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI pendente |
+| CT-21 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
 | CT-22 | T028 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-23 | T049 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
 | CT-24 | T041 (benchmark) | | | | pendente |
@@ -38,10 +38,10 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-30 | T029 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-31 | T029 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-32 | T028 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
-| CT-33 | T058 | | | | pendente |
-| CT-34 | T058 | | | | pendente |
-| CT-35 | T058 | | | | pendente |
-| SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: CT-01–CT-13, CT-21, CT-22 e CT-29–CT-32 verdes; CT-33–CT-35 (T058) pendentes |
+| CT-33 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
+| CT-34 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
+| CT-35 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
+| SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | todos os cenários verdes local; CI verde até CT-32, CT-33–CT-35 (US7) com CI pendente |
 | SC-002 | T021, T040, T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: leituras e ausência de `files` (T021) verdes; microbenchmark T040/T041 pendente |
 | SC-003 | T041 | | | | pendente |
 | SC-004 | T041 | | | | pendente |

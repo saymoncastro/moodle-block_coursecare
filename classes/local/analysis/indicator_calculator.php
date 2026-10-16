@@ -43,6 +43,9 @@ class indicator_calculator {
     /** @var string Unique-content group of the backup and recycle bin aggregate. */
     public const GROUP_BACKUP = 'br';
 
+    /** @var int Maximum number of large-file links kept for one course (D10). */
+    public const MAX_LARGE_LINKS = 1000;
+
     /** @var int Large-file threshold in bytes. */
     private int $threshold;
 
@@ -58,8 +61,8 @@ class indicator_calculator {
     /**
      * Calculate the indicators.
      *
-     * The unique-content rows are optional: without them, the unique indicators and the category rows stay null
-     * or absent (not calculated), never zero.
+     * The unique-content and large-file rows are optional: without them, the indicators that depend on them stay
+     * null, and the category or activity rows absent (not calculated), never zero.
      *
      * @param array $contexts Context rows of the course (Q0), keyed by context id, each with a contextlevel.
      * @param array $arearows Aggregates by context, component, file area and reference type (Q1), each with
@@ -68,14 +71,19 @@ class indicator_calculator {
      *     contents and bytes.
      * @param array|null $categoryuniques Unique content by category (Q2), keyed by category, each with contents and
      *     bytes.
+     * @param array|null $largerows Large file records that are not references (Q4), each with id, contextid,
+     *     component, filearea, contenthash and filesize.
      * @return diagnostic_result
      */
     public function calculate(
         array $contexts,
         array $arearows,
         ?array $groupuniques = null,
-        ?array $categoryuniques = null
+        ?array $categoryuniques = null,
+        ?array $largerows = null
     ): diagnostic_result {
+        $cmids = self::cmid_map($contexts);
+        $activities = [];
         $main = ['filecount' => 0, 'bytes' => 0, 'largecount' => 0, 'largebytes' => 0];
         $unclassified = ['filecount' => 0, 'bytes' => 0];
         $refs = [
@@ -108,6 +116,15 @@ class indicator_calculator {
             }
             $maincategories[$result]['filecount'] += (int)$row->filecount;
             $maincategories[$result]['bytes'] += (int)$row->bytes;
+            $cmid = $cmids[$row->contextid] ?? 0;
+            if (!isset($activities[$cmid])) {
+                $activities[$cmid] = array_fill_keys(diagnostic_result::ACTIVITY_FIELDS, 0);
+            }
+            $activities[$cmid]['filecount'] += (int)$row->filecount;
+            $activities[$cmid]['logicalbytes'] += (int)$row->bytes;
+            $activities[$cmid][$result . 'bytes'] += (int)$row->bytes;
+            $activities[$cmid]['largecount'] += (int)$row->largecount;
+            $activities[$cmid]['largebytes'] += (int)$row->largebytes;
             $main['filecount'] += (int)$row->filecount;
             $main['bytes'] += (int)$row->bytes;
             $main['largecount'] += (int)$row->largecount;
@@ -158,7 +175,82 @@ class indicator_calculator {
             }
         }
 
-        return new diagnostic_result($summary, $categories);
+        $largelinks = [];
+        if ($largerows === null) {
+            $activities = [];
+        } else {
+            [$uniques, $largelinks, $truncated] = $this->large_files($contexts, $cmids, $largerows);
+            $summary['largeuniquecount'] = count($uniques['all'] ?? []);
+            $summary['largeuniquebytes'] = array_sum($uniques['all'] ?? []);
+            $summary['largelinkstruncated'] = $truncated ? 1 : 0;
+            foreach ($activities as $cmid => $row) {
+                $activities[$cmid]['largeuniquecount'] = count($uniques[$cmid] ?? []);
+                $activities[$cmid]['largeuniquebytes'] = array_sum($uniques[$cmid] ?? []);
+            }
+            ksort($activities);
+        }
+
+        return new diagnostic_result($summary, $categories, $activities, $largelinks);
+    }
+
+    /**
+     * Map each context of the course to the course module it belongs to (FR-019).
+     *
+     * A module context maps to its own module; a context below a module (a block of an activity) to that module;
+     * the course and its blocks to 0.
+     *
+     * @param array $contexts Context rows (Q0), keyed by context id, with contextlevel, instanceid and path.
+     * @return array<int, int> Course module id by context id.
+     */
+    public static function cmid_map(array $contexts): array {
+        $map = [];
+        foreach ($contexts as $id => $context) {
+            $map[(int)$id] = 0;
+            foreach (array_reverse(explode('/', trim((string)$context->path, '/'))) as $ancestor) {
+                $row = $contexts[(int)$ancestor] ?? null;
+                if ($row !== null && (int)$row->contextlevel === CONTEXT_MODULE) {
+                    $map[(int)$id] = (int)$row->instanceid;
+                    break;
+                }
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * Unique large content (overall and by activity) and the links to the largest material files.
+     *
+     * Only records of the main scope are used; backups, recycle bin and excluded areas are skipped. The content
+     * hashes stay in memory during the calculation and are never part of the result.
+     *
+     * @param array $contexts Context rows (Q0).
+     * @param array $cmids Course module id by context id.
+     * @param array $largerows Large file records (Q4).
+     * @return array{0: array, 1: array, 2: bool} Sizes by content hash (key 'all' and each cmid), links, and whether
+     *     the links were truncated.
+     */
+    private function large_files(array $contexts, array $cmids, array $largerows): array {
+        $uniques = [];
+        $links = [];
+        foreach ($largerows as $row) {
+            $level = isset($contexts[$row->contextid]) ? (int)$contexts[$row->contextid]->contextlevel : 0;
+            $category = classification_rules::classify((string)$row->component, (string)$row->filearea, $level);
+            if (!in_array($category, classification_rules::MAIN_CATEGORIES, true)) {
+                continue;
+            }
+            $cmid = $cmids[$row->contextid] ?? 0;
+            $size = (int)$row->filesize;
+            $hash = (string)$row->contenthash;
+            $uniques['all'][$hash] = max($uniques['all'][$hash] ?? 0, $size);
+            $uniques[$cmid][$hash] = max($uniques[$cmid][$hash] ?? 0, $size);
+            if ($category === classification_rules::MATERIAL) {
+                // Only course materials get a link (D10); never a submission or another participant's file.
+                $links[] = ['fileid' => (int)$row->id, 'cmid' => $cmid, 'filesize' => $size];
+            }
+        }
+        usort($links, fn(array $a, array $b): int => [$b['filesize'], $a['fileid']] <=> [$a['filesize'], $b['fileid']]);
+        $truncated = count($links) > self::MAX_LARGE_LINKS;
+        return [$uniques, array_slice($links, 0, self::MAX_LARGE_LINKS), $truncated];
     }
 
     /**
@@ -177,6 +269,7 @@ class indicator_calculator {
             [$s['uniquebytes'], $s['logicalbytes']],
             [$s['uniquecount'], $s['filecount']],
             [$s['largeuniquebytes'], $s['largebytes']],
+            [$s['largeuniquecount'], $s['largecount']],
             [$s['bruniquebytes'], $s['brbytes']],
         ];
         foreach ($checks as [$part, $whole]) {
@@ -202,6 +295,27 @@ class indicator_calculator {
             }
         }
         // The main categories partition the main scope: their sums are A and the record count.
-        return !$hasmain || ($main['filecount'] === $s['filecount'] && $main['logicalbytes'] === $s['logicalbytes']);
+        if ($hasmain && ($main['filecount'] !== $s['filecount'] || $main['logicalbytes'] !== $s['logicalbytes'])) {
+            return false;
+        }
+        // So do the activities, for the volume and for the large files.
+        if ($result->activities) {
+            $totals = array_fill_keys(['filecount', 'logicalbytes', 'largecount', 'largebytes'], 0);
+            foreach ($result->activities as $row) {
+                if ($row['largeuniquebytes'] > $row['largebytes'] || $row['largeuniquecount'] > $row['largecount']) {
+                    return false;
+                }
+                foreach ($totals as $field => $total) {
+                    $totals[$field] = $total + $row[$field];
+                }
+            }
+            foreach ($totals as $field => $total) {
+                if ($total !== $s[$field]) {
+                    return false;
+                }
+            }
+        }
+        $links = count($result->largelinks);
+        return $links <= self::MAX_LARGE_LINKS && ($s['largecount'] === null || $links <= $s['largecount']);
     }
 }

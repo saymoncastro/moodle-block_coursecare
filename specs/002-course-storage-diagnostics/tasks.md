@@ -397,7 +397,7 @@ papéis sem permissão e remover o bloco ou a sala.
 - [X] T046 [US4] Atualizar `classes/privacy/provider.php` (continua `null_provider`) e a string
   `privacy:metadata` em en e pt_br: o bloco guarda só medições agregadas de armazenamento por sala e
   atividade, sem dados pessoais (plan.md, "Registro de tratamento de dados").
-- [ ] T047 [US4] Revisar `classes/local/collector/course_files.php` e `diagnostic_store.php`: Q4 e
+- [X] T047 [US4] Revisar `classes/local/collector/course_files.php` e `diagnostic_store.php`: Q4 e
   `save_result()` só aceitam ligações da categoria `material`; nenhuma consulta seleciona
   `userid`, `filename`, `filepath`, `author` ou `source`; documentar a regra no PHPDoc da classe.
 
@@ -491,7 +491,7 @@ por `cmid` e contagens de grande porte conferidos.
 
 ### Tests for User Story 7 (escrever antes de T061)
 
-- [ ] T058 [P] [US7] Em `tests/collector/course_files_test.php`: US7 cenário 1 (atividades com 100,
+- [X] T058 [P] [US7] Em `tests/collector/course_files_test.php`: US7 cenário 1 (atividades com 100,
   10 e 1 MB → três linhas de atividade com esses volumes) e cenário 2 (envios de 60 e 70 MB numa
   tarefa → 2 de grande porte, 130 MB, sem ligação); CT-03 por atividade; arquivo em bloco de uma
   atividade atribuído à atividade (FR-019); arquivos do curso e dos blocos da sala em `cmid = 0`;
@@ -499,20 +499,20 @@ por `cmid` e contagens de grande porte conferidos.
   recursos → 2 registros, 120 MB; 1 conteúdo, 60 MB); CT-35 (limite alterado para 100 MB depois de
   uma análise → resultado vigente mantém `largethreshold` de 50 MB; a próxima usa 100 MB); mais de
   1.000 arquivos grandes de material → 1.000 ligações, `largelinkstruncated = 1`, totais inalterados.
-- [ ] T059 [P] [US7] Em `tests/analysis/indicator_calculator_test.php`: mapa contexto → `cmid` pelo
+- [X] T059 [P] [US7] Em `tests/analysis/indicator_calculator_test.php`: mapa contexto → `cmid` pelo
   caminho (módulo, bloco dentro de módulo, curso, bloco do curso); `A = Σ A_cm`; D único por
   atividade e geral.
 
 ### Implementation for User Story 7
 
-- [ ] T060 [US7] Em `classes/local/collector/course_files.php`: Q4 (registros com `filesize >= :t1`,
+- [X] T060 [US7] Em `classes/local/collector/course_files.php`: Q4 (registros com `filesize >= :t1`,
   parâmetro único na instrução, sem referências, por recordset fechado ao fim), lendo o limite de `largefilethreshold` × 1.048.576
   no início da análise.
-- [ ] T061 [US7] Em `classes/local/analysis/indicator_calculator.php`: mapa contexto → `cmid` (Q0);
+- [X] T061 [US7] Em `classes/local/analysis/indicator_calculator.php`: mapa contexto → `cmid` (Q0);
   linhas de atividade com volume por categoria; D (`largecount`, `largebytes`, `largeuniquecount`,
   `largeuniquebytes`) geral e por atividade; até 1.000 ligações de Materiais, as maiores, com
   `largelinkstruncated`. Depende de T060.
-- [ ] T062 [US7] Em `diagnostic_store.php` e `course_analysis.php`: gravar `block_coursecare_act`,
+- [X] T062 [US7] Em `diagnostic_store.php` e `course_analysis.php`: gravar `block_coursecare_act`,
   `block_coursecare_large`, os campos de D e `largethreshold`; incluir atividades e grande porte no
   `--show` da CLI. Depende de T061 e T038.
 
@@ -833,3 +833,34 @@ erros.
   `assignfeedback_comments`, `grade/feedback`, `mod_forum/attachment`).
 - Conferência manual no site de desenvolvimento (sala 2, `--run` e `--show`): Materiais 15 registros,
   Outros 5, Envios 5; soma 25 = `filecount` e 13.726 bytes = A; Σ B_c 13.726 > B 12.970.
+
+CI da US6 verde: run 38968677593 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `531d8f3`.
+
+### US7 (T058–T062) e T047 — 2026-10-17
+
+Resultado local: PHPUnit 156 testes verdes, Behat 23 cenários verdes, `moodle-cs` sem erros, i18n sem
+erros.
+
+- Q4 (`course_files::get_large_files()`) lê só `id`, `contextid`, `component`, `filearea`,
+  `contenthash` e `filesize` dos registros que não são referências, com `filesize >= :q4threshold`,
+  por recordset fechado ao fim. O limite é o mesmo valor lido no início da análise para a Q1.
+- `indicator_calculator::cmid_map()` atribui cada contexto ao módulo ancestral pelo caminho (bloco
+  dentro de atividade → atividade; curso e blocos da sala → `cmid = 0`). As linhas de atividade
+  trazem volume por categoria e D; D único (geral e por atividade) é calculado em memória com os
+  hashes da Q4, que nunca são gravados.
+- Ligações: só registros da categoria `material`, ordenados por tamanho decrescente e `fileid`
+  crescente, no máximo `MAX_LARGE_LINKS = 1000`; `largelinkstruncated = 1` quando houver mais. Os
+  totais de D continuam contando todos os arquivos.
+- Novas invariantes: Σ A_cm = A, Σ das contagens e de D por atividade = totais da sala, D único ≤ D
+  lógico (também por atividade), ligações ≤ 1.000 e ≤ `largecount`.
+- `--show` da CLI: linhas `activity.<cmid>.<campo>` e `largelinks` (só a quantidade; nenhum arquivo é
+  listado). Conferência manual no site de desenvolvimento (sala 2): 5 atividades, Σ A_cm = 13.726 = A.
+- Os testes de grande porte criam arquivos em blocos de 1 MB (`add_big_file()`), sem manter o
+  conteúdo inteiro em memória; o teste de 1.001 arquivos usa o limite de 1 MB e cópias do mesmo
+  conteúdo (`create_file_from_storedfile()`), sem gravar 1 GB.
+- **T047**: a regra das ligações ficou documentada no PHPDoc de `course_files` e de
+  `diagnostic_store`. Diferença de redação em relação à tarefa: a Q4 devolve todos os registros
+  grandes (D precisa de todos) e o filtro `material` fica num só lugar, no cálculo; o `save_result()`
+  grava as ligações que o resultado traz. Nenhuma consulta seleciona `userid`, `filename`,
+  `filepath`, `author` ou `source` (`filename` só aparece no filtro `<> '.'`).
+- **T041 (benchmark)** agora pode ser executada: US6 e US7 estão completas.

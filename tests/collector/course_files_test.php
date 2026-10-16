@@ -161,6 +161,11 @@ final class course_files_test extends \advanced_testcase {
         $record = $this->analyse($course);
         $this->assertSame(6 * self::MB, (int)$record->logicalbytes);
         $this->assertSame(3, (int)$record->filecount);
+
+        // CT-03 by activity: one row per resource with its own volume, none at course level.
+        $volumes = array_column($this->activities($record), 'logicalbytes');
+        sort($volumes);
+        $this->assertSame([self::MB, 2 * self::MB, 3 * self::MB], $volumes);
     }
 
     /**
@@ -665,5 +670,221 @@ final class course_files_test extends \advanced_testcase {
             (int)$record->uniquebytes,
             $categories['material']['uniquebytes'] + $categories['submission']['uniquebytes']
         );
+    }
+
+    /**
+     * Stored activity rows of a course result, keyed by cmid, with integer values.
+     *
+     * @param \stdClass $record Diagnostic record.
+     * @return array<int, array<string, int>>
+     */
+    private function activities(\stdClass $record): array {
+        $rows = [];
+        foreach ((new diagnostic_store())->get_activities((int)$record->id) as $cmid => $row) {
+            foreach (\block_coursecare\local\analysis\diagnostic_result::ACTIVITY_FIELDS as $field) {
+                $rows[$cmid][$field] = (int)$row->$field;
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * Stored large-file links of a course result, largest first.
+     *
+     * @param \stdClass $record Diagnostic record.
+     * @return array
+     */
+    private function links(\stdClass $record): array {
+        global $DB;
+        return array_values($DB->get_records(
+            'block_coursecare_large',
+            ['diagid' => $record->id],
+            'filesize DESC, fileid ASC',
+            'id, fileid, cmid, filesize'
+        ));
+    }
+
+    /**
+     * Add a big file written in chunks, so that the test never holds its whole content in memory.
+     *
+     * @param \context $context Context.
+     * @param string $component Component.
+     * @param string $filearea Area.
+     * @param int $bytes Size.
+     * @param string $seed Seed of the content.
+     * @return \stored_file
+     */
+    private function add_big_file(\context $context, string $component, string $filearea, int $bytes, string $seed): \stored_file {
+        $path = make_request_directory() . '/big.bin';
+        $handle = fopen($path, 'wb');
+        $chunk = self::content(self::MB, $seed);
+        for ($written = 0; $written < $bytes; $written += self::MB) {
+            fwrite($handle, substr($chunk, 0, min(self::MB, $bytes - $written)));
+        }
+        fclose($handle);
+        $this->filecounter++;
+        return get_file_storage()->create_file_from_pathname([
+            'contextid' => $context->id, 'component' => $component, 'filearea' => $filearea, 'itemid' => 0,
+            'filepath' => '/', 'filename' => "file{$this->filecounter}.bin",
+        ], $path);
+    }
+
+    /**
+     * Add another record with the content of an existing file.
+     *
+     * @param \stored_file $file Existing file.
+     * @param \context $context Context of the new record.
+     * @param string $component Component.
+     * @param string $filearea Area.
+     * @return \stored_file
+     */
+    private function copy_file(\stored_file $file, \context $context, string $component, string $filearea): \stored_file {
+        $this->filecounter++;
+        return get_file_storage()->create_file_from_storedfile([
+            'contextid' => $context->id, 'component' => $component, 'filearea' => $filearea, 'itemid' => 0,
+            'filepath' => '/', 'filename' => "file{$this->filecounter}.bin",
+        ], $file);
+    }
+
+    /**
+     * US7 scenario 1 and FR-019: one row per activity; a block of an activity goes to the activity, the course
+     * and its blocks go to cmid 0; the activities add up to A.
+     */
+    public function test_activity_rows(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $coursecontext = \context_course::instance($course->id);
+        $contexts = [];
+        foreach ([100, 10, 1] as $size) {
+            $context = $this->module('resource', $course);
+            $this->add_big_file($context, 'mod_resource', 'content', $size * self::MB, "r{$size}");
+            $contexts[$size] = $context;
+        }
+        $inactivity = $this->getDataGenerator()->create_block('html', [
+            'parentcontextid' => $contexts[1]->id,
+            'pagetypepattern' => 'mod-resource-*',
+        ]);
+        $this->add_file(\context_block::instance($inactivity->id), 'block_html', 'content', self::content(3000, 'inmod'));
+        $this->add_file($coursecontext, 'course', 'summary', self::content(1000, 'summary'));
+        $incourse = $this->getDataGenerator()->create_block('html', ['parentcontextid' => $coursecontext->id]);
+        $this->add_file(\context_block::instance($incourse->id), 'block_html', 'content', self::content(2000, 'incourse'));
+
+        $record = $this->analyse($course);
+        $activities = $this->activities($record);
+        $this->assertCount(4, $activities);
+        $this->assertSame(100 * self::MB, $activities[$contexts[100]->instanceid]['logicalbytes']);
+        $this->assertSame(1, $activities[$contexts[100]->instanceid]['largecount']);
+        $this->assertSame(10 * self::MB, $activities[$contexts[10]->instanceid]['logicalbytes']);
+        $this->assertSame(self::MB + 3000, $activities[$contexts[1]->instanceid]['logicalbytes']);
+        $this->assertSame(2, $activities[$contexts[1]->instanceid]['filecount']);
+        $this->assertSame(3000, $activities[0]['logicalbytes']);
+        $this->assertSame(3000, $activities[0]['materialbytes']);
+        $this->assertSame((int)$record->logicalbytes, array_sum(array_column($activities, 'logicalbytes')));
+        $this->assertSame(1, (int)$record->largecount);
+        $this->assertCount(1, $this->links($record));
+    }
+
+    /**
+     * US7 scenario 2: large submissions count in D and in the activity, but get no link (D10).
+     */
+    public function test_large_submissions_without_links(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $assign = $this->module('assign', $course);
+        $this->add_big_file($assign, 'assignsubmission_file', 'submission_files', 60 * self::MB, 's60');
+        $this->add_big_file($assign, 'assignsubmission_file', 'submission_files', 70 * self::MB, 's70');
+
+        $record = $this->analyse($course);
+        $this->assertSame(2, (int)$record->largecount);
+        $this->assertSame(130 * self::MB, (int)$record->largebytes);
+        $this->assertSame(2, (int)$record->largeuniquecount);
+        $this->assertSame(130 * self::MB, (int)$record->largeuniquebytes);
+        $this->assertSame(0, (int)$record->largelinkstruncated);
+        $this->assertSame([], $this->links($record));
+        $activity = $this->activities($record)[$assign->instanceid];
+        $this->assertSame(2, $activity['largecount']);
+        $this->assertSame(130 * self::MB, $activity['submissionbytes']);
+    }
+
+    /**
+     * CT-33: the threshold is inclusive; one byte below it is not a large file.
+     */
+    public function test_large_threshold_boundary(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $resource = $this->module('resource', $course);
+        $this->add_big_file($resource, 'mod_resource', 'content', 52428799, 'below');
+        $file = $this->add_big_file($resource, 'mod_resource', 'content', 52428800, 'at');
+
+        $record = $this->analyse($course);
+        $this->assertSame(52428800, (int)$record->largethreshold);
+        $this->assertSame(1, (int)$record->largecount);
+        $this->assertSame(52428800, (int)$record->largebytes);
+        $links = $this->links($record);
+        $this->assertCount(1, $links);
+        $this->assertSame((int)$file->get_id(), (int)$links[0]->fileid);
+        $this->assertSame((int)$resource->instanceid, (int)$links[0]->cmid);
+        $this->assertSame(52428800, (int)$links[0]->filesize);
+    }
+
+    /**
+     * CT-34: the same 60 MB content in two resources is two large records and one large content.
+     */
+    public function test_large_same_content(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $file = $this->add_big_file($this->module('resource', $course), 'mod_resource', 'content', 60 * self::MB, 'same');
+        $this->copy_file($file, $this->module('resource', $course), 'mod_resource', 'content');
+
+        $record = $this->analyse($course);
+        $this->assertSame(2, (int)$record->largecount);
+        $this->assertSame(120 * self::MB, (int)$record->largebytes);
+        $this->assertSame(1, (int)$record->largeuniquecount);
+        $this->assertSame(60 * self::MB, (int)$record->largeuniquebytes);
+        $this->assertCount(2, $this->links($record));
+    }
+
+    /**
+     * CT-35: a new threshold does not change the current result; the next analysis uses it.
+     */
+    public function test_threshold_change(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $this->add_big_file($this->module('resource', $course), 'mod_resource', 'content', 60 * self::MB, 'm60');
+
+        $record = $this->analyse($course);
+        $this->assertSame(50 * self::MB, (int)$record->largethreshold);
+        $this->assertSame(1, (int)$record->largecount);
+
+        set_config('largefilethreshold', 100, 'block_coursecare');
+        $current = (new diagnostic_store())->get_summary($course->id);
+        $this->assertSame(50 * self::MB, (int)$current->largethreshold);
+        $this->assertSame(1, (int)$current->largecount);
+
+        $record = $this->analyse($course);
+        $this->assertSame(100 * self::MB, (int)$record->largethreshold);
+        $this->assertSame(0, (int)$record->largecount);
+        $this->assertSame([], $this->links($record));
+    }
+
+    /**
+     * D10: above 1,000 large material files, 1,000 links are kept and the result says so; totals keep all files.
+     */
+    public function test_large_links_limit(): void {
+        $this->resetAfterTest();
+        set_config('largefilethreshold', 1, 'block_coursecare');
+        $course = $this->course_with_block();
+        $resource = $this->module('resource', $course);
+        $file = $this->add_big_file($resource, 'mod_resource', 'content', self::MB, 'many');
+        for ($i = 0; $i < \block_coursecare\local\analysis\indicator_calculator::MAX_LARGE_LINKS; $i++) {
+            $this->copy_file($file, $resource, 'mod_resource', 'content');
+        }
+
+        $record = $this->analyse($course);
+        $this->assertSame(1001, (int)$record->largecount);
+        $this->assertSame(1001 * self::MB, (int)$record->largebytes);
+        $this->assertSame(1, (int)$record->largeuniquecount);
+        $this->assertSame(1, (int)$record->largelinkstruncated);
+        $this->assertCount(1000, $this->links($record));
     }
 }

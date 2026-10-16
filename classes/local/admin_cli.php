@@ -181,6 +181,8 @@ class admin_cli {
             'failurereason' => $record ? $record->failurereason : null,
             'summary' => [],
             'categories' => [],
+            'activities' => [],
+            'largelinks' => null,
         ];
         if ($record) {
             foreach (diagnostic_result::SUMMARY_FIELDS as $field) {
@@ -192,6 +194,14 @@ class admin_cli {
                     $data['categories'][$category][$field] = (int)$row->$field;
                 }
             }
+            // Activities by cmid only: no activity name is shown.
+            foreach ($this->store->get_activities((int)$record->id) as $cmid => $row) {
+                foreach (diagnostic_result::ACTIVITY_FIELDS as $field) {
+                    $data['activities'][$cmid][$field] = (int)$row->$field;
+                }
+            }
+            // Only the number of links: the files themselves are never listed here.
+            $data['largelinks'] = $this->store->count_large_links((int)$record->id);
         }
         return [self::EXIT_OK, $data];
     }
@@ -216,6 +226,12 @@ class admin_cli {
                 foreach ($value as $category => $row) {
                     foreach ($row as $field => $fieldvalue) {
                         $flat["{$category}.{$field}"] = $fieldvalue;
+                    }
+                }
+            } else if ($key === 'activities') {
+                foreach ($value as $cmid => $row) {
+                    foreach ($row as $field => $fieldvalue) {
+                        $flat["activity.{$cmid}.{$field}"] = $fieldvalue;
                     }
                 }
             } else {
