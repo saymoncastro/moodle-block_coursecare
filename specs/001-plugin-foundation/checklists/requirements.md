@@ -37,3 +37,8 @@
 - A largura de 320 px e o zoom de 200% (FR-017) derivam do critério de reflow da WCAG 2.2 e são
   verificáveis sem conhecer a implementação.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`.
+- Revalidada em 2026-10-16 após a revisão do plano pelo proprietário: SC-002 redefinido (avaliação
+  com cinco docentes movida para a Feature 003), aprovação visual após evidência real (FR-014,
+  FR-015), exibição fora da página principal (FR-006, US3-7), unicidade com limitações (FR-010) e
+  acessibilidade sem declaração de conformidade integral (FR-017, SC-007). Todos os itens continuam
+  aprovados.
