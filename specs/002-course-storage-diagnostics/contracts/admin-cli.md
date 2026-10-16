@@ -30,22 +30,26 @@ teste e benchmark.
 | 3 | Análise já em execução (lock ocupado) |
 | 4 | Falha da análise (`--run`); resultado anterior preservado |
 
-## Exemplo de `--show` (formato, valores fictícios)
+## Saída de `--show` (texto)
+
+Uma linha de título traduzida e, depois, uma linha `chave: valor` por dado, com as **mesmas chaves do
+JSON** (identificadores de dados, não frases de interface). Tamanhos aparecem também em unidades
+legíveis (`display_size()`) e datas em `AAAA-MM-DD HH:MM`; valor não calculado aparece como `-`.
+Exemplo (valores fictícios):
 
 ```text
-Course 42 — state: D (complete), partial: no
-Calculated: 2026-10-16 10:12, last attempt: 2026-10-16 10:12, method v1, large-file threshold: 52428800 bytes
-Main scope: 1,204 files, logical 3.1 GB, unique 2.4 GB (980 contents)
-  material      812 files  1.9 GB  unique 1.5 GB
-  submission    350 files  1.1 GB  unique 0.8 GB
-  other          30 files  90 MB   unique 85 MB
-  unclassified   12 files  10 MB   unique 10 MB
-Large files (>= 50 MB): 9 records, 1.2 GB; 7 contents, 0.9 GB
-Backups and recycle bin (recorded in Moodle for this course): backup 2 files 600 MB; recycle bin 1 file 40 MB; unique 620 MB
-References: internal 3 (12 MB recorded), external 1 (4 MB recorded), undetermined 1
-Activities: cmid 17 1.0 GB | cmid 23 400 MB | course level 120 MB | ...
+Storage diagnostic of course 42
+  courseid: 42
+  state: complete
+  partial: 0
+  timecompleted: 1792183952 (2026-10-16 21:52)
+  logicalbytes: 13726 (13.4 KB)
+  uniquebytes: 12970 (12.7 KB)
+  brbytes: 41943040 (40.0 MB)
+  backup.logicalbytes: 41943040 (40.0 MB)
+  ...
 ```
 
-A ajuda e os rótulos da saída de texto passam pela String API (`get_string`, chaves `cli:*`), com
-tradução pt_br e paridade, como toda string visível (Princípio VIII). O exemplo acima mostra o texto
-em inglês. As chaves do JSON são dados, ficam em inglês e não são traduzidas.
+A ajuda, as mensagens e o título passam pela String API (`get_string`, chaves `cli:*`), com tradução
+pt_br e paridade, como toda frase visível (Princípio VIII). As chaves de dados (texto e JSON) ficam em
+inglês e não são traduzidas.

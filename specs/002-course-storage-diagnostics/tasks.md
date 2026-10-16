@@ -311,7 +311,7 @@ SC-004.
 
 ### Tests for User Story 3 (escrever antes de T037)
 
-- [ ] T034 [P] [US3] Criar `tests/task/queue_analyses_test.php`: salas elegíveis sem registro são
+- [X] T034 [P] [US3] Criar `tests/task/queue_analyses_test.php`: salas elegíveis sem registro são
   enfileiradas; sala com resultado recente não; resultado mais antigo que `reanalysisinterval` sim;
   `methodversion` antiga sim; limite de 500 por execução (com 501 salas, ordem por `timeattempted`
   com nulos primeiro); "em execução" há mais de 2 h vira falha `interrupted`; "na fila" há mais de
@@ -321,23 +321,23 @@ SC-004.
   depois; com 3 falhas, espera de 4 h; com 5 ou mais falhas, só depois de `reanalysisinterval`; um
   sucesso zera a contagem. **Sala restaurada** (edge case da spec): curso restaurado com o bloco por
   `restore_controller` não tem registro e é enfileirado na execução seguinte.
-- [ ] T035 [P] [US3] Criar `tests/task/cli_diagnostics_test.php` executando a CLI como processo
+- [X] T035 [P] [US3] Criar `tests/task/cli_diagnostics_test.php` executando a CLI como processo
   (`proc_open` com o PHP do teste) ou pelas funções que ela chama: `--queue --course` respeita
   elegibilidade e duplicidade; `--run` com lock ocupado sai com código 3; sala não elegível sai com
   código 2; `--show --json` tem as chaves do contrato e nenhum nome de arquivo, atividade ou usuário.
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Criar `classes/task/queue_analyses.php` (`\core\task\scheduled_task`) com a ordem do
+- [X] T036 [US3] Criar `classes/task/queue_analyses.php` (`\core\task\scheduled_task`) com a ordem do
   contrato: órfãos (até 500), presos (2 h / 24 h), devidas (até 500, ordenadas por `timeattempted`
   com nulos primeiro), cada uma com `request()` e `queue_adhoc_task()` sem `checkforexisting`; a
   regra de espera por falha usa `min(2^(falhas−1), 24)` horas e, a partir de 5 falhas, o intervalo
   de reanálise; constantes nomeadas para 500, 2 h, 24 h e 5; `get_name()` com a string
   `task:queueanalyses` em en e pt_br. Depende de T016 e T017.
-- [ ] T037 [US3] Criar `db/tasks.php` registrando `\block_coursecare\task\queue_analyses` com
+- [X] T037 [US3] Criar `db/tasks.php` registrando `\block_coursecare\task\queue_analyses` com
   `'minute' => 'R'`, `'hour' => '*'`, `'day' => '*'`, `'month' => '*'`, `'dayofweek' => '*'`.
   Depende de T036.
-- [ ] T038 [US3] Criar `cli/diagnostics.php` conforme contracts/admin-cli.md: modos `--queue
+- [X] T038 [US3] Criar `cli/diagnostics.php` conforme contracts/admin-cli.md: modos `--queue
   --course=<id>`, `--queue --all` (lotes de 500 por transação), `--run --course=<id>` (mesma
   orquestração e lock; mostra duração e pico de memória), `--show --course=<id>`, `--json`, `-h`;
   códigos de saída 0–4; ajuda e rótulos por `get_string()` com chaves `cli:*` em en e pt_br;
@@ -345,12 +345,12 @@ SC-004.
   execução; `--course` obrigatório com `--queue` sem `--all`, com `--run` e com `--show`, convertido
   com `clean_param(..., PARAM_INT)` e maior que zero; `--all` só com `--queue`; `--json` só com
   `--run` ou `--show`; qualquer violação → `cli_error()` com código 1. Depende de T018 e T033.
-- [ ] T039 [P] [US3] Criar `tools/dev/bench/generate.php` (CLI de desenvolvimento, fora do pacote)
+- [X] T039 [P] [US3] Criar `tools/dev/bench/generate.php` (CLI de desenvolvimento, fora do pacote)
   conforme benchmark.md: perfis pequeno/médio/grande/extremo, `--profile`, `--courses`, `--seed`,
   geradores do core e `create_file_from_string()` com conteúdo pseudoaleatório de semente fixa,
   bloco adicionado a cada sala, manifesto JSON com A e B esperados; arquivos "grandes" com
   `filesize` ajustado só nesses dados, com aviso na saída.
-- [ ] T040 [P] [US3] Criar `tools/dev/bench/render.php`: 1.000 chamadas de `get_content()` para um
+- [X] T040 [P] [US3] Criar `tools/dev/bench/render.php`: 1.000 chamadas de `get_content()` para um
   professor numa sala, com média e desvio, para comparar a 0.1.0 e a nova versão (SC-002).
 - [ ] T041 [US3] [MANUAL] Executar o benchmark de benchmark.md nas duas bases (PostgreSQL 17 e
   MariaDB 11): SC-003 (5.000, 20.000, 50.000 e 200.000 registros, 3 execuções, `EXPLAIN` de Q1–Q4),
@@ -758,4 +758,25 @@ Resultado local: PHPUnit 118 testes verdes, Behat 20 cenários verdes, `moodle-c
   escopo principal (T056 fica reduzida a reaproveitar a consulta).
 - As constantes de tipo de referência e de grupo ficam na camada de análise
   (`indicator_calculator`); a coleta as reutiliza.
+
+### US3 (T034–T040) — 2026-10-17
+
+Resultado local: PHPUnit 130 testes verdes, Behat 20 cenários verdes, `moodle-cs` sem erros. CI da US2
+verde: run 38964414578 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `93be1c4`.
+
+- Regra de "sala devida" e espera após falhas em `analysis\due_policy` (pura, `due_policy_test`); a
+  tarefa agendada só orquestra. As consultas de órfãos, presos e candidatas ficam em `diagnostic_store`.
+- `queue_analyses::run()` aceita o tamanho do lote como parâmetro, para testar o limite com poucas
+  salas; o padrão continua 500.
+- Enfileirar uma sala (`analyse_course::request()`) é uma função única usada pelo bloco, pela tarefa
+  agendada e pela CLI.
+- A CLI tem a lógica em `local\admin_cli` (testável) e o script só lê opções. A saída de texto do
+  `--show` usa as chaves de dados do JSON; frases passam pela String API (contrato atualizado).
+- Teste de sala restaurada com backup e restauração reais (`MODE_IMPORT`): a sala não tem registro e
+  entra na fila na execução seguinte.
+- Verificação manual no site de desenvolvimento (`coursecare-002`): `generate.php` (3 salas, perfil
+  pequeno) e `diagnostics.php --run/--show/--queue --all` com códigos de saída 0, 1 e 2 conferidos; A e B
+  iguais ao manifesto do gerador; `queue_analyses` e `analyse_course` executados pelos CLIs do cron,
+  inclusive um "fresh" para uma sala já analisada.
+- **T041 (benchmark) continua pendente**: depende de US6 e US7 (mede a análise completa).
 

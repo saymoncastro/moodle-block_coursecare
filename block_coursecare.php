@@ -118,8 +118,8 @@ class block_coursecare extends block_base {
      */
     public function instance_create() {
         $courseid = $this->course_id();
-        if ($courseid !== null && (new diagnostic_store())->request($courseid, time())) {
-            \core\task\manager::queue_adhoc_task(analyse_course::instance($courseid));
+        if ($courseid !== null) {
+            analyse_course::request($courseid, time());
         }
         return true;
     }

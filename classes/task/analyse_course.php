@@ -16,6 +16,7 @@
 
 namespace block_coursecare\task;
 
+use block_coursecare\local\collector\diagnostic_store;
 use block_coursecare\local\course_analysis;
 
 /**
@@ -40,6 +41,23 @@ class analyse_course extends \core\task\adhoc_task {
         $task->set_component('block_coursecare');
         $task->set_custom_data(['courseid' => $courseid]);
         return $task;
+    }
+
+    /**
+     * Register a request for a course and queue its analysis, unless a request is already pending.
+     *
+     * The plugin's own request status prevents duplicates (research R9), so the core duplicate check is not used.
+     *
+     * @param int $courseid Course id.
+     * @param int $now Current time.
+     * @return bool Whether a task was queued.
+     */
+    public static function request(int $courseid, int $now): bool {
+        if (!(new diagnostic_store())->request($courseid, $now)) {
+            return false;
+        }
+        \core\task\manager::queue_adhoc_task(self::instance($courseid));
+        return true;
     }
 
     /**

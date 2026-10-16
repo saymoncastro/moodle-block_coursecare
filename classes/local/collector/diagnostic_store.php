@@ -233,6 +233,81 @@ class diagnostic_store {
     }
 
     /**
+     * Courses that have a diagnostic but are no longer eligible (deleted course or no block instance).
+     *
+     * @param eligibility $eligibility Eligibility policy.
+     * @param int $limit Maximum number of courses.
+     * @return int[]
+     */
+    public function get_orphan_courseids(eligibility $eligibility, int $limit): array {
+        global $DB;
+
+        [$eligiblesql, $params] = $eligibility->eligible_courses_sql('orph');
+        $sql = "SELECT d.courseid
+                  FROM {" . self::TABLE . "} d
+             LEFT JOIN ({$eligiblesql}) e ON e.courseid = d.courseid
+                 WHERE e.courseid IS NULL
+              ORDER BY d.courseid";
+        return array_map('intval', $DB->get_fieldset_sql($sql, $params, 0, $limit));
+    }
+
+    /**
+     * Recover requests whose process died: running too long becomes a failure, queued too long is released.
+     *
+     * @param int $now Current time.
+     * @param int $runningtimeout Seconds after which a running analysis is considered interrupted.
+     * @param int $queuedtimeout Seconds after which a queued request is considered lost.
+     * @param string $reason Failure code for interrupted analyses.
+     * @return array{interrupted: int, released: int}
+     */
+    public function recover_stuck(int $now, int $runningtimeout, int $queuedtimeout, string $reason): array {
+        global $DB;
+
+        $running = $DB->get_fieldset_select(
+            self::TABLE,
+            'courseid',
+            'requeststatus = :running AND timestarted < :cutoff',
+            ['running' => self::STATUS_RUNNING, 'cutoff' => $now - $runningtimeout]
+        );
+        foreach ($running as $courseid) {
+            $this->save_failure((int)$courseid, $reason, $now);
+        }
+        $params = ['queued' => self::STATUS_QUEUED, 'cutoff' => $now - $queuedtimeout];
+        $released = $DB->count_records_select(self::TABLE, 'requeststatus = :queued AND timerequested < :cutoff', $params);
+        $DB->set_field_select(
+            self::TABLE,
+            'requeststatus',
+            self::STATUS_NONE,
+            'requeststatus = :queued AND timerequested < :cutoff',
+            $params
+        );
+        return ['interrupted' => count($running), 'released' => $released];
+    }
+
+    /**
+     * Eligible courses without a pending request, the longest without an attempt first (never attempted first).
+     *
+     * Each row has courseid and the diagnostic fields used by due_policy (null fields if the course has no record).
+     *
+     * @param eligibility $eligibility Eligibility policy.
+     * @param int $limit Maximum number of rows.
+     * @return \stdClass[]
+     */
+    public function get_request_candidates(eligibility $eligibility, int $limit): array {
+        global $DB;
+
+        [$eligiblesql, $params] = $eligibility->eligible_courses_sql('cand');
+        $params['none'] = self::STATUS_NONE;
+        $sql = "SELECT e.courseid, d.id AS diagid, d.requeststatus, d.timeattempted, d.timecompleted,
+                       d.lastattemptfailed, d.failurecount, d.methodversion
+                  FROM ({$eligiblesql}) e
+             LEFT JOIN {" . self::TABLE . "} d ON d.courseid = e.courseid
+                 WHERE d.id IS NULL OR d.requeststatus = :none
+              ORDER BY COALESCE(d.timeattempted, 0) ASC, e.courseid ASC";
+        return array_values($DB->get_records_sql($sql, $params, 0, $limit));
+    }
+
+    /**
      * Delete the diagnostic of a course and its child rows (light: index reads only).
      *
      * @param int $courseid Course id.
