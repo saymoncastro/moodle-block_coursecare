@@ -168,6 +168,9 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
   (`icon_system_fontawesome`, `unmappedIcon`).
 - Como o elemento é decorativo, ele não está sujeito ao critério de contraste de componentes
   informativos (WCAG 1.4.11), mas o desenho mantém nitidez em fundo claro e escuro.
+- **[verificado na implementação]** Os temas core limitam `.icon` a `max-width/max-height: 24px`. A
+  regra do bloco também define `max-width/max-height: 40px`, restrita a
+  `.block_coursecare .block_coursecare-illustration .icon`, sem afetar ícones fora do bloco.
 - Boost e Classic, os temas core do 4.5, usam Bootstrap 4. Evitar utilitários que mudaram de nome
   no Bootstrap 5 (`ml-*`/`ms-*`, `gap-*`) facilita a evolução para o Moodle 5.x sem retrabalho.
 

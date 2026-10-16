@@ -1,0 +1,48 @@
+# T041 — Code review checks — 2026-10-16T15:19:21Z, commit 02d41a5 (+ working tree)
+
+## Plugin files (package scope)
+CHANGES.md
+LICENSE
+README.md
+block_coursecare.php
+classes/privacy/provider.php
+db/access.php
+lang/en/block_coursecare.php
+pix/sprout.svg
+styles.css
+templates/content.mustache
+tests/behat/block_coursecare_display.feature
+tests/behat/block_coursecare_permissions.feature
+tests/behat/block_coursecare_ui.feature
+tests/block_coursecare_test.php
+tests/privacy/provider_test.php
+tests/translation_test.php
+version.php
+
+## SC-003 / FR-019 — interface text only from the String API
+get_string calls in block_coursecare.php:
+37:        $this->title = get_string('pluginname', 'block_coursecare');
+template text outside {{#str}}/{{#pix}} (expected none):
+''
+
+## FR-004 — no external URLs or network calls in plugin code
+none
+
+## SC-009 — no database access in get_content()
+none (only has_capability, served from the access cache, and render_from_template)
+
+## Principle VIII — no string concatenation to build sentences
+none
+
+## Complexity rules — forbidden files absent
+absent: settings.php
+absent: edit_form.php
+absent: db/install.xml
+absent: db/upgrade.php
+absent: thirdpartylibs.xml
+absent: amd
+absent: classes/local
+absent: classes/output
+
+## FR-029 — no indicators, no user data
+templates/content.mustache:21:    sentence and the message announcing upcoming guidance. It shows no indicators.

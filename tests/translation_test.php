@@ -20,7 +20,7 @@ namespace block_coursecare;
  * Tests the development pt_BR translation through the real string manager, and the English fallback.
  *
  * The translation is applied as a local language customisation (pt_br_local), as tool_customlang does.
- * The test is skipped when translations/ is absent, which is the case for installations from the package.
+ * Tests that need translations/ are skipped when it is absent, which is the case for installations from the package.
  *
  * @package    block_coursecare
  * @category   test
@@ -33,7 +33,7 @@ final class translation_test extends \advanced_testcase {
     private string $source;
 
     /**
-     * Prepare a minimal pt_br language and skip when the development translation is not available.
+     * Prepare a minimal pt_br language.
      */
     protected function setUp(): void {
         global $CFG;
@@ -42,10 +42,6 @@ final class translation_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         $this->source = $CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php';
-        if (!is_readable($this->source)) {
-            $this->markTestSkipped('translations/pt_br is not present (installation from the distributable package).');
-        }
-
         $langroot = $CFG->dataroot . '/lang';
         make_writable_directory($langroot . '/pt_br');
         make_writable_directory($langroot . '/pt_br_local');
@@ -61,6 +57,15 @@ final class translation_test extends \advanced_testcase {
     protected function tearDown(): void {
         get_string_manager(true)->reset_caches();
         parent::tearDown();
+    }
+
+    /**
+     * Skip the current test when the development translation is not available.
+     */
+    private function require_translation(): void {
+        if (!is_readable($this->source)) {
+            $this->markTestSkipped('translations/pt_br is not present (installation from the distributable package).');
+        }
     }
 
     /**
@@ -83,6 +88,7 @@ final class translation_test extends \advanced_testcase {
      * With the translation installed, every string is shown in Brazilian Portuguese.
      */
     public function test_translation_is_used(): void {
+        $this->require_translation();
         $manager = $this->install_customisation(file_get_contents($this->source));
 
         $this->assertTrue($manager->translation_exists('pt_br'));
@@ -99,6 +105,7 @@ final class translation_test extends \advanced_testcase {
      * A key missing from the translation falls back to the complete English string; the others stay translated.
      */
     public function test_missing_key_falls_back_to_english(): void {
+        $this->require_translation();
         $content = preg_replace('/^\$string\[\'intro\'\].*$\n/m', '', file_get_contents($this->source));
         $this->assertStringNotContainsString("\$string['intro']", $content);
 

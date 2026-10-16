@@ -1,0 +1,38 @@
+# T042 — Install the generated ZIP on a site WITHOUT the plugin (E2) — 2026-10-16T15:15:27Z
+Separate site: moodle-docker project coursecare-zip, port 8046, Moodle 4.5.15 (Build: 20261005), PHP 8.1, PostgreSQL; no local.yml (plugin NOT mounted).
+Package: build/block_coursecare-0.1.0.zip built by tools/package/build.sh from commit 02d41a5 (package check: 0 errors, 17 files).
+
+## 1. Site installed first, without the plugin
+install_database.php: Installation completed successfully.; lines mentioning coursecare in the install log: 0
+$ php admin/cli/uninstall_plugins.php --show-contrib
+blocks/coursecare present on disk: no
+
+## 2. Extract the ZIP into blocks/ and run the upgrade
+CHANGES.md LICENSE README.md block_coursecare.php classes db lang pix styles.css templates tests version.php 
+translations/ in the installed copy: absent
+$ php admin/cli/upgrade.php --non-interactive
+-->block_coursecare
+++ Success (0.17 seconds) ++
+-->upgrade_noncore()
+++ Success (0.40 seconds) ++
+== Setting new default values ==
+Command line upgrade from 4.5.15 (Build: 20261005) (2024100715) to 4.5.15 (Build: 20261005) (2024100715) completed successfully.
+elapsed (extract + upgrade): 7 s
+
+## 3. Plugin installed
+block_coursecare	CourseCare
+version=2026101600
+capabilities=2
+
+## 4. Demo data and real use
+uploadcourse: 1 course created, 0 errors; uploaduser: 4 users created, 0 errors; CourseCare added through the interface by 'editor' (logs/playwright-zip.json, screenshots/boost-en-1280-zip-install.png).
+
+## 5. PHPUnit on the site installed from the package (admin/tool/phpunit/cli/init.php, then --testsuite block_coursecare_testsuite --verbose)
+Run A — package from commit 02d41a5: Tests: 18, Assertions: 60, Skipped: 3 (all translation_test methods; translations/ is absent).
+Run B — after making only the two translation-dependent tests skip (tests/translation_test.php, next commit; copied over the installed file):
+1) block_coursecare\translation_test::test_translation_is_used
+translations/pt_br is not present (installation from the distributable package).
+2) block_coursecare\translation_test::test_missing_key_falls_back_to_english
+translations/pt_br is not present (installation from the distributable package).
+Tests: 18, Assertions: 63, Skipped: 2.
+Result: 16 passed, 2 skipped by design (no failures).
