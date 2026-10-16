@@ -124,6 +124,11 @@ class diagnostic_store {
     /**
      * Register a request if the course has none pending.
      *
+     * The check and the update are two statements, without a lock: two requests at the same moment (a block being
+     * added while the scheduled task runs) can both be accepted and queue two tasks. That stays harmless: the first
+     * task analyses the course, and the second finds a result newer than the request and ends without collecting
+     * anything (course_analysis::FRESH). A lock here would cost every request for a rare, already handled case.
+     *
      * @param int $courseid Course id.
      * @param int $now Current time.
      * @return bool True if the request was accepted (the caller then queues the task).
@@ -151,25 +156,6 @@ class diagnostic_store {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Cancel a queued request that no longer needs to run (the result is already fresh).
-     *
-     * @param int $courseid Course id.
-     * @param int $now Current time.
-     */
-    public function clear_request(int $courseid, int $now): void {
-        global $DB;
-
-        $DB->set_field_select(
-            self::TABLE,
-            'requeststatus',
-            self::STATUS_NONE,
-            'courseid = :courseid AND requeststatus = :queued',
-            ['courseid' => $courseid, 'queued' => self::STATUS_QUEUED]
-        );
-        $DB->set_field(self::TABLE, 'timemodified', $now, ['courseid' => $courseid]);
     }
 
     /**

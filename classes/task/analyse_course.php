@@ -37,7 +37,7 @@ class analyse_course extends \core\task\adhoc_task {
      * @return self
      */
     public static function instance(int $courseid): self {
-        $task = new self();
+        $task = new static();
         $task->set_component('block_coursecare');
         $task->set_custom_data(['courseid' => $courseid]);
         return $task;
@@ -56,7 +56,7 @@ class analyse_course extends \core\task\adhoc_task {
         if (!(new diagnostic_store())->request($courseid, $now)) {
             return false;
         }
-        \core\task\manager::queue_adhoc_task(self::instance($courseid));
+        \core\task\manager::queue_adhoc_task(static::instance($courseid));
         return true;
     }
 
@@ -79,7 +79,20 @@ class analyse_course extends \core\task\adhoc_task {
     }
 
     /**
-     * Analyse the course. A failure is recorded in the diagnostic and never thrown (research R10).
+     * The analysis to run. Tests override it to make one course fail inside a real cron run.
+     *
+     * @return course_analysis
+     */
+    protected function create_analysis(): course_analysis {
+        return new course_analysis();
+    }
+
+    /**
+     * Analyse the course.
+     *
+     * A failure of the analysis is recorded in the diagnostic and not thrown, so the task ends normally (research
+     * R10). A database failure before the analysis or while recording the failure is thrown, and the core then
+     * marks the task as failed and retries it (see course_analysis).
      */
     public function execute() {
         $data = $this->get_custom_data();
@@ -88,7 +101,7 @@ class analyse_course extends \core\task\adhoc_task {
             return;
         }
         $start = microtime(true);
-        $analysis = new course_analysis();
+        $analysis = $this->create_analysis();
         $outcome = $analysis->run($courseid);
         $failure = $analysis->get_last_failure();
         mtrace(sprintf(

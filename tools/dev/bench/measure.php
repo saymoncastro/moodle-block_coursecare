@@ -17,10 +17,11 @@
 /**
  * Development tool (not packaged): time and plan of each collector query of one course (SC-003, benchmark.md).
  *
- * Runs Q0 to Q4 one by one, as the analysis does, and prints for each the duration, the database reads and the
- * number of rows. With --explain, it also prints the plan of Q1 to Q4 (EXPLAIN ANALYZE on PostgreSQL, ANALYZE on
- * MariaDB and MySQL). Nothing is written: the total duration and peak memory of a real analysis come from
- * cli/diagnostics.php --run --json, in its own process.
+ * Runs the collector queries one by one, in the order of course_analysis::analyse() (Q0, Q1, Q3, Q2, Q4), and prints
+ * for each the duration, the database reads and the number of rows. With --explain, it also prints the executed plan
+ * of Q1 to Q4: EXPLAIN (ANALYZE, BUFFERS) on PostgreSQL, ANALYZE on MariaDB and EXPLAIN ANALYZE on MySQL 8.0.18 or
+ * later; any other database is refused before anything runs. Nothing is written: the total duration and peak memory
+ * of a real analysis come from cli/diagnostics.php --run --json, in its own process.
  *
  * Usage: php blocks/coursecare/tools/dev/bench/measure.php --course=ID [--explain]
  *
@@ -78,6 +79,21 @@ class bench_recording_db {
     }
 }
 
+// How each database prints the executed plan of a query.
+$vendor = $DB->get_dbvendor();
+$version = $DB->get_server_info()['version'];
+if ($options['explain']) {
+    if ($vendor === 'postgres') {
+        $explain = 'EXPLAIN (ANALYZE, BUFFERS) ';
+    } else if ($vendor === 'mariadb') {
+        $explain = 'ANALYZE ';
+    } else if ($vendor === 'mysql' && version_compare($version, '8.0.18', '>=')) {
+        $explain = 'EXPLAIN ANALYZE ';
+    } else {
+        cli_error("--explain is not supported on {$vendor} {$version}: use PostgreSQL, MariaDB or MySQL 8.0.18 or later.");
+    }
+}
+
 $context = context_course::instance($courseid);
 $threshold = course_analysis::large_file_threshold();
 $collector = new course_files();
@@ -85,8 +101,8 @@ $real = $DB;
 $steps = [
     'Q0' => fn() => $collector->get_contexts($context),
     'Q1' => fn() => $collector->get_area_aggregates($context, $threshold),
-    'Q2' => fn() => $collector->get_category_uniques($context),
     'Q3' => fn() => $collector->get_group_uniques($context),
+    'Q2' => fn() => $collector->get_category_uniques($context),
     'Q4' => fn() => $collector->get_large_files($context, $threshold),
 ];
 
@@ -97,8 +113,8 @@ $records = $real->count_records_sql(
 );
 $result = [
     'courseid' => $courseid,
-    'dbfamily' => $real->get_dbfamily(),
-    'dbversion' => $real->get_server_info()['version'],
+    'dbvendor' => $vendor,
+    'dbversion' => $version,
     'records' => $records,
     'sitefiles' => $real->count_records('files'),
     'threshold' => $threshold,
@@ -122,12 +138,12 @@ foreach ($steps as $name => $step) {
     ];
     if ($options['explain'] && $name !== 'Q0') {
         [$sql, $params] = end($recorder->queries);
-        if ($real->get_dbfamily() === 'postgres') {
+        if ($vendor === 'postgres') {
             // A PostgreSQL recordset is a cursor, which cannot hold an EXPLAIN: read the plan lines as a field set.
-            $query['plan'] = $real->get_fieldset_sql('EXPLAIN (ANALYZE, BUFFERS) ' . $sql, $params);
+            $query['plan'] = $real->get_fieldset_sql($explain . $sql, $params);
         } else {
             $plan = [];
-            $recordset = $real->get_recordset_sql('ANALYZE ' . $sql, $params);
+            $recordset = $real->get_recordset_sql($explain . $sql, $params);
             foreach ($recordset as $line) {
                 $plan[] = (array)$line;
             }

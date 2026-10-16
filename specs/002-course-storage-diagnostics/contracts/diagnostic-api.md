@@ -51,8 +51,12 @@ do bloco, nunca um parâmetro de requisição (FR-041).
 - Fluxo: lock por sala (`block_coursecare`, `analyse_course_<id>`, espera 0, validade 7.200 s) →
   sem lock: sai → sala inexistente ou não elegível: apaga diagnóstico e sai (FR-003b) → resultado
   concluído depois da criação da tarefa: sai → `mark_running` → coleta e análise → invariantes →
-  `save_result`. Qualquer `\Throwable`: rollback, `save_failure` e término normal. O lock é
-  liberado em `finally`.
+  `save_result`. Qualquer `\Throwable` da coleta, do cálculo ou da gravação do resultado (e
+  invariantes que falham duas vezes): rollback, `save_failure` e término normal, sem relançar
+  (research R10). Uma falha do banco antes da análise (elegibilidade, frescor, `mark_running`) ou ao
+  gravar a própria falha é lançada ao core, que marca a tarefa como falha e a repete: nesse caso o
+  banco não consegue guardar o estado da solicitação, e o resultado anterior não foi tocado. O lock
+  é liberado em `finally`.
 - Saída no log (`mtrace`): id da sala, duração, pico de memória, número de registros e código de
   falha. Nunca nomes de arquivos, de atividades ou de usuários.
 

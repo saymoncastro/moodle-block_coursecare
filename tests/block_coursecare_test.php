@@ -314,38 +314,63 @@ final class block_coursecare_test extends \advanced_testcase {
     }
 
     /**
-     * SC-002 and FR-034: rendering reads the stored result only, with no query to the files table.
+     * SC-002 and FR-034: in every state, rendering reads the stored result only, with no query to the files table.
      */
     public function test_render_reads_no_files(): void {
         global $CFG, $DB;
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
-        $record = $this->getDataGenerator()->create_block('coursecare', [
+        $instance = $this->getDataGenerator()->create_block('coursecare', [
             'parentcontextid' => context_course::instance($course->id)->id,
             'pagetypepattern' => 'course-view-*',
         ]);
 
-        // Without a diagnostic.
-        $block = $this->get_block($course, 'course-view-topics', $record);
-        $reads = $DB->perf_get_reads();
-        $block->get_content();
-        $without = $DB->perf_get_reads() - $reads;
+        $now = time();
+        $result = ['timecompleted' => $now - HOURSECS, 'timeattempted' => $now - HOURSECS, 'methodversion' => 1,
+            'filecount' => 3, 'logicalbytes' => 6291456, 'partial' => 0];
+        $failure = ['lastattemptfailed' => 1, 'failurecount' => 1, 'failurereason' => 'dml_read_exception'];
+        $volume = get_string('diagnostic:volume', 'block_coursecare', display_size(6291456));
+        $states = [
+            'A not analysed' => [null, get_string('diagnostic:notavailable', 'block_coursecare')],
+            'B queued' => [['requeststatus' => 1, 'timerequested' => $now],
+                get_string('diagnostic:preparing', 'block_coursecare')],
+            'C running' => [['requeststatus' => 2, 'timerequested' => $now, 'timestarted' => $now],
+                get_string('diagnostic:preparing', 'block_coursecare')],
+            'D complete' => [$result, $volume],
+            'E outdated' => [['timecompleted' => $now - 4 * DAYSECS] + $result,
+                get_string('diagnostic:mayoutdated', 'block_coursecare')],
+            'F failed with result' => [$failure + $result, get_string('diagnostic:updatefailed', 'block_coursecare')],
+            'F failed without result' => [$failure, get_string('diagnostic:notavailable', 'block_coursecare')],
+            'G no files' => [['filecount' => 0, 'logicalbytes' => 0] + $result,
+                get_string('diagnostic:nofiles', 'block_coursecare')],
+            'H partial' => [['partial' => 1] + $result, $volume],
+        ];
 
-        // With a diagnostic, capturing every query the rendering sends.
-        (new \block_coursecare\local\collector\diagnostic_store())->request($course->id, time());
-        $block = $this->get_block($course, 'course-view-topics', $record);
-        $reads = $DB->perf_get_reads();
-        $DB->set_debug(true);
-        ob_start();
-        $block->get_content();
-        $queries = ob_get_clean();
-        $DB->set_debug(false);
-        $with = $DB->perf_get_reads() - $reads;
+        // One rendering first, so that string, configuration and template caches are warm in every measured state.
+        $this->get_block($course, 'course-view-topics', $instance)->get_content();
+        $reads = [];
+        foreach ($states as $name => [$values, $expected]) {
+            $DB->delete_records('block_coursecare_diag', ['courseid' => $course->id]);
+            if ($values !== null) {
+                $DB->insert_record('block_coursecare_diag', (object)($values + ['courseid' => $course->id,
+                    'requeststatus' => 0, 'lastattemptfailed' => 0, 'failurecount' => 0, 'timemodified' => $now]));
+            }
+            $block = $this->get_block($course, 'course-view-topics', $instance);
+            $before = $DB->perf_get_reads();
+            $DB->set_debug(true);
+            ob_start();
+            $html = $block->get_content()->text;
+            $queries = ob_get_clean();
+            $DB->set_debug(false);
+            $reads[$name] = $DB->perf_get_reads() - $before;
 
-        $this->assertLessThanOrEqual(2, $with - $without);
-        $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries);
-        $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries);
+            $this->assertStringContainsString(s($expected), $html, $name);
+            $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries, $name);
+            $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries, $name);
+        }
+        // The same light reads in every state: the state never adds a query.
+        $this->assertCount(1, array_unique($reads), json_encode($reads));
     }
 
     /**

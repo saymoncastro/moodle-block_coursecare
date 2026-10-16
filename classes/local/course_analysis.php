@@ -25,7 +25,15 @@ use block_coursecare\local\collector\eligibility;
  * Runs the analysis of one course: lock, eligibility, freshness, collection, calculation and atomic storage.
  *
  * Orchestration only: the business rules live in the analysis layer and every database access in the collector.
- * A failure never removes the previous result and is never thrown to the caller (contracts/diagnostic-api.md).
+ *
+ * Failures (contracts/diagnostic-api.md, research R10):
+ * - Any exception from the collection, the calculation or the storage of the result, and invariants that fail twice,
+ *   are recorded with save_failure(): the previous result stays, and run() returns FAILED without throwing, so the
+ *   core never retries the task on its own and the scheduled task controls the retries (FR-039a).
+ * - An exception before the analysis starts (eligibility, freshness, mark_running) or while the failure itself is
+ *   recorded is thrown to the caller: the database cannot hold the state of the request, so the core task API
+ *   handles it (the ad hoc task fails and is retried later). Nothing of the previous result is changed, and the
+ *   course lock is always released.
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -87,6 +95,7 @@ class course_analysis {
      * @param int $courseid Course id.
      * @param bool $force Analyse even if the result is already fresh (administrator request from the CLI).
      * @return string One of the outcome constants.
+     * @throws \Throwable Only a failure outside the analysis itself (see the class description).
      */
     public function run(int $courseid, bool $force = false): string {
         $this->lastfailure = null;
@@ -101,7 +110,7 @@ class course_analysis {
                 return self::INELIGIBLE;
             }
             if (!$force && $this->is_fresh($this->store->get_summary($courseid))) {
-                $this->store->clear_request($courseid, time());
+                // A duplicate task: the request was already answered, so there is nothing to clear.
                 return self::FRESH;
             }
             $this->store->mark_running($courseid, time());

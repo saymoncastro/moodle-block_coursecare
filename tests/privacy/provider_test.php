@@ -69,6 +69,12 @@ final class provider_test extends \advanced_testcase {
         $fs->create_file_from_string(['contextid' => \context_module::instance($restricted->cmid)->id,
             'component' => 'mod_page', 'filearea' => 'content', 'itemid' => 0, 'filepath' => '/',
             'filename' => 'restricted-image.png'], 'restricted');
+        // A large course material uploaded by a teacher, in the hidden resource: the one file that gets a link.
+        set_config('largefilethreshold', 1, 'block_coursecare');
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $handout = $fs->create_file_from_string(['contextid' => \context_module::instance($hidden->cmid)->id,
+            'component' => 'mod_resource', 'filearea' => 'content', 'itemid' => 0, 'filepath' => '/',
+            'filename' => 'teacher-handout-confidential.pdf', 'userid' => $teacher->id], str_repeat('h', 2 * 1048576));
 
         $this->assertSame(
             \block_coursecare\local\course_analysis::DONE,
@@ -76,8 +82,8 @@ final class provider_test extends \advanced_testcase {
         );
 
         $forbidden = ['userid', 'usermodified', 'filename', 'filepath', 'pathnamehash', 'contenthash', 'author', 'source'];
-        $names = ['student-essay-private', 'restricted-image', 'Essay task', 'Hidden reading', 'Restricted page',
-            fullname($student), $student->username];
+        $names = ['student-essay-private', 'restricted-image', 'teacher-handout-confidential', 'Essay task', 'Hidden reading',
+            'Restricted page', fullname($student), $student->username, fullname($teacher), $teacher->username];
         $tables = ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'];
         foreach ($tables as $table) {
             foreach (array_keys($DB->get_columns($table)) as $column) {
@@ -91,9 +97,14 @@ final class provider_test extends \advanced_testcase {
                 }
             }
         }
-        foreach ($DB->get_records('block_coursecare_large') as $link) {
-            $file = $DB->get_record('files', ['id' => $link->fileid], '*', MUST_EXIST);
-            $this->assertNotSame('assignsubmission_file', $file->component);
-        }
+        // Both files are large, but only the material has a link; the student's submission has none.
+        $this->assertSame(2, (int)$DB->get_field('block_coursecare_diag', 'largecount', ['courseid' => $course->id]));
+        $links = $DB->get_records('block_coursecare_large');
+        $this->assertCount(1, $links);
+        $link = reset($links);
+        $this->assertSame(['id', 'diagid', 'fileid', 'cmid', 'filesize'], array_keys((array)$link));
+        $this->assertSame((int)$handout->get_id(), (int)$link->fileid);
+        $this->assertSame((int)$hidden->cmid, (int)$link->cmid);
+        $this->assertSame(2 * 1048576, (int)$link->filesize);
     }
 }

@@ -160,6 +160,9 @@ function bench_insert_metadata(file_storage $fs, array $areas, int $count, array
     $base = ['userid' => $USER->id, 'mimetype' => 'application/octet-stream', 'status' => 0, 'source' => null,
         'author' => null, 'license' => null, 'timecreated' => $now, 'timemodified' => $now, 'sortorder' => 0,
         'referencefileid' => null, 'filepath' => '/'];
+    // The File API writes directory records with no MIME type; the same keys, in the same order, as the files.
+    $directory = $base;
+    $directory['mimetype'] = null;
     $contents = [];
     $unique = [];
     $logical = 0;
@@ -182,7 +185,7 @@ function bench_insert_metadata(file_storage $fs, array $areas, int $count, array
         if (!isset($directories[$key])) {
             // The File API creates a "." record for the root directory of every area and item.
             $directories[$key] = true;
-            $rows[] = $base + ['contextid' => $contextid, 'component' => $component, 'filearea' => $filearea,
+            $rows[] = $directory + ['contextid' => $contextid, 'component' => $component, 'filearea' => $filearea,
                 'itemid' => $itemid, 'filename' => '.', 'filesize' => 0, 'contenthash' => sha1(''),
                 'pathnamehash' => $fs->get_pathname_hash($contextid, $component, $filearea, $itemid, '/', '.')];
         }

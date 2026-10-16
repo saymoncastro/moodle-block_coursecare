@@ -214,8 +214,30 @@ final class course_files_test extends \advanced_testcase {
         $samples[] = [$modcontext, 'local_fake', 'stuff'];
         $samples[] = [$modcontext, 'mod_resource', 'weird'];
         $samples[] = [$coursecontext, 'mod_resource', 'content'];
+        // Near misses of the prefix rules: in SQL LIKE, "_" matches any one character, so without escaping
+        // "mod_*", "qtype_*" and "response_*" would also take these values, and SQL would disagree with PHP.
+        $samples[] = [$modcontext, 'modxlesson', 'intro'];
+        $samples[] = [$coursecontext, 'qtypexddmarker', 'questiontext'];
+        $samples[] = [$modcontext, 'question', 'responsexattachments'];
+        // A prefix without its separator, and a valid value just after it.
+        $samples[] = [$modcontext, 'mod', 'intro'];
+        $samples[] = [$modcontext, 'mod_xy', 'intro'];
+        $samples[] = [$coursecontext, 'qtype', 'questiontext'];
         foreach ($samples as $n => [$context, $component, $area]) {
             $this->add_file($context, $component, $area, "sample {$n}");
+        }
+        // Values the File API rejects ("%" and "_" in unusual places), written directly as legacy or foreign data
+        // could be: "%" must not act as a wildcard on either side.
+        $raw = [[$modcontext, 'mod%lesson', 'intro'], [$modcontext, 'question', 'response%x'],
+            [$coursecontext, 'qtype%', 'x_%']];
+        foreach ($raw as $n => [$context, $component, $area]) {
+            $DB->insert_record('files', (object)[
+                'contenthash' => sha1("raw {$n}"), 'contextid' => $context->id, 'component' => $component,
+                'filearea' => $area, 'itemid' => 0, 'filepath' => '/', 'filename' => "raw{$n}.bin", 'filesize' => 5,
+                'pathnamehash' => sha1("/{$context->id}/{$component}/{$area}/0/raw{$n}.bin"), 'status' => 0,
+                'timecreated' => time(), 'timemodified' => time(), 'sortorder' => 0,
+            ]);
+            $samples[] = [$context, $component, $area];
         }
 
         [$case, $params] = (new course_files())->category_case('t');
@@ -228,10 +250,21 @@ final class course_files_test extends \advanced_testcase {
             $params
         );
         $this->assertCount(count($samples), $rows);
+        $categories = [];
         foreach ($rows as $row) {
             $expected = classification_rules::classify($row->component, $row->filearea, (int)$row->contextlevel);
             $this->assertSame($expected, $row->category, "{$row->component}/{$row->filearea}");
+            $categories["{$row->component}/{$row->filearea}"] = $row->category;
         }
+        // The near misses fall to the next rule or stay unclassified; the valid value matches its rule.
+        $this->assertSame(classification_rules::UNCLASSIFIED, $categories['modxlesson/intro']);
+        $this->assertSame(classification_rules::UNCLASSIFIED, $categories['qtypexddmarker/questiontext']);
+        $this->assertSame(classification_rules::OTHER, $categories['question/responsexattachments']);
+        $this->assertSame(classification_rules::UNCLASSIFIED, $categories['mod/intro']);
+        $this->assertSame(classification_rules::MATERIAL, $categories['mod_xy/intro']);
+        $this->assertSame(classification_rules::UNCLASSIFIED, $categories['mod%lesson/intro']);
+        $this->assertSame(classification_rules::OTHER, $categories['question/response%x']);
+        $this->assertSame(classification_rules::SUBMISSION, $categories['question/response_attachments']);
     }
 
     /**
