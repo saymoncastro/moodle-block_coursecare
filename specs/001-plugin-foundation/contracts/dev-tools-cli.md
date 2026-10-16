@@ -21,6 +21,8 @@ Moodle instalado nem de bibliotecas externas.
   | `invalid-syntax` | erro | Qualquer construção fora do formato de dados |
   | `duplicate-key` | erro | Chave atribuída mais de uma vez no mesmo arquivo |
   | `missing-file` | erro | Arquivo do inglês sem correspondente na tradução |
+  | `extra-file` | erro | Arquivo da tradução sem correspondente no inglês (revisão de código) |
+  | `key-order` | erro | Chaves comuns fora da ordem do inglês, que é alfabética (decisão C2; revisão de código) |
   | `same-as-english` | aviso (erro com `--strict`) | Valor idêntico ao inglês |
 
 - **Saída** (stdout, uma linha por problema, ordenada por idioma, arquivo e chave):

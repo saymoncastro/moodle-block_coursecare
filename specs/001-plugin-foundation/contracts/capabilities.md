@@ -9,6 +9,11 @@ Fonte das regras nativas: research.md R2 e R3 (código do Moodle 4.5).
 | `block/coursecare:addinstance` | `write` | `CONTEXT_BLOCK` | `RISK_SPAM \| RISK_XSS` | `editingteacher`, `manager` | `moodle/site:manageblocks` |
 | `block/coursecare:view` | `read` | `CONTEXT_BLOCK` | — | `editingteacher`, `manager` | — |
 
+- **Instalação de `addinstance`**: como `clonepermissionsfrom` aponta para uma capability existente,
+  o core copia as permissões atuais de `moodle/site:manageblocks` no site, e os `archetypes` só valem
+  como fallback se a origem não existir. Num site padrão, o resultado é `editingteacher` e `manager`
+  (verificado: 4 `role_capabilities` após a instalação, `evidence/logs/uninstall-with-instances.txt`).
+  Num site com permissões de gestão de blocos customizadas, o padrão acompanha essas customizações.
 - `block/coursecare:myaddinstance` **não** é definida: o bloco não é permitido no Painel
   (`'my' => false`), e o core não consulta essa capability nesse caso.
 - Strings obrigatórias: `coursecare:addinstance` e `coursecare:view` em `lang/en`.
@@ -22,7 +27,10 @@ Fonte das regras nativas: research.md R2 e R3 (código do Moodle 4.5).
 | Ver conteúdo | `moodle/block:view` **e** `block/coursecare:view`, no contexto do bloco, **e** página principal | Core e `get_content()` do plugin | Conteúdo não é gerado no servidor. Bloco não exibido, exceto pelo caso da invariante 4. |
 | Controles de edição | Página principal (`instance_can_be_edited()`) e permissões nativas de edição | Core e plugin | Fora da página principal, sem controles e sem renderização |
 
-## Padrões por arquétipo
+## Padrões por arquétipo (site padrão)
+
+Para `addinstance`, a coluna "Adicionar" reflete um site em que `moodle/site:manageblocks` mantém os
+padrões do core (ver "Instalação de `addinstance`").
 
 | Arquétipo | Adicionar | Ver |
 | --- | --- | --- |

@@ -157,6 +157,25 @@ function coursecare_i18n_placeholders(string $value): array {
 }
 
 /**
+ * Find the first key whose position differs from the English order, considering only keys present in both files.
+ *
+ * @param string[] $enkeys English keys in file order.
+ * @param string[] $keys Translation keys in file order.
+ * @return array{0: string, 1: string}|null [translation key found, English key expected], or null when the order matches.
+ */
+function coursecare_i18n_order_problem(array $enkeys, array $keys): ?array {
+    $common = array_values(array_intersect($keys, $enkeys));
+    $expected = array_values(array_intersect($enkeys, $keys));
+    foreach ($common as $i => $key) {
+        if ($key !== $expected[$i]) {
+            return [$key, $expected[$i]];
+        }
+    }
+
+    return null;
+}
+
+/**
  * Run the checker.
  *
  * @param array $argv Command line arguments.
@@ -232,6 +251,15 @@ function coursecare_i18n_main(array $argv): int {
             foreach (array_diff_key($strings, $enstrings) as $key => $unused) {
                 $issues[] = ['ERROR', 'extra-key', $lang, "{$name}:{$key}", 'key does not exist in English'];
             }
+            $order = coursecare_i18n_order_problem(array_keys($enstrings), array_keys($strings));
+            if ($order !== null) {
+                [$key, $expected] = $order;
+                $issues[] = ['ERROR', 'key-order', $lang, "{$name}:{$key}", "expected '{$expected}' here (same order as English)"];
+            }
+        }
+        $translationfiles = glob("{$dir}/*.php") ?: [];
+        foreach (array_diff(array_map('basename', $translationfiles), array_keys($english)) as $extrafile) {
+            $issues[] = ['ERROR', 'extra-file', $lang, $extrafile, 'no English file with this name'];
         }
     }
 
