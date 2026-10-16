@@ -36,10 +36,14 @@ Plugins > Blocks > Manage blocks, and uninstalled from the same page.
 
 ## Permissions
 
-| Capability | Default (archetypes) | Purpose |
+| Capability | Default at installation | Purpose |
 | --- | --- | --- |
-| `block/coursecare:addinstance` | Editing teacher, Manager | Add the block to a course |
-| `block/coursecare:view` | Editing teacher, Manager | See the block content |
+| `block/coursecare:addinstance` | Copied from `moodle/site:manageblocks` on your site (on a standard site: Editing teacher, Manager) | Add the block to a course |
+| `block/coursecare:view` | Editing teacher, Manager (archetypes) | See the block content |
+
+`addinstance` follows the core convention for blocks: at installation Moodle clones the current role
+permissions of `moodle/site:manageblocks`, so any local change to who can manage blocks is carried
+over. Review it after installation if your site grants block management to other roles.
 
 Non-editing teachers, students, guests and visitors do not see the block by default. Configuring,
 moving, hiding and deleting the block follow the native block permissions. Site administrators can

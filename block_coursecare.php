@@ -38,15 +38,6 @@ class block_coursecare extends block_base {
     }
 
     /**
-     * The block has no site-level settings.
-     *
-     * @return bool
-     */
-    public function has_config() {
-        return false;
-    }
-
-    /**
      * The block can only be added to the course main page, never to section pages.
      *
      * @return array
@@ -105,13 +96,13 @@ class block_coursecare extends block_base {
     }
 
     /**
-     * Whether the current page is the course main page (course/view.php), excluding section pages.
+     * Whether the current page is one where the block may be added: the course main page, not section pages.
+     *
+     * Uses the core resolution of applicable_formats(), so the display rule and the add rule share one definition.
      *
      * @return bool
      */
     private function is_main_page(): bool {
-        $pagetype = $this->page->pagetype;
-
-        return strpos($pagetype, 'course-view-') === 0 && strpos($pagetype, 'course-view-section-') !== 0;
+        return blocks_name_allowed_in_format($this->name(), $this->page->pagetype);
     }
 }

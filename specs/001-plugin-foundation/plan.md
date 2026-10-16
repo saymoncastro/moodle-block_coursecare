@@ -170,7 +170,7 @@ passará a ler dados prontos e entregá-los ao template.
 Página principal da sala (course-view-<formato>)
    └─ block_manager (core) ── moodle/block:view? ──┐
                                                    ▼
-        is_main_page = tipo de página começa com course-view- e não com course-view-section-
+        is_main_page = blocks_name_allowed_in_format('coursecare', pagetype)  ← mesmo mapa de applicable_formats()
         block_coursecare::get_content()
           1. !is_main_page?                                               → conteúdo vazio
           2. !has_capability('block/coursecare:view', contexto do bloco)? → conteúdo vazio
@@ -184,8 +184,10 @@ Página principal da sala (course-view-<formato>)
 ```
 
 Métodos de `block_base` sobrescritos: `init()` (título = `pluginname`), `applicable_formats()`,
-`instance_allow_multiple()` (false), `has_config()` (false), `get_content()` e
-`instance_can_be_edited()`. Este último é API pública documentada ("If overridden and set to false
+`instance_allow_multiple()` (false), `get_content()` e `instance_can_be_edited()`. `has_config()`
+não é sobrescrito, porque o padrão de `block_base` já é false (revisão de código). O teste de página
+principal deriva de `applicable_formats()` via `blocks_name_allowed_in_format()`, para que a regra de
+adição e a de exibição tenham uma única definição. Este último é API pública documentada ("If overridden and set to false
 by the block it will not be editable"), usada no core por `block_myoverview`. Não são
 sobrescritos: `instance_allow_config()` (o padrão false basta) e `specialization()`. O teste de
 página principal é um método privado do próprio bloco, não uma abstração. Detalhes em

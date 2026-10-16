@@ -70,8 +70,9 @@ jobs:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
           # tools/ and translations/ are not plugin code and are not packaged; they are linted
-          # in the i18n-package job (research R11, decision C1).
-          IGNORE_PATHS: 'tools,translations'
+          # in the i18n-package job (research R11, decision C1). Anchored regexes: plain strings
+          # would also exclude any plugin path that merely contains "tools" or "translations".
+          IGNORE_PATHS: '/^tools\//,/^translations\//'
 
       - name: PHP Lint
         if: ${{ !cancelled() }}

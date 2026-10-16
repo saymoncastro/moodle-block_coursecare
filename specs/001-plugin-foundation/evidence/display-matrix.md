@@ -1,6 +1,6 @@
 # Matriz de exibição e permissões (T020) — Moodle real
 
-Executada em 2026-10-16T14:57:50.080Z com Playwright (Chromium headless) contra http://localhost:8045 (Moodle 4.5.15, tema Boost, idioma en, 1280×900). Dados fictícios (quickstart §3).
+Executada em 2026-10-16T16:42:03.914Z com Playwright (Chromium headless) contra http://localhost:8045 (Moodle 4.5.15, tema Boost, idioma en, 1280×900). Dados fictícios (quickstart §3).
 
 | Cenário | Usuário | Página | Edição | Esperado | Obtido | Resultado |
 | --- | --- | --- | --- | --- | --- | --- |

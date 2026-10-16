@@ -88,8 +88,10 @@ em `block_html`), para que administradores revisem os riscos de forma uniforme. 
 1. `applicable_formats()` retorna `['course-view' => true, 'course-view-section' => false]`. Todo o
    resto fica negado pelo fallback `all` vazio.
 2. `instance_allow_multiple()` retorna `false`.
-3. **Guarda de exibição**: `get_content()` só produz conteúdo quando o tipo da página atual começa
-   com `course-view-` e não com `course-view-section-` (a "página principal").
+3. **Guarda de exibição**: `get_content()` só produz conteúdo quando o tipo da página atual é aceito
+   por `applicable_formats()`, resolvido pelo core com `blocks_name_allowed_in_format()` (a "página
+   principal": `course-view-*`, exceto `course-view-section-*`). A implementação inicial repetia essa
+   regra com prefixos de string. A revisão de código a unificou.
 4. **Sem cabeçalho vazio fora da página principal**: `instance_can_be_edited()` retorna `true` só na
    página principal.
 
