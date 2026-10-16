@@ -154,7 +154,22 @@ running, 4 analysis failed (the previous result was kept).
 
 ### Scalability
 
-<!-- T041: measured limits are filled in from specs/002-course-storage-diagnostics/evidence/benchmark.md. -->
+Measured on Moodle 4.5.15 with PostgreSQL 17 and MariaDB 11.4 in their default configuration, on a
+site with 5,001 courses and 5.7 million file records (details in
+`specs/002-course-storage-diagnostics/evidence/benchmark.md`):
+
+| File records in the course | PostgreSQL | MariaDB | PHP peak memory |
+| --- | --- | --- | --- |
+| 5,000 | 0.04 s | 0.07 s | 14 MB |
+| 50,000 | 0.13 s | 0.57 s | 15 MB |
+| 200,000 | 0.52 s | 3.9 s | 16 MB |
+
+The analysis reads the course with indexed aggregate queries (`context.path` and `files.contextid`)
+and keeps only aggregates in memory, so its memory stays almost flat as the course grows. Figures are
+for one analysis with a cold database cache; they depend on the server.
+
+<!-- T041: the site-wide figure (courses analysed per day with the default schedule, SC-004) is added
+     when its run is complete. -->
 
 ### Limitations
 

@@ -32,6 +32,11 @@ que a deduplicação seja controlada:
 Total: 5.001 salas com o bloco. Parâmetros: `--profile`, `--courses`, `--seed`. O gerador grava um
 manifesto JSON com os valores esperados de A e B de cada sala (para a amostragem de exatidão).
 
+**Desvio na execução (2026-10-16)**: os 5,7 milhões de registros por base excedem os inodes da VM
+do Docker, então os dados do benchmark usam `--mode=metadata` (registros inseridos diretamente em
+`files`, com os registros de diretório da File API e sem conteúdo no repositório de arquivos). A
+análise lê só metadados; o desvio está declarado em `evidence/benchmark.md`.
+
 **Arquivos grandes sem ocupar disco**: o tamanho real do conteúdo não muda o custo da análise (só
 metadados são lidos). Os arquivos "grandes" do benchmark são criados com conteúdo pequeno e
 `filesize` ajustado por `$DB->set_field` **apenas nos dados sintéticos de benchmark**. Isso é

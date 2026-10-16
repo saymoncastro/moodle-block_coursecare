@@ -22,7 +22,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-14 | T050 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
 | CT-15 | T049, T051 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
 | CT-16 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
-| CT-17 | T041 (benchmark) | | | | pendente |
+| CT-17 | T041 (benchmark) | 2026-10-16 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | verde: 50.000 registros em ≤ 0,57 s, memória 1,02 × a de 5.000, valores = manifesto ([benchmark.md](benchmark.md)) |
 | CT-18 | T011, T034 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (T011, T034); CI verde (run 38966216241) |
 | CT-19 | T042, T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | CT-20 | T043 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
@@ -43,7 +43,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-35 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
 | SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | todos os cenários verdes local; CI verde até CT-32, CT-33–CT-35 (US7) com CI pendente |
 | SC-002 | T021, T040, T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: leituras e ausência de `files` (T021) verdes; microbenchmark T040/T041 pendente |
-| SC-003 | T041 | | | | pendente |
+| SC-003 | T041 | 2026-10-16 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | atendido nas duas bases ([benchmark.md](benchmark.md)) |
 | SC-004 | T041 | | | | pendente |
 | SC-005 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | SC-006 | T042 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |

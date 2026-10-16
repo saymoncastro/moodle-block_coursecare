@@ -358,6 +358,9 @@ SC-004.
   e exatidão por amostragem. Registrar `evidence/benchmark.md` e os JSON em `evidence/logs/`,
   separando medido e projetado. **Aprovação**: critérios de benchmark.md; qualquer reprovação vira
   ajuste antes da fase final (por exemplo, RK1 do plano).
+  *Execução (2026-10-16)*: SC-003 medido e atendido nas duas bases (50.000 registros em ≤ 0,57 s,
+  memória 1,02 ×; `evidence/benchmark.md`), com dados em `--mode=metadata` (desvio declarado).
+  Pendentes: SC-004, SC-002 (microbenchmark), concorrência e amostragem por perfil.
 
 **Checkpoint**: T034–T035 verdes; evidência de benchmark registrada.
 
@@ -527,16 +530,16 @@ por `cmid` e contagens de grande porte conferidos.
   configurações com padrões e unidades (limite de grande porte em MB = 1.048.576 bytes, como
   triagem e não limite pedagógico), CLI, privacidade, limites de escalabilidade **medidos** em T041 e
   limitações (backups fora do Moodle, referências, Fórum, cobertura da classificação).
-- [ ] T064 [P] Atualizar `CHANGES.md` com a entrada 0.2.0.
-- [ ] T065 Executar `php tools/i18n/check.php` e corrigir qualquer falta de paridade, ordem de
+- [X] T064 [P] Atualizar `CHANGES.md` com a entrada 0.2.0.
+- [X] T065 Executar `php tools/i18n/check.php` e corrigir qualquer falta de paridade, ordem de
   chaves ou parâmetros; revisar o pt_br das novas strings.
 - [ ] T066 [MANUAL] Revisão de tom e rótulos (SC-008; Princípios I, II e IV): ler todas as strings
   novas em en e pt_br contra as restrições de contracts/block-ui.md e registrar o resultado em
   `evidence/README.md`.
-- [ ] T067 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php
+- [X] T067 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php
   build/block_coursecare-0.2.0.zip` (contém `db/install.xml`, `db/upgrade.php`, `db/tasks.php`,
   `settings.php`, `cli/diagnostics.php` e `classes/**`; não contém `tools/` nem `translations/`).
-- [ ] T068 [MANUAL] Executar o quickstart.md (§1–§7) num Moodle 4.5 real, em en e pt_BR: atualização
+- [X] T068 [MANUAL] Executar o quickstart.md (§1–§7) num Moodle 4.5 real, em en e pt_BR: atualização
   a partir da 0.1.0 (CT-25), primeira análise, conferência dos números, estados, ciclo de vida.
   Capturas do bloco nos estados A, B, D, E, F e G em `evidence/screenshots/` e saídas da CLI em
   `evidence/logs/`.

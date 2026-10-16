@@ -1,0 +1,5 @@
+#!/bin/zsh
+# Run docker compose for a benchmark stack: mbc pg|maria <compose args...>
+db=$1; shift
+source /Users/saymoncastro/Projetos/coursecare-devenv/env-bench-$db.sh
+cd /Users/saymoncastro/Projetos/coursecare-devenv/moodle-docker && bin/moodle-docker-compose "$@" 2>&1 | grep -v "Including local options"
