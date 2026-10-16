@@ -1,0 +1,236 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+namespace block_coursecare\local\collector;
+
+use block_coursecare\local\analysis\diagnostic_result;
+use block_coursecare\local\analysis\diagnostic_state;
+
+/**
+ * Reads and writes the plugin's own diagnostic tables (data-model.md). Single access point to the results (FR-053).
+ *
+ * It stores aggregates only: no user id, file name or path. Readers must check permissions before calling it and
+ * must pass the course of their own context, never a request parameter (FR-041).
+ *
+ * @package    block_coursecare
+ * @copyright  2026 Saymon Castro
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class diagnostic_store {
+    /** @var int No pending request. */
+    public const STATUS_NONE = diagnostic_state::REQUEST_NONE;
+    /** @var int Request queued. */
+    public const STATUS_QUEUED = diagnostic_state::REQUEST_QUEUED;
+    /** @var int Analysis running. */
+    public const STATUS_RUNNING = diagnostic_state::REQUEST_RUNNING;
+
+    /** @var string Main table. */
+    public const TABLE = 'block_coursecare_diag';
+    /** @var string Child tables, keyed by diagid. */
+    public const CHILD_TABLES = ['block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'];
+
+    /** @var int Maximum length of failurereason. */
+    public const REASON_LENGTH = 30;
+
+    /**
+     * Current diagnostic record of a course: one read by the unique courseid index; never reads the files table.
+     *
+     * @param int $courseid Course id.
+     * @return \stdClass|null
+     */
+    public function get_summary(int $courseid): ?\stdClass {
+        global $DB;
+
+        $record = $DB->get_record(self::TABLE, ['courseid' => $courseid]);
+        return $record ?: null;
+    }
+
+    /**
+     * Register a request if the course has none pending.
+     *
+     * @param int $courseid Course id.
+     * @param int $now Current time.
+     * @return bool True if the request was accepted (the caller then queues the task).
+     */
+    public function request(int $courseid, int $now): bool {
+        global $DB;
+
+        $record = $this->get_summary($courseid);
+        if ($record) {
+            if ((int)$record->requeststatus !== self::STATUS_NONE) {
+                return false;
+            }
+            $DB->update_record(self::TABLE, (object)[
+                'id' => $record->id, 'requeststatus' => self::STATUS_QUEUED, 'timerequested' => $now, 'timemodified' => $now,
+            ]);
+            return true;
+        }
+        try {
+            $DB->insert_record(self::TABLE, (object)[
+                'courseid' => $courseid, 'requeststatus' => self::STATUS_QUEUED, 'timerequested' => $now,
+                'lastattemptfailed' => 0, 'failurecount' => 0, 'timemodified' => $now,
+            ]);
+        } catch (\dml_write_exception $e) {
+            // Another process created the record at the same time (unique courseid): its request stands.
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Cancel a queued request that no longer needs to run (the result is already fresh).
+     *
+     * @param int $courseid Course id.
+     * @param int $now Current time.
+     */
+    public function clear_request(int $courseid, int $now): void {
+        global $DB;
+
+        $DB->set_field_select(
+            self::TABLE,
+            'requeststatus',
+            self::STATUS_NONE,
+            'courseid = :courseid AND requeststatus = :queued',
+            ['courseid' => $courseid, 'queued' => self::STATUS_QUEUED]
+        );
+        $DB->set_field(self::TABLE, 'timemodified', $now, ['courseid' => $courseid]);
+    }
+
+    /**
+     * Mark the analysis of a course as running, creating the record if needed.
+     *
+     * @param int $courseid Course id.
+     * @param int $now Current time.
+     */
+    public function mark_running(int $courseid, int $now): void {
+        global $DB;
+
+        $record = $this->get_summary($courseid);
+        if (!$record) {
+            $DB->insert_record(self::TABLE, (object)[
+                'courseid' => $courseid, 'requeststatus' => self::STATUS_RUNNING, 'timerequested' => $now,
+                'timestarted' => $now, 'lastattemptfailed' => 0, 'failurecount' => 0, 'timemodified' => $now,
+            ]);
+            return;
+        }
+        $DB->update_record(self::TABLE, (object)[
+            'id' => $record->id, 'requeststatus' => self::STATUS_RUNNING, 'timestarted' => $now, 'timemodified' => $now,
+        ]);
+    }
+
+    /**
+     * Replace the current result of a course, atomically: until the transaction commits, the previous result stays.
+     *
+     * @param int $courseid Course id.
+     * @param diagnostic_result $result New result.
+     * @param int $now Current time.
+     */
+    public function save_result(int $courseid, diagnostic_result $result, int $now): void {
+        global $DB;
+
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            $record = $this->get_summary($courseid);
+            if (!$record) {
+                $record = (object)['courseid' => $courseid, 'timemodified' => $now];
+                $record->id = $DB->insert_record(self::TABLE, $record);
+            }
+            foreach (self::CHILD_TABLES as $table) {
+                $DB->delete_records($table, ['diagid' => $record->id]);
+            }
+            $rows = [];
+            foreach ($result->categories as $category => $values) {
+                $rows[] = ['diagid' => $record->id, 'category' => $category] + $values;
+            }
+            $DB->insert_records('block_coursecare_cat', $rows);
+            $rows = [];
+            foreach ($result->activities as $cmid => $values) {
+                $rows[] = ['diagid' => $record->id, 'cmid' => $cmid] + $values;
+            }
+            $DB->insert_records('block_coursecare_act', $rows);
+            $rows = [];
+            foreach ($result->largelinks as $link) {
+                $rows[] = ['diagid' => $record->id] + $link;
+            }
+            $DB->insert_records('block_coursecare_large', $rows);
+
+            $update = (object)($result->summary + [
+                'id' => $record->id,
+                'requeststatus' => self::STATUS_NONE,
+                'timestarted' => null,
+                'timeattempted' => $now,
+                'timecompleted' => $now,
+                'lastattemptfailed' => 0,
+                'failurecount' => 0,
+                'failurereason' => null,
+                'timemodified' => $now,
+            ]);
+            $DB->update_record(self::TABLE, $update);
+            $transaction->allow_commit();
+        } catch (\Throwable $e) {
+            $transaction->rollback($e);
+        }
+    }
+
+    /**
+     * Record a failed attempt, keeping the previous result.
+     *
+     * @param int $courseid Course id.
+     * @param string $reason Short failure code, never a free message; truncated to 30 characters.
+     * @param int $now Current time.
+     */
+    public function save_failure(int $courseid, string $reason, int $now): void {
+        global $DB;
+
+        $reason = \core_text::substr($reason, 0, self::REASON_LENGTH);
+        $record = $this->get_summary($courseid);
+        if (!$record) {
+            $DB->insert_record(self::TABLE, (object)[
+                'courseid' => $courseid, 'requeststatus' => self::STATUS_NONE, 'timeattempted' => $now,
+                'lastattemptfailed' => 1, 'failurecount' => 1, 'failurereason' => $reason, 'timemodified' => $now,
+            ]);
+            return;
+        }
+        $DB->update_record(self::TABLE, (object)[
+            'id' => $record->id,
+            'requeststatus' => self::STATUS_NONE,
+            'timestarted' => null,
+            'timeattempted' => $now,
+            'lastattemptfailed' => 1,
+            'failurecount' => (int)$record->failurecount + 1,
+            'failurereason' => $reason,
+            'timemodified' => $now,
+        ]);
+    }
+
+    /**
+     * Delete the diagnostic of a course and its child rows (light: index reads only).
+     *
+     * @param int $courseid Course id.
+     */
+    public function delete_for_course(int $courseid): void {
+        global $DB;
+
+        $record = $this->get_summary($courseid);
+        if (!$record) {
+            return;
+        }
+        foreach (self::CHILD_TABLES as $table) {
+            $DB->delete_records($table, ['diagid' => $record->id]);
+        }
+        $DB->delete_records(self::TABLE, ['id' => $record->id]);
+    }
+}

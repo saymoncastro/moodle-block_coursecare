@@ -84,9 +84,9 @@ Em cada execução, nesta ordem:
 
 | Nome | Tipo | Padrão | Validação | Requisito |
 | --- | --- | --- | --- | --- |
-| `block_coursecare/largefilethreshold` | inteiro, em MB (1 MB = 1.048.576 bytes) | 50 | ≥ 1 | FR-015a |
-| `block_coursecare/reanalysisinterval` | inteiro, em horas | 24 | ≥ 1 | FR-037 |
-| `block_coursecare/stalenessthreshold` | inteiro, em horas | 72 | ≥ 1; recomendado > intervalo (texto de ajuda) | FR-038 |
+| `block_coursecare/largefilethreshold` | inteiro, em MB (1 MB = 1.048.576 bytes), `admin_setting_configtext` com validação `/^[1-9][0-9]{0,6}$/` | 50 | ≥ 1 | FR-015a |
+| `block_coursecare/reanalysisinterval` | duração (`admin_setting_configduration`, gravada em segundos, unidade padrão horas) | 24 h | ≥ 1 h | FR-037 |
+| `block_coursecare/stalenessthreshold` | duração (`admin_setting_configduration`, gravada em segundos, unidade padrão horas) | 72 h | ≥ 1 h; recomendado > intervalo (texto de ajuda) | FR-038 |
 
 Lote por execução (500), concorrência (2), validade do lock (2 h), detecção de presos (2 h / 24 h),
 limite de ligações (1.000) e regra de nova tentativa são **constantes documentadas** no README

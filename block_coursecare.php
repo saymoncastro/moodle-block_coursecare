@@ -22,6 +22,11 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_coursecare\local\analysis\state_resolver;
+use block_coursecare\local\collector\diagnostic_store;
+use block_coursecare\output\diagnostic_line;
+use block_coursecare\task\analyse_course;
+
 /**
  * CourseCare block: educational guidance on the conscious use of course resources.
  *
@@ -35,6 +40,15 @@ class block_coursecare extends block_base {
      */
     public function init() {
         $this->title = get_string('pluginname', 'block_coursecare');
+    }
+
+    /**
+     * The block has site settings (settings.php): large-file threshold, reanalysis interval and out-of-date limit.
+     *
+     * @return bool
+     */
+    public function has_config() {
+        return true;
     }
 
     /**
@@ -90,9 +104,56 @@ class block_coursecare extends block_base {
             return $this->content;
         }
 
-        $this->content->text = $OUTPUT->render_from_template('block_coursecare/content', []);
+        $this->content->text = $OUTPUT->render_from_template('block_coursecare/content', [
+            'diagnostic' => $this->diagnostic_line(),
+        ]);
 
         return $this->content;
+    }
+
+    /**
+     * Request the first analysis of the course when the block is added (FR-036). Light: no file is read here.
+     *
+     * @return bool
+     */
+    public function instance_create() {
+        $courseid = $this->course_id();
+        if ($courseid !== null && (new diagnostic_store())->request($courseid, time())) {
+            \core\task\manager::queue_adhoc_task(analyse_course::instance($courseid));
+        }
+        return true;
+    }
+
+    /**
+     * Data of the file overview line for the course of this block, read from the stored result only (FR-034).
+     *
+     * @return array|null Template data, or null if the block is not in a course.
+     */
+    private function diagnostic_line(): ?array {
+        $courseid = $this->course_id();
+        if ($courseid === null) {
+            return null;
+        }
+        $staleness = (int)get_config('block_coursecare', 'stalenessthreshold');
+        $state = state_resolver::resolve(
+            (new diagnostic_store())->get_summary($courseid),
+            time(),
+            $staleness > 0 ? $staleness : 3 * DAYSECS
+        );
+        return (new diagnostic_line($state))->export_for_template($this->page->get_renderer('core'));
+    }
+
+    /**
+     * The course of this block: always taken from the block's own parent context, never from a request (FR-041).
+     *
+     * @return int|null Course id, or null if the block is not in a course (or is on the site course).
+     */
+    private function course_id(): ?int {
+        $parent = context::instance_by_id($this->instance->parentcontextid, IGNORE_MISSING);
+        if (!$parent instanceof context_course || $parent->instanceid == SITEID) {
+            return null;
+        }
+        return (int)$parent->instanceid;
     }
 
     /**

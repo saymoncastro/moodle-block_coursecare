@@ -17,8 +17,10 @@
 {{!
     @template block_coursecare/content
 
-    Initial educational content of the CourseCare block: a decorative icon, the identity
-    sentence and the message announcing upcoming guidance. It shows no indicators.
+    Educational content of the CourseCare block: a decorative icon, the identity sentence, the
+    message announcing upcoming guidance and one line about the course file overview (Feature 002).
+    The line holds at most one number, the files recorded by Moodle for the course, with the date
+    of the analysis; its sentences come already translated from the diagnostic_line renderable.
 
     Classes required for JS:
     * none
@@ -27,15 +29,25 @@
     * none
 
     Context variables required for this template:
-    * none
+    * diagnostic - optional object with "sentences", a list of objects with a "text" property
 
     Example context (json):
-    {}
+    {
+        "diagnostic": {
+            "sentences": [
+                {"text": "Files in this course, as recorded by Moodle: 6.0 MB."},
+                {"text": "Calculated on 16/10/26, 10:12."}
+            ]
+        }
+    }
 }}
 <div class="block_coursecare-content">
     <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
     <div class="block_coursecare-text">
         <p class="block_coursecare-tagline">{{#str}} tagline, block_coursecare {{/str}}</p>
         <p class="block_coursecare-intro mb-0">{{#str}} intro, block_coursecare {{/str}}</p>
+        {{#diagnostic}}
+        <p class="block_coursecare-diagnostic mb-0">{{#sentences}}{{text}} {{/sentences}}</p>
+        {{/diagnostic}}
     </div>
 </div>

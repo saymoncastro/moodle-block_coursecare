@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/coursecare/db" VERSION="20261016" COMMENT="XMLDB file for Moodle blocks/coursecare"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_coursecare_diag" COMMENT="Current storage diagnostic of a course (one per eligible course). Aggregates only, no personal data.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course analysed"/>
+        <FIELD NAME="requeststatus" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 = no request, 1 = queued, 2 = running"/>
+        <FIELD NAME="timerequested" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="When the current request was queued"/>
+        <FIELD NAME="timestarted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Start of the running analysis"/>
+        <FIELD NAME="timeattempted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="End of the last attempt, successful or not"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="End of the last completed analysis; null if never completed"/>
+        <FIELD NAME="lastattemptfailed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 if the last attempt failed"/>
+        <FIELD NAME="failurecount" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Consecutive failures, reset on success"/>
+        <FIELD NAME="failurereason" TYPE="char" LENGTH="30" NOTNULL="false" SEQUENCE="false" COMMENT="Short failure code, never a free message"/>
+        <FIELD NAME="methodversion" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Methodology version of the current result"/>
+        <FIELD NAME="largethreshold" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Large-file threshold used, in bytes"/>
+        <FIELD NAME="filecount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Records in the main scope"/>
+        <FIELD NAME="logicalbytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator A: logical storage"/>
+        <FIELD NAME="uniquecount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Distinct contents in the main scope"/>
+        <FIELD NAME="uniquebytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator B: unique content"/>
+        <FIELD NAME="largecount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator D: large-file records"/>
+        <FIELD NAME="largebytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator D: logical volume of large files"/>
+        <FIELD NAME="largeuniquecount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator D: distinct large contents"/>
+        <FIELD NAME="largeuniquebytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Indicator D: unique volume of large files"/>
+        <FIELD NAME="unclassifiedcount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Unclassified records"/>
+        <FIELD NAME="unclassifiedbytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Unclassified logical volume"/>
+        <FIELD NAME="refinternalcount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Internal references"/>
+        <FIELD NAME="refinternalbytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Recorded size of internal references"/>
+        <FIELD NAME="refexternalcount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Synchronised external references"/>
+        <FIELD NAME="refexternalbytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Recorded size of external references"/>
+        <FIELD NAME="refundeterminedcount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Undetermined references (no size)"/>
+        <FIELD NAME="brcount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Backup and recycle bin aggregate: records"/>
+        <FIELD NAME="brbytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Backup and recycle bin aggregate: logical volume"/>
+        <FIELD NAME="bruniquecount" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Backup and recycle bin aggregate: distinct contents"/>
+        <FIELD NAME="bruniquebytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Backup and recycle bin aggregate: unique volume"/>
+        <FIELD NAME="partial" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="1 if unclassified files or undetermined references exist"/>
+        <FIELD NAME="largelinkstruncated" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="1 if the large-file link list was limited"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid" UNIQUE="true" FIELDS="courseid"/>
+        <INDEX NAME="requeststatus-timeattempted" UNIQUE="false" FIELDS="requeststatus, timeattempted"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_coursecare_cat" COMMENT="Aggregates of a diagnostic by file category">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="diagid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="material, submission, other, unclassified, backup or recyclebin"/>
+        <FIELD NAME="filecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="logicalbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="uniquecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="uniquebytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="diagid" TYPE="foreign" FIELDS="diagid" REFTABLE="block_coursecare_diag" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="diagid-category" UNIQUE="true" FIELDS="diagid, category"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_coursecare_act" COMMENT="Aggregates of a diagnostic by activity; cmid 0 is the course level">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="diagid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course module; 0 = course level"/>
+        <FIELD NAME="filecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="logicalbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="materialbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="submissionbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="otherbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="unclassifiedbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="largecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="largebytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="largeuniquecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="largeuniquebytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="diagid" TYPE="foreign" FIELDS="diagid" REFTABLE="block_coursecare_diag" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="diagid-cmid" UNIQUE="true" FIELDS="diagid, cmid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_coursecare_large" COMMENT="Links to large files of the course materials category (at most 1000 per course)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="diagid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="files.id of a course material record"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course module; 0 = course level"/>
+        <FIELD NAME="filesize" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Recorded size at analysis time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="diagid" TYPE="foreign" FIELDS="diagid" REFTABLE="block_coursecare_diag" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

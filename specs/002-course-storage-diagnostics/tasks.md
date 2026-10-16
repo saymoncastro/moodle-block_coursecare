@@ -57,10 +57,10 @@ que o `moodle-cs` espera para o subdiretório (`block_coursecare\analysis`, `blo
 
 **Purpose**: esquema, versão, configurações, pacote e estrutura de evidências.
 
-- [ ] T001 Atualizar `version.php`: `$plugin->version` para a data da implementação no formato
+- [X] T001 Atualizar `version.php`: `$plugin->version` para a data da implementação no formato
   AAAAMMDDXX (maior que `2026101600`), `$plugin->release = '0.2.0'`, mantendo `requires =
   2024100700`, `supported = [405, 405]` e `MATURITY_ALPHA`.
-- [ ] T002 Criar `db/install.xml` com as 4 tabelas de data-model.md, campos, tipos, nulidade e
+- [X] T002 Criar `db/install.xml` com as 4 tabelas de data-model.md, campos, tipos, nulidade e
   padrões exatamente como na tabela: `block_coursecare_diag` ("`courseid` … **Único** (índice
   único)"; "`requeststatus` int(2) não, padrão 0: 0 = nenhuma solicitação; 1 = na fila; 2 = em
   execução"; "`failurereason` char(30) … Código curto … Sem mensagem livre"; campos de bytes
@@ -69,22 +69,22 @@ que o `moodle-cs` espera para o subdiretório (`block_coursecare\analysis`, `blo
   `recyclebin`"; índice único `diagid, category`), `block_coursecare_act` ("`cmid` … **0 = nível
   da sala**"; índice único `diagid, cmid`) e `block_coursecare_large` (índice `diagid`). Chaves
   estrangeiras `diagid → block_coursecare_diag.id`. Validar com o editor XMLDB (formato canônico).
-- [ ] T003 Criar `db/upgrade.php` com `xmldb_block_coursecare_upgrade($oldversion)`, que cria as
+- [X] T003 Criar `db/upgrade.php` com `xmldb_block_coursecare_upgrade($oldversion)`, que cria as
   4 tabelas a partir da definição de T002 quando `$oldversion` é menor que a versão de T001 e chama
   `upgrade_block_savepoint(true, <versão>, 'coursecare')`. Depende de T001 e T002.
-- [ ] T004 [P] Criar `settings.php` com as três configurações de contracts/diagnostic-api.md
+- [X] T004 [P] Criar `settings.php` com as três configurações de contracts/diagnostic-api.md
   ("`largefilethreshold` inteiro, em MB (1 MB = 1.048.576 bytes), padrão 50, ≥ 1";
   "`reanalysisinterval` inteiro, em horas, padrão 24, ≥ 1"; "`stalenessthreshold` inteiro, em
   horas, padrão 72, ≥ 1; recomendado > intervalo (texto de ajuda)") usando
   `admin_setting_configtext` com `PARAM_INT` e validação de mínimo; strings `settings:*` (nome e
   descrição de cada uma) em en e pt_br. Acrescentar `has_config()` retornando `true` em
   `block_coursecare.php`.
-- [ ] T005 [P] Atualizar a allowlist `COURSECARE_PACKAGE_ALLOWED` em `tools/package/check.php` para
+- [X] T005 [P] Atualizar a allowlist `COURSECARE_PACKAGE_ALLOWED` em `tools/package/check.php` para
   aceitar `settings.php`, `cli/diagnostics.php`, `db/install.xml`, `db/upgrade.php`,
   `db/tasks.php` e `classes/**`, mantendo proibidos `tools/` (inclusive `tools/dev/bench/`),
   `translations/`, `specs/` e os demais itens; ajustar os casos de `tools/package/` se houver teste
   da allowlist.
-- [ ] T006 [P] Criar `specs/002-course-storage-diagnostics/evidence/README.md` com a tabela de
+- [X] T006 [P] Criar `specs/002-course-storage-diagnostics/evidence/README.md` com a tabela de
   CT-01 a CT-35 e SC-001 a SC-010 (colunas: item, teste ou evidência, data, Moodle, banco, status =
   "pendente") e as pastas `evidence/logs/` e `evidence/screenshots/` com `.gitkeep`.
 
@@ -102,16 +102,16 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
 
 ### Tests for Foundational (escrever antes de T012)
 
-- [ ] T007 [P] Criar `tests/analysis/classification_rules_test.php` (teste puro): para cada uma das
+- [X] T007 [P] Criar `tests/analysis/classification_rules_test.php` (teste puro): para cada uma das
   30 regras de contracts/coverage-matrix.md, um caso que casa e um que não casa (componente, área
   ou nível de contexto diferente); precedência (regras 1–7 antes de 13, 15, 22 e 24; regra 21
   antes da 28; `mod_*/intro` para um módulo qualquer, por exemplo `mod_lesson`); componente
   desconhecido e área desconhecida de componente conhecido → `unclassified`.
-- [ ] T008 [P] Criar `tests/analysis/indicator_calculator_test.php` (teste puro, linhas de
+- [X] T008 [P] Criar `tests/analysis/indicator_calculator_test.php` (teste puro, linhas de
   agregado montadas à mão): A e `filecount` somam só o escopo principal P; grupos excluídos (regras
   1–7), de backup/lixeira (regras 8–10) e de referência não entram em A; invariante `A = Σ A_c`
   detectado quando violado.
-- [ ] T009 [P] Criar `tests/collector/course_files_test.php` (`advanced_testcase`, File API real)
+- [X] T009 [P] Criar `tests/collector/course_files_test.php` (`advanced_testcase`, File API real)
   com helpers privados para criar sala, módulos pelos geradores do core e arquivos com
   `get_file_storage()->create_file_from_string()` na área real de cada módulo. Casos: CT-01 (sala
   sem arquivos → 0 registros), CT-02 (1 arquivo de 1 MB em `mod_resource/content` → A = 1.048.576),
@@ -120,13 +120,13 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
   cada regra, um arquivo real na área e a categoria retornada pela expressão `CASE` igual à de
   `classification_rules::classify()`. Inclui SC-010: cópia de todas as linhas de `files` antes e
   depois da análise, idênticas.
-- [ ] T010 [P] Criar `tests/collector/diagnostic_store_test.php`: `request()` só aceita com
+- [X] T010 [P] Criar `tests/collector/diagnostic_store_test.php`: `request()` só aceita com
   `requeststatus = 0` (segunda chamada devolve falso); `save_result()` grava registro e filhos numa
   transação e substitui o resultado anterior por completo; exceção dentro de `save_result()` deixa o
   resultado anterior intacto; `save_failure()` mantém os campos de resultado e incrementa
   `failurecount`; `delete_for_course()` remove registro e filhos; `get_summary()` faz uma única
   leitura.
-- [ ] T011 [P] Criar `tests/task/analyse_course_test.php`: execução normal grava resultado e zera
+- [X] T011 [P] Criar `tests/task/analyse_course_test.php`: execução normal grava resultado e zera
   `requeststatus`; sala inexistente ou sem bloco → nenhum resultado e diagnóstico apagado (FR-003b);
   resultado concluído depois da criação da tarefa → sai sem analisar; lock da sala já ocupado
   (obtido no teste com a mesma fábrica e o mesmo recurso) → sai sem analisar (CT-18); a tarefa
@@ -134,21 +134,21 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
 
 ### Implementation for Foundational
 
-- [ ] T012 [P] Criar `classes/local/analysis/classification_rules.php`: constantes das categorias
+- [X] T012 [P] Criar `classes/local/analysis/classification_rules.php`: constantes das categorias
   (`material`, `submission`, `other`, `unclassified`) e dos resultados especiais (`excluded`,
   `backup`, `recyclebin`); tabela das 30 regras de contracts/coverage-matrix.md em ordem
   (componente exato ou prefixo, área exata ou prefixo, níveis de contexto); método
   `classify(string $component, string $filearea, int $contextlevel): string` e acesso de leitura à
   tabela para a coleta. Sem `$DB`.
-- [ ] T013 [P] Criar `classes/local/analysis/diagnostic_result.php`: objeto de valor com todos os
+- [X] T013 [P] Criar `classes/local/analysis/diagnostic_result.php`: objeto de valor com todos os
   campos de resultado de `block_coursecare_diag`, as linhas de categoria, de atividade e de
   ligações (data-model.md), com valores inteiros (nunca string) e sem setters públicos depois de
   construído.
-- [ ] T014 Criar `classes/local/analysis/indicator_calculator.php`: recebe o mapa de contextos (Q0) e
+- [X] T014 Criar `classes/local/analysis/indicator_calculator.php`: recebe o mapa de contextos (Q0) e
   as linhas por área (Q1), classifica cada grupo com `classification_rules`, separa P, excluídos,
   backup/lixeira e referências, calcula A e `filecount` e expõe `check_invariants()` com os
   invariantes de contracts/indicators.md. Depende de T012 e T013.
-- [ ] T015 Criar `classes/local/collector/course_files.php`: Q0 (contextos da sala por `ctx.id =
+- [X] T015 Criar `classes/local/collector/course_files.php`: Q0 (contextos da sala por `ctx.id =
   :ctxid OR ctx.path LIKE :path`) e Q1 (agrupamento por `contextid, component, filearea, reftype`,
   com `COUNT`, `SUM(filesize)` e os `SUM(CASE …)` do limite com parâmetros `:t1` e `:t2`,
   `f.filename <> '.'`), e o gerador da expressão `CASE` de categoria a partir da tabela de T012,
@@ -156,24 +156,24 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
   com `duplicateparaminsql`, contracts/indicators.md): o gerador recebe um prefixo por uso e numera
   os parâmetros de cada regra (`:<prefixo>c<n>`, `:<prefixo>a<n>`, nomes com até 30 caracteres).
   Converter todos os agregados para `int`. Sem `stored_file`. Depende de T012.
-- [ ] T016 [P] Criar `classes/local/collector/eligibility.php`: `is_eligible(int $courseid): bool` e
+- [X] T016 [P] Criar `classes/local/collector/eligibility.php`: `is_eligible(int $courseid): bool` e
   `get_eligible_courses_query()` (junção `block_instances.blockname = 'coursecare'` com `context`
   de nível curso, excluindo `SITEID`; sem filtro por `block.visible`), usados pela tarefa ad hoc,
   pela agendada e pela CLI (FR-003, FR-003a, FR-003c).
-- [ ] T017 Criar `classes/local/collector/diagnostic_store.php` com `get_summary()`, `request()`,
+- [X] T017 Criar `classes/local/collector/diagnostic_store.php` com `get_summary()`, `request()`,
   `mark_running()`, `save_result()` (uma transação delegada: apaga filhos, insere os novos,
   atualiza o registro com `requeststatus = 0`, `timecompleted`, `timeattempted`,
   `lastattemptfailed = 0`, `failurecount = 0`, `methodversion`), `save_failure(int $courseid,
   string $reason, int $now)` e `delete_for_course()`, conforme contracts/diagnostic-api.md.
   Depende de T013.
-- [ ] T018 Criar `classes/local/course_analysis.php` (orquestração): lock
+- [X] T018 Criar `classes/local/course_analysis.php` (orquestração): lock
   `\core\lock\lock_config::get_lock_factory('block_coursecare')`, recurso `analyse_course_<id>`,
   espera 0, validade 7.200 s; elegibilidade (T016); frescor (`timecompleted >= $requestedsince`);
   `mark_running`; coleta (T015) e cálculo (T014); invariantes com uma nova coleta se falharem e
   falha `inconsistent` se falharem de novo; `save_result`; `\Throwable` → rollback, `save_failure`
   com o nome curto da classe da exceção (sem namespace, truncado em 30 caracteres), sem relançar; lock liberado em `finally`. Aceita a
   coleta por injeção no construtor (para o teste de falha da US5). Depende de T014–T017.
-- [ ] T019 Criar `classes/task/analyse_course.php` (`\core\task\adhoc_task`): `customdata`
+- [X] T019 Criar `classes/task/analyse_course.php` (`\core\task\adhoc_task`): `customdata`
   `{"courseid": <int>}`, `get_default_concurrency_limit()` = 2, `execute()` chama
   `course_analysis` com o `timecreated` da tarefa como referência de frescor e faz `mtrace` só de
   id, duração, memória, registros e código de falha; string `task:analysecourse` em en e pt_br.
@@ -195,18 +195,18 @@ ver "nenhum arquivo encontrado".
 
 ### Tests for User Story 1 (escrever antes de T024)
 
-- [ ] T020 [P] [US1] Criar `tests/analysis/state_resolver_test.php` (puro, tempo fixo) para os
+- [X] T020 [P] [US1] Criar `tests/analysis/state_resolver_test.php` (puro, tempo fixo) para os
   estados A (sem registro; registro sem resultado e sem solicitação), B (na fila sem resultado),
   C (em execução sem resultado), D (resultado dentro do limite), G (`filecount = 0`) e FR-046
   (resultado existente com nova solicitação pendente exibe D).
-- [ ] T021 [P] [US1] Em `tests/block_coursecare_test.php`: `instance_create()` grava a solicitação e
+- [X] T021 [P] [US1] Em `tests/block_coursecare_test.php`: `instance_create()` grava a solicitação e
   enfileira **uma** tarefa `analyse_course` (verificar `task_adhoc`); segunda adição impossível já
   coberta pela 001; bloco no contexto do site não enfileira; `get_content()` com diagnóstico faz no
   máximo 2 leituras a mais que sem diagnóstico (`$DB->perf_get_reads()`) e nenhuma consulta à tabela
   `files`: `$DB->set_debug(true)`, `ob_start()` em volta de `get_content()`, `ob_get_clean()`,
   `$DB->set_debug(false)` e verificação de que `{$CFG->prefix}files` não aparece no texto capturado
   (SC-002, contracts/block-ui.md).
-- [ ] T022 [P] [US1] Criar `tests/behat/block_coursecare_diagnostic.feature` (tag `@block_coursecare`)
+- [X] T022 [P] [US1] Criar `tests/behat/block_coursecare_diagnostic.feature` (tag `@block_coursecare`)
   com: professor com edição adiciona o bloco e vê a mensagem de preparação; `I run all adhoc tasks`;
   vê o volume e a data numa sala com arquivos gerados; vê a mensagem de nenhum arquivo numa sala
   vazia; o bloco com o diagnóstico passa em `the "CourseCare" "block" should meet accessibility
@@ -214,20 +214,20 @@ ver "nenhum arquivo encontrado".
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Criar `classes/local/analysis/state_resolver.php` com
+- [X] T023 [P] [US1] Criar `classes/local/analysis/state_resolver.php` com
   `resolve(?object $record, int $now, int $stalenessseconds)` devolvendo estado, marcador parcial e
   se há resultado exibível, pela tabela de estados de data-model.md (A, B, C, D, G nesta tarefa;
   E e F em T052). Sem `$DB`.
-- [ ] T024 [US1] Criar `classes/output/diagnostic_line.php` (`templatable`, `renderable`) que
+- [X] T024 [US1] Criar `classes/output/diagnostic_line.php` (`templatable`, `renderable`) que
   recebe o estado resolvido e monta, com `get_string()`, as frases `diagnostic:notavailable`,
   `diagnostic:preparing`, `diagnostic:volume` (parâmetro: `display_size($logicalbytes)`),
   `diagnostic:calculatedon` (parâmetro: `userdate($timecompleted,
   get_string('strftimedatetimeshort', 'langconfig'))`) e `diagnostic:nofiles`, com os textos de
   contracts/block-ui.md, em en e pt_br. Depende de T023.
-- [ ] T025 [US1] Atualizar `templates/content.mustache`: depois da mensagem `intro`, um parágrafo
+- [X] T025 [US1] Atualizar `templates/content.mustache`: depois da mensagem `intro`, um parágrafo
   com a linha de estado recebida do contexto; atualizar o bloco de documentação e o "Example
   context (json)" com um exemplo de estado D. Sem cor, ícone ou `role="alert"`.
-- [ ] T026 [US1] Atualizar `block_coursecare.php`: `get_content()` mantém as guardas da 001 e acrescenta
+- [X] T026 [US1] Atualizar `block_coursecare.php`: `get_content()` mantém as guardas da 001 e acrescenta
   `diagnostic_store::get_summary($this->page->course->id)` (curso do próprio bloco, nunca parâmetro),
   `state_resolver` com `stalenessthreshold` da configuração e o `diagnostic_line`; `instance_create()`
   chama `diagnostic_store::request()` e, se aceita, `queue_adhoc_task(new analyse_course(...))` sem
@@ -711,3 +711,34 @@ Depois da Phase 2: uma pessoa em US1 → US5 (bloco, saída, estados); outra em 
 - Commits por tarefa ou grupo lógico, com a mensagem no padrão do repositório
   (`feat(002): …`, `test(002): …`, `docs(002): …`).
 - Nenhuma integração à `main` sem os Quality Gates e o T070.
+
+## Execução
+
+### MVP (T001–T026) — 2026-10-17
+
+Ambiente: `moodle-docker` próprio da feature (`coursecare-002`, porta 8047), Moodle 4.5.15, PHP 8.1,
+PostgreSQL 17, montando este worktree em `blocks/coursecare`. Resultado local: PHPUnit 110 testes
+verdes (inclui os da 001), Behat 20 cenários verdes (inclui axe), `moodle-cs` sem erros, paridade
+en/pt_br sem erros. CI pendente (push).
+
+Decisões de implementação, sem mudar requisitos:
+- **Indicadores ainda não calculados ficam nulos.** No MVP, B, referências, agregado de backup e
+  lixeira e os únicos de grande porte são gravados como nulo ("não calculado"), nunca como zero. Eles
+  entram em US2, US6 e US7. O bloco só exibe A.
+- **Frescor pelo registro.** A tarefa ad hoc do core não expõe a data de criação. A tarefa sai como
+  "fresca" quando não há solicitação pendente e a última análise concluída é posterior à última
+  solicitação (`course_analysis::is_fresh`). Contrato `diagnostic-api.md` mantido no efeito.
+- **Configurações de duração** usam `admin_setting_configduration` (gravadas em segundos, unidade
+  padrão horas, mínimo 1 h); o limite de grande porte usa `admin_setting_configtext` com
+  validação `/^[1-9][0-9]{0,6}$/`. Contrato atualizado.
+- **Códigos de estado da solicitação** ficam em `analysis\diagnostic_state` (0, 1, 2); o
+  `diagnostic_store` reutiliza as constantes, para a análise não depender da coleta.
+- **Testes**: o teste de atomicidade usa `preventResetByRollback()` (o PHPUnit envolve cada teste numa
+  transação externa); o teste de lock usa `db_record_lock_factory`, porque o lock consultivo do
+  PostgreSQL é reentrante dentro do mesmo processo. Em produção, cada processador de cron é um
+  processo separado.
+- **Behat**: `display_size()` separa número e unidade com espaço não separável; o cenário verifica a
+  frase com o número e a unidade em passos separados.
+- Teste da 001 ajustado: `has_config()` passa a ser verdadeiro (T004), e a verificação de "nenhum
+  texto fixo no template" passa a ignorar variáveis Mustache (as frases vêm traduzidas do PHP).
+

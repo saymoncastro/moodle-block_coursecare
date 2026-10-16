@@ -24,7 +24,19 @@
 
 $string['coursecare:addinstance'] = 'Add a new CourseCare block';
 $string['coursecare:view'] = 'View the CourseCare block';
+$string['diagnostic:calculatedon'] = 'Calculated on {$a}.';
+$string['diagnostic:nofiles'] = 'No files were found in this course\'s materials and activities.';
+$string['diagnostic:notavailable'] = 'The file overview for this course is not available yet.';
+$string['diagnostic:preparing'] = 'The file overview for this course is being prepared.';
+$string['diagnostic:volume'] = 'Files in this course, as recorded by Moodle: {$a}.';
 $string['intro'] = 'Soon you will find guidance here on using your course resources more mindfully.';
 $string['pluginname'] = 'CourseCare';
 $string['privacy:metadata'] = 'The CourseCare block does not store any personal data.';
+$string['settings:largefilethreshold'] = 'Large-file threshold (MB)';
+$string['settings:largefilethreshold_desc'] = 'Files of this size or larger are counted as large files in the course storage overview (1 MB = 1,048,576 bytes). It is a neutral screening value, not a teaching limit and not a judgement about how a file is used.';
+$string['settings:reanalysisinterval'] = 'Reanalysis interval';
+$string['settings:reanalysisinterval_desc'] = 'How often each course that has the block is analysed again in the background.';
+$string['settings:stalenessthreshold'] = 'Out-of-date limit';
+$string['settings:stalenessthreshold_desc'] = 'When the last completed analysis is older than this, the block says that the information may be out of date. Use a value longer than the reanalysis interval.';
 $string['tagline'] = 'Small choices, a better learning space for everyone.';
+$string['task:analysecourse'] = 'Analyse the file storage of a course';
