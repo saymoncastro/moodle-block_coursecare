@@ -21,7 +21,13 @@
  * real File API in their real areas. Contents are pseudo-random with a fixed seed, so duplication is controlled.
  * Use only on a disposable development site.
  *
- * Usage: php blocks/coursecare/tools/dev/bench/generate.php --profile=small --courses=10 [--seed=1] [--manifest=FILE]
+ * With --mode=metadata, the file records (and the directory records the File API would create) are inserted in
+ * the files table directly, with a synthetic content hash and no content in the file pool. The analysis reads
+ * only metadata, so its cost is the same; this mode exists because millions of contents exceed the inodes of a
+ * development container. Files of such a site cannot be downloaded: dispose of it after the benchmark.
+ *
+ * Usage: php blocks/coursecare/tools/dev/bench/generate.php --profile=small --courses=10 [--seed=1] [--files=N]
+ *     [--mode=api|metadata] [--manifest=FILE]
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -43,13 +49,18 @@ const BENCH_PROFILES = [
 ];
 
 [$options, $unrecognised] = cli_get_params(
-    ['profile' => 'small', 'courses' => 1, 'seed' => 1, 'manifest' => '', 'help' => false],
+    ['profile' => 'small', 'courses' => 1, 'seed' => 1, 'files' => 0, 'mode' => 'api', 'manifest' => '', 'help' => false],
     ['h' => 'help']
 );
-if ($options['help'] || $unrecognised || !isset(BENCH_PROFILES[$options['profile']])) {
-    cli_writeln('Usage: php generate.php --profile=small|medium|large|extreme --courses=N [--seed=N] [--manifest=FILE]');
+if (
+    $options['help'] || $unrecognised || !isset(BENCH_PROFILES[$options['profile']])
+    || !in_array($options['mode'], ['api', 'metadata'], true)
+) {
+    cli_writeln('Usage: php generate.php --profile=small|medium|large|extreme --courses=N [--seed=N] [--files=N] ' .
+        '[--mode=api|metadata] [--manifest=FILE]');
     exit($options['help'] ? 0 : 1);
 }
+$metadata = $options['mode'] === 'metadata';
 if (!debugging('', DEBUG_DEVELOPER)) {
     cli_error('Developer debugging is required: this tool is for disposable development sites only.');
 }
@@ -82,10 +93,16 @@ for ($c = 0; $c < $courses; $c++) {
         };
     }
 
-    $count = mt_rand($profile['files'][0], $profile['files'][1]);
+    $count = (int)$options['files'] > 0 ? (int)$options['files'] : mt_rand($profile['files'][0], $profile['files'][1]);
     $contents = [];
     $logical = 0;
     $unique = [];
+    if ($metadata) {
+        [$logical, $unique] = bench_insert_metadata($fs, $areas, $count, $profile, (string)$options['seed'], $c);
+        $manifest[$course->id] = ['files' => $count, 'logicalbytes' => $logical, 'uniquebytes' => array_sum($unique)];
+        cli_writeln("Course {$course->id}: {$count} file records (metadata only)");
+        continue;
+    }
     for ($i = 0; $i < $count; $i++) {
         $large = $profile['large'] > 0 && mt_rand() / mt_getrandmax() < $profile['large'];
         if (!$large && $contents && mt_rand() / mt_getrandmax() < $profile['repeat']) {
@@ -120,4 +137,67 @@ for ($c = 0; $c < $courses; $c++) {
 if ($options['manifest'] !== '') {
     file_put_contents($options['manifest'], json_encode($manifest, JSON_PRETTY_PRINT));
     cli_writeln('Manifest written to ' . $options['manifest']);
+}
+
+/**
+ * Insert the file records of one course directly (--mode=metadata), with the directory records of each area.
+ *
+ * Same distribution as the File API mode: repeated contents reuse a previous hash and size; large files get a
+ * large recorded size and are never repeated.
+ *
+ * @param file_storage $fs File storage (for the path name hash only).
+ * @param array $areas Areas of the course: [contextid, component, filearea].
+ * @param int $count Number of file records.
+ * @param array $profile Profile.
+ * @param string $seed Seed.
+ * @param int $c Course number.
+ * @return array{0: int, 1: array} Logical bytes and the size of each distinct content hash.
+ */
+function bench_insert_metadata(file_storage $fs, array $areas, int $count, array $profile, string $seed, int $c): array {
+    global $DB, $USER;
+
+    $now = time();
+    $base = ['userid' => $USER->id, 'mimetype' => 'application/octet-stream', 'status' => 0, 'source' => null,
+        'author' => null, 'license' => null, 'timecreated' => $now, 'timemodified' => $now, 'sortorder' => 0,
+        'referencefileid' => null, 'filepath' => '/'];
+    $contents = [];
+    $unique = [];
+    $logical = 0;
+    $directories = [];
+    $rows = [];
+    for ($i = 0; $i < $count; $i++) {
+        $large = $profile['large'] > 0 && mt_rand() / mt_getrandmax() < $profile['large'];
+        if (!$large && $contents && mt_rand() / mt_getrandmax() < $profile['repeat']) {
+            [$hash, $size] = $contents[mt_rand(0, count($contents) - 1)];
+        } else {
+            $hash = sha1("bench-{$seed}-{$c}-{$i}");
+            $size = $large ? mt_rand(60, 500) * 1048576 : mt_rand(16, 1024);
+            if (!$large) {
+                $contents[] = [$hash, $size];
+            }
+        }
+        [$contextid, $component, $filearea] = $areas[$i % count($areas)];
+        $itemid = intdiv($i, 100);
+        $key = "{$contextid}/{$component}/{$filearea}/{$itemid}";
+        if (!isset($directories[$key])) {
+            // The File API creates a "." record for the root directory of every area and item.
+            $directories[$key] = true;
+            $rows[] = $base + ['contextid' => $contextid, 'component' => $component, 'filearea' => $filearea,
+                'itemid' => $itemid, 'filename' => '.', 'filesize' => 0, 'contenthash' => sha1(''),
+                'pathnamehash' => $fs->get_pathname_hash($contextid, $component, $filearea, $itemid, '/', '.')];
+        }
+        $rows[] = $base + ['contextid' => $contextid, 'component' => $component, 'filearea' => $filearea,
+            'itemid' => $itemid, 'filename' => "f{$i}.bin", 'filesize' => $size, 'contenthash' => $hash,
+            'pathnamehash' => $fs->get_pathname_hash($contextid, $component, $filearea, $itemid, '/', "f{$i}.bin")];
+        $unique[$hash] = $size;
+        $logical += $size;
+        if (count($rows) >= 1000) {
+            $DB->insert_records('files', $rows);
+            $rows = [];
+        }
+    }
+    if ($rows) {
+        $DB->insert_records('files', $rows);
+    }
+    return [$logical, $unique];
 }

@@ -54,7 +54,22 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 
 ## Revisão de tom e rótulos (T066)
 
-Pendente.
+Revisão feita em 2026-10-16 sobre as 24 strings novas ou alteradas da Feature 002, em en e pt_br,
+contra as restrições de [contracts/block-ui.md](../contracts/block-ui.md) e os Princípios I, II e IV.
+Revisão do agente de implementação; a aprovação do proprietário do produto, como na Feature 001,
+fica registrada à parte quando acontecer.
+
+| Grupo | Chaves | Resultado |
+| --- | --- | --- |
+| Linha do bloco | `diagnostic:volume`, `calculatedon`, `nofiles`, `notavailable`, `preparing`, `mayoutdated`, `updatefailed` | Sem palavra de avaliação ("excesso", "alto", "bom"), sem termo de infraestrutura, sem "espaço ocupado", "consumo" ou "economia". O volume é rotulado como "as recorded by Moodle" / "conforme registrados no Moodle" (Princípio IV) e sempre vem com a data. Avisos de E e F são informativos, sem alarme nem pedido de ação. Uma frase completa por chave, um parâmetro no máximo. |
+| Configurações | `settings:*` e `_desc` | Unidades explícitas (MB = 1.048.576 bytes); o limite de grande porte é descrito como valor neutro de triagem, não limite pedagógico nem julgamento de uso. |
+| Tarefas | `task:analysecourse`, `task:queueanalyses` | Descrevem a ação, sem avaliação. |
+| CLI | `cli:*` | Texto técnico para administradores; nenhuma frase de avaliação; nenhum nome de arquivo, atividade ou usuário nos parâmetros. |
+| Privacidade | `privacy:metadata` | Corrigida nesta revisão: além das medições agregadas, menciona as ligações a arquivos grandes dos materiais (identificador do arquivo e tamanho registrado), que a versão anterior omitia. |
+
+Terminologia em pt_br: "sala" para curso e "panorama de arquivos" para o diagnóstico, como na
+Feature 001. Observação fora do plugin: em pt_BR o tamanho aparece como "4.0 Mb" porque o rótulo e o
+separador decimal de `display_size()` vêm do pacote pt_br do core (`logs/quickstart-002.md`).
 
 ## Runs de CI (T069)
 

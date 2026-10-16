@@ -113,6 +113,33 @@ final class diagnostic_store_test extends \advanced_testcase {
     }
 
     /**
+     * Work run through in_transaction() is committed together, or rolled back together on an exception.
+     */
+    public function test_in_transaction(): void {
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+        $store = new diagnostic_store();
+
+        $store->in_transaction(function () use ($store): void {
+            $store->request(41, 1000);
+            $store->request(42, 1000);
+        });
+        $this->assertNotNull($store->get_summary(41));
+        $this->assertNotNull($store->get_summary(42));
+
+        try {
+            $store->in_transaction(function () use ($store): void {
+                $store->request(43, 1000);
+                throw new \moodle_exception('error');
+            });
+            $this->fail('An exception was expected');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error', $e->errorcode);
+        }
+        $this->assertNull($store->get_summary(43));
+    }
+
+    /**
      * A failure keeps the result, counts consecutive failures and truncates the code.
      */
     public function test_save_failure_keeps_result(): void {

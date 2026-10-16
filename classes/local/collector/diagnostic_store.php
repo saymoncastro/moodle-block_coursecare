@@ -105,6 +105,23 @@ class diagnostic_store {
     }
 
     /**
+     * Run a callback in one delegated transaction, so that the other layers never open one themselves.
+     *
+     * @param callable $callback Work to run; an exception rolls everything back and is thrown again.
+     */
+    public function in_transaction(callable $callback): void {
+        global $DB;
+
+        $transaction = $DB->start_delegated_transaction();
+        try {
+            $callback();
+            $transaction->allow_commit();
+        } catch (\Throwable $e) {
+            $transaction->rollback($e);
+        }
+    }
+
+    /**
      * Register a request if the course has none pending.
      *
      * @param int $courseid Course id.

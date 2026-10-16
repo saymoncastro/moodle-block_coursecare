@@ -113,19 +113,17 @@ class admin_cli {
      * @return array{0: int, 1: string} Exit code and message.
      */
     public function queue_all(): array {
-        global $DB;
-
         $queued = 0;
         $now = time();
         $candidates = $this->store->get_request_candidates($this->eligibility, 0);
         foreach (array_chunk($candidates, self::QUEUE_CHUNK) as $chunk) {
-            $transaction = $DB->start_delegated_transaction();
-            foreach ($chunk as $candidate) {
-                if (analyse_course::request((int)$candidate->courseid, $now)) {
-                    $queued++;
+            $this->store->in_transaction(function () use ($chunk, $now, &$queued): void {
+                foreach ($chunk as $candidate) {
+                    if (analyse_course::request((int)$candidate->courseid, $now)) {
+                        $queued++;
+                    }
                 }
-            }
-            $transaction->allow_commit();
+            });
         }
         return [self::EXIT_OK, get_string('cli:queuedall', 'block_coursecare', $queued)];
     }
