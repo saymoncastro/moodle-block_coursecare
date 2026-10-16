@@ -21,6 +21,14 @@
 `imageurl` vem de `$OUTPUT->image_url('sprout', 'block_coursecare')`. Os textos usam `{{#str}}`
 (`tagline`, `intro`; componente `block_coursecare`). O contexto não contém texto pronto.
 
+## Onde o bloco aparece
+
+- **Página principal da sala** (`course-view-<formato>`): cabeçalho e conteúdo para quem tem
+  `:view`. Em modo de edição, também os controles nativos para quem pode editar.
+- **Qualquer outra página**, incluindo seção (`course-view-section-*`) e atividades, mesmo que o
+  padrão de exibição carregue a instância: nada é renderizado (nem bloco, nem cabeçalho, nem
+  controles), em qualquer modo. Ver research R3 e contracts/capabilities.md (invariante 5).
+
 ## Regras de marcação e apresentação
 
 1. Um único contêiner com a classe `block_coursecare`, já fornecida pelo core no bloco. Todo o CSS
@@ -44,7 +52,9 @@
 | --- | --- |
 | Textos corretos por idioma | Behat (en), PHPUnit R7 (pt_br/fallback), manual com pacote real (pt_br) |
 | Ativo decorativo e ignorado por leitor de tela | axe (Behat) + teste manual com leitor de tela |
-| WCAG 2.2 AA automatizável | `the "CourseCare" "block" should meet accessibility standards` |
+| WCAG 2.2 AA, parte automatizável | `the "CourseCare" "block" should meet accessibility standards` (axe) |
+| WCAG 2.2 AA, parte manual | Teclado (ordem e foco visível), leitor de tela, zoom de 200% e reflow a 320 px, registrados em `evidence/`. O resultado é declarado como verificação dos critérios aplicáveis, não como conformidade integral |
+| Ausência fora da página principal | Behat: em modo de edição, na página de seção e em uma atividade, `"CourseCare" "block" should not exist` |
 | Mobile e tablet | Behat com `I change viewport size to "mobile"` e `"tablet"` + capturas manuais |
 | Temas | Behat em Boost (padrão) e em Classic + capturas manuais |
 | Sem indicadores | PHPUnit: o texto visível do HTML gerado (sem marcação) não contém dígitos, e não há `a`, `button`, `form` nem `input` |
