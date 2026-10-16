@@ -59,6 +59,22 @@ class diagnostic_store {
     }
 
     /**
+     * Category rows of a diagnostic, keyed by category (main categories and the backup and recycle bin aggregate).
+     *
+     * @param int $diagid Diagnostic id.
+     * @return array<string, \stdClass>
+     */
+    public function get_categories(int $diagid): array {
+        global $DB;
+
+        $rows = [];
+        foreach ($DB->get_records('block_coursecare_cat', ['diagid' => $diagid], 'category') as $record) {
+            $rows[$record->category] = $record;
+        }
+        return $rows;
+    }
+
+    /**
      * Register a request if the course has none pending.
      *
      * @param int $courseid Course id.

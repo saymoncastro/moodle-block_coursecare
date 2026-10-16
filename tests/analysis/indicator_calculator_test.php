@@ -90,7 +90,7 @@ final class indicator_calculator_test extends \basic_testcase {
             self::row(20, 'mod_folder', 'temp', 2, 9 * self::MB),
             self::row(10, 'backup', 'course', 1, 40 * self::MB),
             self::row(10, 'tool_recyclebin', 'recyclebin_course', 1, 5 * self::MB),
-            self::row(20, 'mod_resource', 'content', 1, 3 * self::MB, 0, 0, 'reference'),
+            self::row(20, 'mod_resource', 'content', 1, 3 * self::MB, 0, 0, indicator_calculator::REF_INTERNAL),
         ];
         $result = (new indicator_calculator(50 * self::MB))->calculate(self::contexts(), $rows);
 
@@ -140,15 +140,70 @@ final class indicator_calculator_test extends \basic_testcase {
     }
 
     /**
-     * Indicators not calculated by this version stay null (never zero).
+     * Without unique-content rows, the unique indicators stay null (not calculated, never zero).
      */
-    public function test_not_calculated_fields_are_null(): void {
+    public function test_unique_fields_null_without_unique_rows(): void {
         $result = (new indicator_calculator(50 * self::MB))->calculate(self::contexts(), [
             self::row(20, 'mod_page', 'content', 1, self::MB),
         ]);
         $this->assertNull($result->summary['uniquebytes']);
-        $this->assertNull($result->summary['refinternalcount']);
+        $this->assertNull($result->summary['uniquecount']);
         $this->assertNull($result->summary['bruniquebytes']);
+        $this->assertSame([], $result->categories);
+    }
+
+    /**
+     * B comes from the unique rows of the main group; the aggregate unique from the backup group (T030).
+     */
+    public function test_unique_content_and_backup_aggregate(): void {
+        $rows = [
+            self::row(20, 'mod_resource', 'content', 3, 30 * self::MB),
+            self::row(10, 'backup', 'course', 1, 5 * self::MB),
+            self::row(10, 'tool_recyclebin', 'recyclebin_course', 1, 5 * self::MB),
+        ];
+        $groups = [
+            indicator_calculator::GROUP_MAIN => (object)['contents' => 1, 'bytes' => 10 * self::MB],
+            indicator_calculator::GROUP_BACKUP => (object)['contents' => 1, 'bytes' => 5 * self::MB],
+        ];
+        $categories = [
+            'material' => (object)['contents' => 1, 'bytes' => 10 * self::MB],
+            'backup' => (object)['contents' => 1, 'bytes' => 5 * self::MB],
+            'recyclebin' => (object)['contents' => 1, 'bytes' => 5 * self::MB],
+        ];
+        $result = (new indicator_calculator(50 * self::MB))->calculate(self::contexts(), $rows, $groups, $categories);
+
+        $this->assertSame(30 * self::MB, $result->summary['logicalbytes']);
+        $this->assertSame(10 * self::MB, $result->summary['uniquebytes']);
+        $this->assertSame(1, $result->summary['uniquecount']);
+        $this->assertSame(2, $result->summary['brcount']);
+        $this->assertSame(10 * self::MB, $result->summary['brbytes']);
+        $this->assertSame(5 * self::MB, $result->summary['bruniquebytes']);
+        $this->assertSame(['filecount' => 1, 'logicalbytes' => 5 * self::MB, 'uniquecount' => 1,
+            'uniquebytes' => 5 * self::MB], $result->categories['backup']);
+        $this->assertSame(5 * self::MB, $result->categories['recyclebin']['logicalbytes']);
+        $this->assertArrayNotHasKey('material', $result->categories);
+        $this->assertTrue(indicator_calculator::invariants_hold($result));
+    }
+
+    /**
+     * References are counted by type; only internal and external sizes are summed; undetermined marks partial.
+     */
+    public function test_references_by_type(): void {
+        $rows = [
+            self::row(20, 'mod_resource', 'content', 1, self::MB),
+            self::row(20, 'mod_resource', 'content', 2, 3 * self::MB, 0, 0, indicator_calculator::REF_INTERNAL),
+            self::row(20, 'mod_resource', 'content', 1, 4 * self::MB, 0, 0, indicator_calculator::REF_EXTERNAL),
+            self::row(20, 'mod_resource', 'content', 1, 9 * self::MB, 0, 0, indicator_calculator::REF_UNDETERMINED),
+        ];
+        $result = (new indicator_calculator(50 * self::MB))->calculate(self::contexts(), $rows, [], []);
+        $this->assertSame(self::MB, $result->summary['logicalbytes']);
+        $this->assertSame(2, $result->summary['refinternalcount']);
+        $this->assertSame(3 * self::MB, $result->summary['refinternalbytes']);
+        $this->assertSame(1, $result->summary['refexternalcount']);
+        $this->assertSame(4 * self::MB, $result->summary['refexternalbytes']);
+        $this->assertSame(1, $result->summary['refundeterminedcount']);
+        $this->assertSame(1, $result->summary['partial']);
+        $this->assertSame(0, $result->summary['uniquebytes']);
     }
 
     /**
@@ -167,6 +222,12 @@ final class indicator_calculator_test extends \basic_testcase {
 
         $broken = ['logicalbytes' => -1, 'largebytes' => null] + $summary;
         $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($broken)));
+
+        $broken = ['brbytes' => 10, 'bruniquebytes' => 11] + $summary;
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($broken)));
+
+        $category = ['filecount' => 1, 'logicalbytes' => 5, 'uniquecount' => 1, 'uniquebytes' => 6];
+        $this->assertFalse(indicator_calculator::invariants_hold(new diagnostic_result($summary, ['backup' => $category])));
     }
 
     /**

@@ -242,4 +242,259 @@ final class course_files_test extends \advanced_testcase {
         $this->analyse($course);
         $this->assertEquals($before, $DB->get_records('files', null, 'id'));
     }
+
+    /**
+     * Id of the instance of a repository type, creating the type if the test site does not have it.
+     *
+     * @param string $type Repository type.
+     * @return int
+     */
+    private function repository_id(string $type): int {
+        global $DB;
+        if (!$DB->record_exists('repository', ['type' => $type])) {
+            $this->getDataGenerator()->create_repository_type($type);
+        }
+        return (int)$this->getDataGenerator()->create_repository($type)->id;
+    }
+
+    /**
+     * Create an alias (reference) in a real area, as the file picker does.
+     *
+     * @param \context $context Context of the alias.
+     * @param int $repositoryid Repository instance.
+     * @param string $reference Reference.
+     * @param string|null $contenthash Content of the source, for internal references.
+     * @return \stored_file
+     */
+    private function add_alias(\context $context, int $repositoryid, string $reference, ?string $contenthash = null): \stored_file {
+        $this->filecounter++;
+        $record = [
+            'contextid' => $context->id, 'component' => 'mod_resource', 'filearea' => 'content', 'itemid' => 0,
+            'filepath' => '/', 'filename' => "alias{$this->filecounter}.bin",
+        ];
+        if ($contenthash !== null) {
+            $record['contenthash'] = $contenthash;
+        }
+        return get_file_storage()->create_file_from_reference($record, $repositoryid, $reference);
+    }
+
+    /**
+     * Packed reference to a stored file, as internal repositories build it.
+     *
+     * @param \stored_file $file Source.
+     * @return string
+     */
+    private static function reference_to(\stored_file $file): string {
+        return \file_storage::pack_reference([
+            'contextid' => $file->get_contextid(), 'component' => $file->get_component(),
+            'filearea' => $file->get_filearea(), 'itemid' => $file->get_itemid(),
+            'filepath' => $file->get_filepath(), 'filename' => $file->get_filename(),
+        ]);
+    }
+
+    /**
+     * Sum of the recorded sizes of a component in the course subtree, read directly from the files table.
+     *
+     * @param \stdClass $course Course.
+     * @param string $component Component.
+     * @return int
+     */
+    private function recorded_bytes(\stdClass $course, string $component): int {
+        global $DB;
+        $context = \context_course::instance($course->id);
+        return (int)$DB->get_field_sql(
+            "SELECT COALESCE(SUM(f.filesize), 0)
+               FROM {files} f
+               JOIN {context} ctx ON ctx.id = f.contextid
+              WHERE (ctx.id = :ctxid OR ctx.path LIKE :path) AND f.component = :component AND f.filename <> '.'",
+            ['ctxid' => $context->id, 'path' => $context->path . '/%', 'component' => $component]
+        );
+    }
+
+    /**
+     * CT-04: the same content in three resources counts three times in A and once in B.
+     */
+    public function test_same_content_in_three_resources(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $content = self::content(10 * self::MB, 'shared');
+        foreach ([1, 2, 3] as $n) {
+            $this->add_file($this->module('resource', $course), 'mod_resource', 'content', $content);
+        }
+        $record = $this->analyse($course);
+        $this->assertSame(30 * self::MB, (int)$record->logicalbytes);
+        $this->assertSame(10 * self::MB, (int)$record->uniquebytes);
+        $this->assertSame(1, (int)$record->uniquecount);
+    }
+
+    /**
+     * CT-05: the same content in two courses is unique content of each of them.
+     */
+    public function test_same_content_in_two_courses(): void {
+        $this->resetAfterTest();
+        $content = self::content(10 * self::MB, 'twocourses');
+        $records = [];
+        foreach (['x', 'y'] as $name) {
+            $course = $this->course_with_block();
+            $this->add_file($this->module('resource', $course), 'mod_resource', 'content', $content);
+            $records[$name] = $this->analyse($course);
+        }
+        $this->assertSame(10 * self::MB, (int)$records['x']->uniquebytes);
+        $this->assertSame(10 * self::MB, (int)$records['y']->uniquebytes);
+    }
+
+    /**
+     * CT-12 and CT-13: a file added or removed after an analysis appears in the next analysis only.
+     */
+    public function test_file_added_and_removed_after_analysis(): void {
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $context = $this->module('resource', $course);
+        $this->add_file($context, 'mod_resource', 'content', self::content(self::MB, 'base'));
+        $first = $this->analyse($course);
+        $this->assertSame(self::MB, (int)$first->logicalbytes);
+
+        $added = $this->add_file($context, 'mod_resource', 'content', self::content(5 * self::MB, 'added'));
+        $store = new diagnostic_store();
+        $this->assertSame(self::MB, (int)$store->get_summary($course->id)->logicalbytes);
+        $this->assertSame(6 * self::MB, (int)$this->analyse($course)->logicalbytes);
+
+        $added->delete();
+        $this->assertSame(6 * self::MB, (int)$store->get_summary($course->id)->logicalbytes);
+        $this->assertSame(self::MB, (int)$this->analyse($course)->logicalbytes);
+    }
+
+    /**
+     * CT-09, CT-22 and CT-32: references are counted apart by type, never in A or B, without any synchronisation.
+     */
+    public function test_references(): void {
+        global $DB, $USER;
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $context = $this->module('resource', $course);
+        $fs = get_file_storage();
+
+        // CT-32: a resource of 10 MB and an internal alias to it (server files repository).
+        $source = $this->add_file($context, 'mod_resource', 'content', self::content(10 * self::MB, 'source'));
+        $this->add_alias($context, $this->repository_id('local'), self::reference_to($source), $source->get_contenthash());
+
+        // CT-09: an internal alias to a private file of 3 MB of the teacher (private files repository).
+        $private = $this->add_file(\context_user::instance($USER->id), 'user', 'private', self::content(3 * self::MB, 'p'));
+        $this->add_alias($context, $this->repository_id('user'), self::reference_to($private), $private->get_contenthash());
+
+        // CT-09: an external alias of 4 MB, synchronised by the repository earlier (recorded here without network).
+        $dropbox = $this->repository_id('dropbox');
+        $external = $this->add_alias($context, $dropbox, 'fake/folder/report.bin');
+        $fs->update_references(
+            $external->get_referencefileid(),
+            time(),
+            null,
+            \file_storage::hash_from_string(''),
+            4 * self::MB,
+            0
+        );
+
+        // CT-22: an external alias never synchronised, and an internal alias whose source is missing.
+        $this->add_alias($context, $dropbox, 'fake/folder/never-synced.bin');
+        $missing = $this->add_file(\context_user::instance($USER->id), 'user', 'private', self::content(2 * self::MB, 'm'));
+        $broken = $this->add_alias(
+            $context,
+            $this->repository_id('user'),
+            self::reference_to($missing),
+            $missing->get_contenthash()
+        );
+        $fs->update_references(
+            $broken->get_referencefileid(),
+            time(),
+            null,
+            $missing->get_contenthash(),
+            2 * self::MB,
+            \block_coursecare\local\collector\course_files::SOURCE_MISSING
+        );
+
+        // CT-22: an empty file counts as a record without volume.
+        $this->add_file($context, 'mod_resource', 'content', '');
+
+        $referencesbefore = $DB->get_records('files_reference', null, 'id');
+        $record = $this->analyse($course);
+
+        $this->assertSame(10 * self::MB, (int)$record->logicalbytes);
+        $this->assertSame(10 * self::MB, (int)$record->uniquebytes);
+        $this->assertSame(2, (int)$record->filecount);
+        $this->assertSame(2, (int)$record->refinternalcount);
+        $this->assertSame(13 * self::MB, (int)$record->refinternalbytes);
+        $this->assertSame(1, (int)$record->refexternalcount);
+        $this->assertSame(4 * self::MB, (int)$record->refexternalbytes);
+        $this->assertSame(2, (int)$record->refundeterminedcount);
+        $this->assertSame(1, (int)$record->partial);
+        // No synchronisation was triggered by the analysis.
+        $this->assertEquals($referencesbefore, $DB->get_records('files_reference', null, 'id'));
+    }
+
+    /**
+     * CT-29: a real course backup and an activity kept in the recycle bin are measured apart, out of A and B.
+     */
+    public function test_backup_and_recycle_bin(): void {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/course/lib.php');
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $this->add_file($this->module('resource', $course), 'mod_resource', 'content', self::content(10 * self::MB, 'm'));
+
+        // An activity deleted with the course recycle bin enabled is kept as an activity backup in the bin.
+        set_config('coursebinenable', 1, 'tool_recyclebin');
+        $deleted = $this->getDataGenerator()->create_module('resource', ['course' => $course->id]);
+        course_delete_module($deleted->cmid);
+
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $course->id,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL,
+            $USER->id
+        );
+        $bc->execute_plan();
+        $bc->destroy();
+
+        $backupbytes = $this->recorded_bytes($course, 'backup');
+        $recyclebytes = $this->recorded_bytes($course, 'tool_recyclebin');
+        $this->assertGreaterThan(0, $backupbytes);
+        $this->assertGreaterThan(0, $recyclebytes);
+
+        $record = $this->analyse($course);
+        $this->assertSame(10 * self::MB, (int)$record->logicalbytes);
+        $this->assertSame(10 * self::MB, (int)$record->uniquebytes);
+        $this->assertSame($backupbytes + $recyclebytes, (int)$record->brbytes);
+        $this->assertSame(2, (int)$record->brcount);
+
+        $categories = (new diagnostic_store())->get_categories((int)$record->id);
+        $this->assertSame($backupbytes, (int)$categories['backup']->logicalbytes);
+        $this->assertSame($recyclebytes, (int)$categories['recyclebin']->logicalbytes);
+    }
+
+    /**
+     * CT-30 and CT-31: content shared by the bin and a backup counts once in the aggregate; a user backup is out.
+     */
+    public function test_backup_aggregate_unique_and_user_backup(): void {
+        global $USER;
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        $coursecontext = \context_course::instance($course->id);
+        $content = self::content(5 * self::MB, 'bincopy');
+        $this->add_file($coursecontext, 'backup', 'course', $content);
+        $this->add_file($coursecontext, 'tool_recyclebin', 'recyclebin_course', $content);
+        $this->add_file(\context_user::instance($USER->id), 'user', 'backup', self::content(7 * self::MB, 'userbackup'));
+
+        $record = $this->analyse($course);
+        $this->assertSame(0, (int)$record->logicalbytes);
+        $this->assertSame(10 * self::MB, (int)$record->brbytes);
+        $this->assertSame(5 * self::MB, (int)$record->bruniquebytes);
+        $this->assertSame(1, (int)$record->bruniquecount);
+
+        $categories = (new diagnostic_store())->get_categories((int)$record->id);
+        $this->assertSame(5 * self::MB, (int)$categories['backup']->uniquebytes);
+        $this->assertSame(5 * self::MB, (int)$categories['recyclebin']->uniquebytes);
+    }
 }

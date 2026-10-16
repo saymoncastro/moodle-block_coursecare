@@ -248,11 +248,11 @@ mão, em PHPUnit com File API real.
 
 ### Tests for User Story 2 (escrever antes de T031)
 
-- [ ] T027 [P] [US2] Em `tests/collector/course_files_test.php`: CT-04 (mesmo conteúdo de 10 MB em
+- [X] T027 [P] [US2] Em `tests/collector/course_files_test.php`: CT-04 (mesmo conteúdo de 10 MB em
   3 recursos → A = 30 MB, B = 10 MB), CT-05 (mesmo conteúdo nas salas X e Y → B = 10 MB em cada),
   CT-12 e CT-13 (arquivo de 5 MB adicionado/removido entre duas análises → resultado anterior até a
   nova análise; a nova mostra A ± 5 MB).
-- [ ] T028 [P] [US2] Em `tests/collector/course_files_test.php`, referências, sem rede:
+- [X] T028 [P] [US2] Em `tests/collector/course_files_test.php`, referências, sem rede:
   - **Interna** (CT-09): `create_repository_type('user')` e `create_repository('user')` pelo gerador
     de dados; arquivo de 3 MB em `user/private` do professor; atalho num recurso com
     `get_file_storage()->create_file_from_reference($record, $repositoryid,
@@ -269,18 +269,18 @@ mão, em PHPUnit com File API real.
     `update_references(..., status 666)`) → indeterminado, sem tamanho; atalho externo com
     `lastsync` nulo → indeterminado.
   - CT-32: recurso de 10 MB + atalho interno para ele → A = B = 10 MB; 1 interna com 10 MB.
-- [ ] T029 [P] [US2] Em `tests/collector/course_files_test.php`, backup e lixeira: CT-29 (10 MB de
+- [X] T029 [P] [US2] Em `tests/collector/course_files_test.php`, backup e lixeira: CT-29 (10 MB de
   materiais + backup real da sala por `backup_controller` + atividade de 5 MB excluída com a lixeira
   de curso ativada via `course_delete_module` → A = 10 MB; agregado com subtotais de backup e
   lixeira iguais aos `filesize` registrados), CT-30 (mesmo conteúdo na lixeira e num backup →
   único do conjunto conta uma vez) e CT-31 (backup do usuário em `user/backup` → fora do agregado).
-- [ ] T030 [P] [US2] Em `tests/analysis/indicator_calculator_test.php`: B a partir de linhas de Q3;
+- [X] T030 [P] [US2] Em `tests/analysis/indicator_calculator_test.php`: B a partir de linhas de Q3;
   invariantes `B ≤ A`, `B ≤ Σ B_c`, `bruniquebytes ≤ brbytes`; grupos de referência por tipo
   somados só para interna e externa.
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Em `classes/local/collector/course_files.php`: `reftype` de Q1 por junção
+- [X] T031 [US2] Em `classes/local/collector/course_files.php`: `reftype` de Q1 por junção
   `files_reference → repository_instances → repository` com a lista interna {`user`, `local`,
   `coursefiles`, `contentbank`, `recent`} como constante documentada, indeterminada para
   `status = 666`, junção nula ou externa com `lastsync` nulo (research.md R4); e Q3 (únicos por
@@ -288,11 +288,11 @@ mão, em PHPUnit com File API real.
   NULL`, por subconsultas aninhadas sem `GROUP BY` por apelido, com a expressão `CASE` gerada com um
   prefixo de parâmetros próprio). A lista interna entra por `$DB->get_in_or_equal(...,
   SQL_PARAMS_NAMED, '<prefixo>')`, com prefixo diferente em cada uso na mesma instrução.
-- [ ] T032 [US2] Em `classes/local/analysis/indicator_calculator.php`: B e `uniquecount` de Q3;
+- [X] T032 [US2] Em `classes/local/analysis/indicator_calculator.php`: B e `uniquecount` de Q3;
   contagens e bytes de referências por tipo; agregado de backup e lixeira (`brcount`, `brbytes`,
   `bruniquecount`, `bruniquebytes` e linhas de categoria `backup` e `recyclebin`); invariantes de
   T030. Depende de T031.
-- [ ] T033 [US2] Em `classes/local/course_analysis.php` e `diagnostic_store.php`: gravar os campos
+- [X] T033 [US2] Em `classes/local/course_analysis.php` e `diagnostic_store.php`: gravar os campos
   novos (B, referências, agregado) e as linhas `backup`/`recyclebin` de `block_coursecare_cat`.
   Depende de T032.
 
@@ -741,4 +741,21 @@ Decisões de implementação, sem mudar requisitos:
   frase com o número e a unidade em passos separados.
 - Teste da 001 ajustado: `has_config()` passa a ser verdadeiro (T004), e a verificação de "nenhum
   texto fixo no template" passa a ignorar variáveis Mustache (as frases vêm traduzidas do PHP).
+- CI do MVP verde: run 38962129016 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `84daca5`.
+
+### US2 (T027–T033) — 2026-10-17
+
+Resultado local: PHPUnit 118 testes verdes, Behat 20 cenários verdes, `moodle-cs` sem erros.
+
+- Referências tipadas em Q1 por junção `files_reference → repository_instances → repository`.
+  Os testes criam atalhos reais com `create_file_from_reference()` nos repositórios `local`, `user` e
+  `dropbox` (geradores do core) e gravam a sincronização com `update_references()`, sem rede.
+  `files_reference` fica idêntico depois da análise.
+- CT-29 usa um backup real (`backup_controller`) e a lixeira real (`course_delete_module` com a lixeira
+  de curso ativada).
+- **Q2 (únicos por categoria) foi implementada já na US2**, porque as linhas `backup` e `recyclebin`
+  exigem o conteúdo único de cada subcategoria. Na US6, resta gravar as linhas das categorias do
+  escopo principal (T056 fica reduzida a reaproveitar a consulta).
+- As constantes de tipo de referência e de grupo ficam na camada de análise
+  (`indicator_calculator`); a coleta as reutiliza.
 

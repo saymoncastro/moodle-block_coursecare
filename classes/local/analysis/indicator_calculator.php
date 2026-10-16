@@ -29,8 +29,19 @@ class indicator_calculator {
     /** @var int Version of the methodology; increment when the same data would produce different values. */
     public const METHOD_VERSION = 1;
 
-    /** @var string Group of records that are not references. */
+    /** @var string Reference type of records that are not references. */
     public const REF_NONE = 'none';
+    /** @var string Reference to a file stored in Moodle. */
+    public const REF_INTERNAL = 'internal';
+    /** @var string Synchronised reference to an external repository. */
+    public const REF_EXTERNAL = 'external';
+    /** @var string Reference whose source or size cannot be determined. */
+    public const REF_UNDETERMINED = 'undetermined';
+
+    /** @var string Unique-content group of the main scope. */
+    public const GROUP_MAIN = 'main';
+    /** @var string Unique-content group of the backup and recycle bin aggregate. */
+    public const GROUP_BACKUP = 'br';
 
     /** @var int Large-file threshold in bytes. */
     private int $threshold;
@@ -47,24 +58,51 @@ class indicator_calculator {
     /**
      * Calculate the indicators.
      *
+     * The unique-content rows are optional: without them, the unique indicators and the category rows stay null
+     * or absent (not calculated), never zero.
+     *
      * @param array $contexts Context rows of the course (Q0), keyed by context id, each with a contextlevel.
      * @param array $arearows Aggregates by context, component, file area and reference type (Q1), each with
      *     contextid, component, filearea, reftype, filecount, bytes, largecount and largebytes.
+     * @param array|null $groupuniques Unique content by group (Q3), keyed by GROUP_MAIN or GROUP_BACKUP, each with
+     *     contents and bytes.
+     * @param array|null $categoryuniques Unique content by category (Q2), keyed by category, each with contents and
+     *     bytes.
      * @return diagnostic_result
      */
-    public function calculate(array $contexts, array $arearows): diagnostic_result {
+    public function calculate(
+        array $contexts,
+        array $arearows,
+        ?array $groupuniques = null,
+        ?array $categoryuniques = null
+    ): diagnostic_result {
         $main = ['filecount' => 0, 'bytes' => 0, 'largecount' => 0, 'largebytes' => 0];
         $unclassified = ['filecount' => 0, 'bytes' => 0];
+        $refs = [
+            self::REF_INTERNAL => ['filecount' => 0, 'bytes' => 0],
+            self::REF_EXTERNAL => ['filecount' => 0, 'bytes' => 0],
+            self::REF_UNDETERMINED => ['filecount' => 0, 'bytes' => 0],
+        ];
+        $backup = array_fill_keys(classification_rules::BACKUP_CATEGORIES, ['filecount' => 0, 'bytes' => 0]);
 
         foreach ($arearows as $row) {
-            if ((string)$row->reftype !== self::REF_NONE) {
-                // References are counted apart (FR-019e) and never enter the main scope.
+            $reftype = (string)$row->reftype;
+            if ($reftype !== self::REF_NONE) {
+                // References are counted apart and never enter any indicator or the aggregate (FR-019e).
+                $type = isset($refs[$reftype]) ? $reftype : self::REF_UNDETERMINED;
+                $refs[$type]['filecount'] += (int)$row->filecount;
+                $refs[$type]['bytes'] += (int)$row->bytes;
                 continue;
             }
             $level = isset($contexts[$row->contextid]) ? (int)$contexts[$row->contextid]->contextlevel : 0;
             $result = classification_rules::classify((string)$row->component, (string)$row->filearea, $level);
+            if (isset($backup[$result])) {
+                $backup[$result]['filecount'] += (int)$row->filecount;
+                $backup[$result]['bytes'] += (int)$row->bytes;
+                continue;
+            }
             if (!in_array($result, classification_rules::MAIN_CATEGORIES, true)) {
-                // Excluded areas and the backup and recycle bin aggregate are not part of the main scope.
+                // Excluded transient areas.
                 continue;
             }
             $main['filecount'] += (int)$row->filecount;
@@ -86,9 +124,37 @@ class indicator_calculator {
         $summary['largebytes'] = $main['largebytes'];
         $summary['unclassifiedcount'] = $unclassified['filecount'];
         $summary['unclassifiedbytes'] = $unclassified['bytes'];
-        $summary['partial'] = $unclassified['filecount'] > 0 ? 1 : 0;
+        $summary['refinternalcount'] = $refs[self::REF_INTERNAL]['filecount'];
+        $summary['refinternalbytes'] = $refs[self::REF_INTERNAL]['bytes'];
+        $summary['refexternalcount'] = $refs[self::REF_EXTERNAL]['filecount'];
+        $summary['refexternalbytes'] = $refs[self::REF_EXTERNAL]['bytes'];
+        $summary['refundeterminedcount'] = $refs[self::REF_UNDETERMINED]['filecount'];
+        $summary['brcount'] = array_sum(array_column($backup, 'filecount'));
+        $summary['brbytes'] = array_sum(array_column($backup, 'bytes'));
+        $summary['partial'] = ($unclassified['filecount'] > 0 || $refs[self::REF_UNDETERMINED]['filecount'] > 0) ? 1 : 0;
 
-        return new diagnostic_result($summary);
+        if ($groupuniques !== null) {
+            $summary['uniquecount'] = (int)($groupuniques[self::GROUP_MAIN]->contents ?? 0);
+            $summary['uniquebytes'] = (int)($groupuniques[self::GROUP_MAIN]->bytes ?? 0);
+            $summary['bruniquecount'] = (int)($groupuniques[self::GROUP_BACKUP]->contents ?? 0);
+            $summary['bruniquebytes'] = (int)($groupuniques[self::GROUP_BACKUP]->bytes ?? 0);
+        }
+
+        $categories = [];
+        if ($categoryuniques !== null) {
+            foreach ($backup as $category => $totals) {
+                if ($totals['filecount'] > 0) {
+                    $categories[$category] = [
+                        'filecount' => $totals['filecount'],
+                        'logicalbytes' => $totals['bytes'],
+                        'uniquecount' => (int)($categoryuniques[$category]->contents ?? 0),
+                        'uniquebytes' => (int)($categoryuniques[$category]->bytes ?? 0),
+                    ];
+                }
+            }
+        }
+
+        return new diagnostic_result($summary, $categories);
     }
 
     /**
@@ -116,6 +182,11 @@ class indicator_calculator {
         }
         foreach ($s as $value) {
             if ($value !== null && $value < 0) {
+                return false;
+            }
+        }
+        foreach ($result->categories as $row) {
+            if ($row['uniquebytes'] > $row['logicalbytes'] || $row['uniquecount'] > $row['filecount']) {
                 return false;
             }
         }

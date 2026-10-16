@@ -146,7 +146,9 @@ class course_analysis {
         $threshold = self::large_file_threshold();
         $contexts = $this->collector->get_contexts($context);
         $arearows = $this->collector->get_area_aggregates($context, $threshold);
-        return (new indicator_calculator($threshold))->calculate($contexts, $arearows);
+        $groupuniques = $this->collector->get_group_uniques($context);
+        $categoryuniques = $this->collector->get_category_uniques($context);
+        return (new indicator_calculator($threshold))->calculate($contexts, $arearows, $groupuniques, $categoryuniques);
     }
 
     /**
