@@ -1,0 +1,8 @@
+# Claude Code — configurações locais e possíveis credenciais
+.claude/settings.local.json
+.claude/*.local.*
+
+# Sistema / editores
+.DS_Store
+.idea/
+.vscode/
