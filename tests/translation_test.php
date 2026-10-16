@@ -87,11 +87,12 @@ final class translation_test extends \advanced_testcase {
 
         $this->assertTrue($manager->translation_exists('pt_br'));
         $this->assertSame('AVA Consciente', $manager->get_string('pluginname', 'block_coursecare', null, 'pt_br'));
-        $this->assertSame('Pequenas escolhas, um AVA melhor para todos.',
-            $manager->get_string('tagline', 'block_coursecare', null, 'pt_br'));
-        $this->assertSame(
-            'Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala de forma mais consciente.',
-            $manager->get_string('intro', 'block_coursecare', null, 'pt_br'));
+        $tagline = $manager->get_string('tagline', 'block_coursecare', null, 'pt_br');
+        $this->assertSame('Pequenas escolhas, um AVA melhor para todos.', $tagline);
+        $intro = $manager->get_string('intro', 'block_coursecare', null, 'pt_br');
+        $expected = 'Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala ' .
+            'de forma mais consciente.';
+        $this->assertSame($expected, $intro);
     }
 
     /**
@@ -103,10 +104,10 @@ final class translation_test extends \advanced_testcase {
 
         $manager = $this->install_customisation($content);
 
-        $this->assertSame(get_string('intro', 'block_coursecare'),
-            $manager->get_string('intro', 'block_coursecare', null, 'pt_br'));
-        $this->assertSame('Pequenas escolhas, um AVA melhor para todos.',
-            $manager->get_string('tagline', 'block_coursecare', null, 'pt_br'));
+        $intro = $manager->get_string('intro', 'block_coursecare', null, 'pt_br');
+        $this->assertSame(get_string('intro', 'block_coursecare'), $intro);
+        $tagline = $manager->get_string('tagline', 'block_coursecare', null, 'pt_br');
+        $this->assertSame('Pequenas escolhas, um AVA melhor para todos.', $tagline);
     }
 
     /**

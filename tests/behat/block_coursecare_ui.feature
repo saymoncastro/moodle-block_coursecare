@@ -27,13 +27,13 @@ Feature: CourseCare block initial experience
     And "button" "css_element" should not exist in the ".block_coursecare-content" "css_element"
     And "form" "css_element" should not exist in the ".block_coursecare-content" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: The block meets the automated accessibility checks on desktop
     When I am on the "C1" "Course" page logged in as "teacher1"
     Then I should see "Small choices, a better learning space for everyone." in the "CourseCare" "block"
     And the "CourseCare" "block" should meet accessibility standards
 
-  @javascript
+  @javascript @accessibility
   Scenario: The block is readable on a tablet
     Given I change viewport size to "tablet"
     And I am on the "C1" "Course" page logged in as "teacher1"
@@ -41,7 +41,7 @@ Feature: CourseCare block initial experience
     Then I should see "Small choices, a better learning space for everyone." in the "CourseCare" "block"
     And the "CourseCare" "block" should meet accessibility standards
 
-  @javascript
+  @javascript @accessibility
   Scenario: The block is readable on a mobile phone
     Given I change viewport size to "mobile"
     And I am on the "C1" "Course" page logged in as "teacher1"
@@ -49,7 +49,7 @@ Feature: CourseCare block initial experience
     Then I should see "Small choices, a better learning space for everyone." in the "CourseCare" "block"
     And the "CourseCare" "block" should meet accessibility standards
 
-  @javascript
+  @javascript @accessibility
   Scenario: The block works with the Classic theme
     Given the following config values are set as admin:
       | theme | classic |
