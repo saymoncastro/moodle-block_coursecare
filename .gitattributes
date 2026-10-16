@@ -1,0 +1,12 @@
+# Development-only paths excluded from the distributable package (git archive).
+# The real ZIP content is verified independently by tools/package/check.php.
+/translations export-ignore
+/tools export-ignore
+/specs export-ignore
+/.specify export-ignore
+/.claude export-ignore
+/.github export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/CONTRIBUTING.md export-ignore
+/build export-ignore

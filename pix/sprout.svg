@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CourseCare sprout icon. Original artwork for block_coursecare. GNU GPL v3 or later. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" preserveAspectRatio="xMinYMid meet">
+  <ellipse cx="24" cy="42.5" rx="11" ry="2.5" fill="#dcebe0"/>
+  <path d="M24 42V24" fill="none" stroke="#3d7a56" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M23.4 28.5C22.2 20.6 16.2 15.6 7.5 15.6 7.9 24 13.6 29.3 23.4 28.5Z" fill="#9ccfac"/>
+  <path d="M24.6 25.2C25.3 15.3 32 9 41.5 9.2 41.4 19.3 34.6 25.6 24.6 25.2Z" fill="#5fa77b"/>
+  <path d="M23.1 28.2C19.8 24.4 15.6 21.2 10.6 18.6" fill="none" stroke="#3d7a56" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
+  <path d="M25 24.8C28.3 20.3 32.5 16.3 38.2 12.4" fill="none" stroke="#2f6446" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
+</svg>

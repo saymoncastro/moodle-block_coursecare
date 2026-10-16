@@ -1,0 +1,30 @@
+/* CourseCare block. Every selector is scoped to the block (Feature 001, contracts/block-ui.md). */
+
+.block_coursecare .block_coursecare-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem 0.75rem;
+}
+
+.block_coursecare .block_coursecare-illustration {
+    flex: 0 0 auto;
+    line-height: 0;
+}
+
+.block_coursecare .block_coursecare-illustration .icon {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    font-size: 40px;
+}
+
+.block_coursecare .block_coursecare-text {
+    flex: 1 1 10rem;
+    min-width: 0;
+}
+
+.block_coursecare .block_coursecare-tagline {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}

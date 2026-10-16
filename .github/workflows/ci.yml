@@ -1,0 +1,170 @@
+# Continuous integration for block_coursecare (Feature 001, plan "Estratégia de CI").
+# Job "moodle" is based on the official moodle-plugin-ci gha.dist.yml template.
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  moodle:
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: ${{ matrix.database == 'pgsql' && 'postgres:17' || '' }}
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+      mariadb:
+        image: ${{ matrix.database == 'mariadb' && 'mariadb:11' || '' }}
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
+          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.1'
+            moodle-branch: 'MOODLE_405_STABLE'
+            database: 'pgsql'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_405_STABLE'
+            database: 'mariadb'
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        with:
+          path: plugin
+          persist-credentials: false
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          ini-values: max_input_vars=5000, opcache.enable_cli=1, opcache.jit=disable
+          coverage: none
+
+      - name: Initialise moodle-plugin-ci
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
+          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
+
+      - name: Install moodle-plugin-ci
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        env:
+          DB: ${{ matrix.database }}
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          # tools/ and translations/ are not plugin code and are not packaged; they are linted
+          # in the i18n-package job (research R11, decision C1).
+          IGNORE_PATHS: 'tools,translations'
+
+      - name: PHP Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phplint
+
+      - name: PHP Mess Detector
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpmd
+
+      - name: Moodle Code Checker
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcs --max-warnings 0
+
+      - name: Moodle PHPDoc Checker
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpdoc --max-warnings 0
+
+      - name: Validating
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci validate
+
+      - name: Check upgrade savepoints
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci savepoints
+
+      - name: Mustache Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci mustache
+
+      - name: Grunt
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci grunt --max-lint-warnings 0
+
+      - name: PHPUnit tests
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit --fail-on-warning
+
+      - name: Behat features
+        id: behat
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci behat --profile chrome
+
+      - name: Upload Behat Faildump
+        if: ${{ failure() && steps.behat.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Behat Faildump (${{ join(matrix.*, ', ') }})
+          path: ${{ github.workspace }}/moodledata/behat_dump
+          retention-days: 7
+          if-no-files-found: ignore
+
+  i18n-package:
+    # Quality Gate 4 without Moodle: translation parity, repository tools and the real ZIP content.
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: zip
+          coverage: none
+
+      - name: PHP lint of tools/ and translations/ (excluded from moodle-plugin-ci)
+        run: |
+          set -e
+          files=$(find tools translations -name '*.php' -not -path 'tools/i18n/tests/fixtures/*' | sort)
+          echo "$files"
+          for f in $files; do php -l "$f"; done
+
+      - name: Repository tools tests
+        run: php tools/i18n/tests/run.php
+
+      - name: Translation parity
+        run: php tools/i18n/check.php
+
+      - name: Build package
+        run: tools/package/build.sh
+
+      - name: Check package content
+        run: |
+          php tools/package/check.php build/block_coursecare-*.zip
+          unzip -l build/block_coursecare-*.zip
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: block_coursecare-package
+          path: build/block_coursecare-*.zip
+          retention-days: 30

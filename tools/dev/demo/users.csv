@@ -1,0 +1,5 @@
+username,password,firstname,lastname,email,lang,course1,role1
+editor,Demo-Editor-2026!,Edna,Editor,editor@example.com,en,CC-DEMO,editingteacher
+assistente,Demo-Assist-2026!,Alex,Assistente,assistente@example.com,en,CC-DEMO,teacher
+aluno,Demo-Aluno-2026!,Ana,Aluno,aluno@example.com,en,CC-DEMO,student
+gestor,Demo-Gestor-2026!,Gil,Gestor,gestor@example.com,en,CC-DEMO,manager
