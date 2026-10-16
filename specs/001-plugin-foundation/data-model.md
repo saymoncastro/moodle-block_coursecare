@@ -30,9 +30,10 @@ esse mapeamento e as regras de validação, não para propor um esquema.
 
 ### Catálogo de strings (inglês)
 - **Arquivo**: `lang/en/block_coursecare.php`. Formato de dados puro (`$string['chave'] = 'texto';`).
-- **Chaves**: `pluginname`, `tagline`, `intro`, `coursecare:addinstance`, `coursecare:view`,
-  `privacy:metadata`.
-- **Regras**: conjunto canônico. Toda chave usada no código existe aqui. Sem title case.
+- **Chaves** (em ordem alfabética): `coursecare:addinstance`, `coursecare:view`, `intro`,
+  `pluginname`, `privacy:metadata`, `tagline`.
+- **Regras**: conjunto canônico. Toda chave usada no código existe aqui. Sem title case, ordem
+  alfabética, sem `MOODLE_INTERNAL` e sem comentários entre as strings (padrão core; `moodle-cs`).
 
 ### Tradução de desenvolvimento
 - **Arquivo**: `translations/<idioma>/block_coursecare.php` (nesta feature, `pt_br`).

@@ -172,7 +172,8 @@ Página principal da sala (course-view-<formato>)
         block_coursecare::get_content()
           1. !is_main_page?                                               → conteúdo vazio
           2. !has_capability('block/coursecare:view', contexto do bloco)? → conteúdo vazio
-          3. render_from_template('block_coursecare/content', {imageurl})
+          3. render_from_template('block_coursecare/content', [])
+                ├─ {{#pix}} sprout, block_coursecare {{/pix}}            ← Pix Icon API (aria-hidden)
                 └─ {{#str}} tagline / intro, block_coursecare {{/str}}  ← String API
                                                     (lang/en ← pacote AMOS ← pt_br_local)
         block_coursecare::instance_can_be_edited() = is_main_page
@@ -196,7 +197,7 @@ página principal é um método privado do próprio bloco, não uma abstração.
 | Block manager | Regras de adição e exibição | `lib/blocklib.php` 4.5 |
 | Access API | `db/access.php`, `has_capability()` | `blocks/html/db/access.php` 4.5 (padrão) |
 | String API | `get_string()`, `{{#str}}` | `lib/classes/string_manager_standard.php` 4.5 |
-| Output API | `render_from_template()`, `image_url()` | Core 4.5 |
+| Output API | `render_from_template()`, helper Mustache `pix` → `pix_icon()` (Princípio X) | `lib/classes/output/mustache_pix_helper.php`, `pix_icon.php` 4.5 |
 | Privacy API | `null_provider` | Core 4.5 |
 | `tool_customlang` | Importação pt_br em desenvolvimento | `admin/tool/customlang/cli/import.php` 4.5 |
 | Testing | `advanced_testcase`, gerador padrão de blocos, `behat_blocks`, `behat_accessibility`, `behat_general` | Core 4.5 |
@@ -219,11 +220,13 @@ Nenhuma dependência é distribuída no pacote.
 
 As decisões estão em research.md (R5–R7), e o contrato em [contracts/dev-tools-cli.md](contracts/dev-tools-cli.md).
 
-- **Chaves** (`lang/en`): `pluginname` "CourseCare", `tagline` "Small choices, a better learning
-  space for everyone.", `intro` "Soon you will find guidance here on using your course resources
-  more mindfully.", `coursecare:addinstance` "Add a new CourseCare block", `coursecare:view` "View
-  the CourseCare block" e `privacy:metadata` "The CourseCare block does not store any personal data."
-  As strings em inglês seguem a convenção do Moodle (sem title case).
+- **Chaves** (`lang/en`, em ordem alfabética, exigida pelo `moodle-cs`): `coursecare:addinstance`
+  "Add a new CourseCare block", `coursecare:view` "View the CourseCare block", `intro` "Soon you
+  will find guidance here on using your course resources more mindfully.", `pluginname`
+  "CourseCare", `privacy:metadata` "The CourseCare block does not store any personal data." e
+  `tagline` "Small choices, a better learning space for everyone.". As strings em inglês seguem a
+  convenção do Moodle (sem title case). O arquivo segue o padrão core: sem `MOODLE_INTERNAL` e sem
+  comentários entre as strings (research R5).
 - **pt_BR** (`translations/pt_br`): `pluginname` "AVA Consciente" e as frases de referência da
   spec. Revisão de idioma registrada nas evidências.
 - **Regimes**: desenvolvimento (`tool_customlang` CLI), distribuição (só `lang/en`; AMOS após
@@ -284,8 +287,11 @@ declarar conformidade integral com a WCAG (FR-017, SC-007).
 
 Arquivo `.github/workflows/ci.yml`, acionado em `push` e `pull_request` (research R11):
 - **`moodle`**: `MOODLE_405_STABLE` × {8.1/pgsql, 8.3/mariadb}. Executa todas as etapas do template
-  oficial (phpmd é informativo) e define `IGNORE_PATHS=tools/i18n/tests/fixtures`.
-- **`i18n-package`**: PHP 8.1 sem Moodle. Executa `php tools/i18n/tests/run.php`,
+  oficial (phpmd é informativo) e define `IGNORE_PATHS: 'tools,translations'`. Esses diretórios
+  não são código do plugin nem vão para o pacote, e o `MoodleInternalSniff` do `moodle-cs`
+  reprovaria seus arquivos (research R11).
+- **`i18n-package`**: PHP 8.1 sem Moodle. Executa `php -l` nos PHP de `tools/` (exceto fixtures)
+  e de `translations/`, `php tools/i18n/tests/run.php`,
   `php tools/i18n/check.php`, `tools/package/build.sh` e `php tools/package/check.php
   build/block_coursecare-<release>.zip`, e publica o ZIP como artefato.
 
@@ -315,7 +321,7 @@ Qualquer falha bloqueia a integração à `main`.
 | RK3 | `translation_test.php` (R7) pode ser frágil diante do cache e da lista de idiomas do string manager | Plano B: reduzir a (c) e tornar (a) e (b) verificação manual obrigatória com evidência. |
 | RK4 | O pacote pt_br oficial não pode ser instalado por CLI no 4.5 | Instalação pela interface ou extraindo o ZIP oficial no `dataroot`, documentada no quickstart. |
 | RK5 | Utilitários Bootstrap divergentes entre o 4.5 (BS4) e o 5.x (BS5) | Usar só classes comuns; espaçamento no CSS local. |
-| RK6 | O ativo SVG em `<img>` não se adapta ao modo de alto contraste | Ele é decorativo e some sem perda de informação (FR-015). Alternativa: SVG embutido com `currentColor` (R4). |
+| RK6 | O ativo SVG, renderizado como imagem pelo `pix_icon`, não se adapta ao modo de alto contraste | Ele é decorativo e some sem perda de informação (FR-015). Basta registrar o resultado. Qualquer alternativa fora do `pix_icon` exige Complexity Tracking justificado (R4; Princípio X). |
 | RK7 | A clareza dos textos na Feature 001 é verificada só pelo proprietário do produto e, opcionalmente, por 1–2 docentes | Intencional (decisão do proprietário). A avaliação estruturada com cinco docentes, de diferentes níveis de familiaridade tecnológica e áreas, está na Feature 003. |
 | RK8 | Apenas o Moodle 4.5 é declarado | Intencional (FR-003). Versões 5.x entram após validação, em feature própria ou em emenda da matriz. |
 

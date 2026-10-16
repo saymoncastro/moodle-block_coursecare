@@ -15,11 +15,12 @@
 ## Contexto do template
 
 ```json
-{ "imageurl": "https://<site>/theme/image.php/<tema>/block_coursecare/<rev>/sprout" }
+{}
 ```
 
-`imageurl` vem de `$OUTPUT->image_url('sprout', 'block_coursecare')`. Os textos usam `{{#str}}`
-(`tagline`, `intro`; componente `block_coursecare`). O contexto não contém texto pronto.
+O template não recebe contexto. O ativo vem do helper `{{#pix}} sprout, block_coursecare {{/pix}}`
+(Pix Icon API, Princípio X), e os textos de `{{#str}}` (`tagline`, `intro`; componente
+`block_coursecare`). O contexto não contém texto pronto nem HTML.
 
 ## Onde o bloco aparece
 
@@ -33,8 +34,10 @@
 
 1. Um único contêiner com a classe `block_coursecare`, já fornecida pelo core no bloco. Todo o CSS
    próprio fica sob esse seletor.
-2. Ativo: `<img src="{{imageurl}}" alt="" width="40" height="40">`. É decorativo, com dimensões
-   fixas para evitar mudança de layout.
+2. Ativo: `{{#pix}} sprout, block_coursecare {{/pix}}`, sem texto alternativo. O core gera o ícone
+   com `aria-hidden="true"` e a classe `icon`. O tamanho de cerca de 40 px é definido em
+   `.block_coursecare .icon`, com largura e altura fixas para evitar mudança de layout. Nenhuma
+   marcação de imagem é escrita à mão.
 3. Tagline e intro são parágrafos (`<p>`), não títulos. O título acessível do bloco é o cabeçalho
    nativo.
 4. Sem links, botões, formulários, números, porcentagens, badges, barras, gráficos, ícones de alerta
@@ -51,7 +54,7 @@
 | Critério | Verificação |
 | --- | --- |
 | Textos corretos por idioma | Behat (en), PHPUnit R7 (pt_br/fallback), manual com pacote real (pt_br) |
-| Ativo decorativo e ignorado por leitor de tela | axe (Behat) + teste manual com leitor de tela |
+| Ativo decorativo e ignorado por leitor de tela | PHPUnit (ícone gerado com `aria-hidden="true"`, sem texto alternativo) + axe (Behat) + teste manual com leitor de tela |
 | WCAG 2.2 AA, parte automatizável | `the "CourseCare" "block" should meet accessibility standards` (axe) |
 | WCAG 2.2 AA, parte manual | Teclado (ordem e foco visível), leitor de tela, zoom de 200% e reflow a 320 px, registrados em `evidence/`. O resultado é declarado como verificação dos critérios aplicáveis, não como conformidade integral |
 | Ausência fora da página principal | Behat: em modo de edição, na página de seção e em uma atividade, `"CourseCare" "block" should not exist` |

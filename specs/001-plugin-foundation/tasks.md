@@ -83,12 +83,17 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
   no formato AAAAMMDDXX da data de implementação, `$plugin->requires = 2024100700`,
   `$plugin->supported = [405, 405]`, `$plugin->maturity = MATURITY_ALPHA` e
   `$plugin->release = '0.1.0'` (FR-001, FR-003; research R1).
-- [ ] T007 [P] Criar `lang/en/block_coursecare.php` só com dados (`$string['chave'] = 'texto';`),
-  sem title case, com exatamente: `pluginname` = "CourseCare"; `tagline` = "Small choices, a better
-  learning space for everyone."; `intro` = "Soon you will find guidance here on using your course
-  resources more mindfully."; `coursecare:addinstance` = "Add a new CourseCare block";
-  `coursecare:view` = "View the CourseCare block"; `privacy:metadata` = "The CourseCare block does
-  not store any personal data." (FR-019, FR-020; data-model "Catálogo de strings").
+- [ ] T007 [P] Criar `lang/en/block_coursecare.php` no padrão core (research R5):
+  - cabeçalho GPL e docblock do arquivo;
+  - **sem** `defined('MOODLE_INTERNAL')` e sem comentários entre as strings;
+  - só dados (`$string['chave'] = 'texto';`), sem title case;
+  - chaves **nesta ordem alfabética**, exigida pelo `LangFilesOrderingSniff` do `moodle-cs`:
+    `coursecare:addinstance` = "Add a new CourseCare block"; `coursecare:view` = "View the
+    CourseCare block"; `intro` = "Soon you will find guidance here on using your course resources
+    more mindfully."; `pluginname` = "CourseCare"; `privacy:metadata` = "The CourseCare block does
+    not store any personal data."; `tagline` = "Small choices, a better learning space for
+    everyone."
+  (FR-019, FR-020; data-model "Catálogo de strings").
 - [ ] T008 [P] Criar `db/access.php` conforme [contracts/capabilities.md](contracts/capabilities.md):
   - `block/coursecare:addinstance`: `captype` `write`, `CONTEXT_BLOCK`, `RISK_SPAM | RISK_XSS`,
     arquétipos `editingteacher` e `manager`, `clonepermissionsfrom` `moodle/site:manageblocks`;
@@ -101,7 +106,8 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
 - [ ] T010 [P] Criar `templates/content.mustache` com a estrutura de
   [contracts/block-ui.md](contracts/block-ui.md): parágrafos `{{#str}} tagline, block_coursecare
   {{/str}}` e `{{#str}} intro, block_coursecare {{/str}}`, sem textos fixos, e bloco de documentação
-  com "Example context (json)" `{"imageurl": "…"}` para o `mustache lint`. O `<img>` do ativo entra em T026 (FR-012, FR-019).
+  com "Example context (json)" `{}` para o `mustache lint`. O ícone do ativo entra em T026
+  (FR-012, FR-019).
 - [ ] T011 Criar `block_coursecare.php` com `class block_coursecare extends block_base`:
   - `init()` define `$this->title = get_string('pluginname', 'block_coursecare')`;
   - `has_config()` retorna `false`;
@@ -114,8 +120,10 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
   - etapas phplint, phpmd (`continue-on-error`), phpcs `--max-warnings 0`, phpdoc
     `--max-warnings 0`, validate, savepoints, mustache, grunt `--max-lint-warnings 0`, phpunit
     `--fail-on-warning` e behat `--profile chrome`;
-  - env `IGNORE_PATHS: 'tools/i18n/tests/fixtures'` (research R11; Quality Gates 1 e 5).
-  Depende de T011.
+  - env `IGNORE_PATHS: 'tools,translations'` na etapa de install. Esses diretórios não são código
+    do plugin, e o `MoodleInternalSniff` reprovaria seus arquivos. Na primeira execução, confirmar
+    nos logs de phpcs e phpdoc que nenhum arquivo deles foi analisado
+  (research R11; Quality Gates 1 e 5). Depende de T011.
 
 **Checkpoint**: o job `moodle` passa em phplint, phpcs, phpdoc, validate, savepoints e mustache.
 O plugin instala sem avisos no `moodle-plugin-ci install`.
@@ -146,7 +154,9 @@ desabilitar, reabilitar e desinstalar, sempre pelos fluxos nativos (spec US1).
     vazia (core intacto).
   - **Evidência**: `evidence/logs/install.txt`, `evidence/logs/core-git-status.txt` e
     `evidence/screenshots/boost-en-1280-admin-blocks.png`.
-  - **Aprovação**: CA-01 e CA-11 marcados com os links das evidências.
+  - **Aprovação**: CA-01 e CA-11 marcados com os links das evidências. O efeito de
+    desabilitar/reabilitar sobre instâncias existentes (US1-2) é validado em T043, quando já há
+    instâncias.
   - Depende de T005 e T011.
 - [ ] T015 [US1] [MANUAL] Validar a desinstalação e a reinstalação sem instâncias (quickstart §9).
   - **Procedimento**: `admin/cli/uninstall_plugins.php --plugins=block_coursecare --run` e, depois,
@@ -262,7 +272,8 @@ acontece em T046.
   - o HTML de `get_content()` contém `tagline` e `intro` na ordem;
   - o texto visível, sem marcação, não contém dígitos;
   - não há `<a`, `<button`, `<form` nem `<input`;
-  - o `<img>` tem `alt=""`;
+  - o ativo é gerado pela Pix Icon API (elemento com a classe `icon` e `aria-hidden="true"`, sem
+    texto alternativo), e não há marcação de imagem escrita à mão no template (Princípio X);
   - nenhum texto fixo fora das strings (FR-012, FR-013, FR-016, FR-019; contracts/block-ui.md).
   Depende de T016, por ser o mesmo arquivo.
 - [ ] T023 [P] [US3] Criar `tests/behat/block_coursecare_ui.feature` (`@block @block_coursecare`):
@@ -283,14 +294,18 @@ acontece em T046.
   - sem personagens, emojis ou elementos de alerta (FR-015, FR-015a).
 - [ ] T025 [P] [US3] Criar `styles.css` com seletores exclusivamente sob `.block_coursecare`:
   - layout flexível (ativo de 40 px ao lado do texto e empilhado em larguras estreitas);
+  - tamanho do ícone em `.block_coursecare .icon` (largura e altura de cerca de 40 px), sem alterar
+    a classe `icon` fora do bloco;
   - tagline com destaque moderado, sem cor própria;
   - sem `!important`, sem cores de texto e sem utilitários que divergem entre BS4 e BS5
     (research R4; contracts/block-ui.md, regras 1, 5–7).
-- [ ] T026 [US3] Completar `templates/content.mustache` e `block_coursecare.php`:
-  - o template ganha `<img src="{{imageurl}}" alt="" width="40" height="40">`, apenas utilitários
-    comuns a BS4 e BS5, e o "Example context (json)" atualizado;
-  - `get_content()` passa `imageurl` = `$OUTPUT->image_url('sprout', 'block_coursecare')->out(false)`
-  (contracts/block-ui.md). Depende de T019, T024 e T025. T022 e T023 devem passar.
+- [ ] T026 [US3] Completar `templates/content.mustache`:
+  - acrescentar o ativo com `{{#pix}} sprout, block_coursecare {{/pix}}` (sem texto alternativo:
+    o core gera `aria-hidden="true"`), usando apenas utilitários comuns a BS4 e BS5;
+  - nenhuma marcação de imagem escrita à mão nem `image_url()`;
+  - `get_content()` em `block_coursecare.php` continua passando contexto vazio
+  (contracts/block-ui.md; research R4; Princípio X). Depende de T019, T024 e T025. T022 e T023
+  devem passar.
 
 **Checkpoint**: US3 implementada. A validação visual completa (en/pt_BR, larguras, temas, teclado,
 leitor de tela) acontece em T045, depois de US4.
@@ -319,15 +334,16 @@ terceiro idioma, conferindo o texto em cada caso (spec US4).
 
 ### Implementation for User Story 4
 
-- [ ] T028 [US4] Criar `translations/pt_br/block_coursecare.php`, com o mesmo formato de dados e
-  cabeçalho e as mesmas chaves de T007:
-  - `pluginname` = "AVA Consciente";
-  - `tagline` = "Pequenas escolhas, um AVA melhor para todos.";
-  - `intro` = "Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala de
-    forma mais consciente.";
+- [ ] T028 [US4] Criar `translations/pt_br/block_coursecare.php` com o mesmo formato de T007:
+  cabeçalho GPL e docblock, sem `MOODLE_INTERNAL`, sem comentários entre as strings e as mesmas
+  chaves na mesma ordem alfabética:
   - `coursecare:addinstance` = "Adicionar um novo bloco AVA Consciente";
   - `coursecare:view` = "Ver o bloco AVA Consciente";
+  - `intro` = "Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala de
+    forma mais consciente.";
+  - `pluginname` = "AVA Consciente";
   - `privacy:metadata` = "O bloco AVA Consciente não armazena dados pessoais.";
+  - `tagline` = "Pequenas escolhas, um AVA melhor para todos.";
   - terminologia genérica, sem referência institucional (FR-021, FR-024).
   T027 deve passar.
 - [ ] T029 [P] [US4] Criar `CONTRIBUTING.md`: como contribuir; tradução mantida em
@@ -410,7 +426,9 @@ gerado, conferindo os códigos de saída e as mensagens (spec US5;
     obrigatório ausente;
   - códigos de saída 0/1/2 (FR-026).
 - [ ] T037 [US5] Acrescentar o job `i18n-package` a `.github/workflows/ci.yml`: PHP 8.1 com a
-  extensão zip, sem Moodle; passos `php tools/i18n/tests/run.php`, `php tools/i18n/check.php`,
+  extensão zip, sem Moodle; passos `php -l` em todos os PHP de `tools/` (exceto
+  `tools/i18n/tests/fixtures/`) e de `translations/`, que ficam fora do `moodle-plugin-ci` (T012),
+  `php tools/i18n/tests/run.php`, `php tools/i18n/check.php`,
   `tools/package/build.sh`, `php tools/package/check.php build/block_coursecare-*.zip` e upload do
   ZIP como artefato (FR-027; Quality Gate 4). Depende de T012, T032, T033, T035 e T036.
 - [ ] T038 [US5] Gerar e inspecionar o pacote real:
@@ -453,22 +471,35 @@ aprovação do proprietário do produto.
   - nenhum arquivo ou classe fora da estrutura do plan.md (Regras de complexidade).
   Registrar o resultado em `evidence/logs/code-review.txt`.
 - [ ] T042 [MANUAL] Instalar o ZIP gerado em T038 em um site limpo (quickstart §8).
-  - **Procedimento**: remover o `local.yml`, recriar os containers com um banco novo, extrair o ZIP
-    em `moodle/blocks/` e rodar `install_database.php` (ou `upgrade.php --non-interactive`);
-    adicionar o bloco em `CC-DEMO`; rodar a suíte PHPUnit do plugin.
-  - **Esperado**: instalação sem erros nem avisos; bloco funcional em inglês; `translation_test`
-    ignorado por falta de `translations/`.
+  - **Procedimento** (US1-1, "Moodle 4.5 sem o plugin"):
+    1. Remover o `local.yml` e recriar os containers do zero (`bin/moodle-docker-compose down` e
+       `up -d`, com banco novo).
+    2. Instalar **primeiro o site sem o plugin** (`install_database.php`) e confirmar que
+       `block_coursecare` não aparece em Administração › Plugins › Blocos.
+    3. Só então extrair o ZIP em `moodle/blocks/`, rodar `admin/cli/upgrade.php --non-interactive`
+       (ou concluir pela página de Notificações) e registrar o tempo de instalação.
+    4. Carregar os dados de T003, adicionar o bloco em `CC-DEMO` e rodar a suíte PHPUnit do plugin.
+  - **Esperado**: plugin ausente antes do passo 3; instalação do plugin sem erros nem avisos; bloco
+    funcional em inglês; `translation_test` ignorado por falta de `translations/`.
   - **Evidência**: `evidence/logs/zip-install.txt` e
     `evidence/screenshots/boost-en-1280-zip-install.png`.
   - **Aprovação**: CA-01 e CA-09 confirmados também a partir do pacote.
   - Depende de T038.
-- [ ] T043 [MANUAL] Simular a atualização (quickstart §9).
-  - **Procedimento**: com o bloco presente em `CC-DEMO` e `:view` concedido a `teacher`, incrementar
-    temporariamente `$plugin->version`, rodar `admin/cli/upgrade.php --non-interactive` e desfazer
-    com `git restore version.php`.
-  - **Esperado**: atualização sem erros; instância, posição e override de permissão preservados.
-  - **Evidência**: `evidence/logs/upgrade.txt`.
-  - **Aprovação**: os logs não têm erros e o estado foi preservado.
+- [ ] T043 [MANUAL] Simular a atualização e validar desabilitar/reabilitar com instâncias
+  (quickstart §9 e V11; US1-2).
+  - **Procedimento**:
+    1. Com o bloco presente em `CC-DEMO` e `:view` concedido a `teacher`, incrementar
+       temporariamente `$plugin->version`, rodar `admin/cli/upgrade.php --non-interactive` e
+       desfazer com `git restore version.php`.
+    2. Em seguida, desabilitar o bloco em Administração › Plugins › Blocos, abrir `CC-DEMO` como
+       `editor` (edição ligada e desligada), reabilitar e abrir de novo.
+  - **Esperado**: atualização sem erros, com instância, posição e override de permissão
+    preservados. Com o bloco desabilitado, a instância não aparece e o CourseCare não é oferecido
+    para adição. Ao reabilitar, a mesma instância volta, sem perda.
+  - **Evidência**: `evidence/logs/upgrade.txt` e capturas
+    `evidence/screenshots/boost-en-1280-disabled.png` e `-reenabled.png`.
+  - **Aprovação**: os logs não têm erros, o estado foi preservado, e as duas capturas correspondem
+    ao esperado (CA-01).
   - Depende de T020.
 - [ ] T044 [MANUAL] Validar a desinstalação **com** instâncias (quickstart §9; US1-3).
   - **Procedimento**: com o bloco em `CC-DEMO`, rodar
@@ -485,8 +516,9 @@ aprovação do proprietário do produto.
     visível). Ler a interface com VoiceOver ou NVDA. Ativar o modo de alto contraste do sistema.
   - **Esperado**: sem rolagem horizontal, sobreposição ou perda de texto; foco visível; leitor
     anunciando cabeçalho, tagline e intro, sem anunciar o ativo; texto legível em alto contraste
-    (o ativo pode sumir). Em caso de falha do ativo em alto contraste, aplicar a alternativa do
-    RK6 (SVG embutido com `currentColor`) e reexecutar T022/T023.
+    (o ativo pode sumir, porque é decorativo; registrar o resultado conforme RK6). Qualquer troca
+    do `pix_icon` por outra técnica exige Complexity Tracking justificado no plan.md antes de ser
+    aplicada (Princípio X).
   - **Evidência**: `evidence/screenshots/<tema>-<idioma>-<largura>-block.png` (16 capturas, mais zoom)
     e `evidence/accessibility.md` com o resultado, registrado como "verificação dos critérios WCAG
     2.2 AA aplicáveis ao bloco (axe + manual)", nunca como conformidade integral.
@@ -587,7 +619,7 @@ Task: "Verificador do ZIP em tools/package/check.php"
 
 | Requisito | Implementação | Verificação |
 | --- | --- | --- |
-| FR-001 | T006, T011 | T012 (validate), T014, T042 |
+| FR-001 | T006, T011 | T012 (validate), T014, T042, T043 |
 | FR-002 | — (nativo) | T015, T044 |
 | FR-003 | T006 | T012, T040 |
 | FR-004 | T011, T026 | T041 |
@@ -622,7 +654,7 @@ Task: "Verificador do ZIP em tools/package/check.php"
 
 | CA | Tarefas |
 | --- | --- |
-| CA-01 Instalação | T014, T015, T042, T044 |
+| CA-01 Instalação | T014, T015, T042, T043, T044 |
 | CA-02 Adição | T016, T017, T018, T020, T021 |
 | CA-03 Identidade e mensagem | T022, T023, T046 |
 | CA-04 Bloqueio sem permissão | T016, T017, T020 |
