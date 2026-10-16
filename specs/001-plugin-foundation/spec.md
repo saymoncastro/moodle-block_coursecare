@@ -11,7 +11,7 @@ instalável do bloco CourseCare (AVA Consciente) para Moodle 4.5, com estado ini
 internacionalização en/pt_BR conforme a constituição 1.1.0 e verificação automatizada de traduções
 e do pacote distribuível. Sem análise de arquivos ou de armazenamento."
 
-**Constituição de referência**: 1.1.0
+**Constituição de referência**: 1.2.0
 
 ## Clarifications
 
@@ -22,6 +22,21 @@ e do pacote distribuível. Sem análise de arquivos ou de armazenamento."
 - Q: Há ativo visual aprovado? → A: Não. Esta feature cria um ícone ou ilustração simples e
   discreto, sujeito a aprovação e a verificações de contraste e de compatibilidade com temas
   (FR-015, FR-015a).
+
+### Session 2026-10-16 (revisão do plano)
+
+- Decisão do proprietário: a avaliação com cinco docentes sai da Feature 001 e vai para a Feature
+  003. Aqui, a clareza dos textos é verificada pelo proprietário, com evidências reais, e
+  opcionalmente por um ou dois docentes, sem bloqueio (SC-002).
+- Decisão do proprietário: o agente propõe e implementa o ícone, a apresentação visual e os textos
+  en/pt_BR. A aprovação final vem só depois das evidências visuais reais e nunca é registrada
+  antecipadamente (FR-014, FR-015).
+- Exibição fora da página principal: o bloco não aparece, nem com cabeçalho vazio, inclusive em
+  modo de edição (FR-006).
+- Unicidade: a garantia vale para os fluxos de usuário, e suas limitações estão documentadas
+  (FR-010).
+- Acessibilidade: testes automatizados mais verificação manual proporcional, sem declarar
+  conformidade integral com a WCAG (FR-017, SC-007).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -87,8 +102,10 @@ administrativo e não sugere que uma análise já tenha sido feita.
 **Why this priority**: a primeira impressão define a confiança do professor no produto. A
 constituição (Princípios I, II e X) exige tom educativo e não fiscalizador desde o início.
 
-**Independent Test**: exibir o bloco a professores que nunca o viram e verificar se eles descrevem
-corretamente sua finalidade e se percebem que nenhuma análise foi feita.
+**Independent Test**: com o bloco renderizado em um Moodle real, o proprietário do produto revisa as
+evidências visuais (en e pt_BR) e confirma que a finalidade está clara e que nada sugere análise já
+realizada. Opcionalmente, um ou dois docentes fazem uma revisão inicial, que não bloqueia a
+entrega. A avaliação estruturada com cinco docentes pertence à Feature 003.
 
 **Acceptance Scenarios**:
 
@@ -109,6 +126,9 @@ corretamente sua finalidade e se percebem que nenhuma análise foi feita.
 6. **Given** o bloco exibido com o ativo visual do CourseCare, **When** o ativo não carrega, é
    ocultado ou é lido por leitor de tela, **Then** a mensagem continua completa e compreensível, e o
    leitor de tela não anuncia o ativo.
+7. **Given** o bloco presente na sala, **When** um editor, em modo de edição, abre uma página de
+   seção ou uma página de atividade em que o bloco seria carregado, **Then** nem o bloco nem seu
+   cabeçalho aparecem.
 
 ---
 
@@ -193,6 +213,16 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
   tiver concedido a permissão de visualização a esse papel.
 - O administrador concede a visualização a estudantes: o bloco aparece com o mesmo conteúdo, pois
   esta feature não tem conteúdo específico por papel.
+- O bloco adicionado na página principal também é carregado nas páginas de seção (padrão nativo de
+  exibição), ou em atividades quando o editor amplia "Exibir nos tipos de página": o bloco não
+  aparece nessas páginas, nem com cabeçalho vazio, nem em modo de edição (FR-006).
+- O formato do curso é alterado (ex.: tópicos para semanal) com o bloco presente: a instância
+  continua exibida na página principal, e uma segunda instância não é oferecida (FR-010).
+- Um backup da sala é restaurado sobre uma sala que já tem o bloco: a restauração não cria uma
+  segunda instância (FR-010).
+- Um editor sem permissão de visualização, por ajuste institucional, ativa o modo de edição na
+  página principal: ele vê o cabeçalho e os controles nativos do bloco, para poder gerenciá-lo, mas
+  não vê a mensagem. É uma limitação aceita da plataforma.
 
 ## Requirements *(mandatory)*
 
@@ -214,8 +244,10 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
 **Disponibilidade e permissões**
 
 - **FR-006**: O bloco MUST estar disponível para adição na página principal das salas (cursos).
-  Ele MUST NOT ser oferecido no Painel, na página inicial do site, em páginas de atividades ou em
-  outros contextos fora da sala.
+  Ele MUST NOT ser oferecido no Painel, na página inicial do site, em páginas de seção, em páginas de
+  atividades ou em outros contextos fora da sala. Fora da página principal, o bloco MUST NOT
+  aparecer, nem com cabeçalho vazio, inclusive em modo de edição, mesmo que suas configurações
+  nativas de exibição o carreguem ali.
 - **FR-007**: Adicionar o bloco MUST exigir uma permissão própria, concedida por padrão aos papéis
   que já podem editar a sala (professor com permissão de edição e gerente), e ajustável pelo
   administrador pelo sistema nativo de papéis.
@@ -225,7 +257,12 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
   aos papéis que editam a sala (professor com permissão de edição e gerente). Professores sem
   permissão de edição, estudantes, visitantes e usuários não autenticados MUST NOT ver o bloco por
   padrão. O administrador pode ajustar essa concessão pelo sistema nativo de papéis.
-- **FR-010**: Cada sala MUST admitir no máximo uma instância do CourseCare.
+- **FR-010**: Cada sala MUST admitir no máximo uma instância do CourseCare pelos fluxos de usuário
+  da plataforma: adição pela interface, mudança de formato do curso e restauração de backup.
+  A plataforma garante unicidade por página, não por curso. Por isso, a garantia depende de a adição
+  só ser possível na página principal e de a instância permanecer carregada nela. Instâncias criadas
+  por configuração administrativa de blocos padrão ou por código fora da interface estão fora desta
+  garantia e são documentadas como limitação.
 - **FR-011**: O bloco MUST NOT oferecer configurações próprias nesta feature, além das opções nativas
   que a plataforma oferece a qualquer bloco.
 
@@ -239,8 +276,9 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
 - **FR-014**: Os textos MUST ser curtos, acolhedores, não técnicos e não punitivos. O conteúdo em
   pt_BR MUST corresponder à referência de produto (título "AVA Consciente"; frase "Pequenas escolhas,
   um AVA melhor para todos."; mensagem "Em breve, você encontrará aqui orientações para utilizar os
-  recursos da sua sala de forma mais consciente."). Ajustes de redação MUST ser aprovados na
-  revisão de idioma.
+  recursos da sua sala de forma mais consciente."). Os textos em inglês e em pt_BR podem ser
+  propostos e implementados nesta feature. A aprovação final MUST ser dada pelo proprietário do
+  produto após a apresentação de evidências visuais da implementação real.
 - **FR-015**: A apresentação visual MUST seguir a direção aprovada (acolhedora, discreta,
   profissional, não infantilizada, sem aparência de painel administrativo) e MUST incluir um ativo
   visual próprio do CourseCare (ícone ou ilustração simples), criado nesta feature, que:
@@ -250,15 +288,19 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
   - mantenha contraste e nitidez nos temas padrão, em telas pequenas, com zoom de 200% e em modo de
     alto contraste do sistema (ou desapareça sem perda de informação);
   - não use personagens infantis, emojis, pontuações nem elementos de alerta;
-  - seja aprovado pelo responsável de produto antes da integração, com registro da aprovação nas
-    evidências.
+  - seja aprovado pelo proprietário do produto antes da integração à `main`, com base em
+    evidências visuais da implementação real. A aprovação MUST NOT ser registrada antes de o ativo
+    existir e ser avaliado.
 - **FR-015a**: Cores próprias do ativo MUST NOT ser o único meio de transmitir informação e MUST NOT
   alterar a aparência dos demais elementos da página ou do tema.
 - **FR-016**: O bloco MUST NOT conter links ou ações para páginas ou funcionalidades inexistentes.
 - **FR-017**: O bloco MUST atender aos critérios aplicáveis da WCAG 2.2 AA: contraste suficiente,
   navegação completa por teclado, foco visível, estrutura semântica de títulos, alternativa textual
   para elementos informativos, elementos decorativos ignorados por tecnologias assistivas e
-  legibilidade a 320 px de largura sem rolagem horizontal e com zoom de 200%.
+  legibilidade a 320 px de largura sem rolagem horizontal e com zoom de 200%. A verificação combina
+  testes automatizados (axe via Behat) e verificações manuais proporcionais ao escopo (teclado,
+  leitor de tela, zoom e reflow). O resultado é registrado como verificação dos critérios aplicáveis
+  ao bloco e MUST NOT ser apresentado como declaração de conformidade integral com a WCAG.
 - **FR-018**: O bloco MUST manter aparência e funcionamento corretos nos temas padrão da plataforma,
   sem depender de tema específico ou institucional.
 
@@ -299,22 +341,24 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
   NOT ler nem armazenar dados de usuários (Princípio VII).
 - **FR-030**: Cada critério de aceitação (CA-01 a CA-13) MUST ter evidência registrada, com resultado
   das verificações automatizadas, testes executados e registros de verificação manual
-  (capturas em en e pt_BR, desktop e celular), indicando a versão do Moodle e o tema usados.
+  (capturas em en e pt_BR, desktop, tablet e celular), indicando a versão do Moodle e o tema usados.
+  As evidências MUST ficar organizadas no diretório desta feature, fora do pacote distribuível.
+  Nenhum requisito pode ser declarado atendido sem a evidência correspondente.
 
 ### Rastreabilidade dos critérios de aceitação
 
 | Critério | Requisitos | Cenários |
 | --- | --- | --- |
 | CA-01 Instalação no Moodle 4.5 | FR-001, FR-003 | US1-1 |
-| CA-02 Adição por usuário autorizado | FR-006, FR-007, FR-010 | US2-1, US2-2 |
-| CA-03 Identidade e mensagem inicial | FR-012 a FR-016 | US3-1, US3-2, US3-5, US3-6 |
+| CA-02 Adição por usuário autorizado | FR-006, FR-007, FR-010 | US2-1, US2-2, US3-7, edge cases de formato e restauração |
+| CA-03 Identidade e mensagem inicial | FR-012 a FR-016, SC-002 | US3-1, US3-2, US3-5, US3-6 |
 | CA-04 Bloqueio sem permissão | FR-007 a FR-009 | US2-3, US2-4, US2-5 |
 | CA-05 Funciona em inglês | FR-019, FR-020 | US4-1 |
 | CA-06 Funciona em pt_BR (tradução de desenvolvimento) | FR-021, FR-022 | US4-2 |
 | CA-07 Fallback para inglês | FR-023 | US4-3, US4-4, US4-5 |
 | CA-08 Paridade detecta inconsistências | FR-025, FR-027, FR-028 | US5-1 a US5-5, US5-7 |
 | CA-09 Pacote sem traduções adicionais | FR-026 | US5-6 |
-| CA-10 Responsivo e acessível | FR-017 | US3-3, US3-4 |
+| CA-10 Responsivo e acessível | FR-017, SC-007, SC-008 | US3-3, US3-4 |
 | CA-11 Sem modificação do core | FR-001 | US1-4 |
 | CA-12 Independente do tema | FR-018 | Edge case de tema |
 | CA-13 Evidências documentadas | FR-030 | — |
@@ -329,7 +373,8 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
   as mesmas chaves do catálogo. Ela fica fora do pacote distribuível.
 - **Pacote distribuível**: o artefato publicado do plugin, contendo apenas o inglês como idioma.
 - **Ativo visual do CourseCare**: o ícone ou ilustração decorativa da identidade do produto. É
-  original, tem licença compatível e só é integrado após aprovação registrada.
+  original e tem licença compatível. Só é integrado à `main` após aprovação do proprietário do
+  produto, com base em evidência visual real.
 - **Relatório de verificação**: o resultado das verificações de traduções e de pacote, com a lista de
   problemas por idioma, arquivo e chave.
 
@@ -339,9 +384,12 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
 
 - **SC-001**: Um administrador instala o CourseCare em um Moodle 4.5 limpo em até 5 minutos, sem
   editar nenhum arquivo fora do diretório do plugin e sem erros ou avisos.
-- **SC-002**: Em homologação, pelo menos 4 de 5 professores descrevem corretamente a finalidade do
-  bloco após vê-lo por até 10 segundos, e nenhum deles entende que uma análise da sua sala já foi
-  realizada.
+- **SC-002**: Verificação inicial da clareza dos textos. O proprietário do produto revisa as
+  evidências visuais reais do bloco (en e pt_BR) e confirma, com registro, que a finalidade está
+  clara e que nada sugere análise já realizada. A revisão opcional por um ou dois docentes é
+  registrada quando houver, mas não bloqueia esta feature. A avaliação estruturada com cinco docentes
+  (diferentes níveis de familiaridade tecnológica e, preferencialmente, áreas de ensino) foi
+  transferida para a Feature 003 — Experiência visual.
 - **SC-003**: 100% dos textos visíveis do bloco vêm do catálogo de strings, e 0 textos fixos são
   encontrados na revisão.
 - **SC-004**: Nos três cenários de idioma (inglês; pt_BR com tradução; pt_BR sem tradução ou idioma
@@ -352,7 +400,9 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
 - **SC-006**: O pacote distribuível gerado contém 0 arquivos de `translations/` e 0 idiomas além do
   inglês.
 - **SC-007**: A verificação automática de acessibilidade da plataforma reporta 0 violações no bloco,
-  em inglês e em pt_BR, e uma pessoa consegue percorrer todo o conteúdo apenas com o teclado.
+  em inglês e em pt_BR. A verificação manual registrada confirma: todo o conteúdo percorrível só com
+  teclado e com foco visível; leitura correta por leitor de tela, sem anúncio do ativo; legibilidade
+  com zoom de 200% e a 320 px. O resultado não é declarado como conformidade integral com a WCAG.
 - **SC-008**: O bloco é exibido corretamente em pelo menos dois temas padrão da plataforma, em
   desktop e em largura de celular, sem rolagem horizontal.
 - **SC-009**: A presença do bloco não causa atraso perceptível no carregamento da sala, pois o bloco
@@ -369,8 +419,12 @@ inconsistências conhecidas, e sobre um pacote gerado, conferindo o resultado de
 - Por padrão, a permissão de adicionar o bloco segue o padrão da plataforma para blocos de curso:
   professor com permissão de edição e gerente.
 - O título do bloco não é personalizável nesta feature.
-- O ativo visual será proposto durante a implementação e submetido à aprovação do responsável de
-  produto. Não existe ativo prévio. A paleta própria limita-se ao ativo, sem redefinir cores do tema.
+- O agente de implementação está autorizado a propor e implementar o ícone SVG, a apresentação
+  visual inicial, os textos em inglês e a tradução pt_BR. Não existe ativo prévio. A paleta própria
+  limita-se ao ativo, sem redefinir cores do tema. A aprovação final é do proprietário do produto,
+  após as evidências visuais da implementação real.
+- A avaliação estruturada com cinco docentes está fora do escopo desta feature e pertence à
+  Feature 003 — Experiência visual.
 - O aplicativo móvel oficial da plataforma está fora do escopo. "Dispositivos móveis" significa o
   navegador em telas pequenas.
 - Os "temas padrão" usados na validação são os temas distribuídos com o Moodle 4.5. A validação em
