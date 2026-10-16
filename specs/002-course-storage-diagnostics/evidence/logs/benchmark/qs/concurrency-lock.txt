@@ -1,0 +1,6 @@
+# Another process holds the course lock (lock_config factory block_coursecare, analyse_course_26) for 12 s.
+lock held by another process
+Course 26: locked in 0.002 s, peak memory 12.8 MB.
+exit while lock held: 3
+Course 26: done in 1.024 s, peak memory 15.3 MB.
+exit after release: 0

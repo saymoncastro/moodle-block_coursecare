@@ -19,7 +19,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-11 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
 | CT-12 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-13 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
-| CT-14 | T050 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
+| CT-14 | T050 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551); reforçado na revisão com o executor real do cron, CI verde (run 38980720482) |
 | CT-15 | T049, T051 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
 | CT-16 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | CT-17 | T041 (benchmark) | 2026-10-16 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | verde: 50.000 registros em ≤ 0,57 s, memória 1,02 × a de 5.000, valores = manifesto ([benchmark.md](benchmark.md)) |
@@ -38,11 +38,11 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-30 | T029 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-31 | T029 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-32 | T028 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
-| CT-33 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
-| CT-34 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
-| CT-35 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI pendente |
-| SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | todos os cenários verdes local; CI verde até CT-32, CT-33–CT-35 (US7) com CI pendente |
-| SC-002 | T021, T040, T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: leituras e ausência de `files` (T021) verdes; microbenchmark T040/T041 pendente |
+| CT-33 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI verde (run 38971119869) |
+| CT-34 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI verde (run 38971119869) |
+| CT-35 | T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US7); CI verde (run 38971119869) |
+| SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11 (CI) | todos os cenários verdes local e no CI (último run 38980720482) |
+| SC-002 | T021, T040, T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | atendido: nenhuma consulta a `files` em A–H (PHPUnit); +0,8 ms por renderização em relação à 0.1.0 (limite 50 ms) ([benchmark.md](benchmark.md)) |
 | SC-003 | T041 | 2026-10-16 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | atendido nas duas bases ([benchmark.md](benchmark.md)) |
 | SC-004 | T041 | | | | pendente |
 | SC-005 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
@@ -73,4 +73,18 @@ separador decimal de `display_size()` vêm do pacote pt_br do core (`logs/quicks
 
 ## Runs de CI (T069)
 
-Pendente.
+Workflow `moodle-plugin-ci` (PHP 8.1 com PostgreSQL e PHP 8.3 com MariaDB, `MOODLE_405_STABLE`) e
+job `i18n-package`, na branch `002-course-storage-diagnostics`. Todos verdes:
+
+| Run | Commit | Conteúdo |
+| --- | --- | --- |
+| 38980720482 | f59412b | Revisão de código (testes fortalecidos), polimento e evidência do SC-003 |
+| 38971119869 | d1fef5e | US7: atividades e arquivos grandes |
+| 38968677593 | 531d8f3 | US6: volume por categoria |
+| 38967792551 | 17b0a97 | US5: estados desatualizado e falha |
+| 38966922553 | 1f90ae8 | US4: privacidade e ciclo de vida |
+| 38966216241 | 482830d | US3: agendamento, CLI e ferramentas de benchmark |
+| 38964414578 | 93be1c4 | US2: conteúdo único, referências, cópias de segurança |
+| 38962129016 | 84daca5 | MVP (T001–T026) |
+
+O run final da branch, depois do SC-004, será acrescentado aqui.

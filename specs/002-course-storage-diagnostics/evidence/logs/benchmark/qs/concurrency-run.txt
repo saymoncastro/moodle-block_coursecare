@@ -1,0 +1,5 @@
+round 1: exits 0/3 | Course 26: done in 0.638 s, peak memory 15.3 MB. | Course 26: locked in 0.002 s, peak memory 12.8 MB.
+round 2: exits 3/0 | Course 26: locked in 0.001 s, peak memory 12.8 MB. | Course 26: done in 0.601 s, peak memory 15.3 MB.
+round 3: exits 0/3 | Course 26: done in 0.614 s, peak memory 15.3 MB. | Course 26: locked in 0.002 s, peak memory 12.8 MB.
+round 4: exits 0/3 | Course 26: done in 0.768 s, peak memory 15.3 MB. | Course 26: locked in 0.002 s, peak memory 12.8 MB.
+round 5: exits 3/0 | Course 26: locked in 0.001 s, peak memory 12.8 MB. | Course 26: done in 0.618 s, peak memory 15.3 MB.

@@ -7,8 +7,8 @@ Tudo o que aparece aqui foi **medido**, salvo quando marcado como **projeção**
 | --- | --- |
 | SC-003 / CT-17: sala de 50.000 registros em ≤ 5 min, memória sem crescimento proporcional | **Atendida** nas duas bases (medida em 2026-10-16) |
 | SC-004 / CT-24: 5.001 salas concluídas em ≤ 24 h com o cron real | Pendente (execução de cerca de 11 h) |
-| SC-002: renderização do bloco, 0.1.0 × 0.2.0 | Parcial: sem consulta a `files` e mesmas leituras em todos os estados (PHPUnit); microbenchmark pendente |
-| Concorrência (`--run` simultâneo, `--queue --all` duas vezes) | Pendente |
+| SC-002: renderização do bloco, 0.1.0 × 0.2.0 | **Atendida**: +0,8 ms por renderização (limite 50 ms); nenhuma consulta a `files` |
+| Concorrência (`--run` simultâneo, `--queue --all` duas vezes) | **Atendida** (site de quickstart, 0.2.0) |
 | Exatidão por amostragem (20 salas por perfil) | Parcial: as 4 salas do SC-003 conferem com o manifesto nas duas bases; amostragem por perfil pendente |
 
 ## Ambiente
@@ -115,6 +115,41 @@ conteúdos únicos, 200 atividades, 527 arquivos grandes e 269 ligações (só M
 Depois do SC-003, os diagnósticos dessas 4 salas foram apagados, para que o SC-004 comece com
 nenhuma sala analisada (`diagnostics left: 0` nas duas bases).
 
-## SC-004, SC-002, concorrência e amostragem
+## SC-002: renderização do bloco
 
-Pendentes; serão registrados nesta página com o mesmo formato.
+Site de quickstart (`coursecare-qs`, PostgreSQL 17.11, mesma versão do Moodle), sala QS-A com 2
+arquivos. Primeiro a 0.1.0 (`git archive main`), depois a atualização para a 0.2.0 (`f59412b`) no
+mesmo site, com a sala analisada (estado D). Para cada versão, 3 execuções de
+`tools/dev/bench/render.php --iterations=1000` como administrador (`logs/benchmark/qs/sc002-*.json`):
+
+| Versão | Média por renderização (ms), execuções 1 / 2 / 3 | Leituras por renderização |
+| --- | --- | --- |
+| 0.1.0 | 0,225 / 0,050 / 0,047 | 0 |
+| 0.2.0 | 0,913 / 0,786 / 0,847 | 4 |
+
+- **Diferença**: cerca de 0,8 ms por renderização (com cache quente: 0,786 − 0,050 e
+  0,847 − 0,047). Limite: 50 ms. **Atendido.**
+- **Leituras**: das 4, só uma é do bloco (o registro do diagnóstico da sala, por índice único). As
+  outras 3 vêm do próprio `render.php`, que cria um `moodle_page` novo a cada iteração: a primeira
+  chamada de `get_renderer('core')` numa página carrega os filtros ativos (verificado: uma segunda
+  chamada na mesma página não faz consulta). Numa página real o renderizador já existe.
+- **Sem consulta a `files`**: verificado pelo PHPUnit em todos os estados A a H, com o mesmo número
+  de leituras em todos (`test_render_reads_no_files`).
+- **Limitação**: a medição rodou enquanto o SC-004 usava a mesma VM (cron das duas bases); a carga
+  afeta as duas versões do mesmo modo e não altera a conclusão diante do limite de 50 ms.
+
+## Concorrência
+
+Site de quickstart (0.2.0), sala com 200.000 registros gerados (`--mode=metadata`); códigos de saída
+lidos com `docker exec`, sem filtros (`logs/benchmark/qs/concurrency-*.txt`):
+
+- **Lock ocupado por outro processo** (o mesmo lock por sala, mantido por 12 s): `--run` termina em
+  0,002 s com `locked` e código 3; depois da liberação, a análise roda (código 0).
+- **Duas execuções simultâneas de `--run`** da mesma sala, 5 rodadas: em todas, exatamente uma
+  analisa (código 0, cerca de 0,6 s) e a outra termina com código 3.
+- **`--queue --all` duas vezes seguidas**: a primeira solicita 22 análises (as 22 salas elegíveis do
+  site), a segunda 0; ficam 22 tarefas ad hoc, exatamente uma por sala, e 22 registros na fila.
+
+## SC-004 e amostragem por perfil
+
+Em execução (iniciado em 2026-10-16T23:19:09Z nas duas bases); serão registrados aqui.

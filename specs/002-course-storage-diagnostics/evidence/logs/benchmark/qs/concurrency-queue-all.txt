@@ -1,0 +1,5 @@
+Analyses requested: 22.
+exit 0
+Analyses requested: 0.
+exit 0
+{"eligible":22,"tasks":22,"courses with tasks":22,"max tasks per course":1,"queued records":22}
