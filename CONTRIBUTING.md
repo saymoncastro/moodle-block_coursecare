@@ -37,7 +37,9 @@ tools/package/build.sh && php tools/package/check.php build/block_coursecare-*.z
 
 ### Installing the development translation (development and staging only)
 
-1. Install the official `pt_br` language pack (Site administration > Language > Language packs).
+1. Install the official `pt_br` language pack (Site administration > Language > Language packs). If you
+   extract the official ZIP into `<dataroot>/lang/` by hand instead, purge all caches before step 2;
+   otherwise the import reports success but the check-in silently writes nothing.
 2. Import the project translation with the native language customisation tool:
 
 ```bash

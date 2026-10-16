@@ -1,0 +1,11 @@
+# Install log (quickstart §2) — 2026-10-16T14:21:22Z
+Moodle: $release  = '4.5.15 (Build: 20261005)';    // Human-friendly version name
+Docker: PHP 8.1 (moodle-docker), PostgreSQL; plugin mounted via local.yml
+
+1:Including local options from /Users/saymoncastro/Projetos/coursecare-devenv/moodle-docker/local.yml
+219:-->block_coursecare
+777:-->workshopform_numerrors
+...
+-->upgrade_noncore()
+++ Success (0.64 seconds) ++
+Installation completed successfully.

@@ -64,7 +64,11 @@ bin/moodle-docker-compose exec webserver php admin/tool/uploaduser/cli/uploaduse
 
 1. Instale o pacote oficial pt_br. O 4.5 não tem CLI para isso. Use Administração › Idioma ›
    Pacotes de idiomas › "Português - Brasil" › Instalar, ou extraia o ZIP oficial de
-   download.moodle.org (langpack 4.5) em `/var/www/moodledata/lang/`.
+   download.moodle.org (langpack 4.5) em `/var/www/moodledata/lang/`. **Na extração manual, purgue
+   os caches antes do passo 2** (`admin/cli/purge_caches.php`). Sem isso, a lista de idiomas
+   instalados continua em cache, e o `--checkin` do `tool_customlang` termina sem gravar
+   `pt_br_local`, embora o log mostre sucesso (verificado em 2026-10-16;
+   `evidence/logs/customlang-import.txt`).
 2. Importe a tradução do projeto pela ferramenta nativa:
 
 ```bash

@@ -1,0 +1,3 @@
+# git status --porcelain of the Moodle core checkout after install, data load, language pack and customisation — 2026-10-16T14:21:22Z
+# (config.php is created by the quickstart and is untracked by design)
+# end
