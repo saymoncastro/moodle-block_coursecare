@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/001-plugin-foundation/spec.md`
 
-**Constituição**: 1.1.0 · **Pesquisa**: [research.md](research.md) · **Contratos**: [contracts/](contracts/)
+**Constituição**: 1.1.1 · **Pesquisa**: [research.md](research.md) · **Contratos**: [contracts/](contracts/)
 · **Validação**: [quickstart.md](quickstart.md)
 
 ## Summary
@@ -66,7 +66,7 @@ Nenhum item está como NEEDS CLARIFICATION: todos foram resolvidos em [research.
 | VI. Desempenho | Sem consultas próprias, sem tarefas, sem varreduras. | ✅ |
 | VII. Segurança e privacidade | Capability própria no contexto do bloco, verificada no servidor. `null_provider`. Não lê nem armazena dados de usuário. | ✅ |
 | VIII. Internacionalização | `lang/en` canônico; `translations/pt_br` versionado; importação por `tool_customlang`; fallback nativo; pacote só com `en`; verificador de paridade. | ✅ |
-| IX. Qualidade e camadas | Só a camada de **apresentação** existe nesta feature. Coleta, análise e regras não são criadas vazias (ver Complexity Tracking). PHPUnit, Behat e `moodle-plugin-ci` completos. | ⚠️ Interpretação registrada |
+| IX. Qualidade e camadas | Só a responsabilidade de **apresentação** existe nesta feature, e ela fica isolada no template, no CSS e no `get_content()`. Coleta, análise e regras não são criadas, conforme o Princípio IX e o C6 esclarecidos na 1.1.1 (camada obrigatória a partir da primeira feature com a responsabilidade). PHPUnit, Behat e `moodle-plugin-ci` completos. | ✅ |
 | X. Experiência visual | Ativo decorativo discreto e aprovado; WCAG 2.2 AA verificada por axe e manualmente; sem ludicidade competitiva. | ✅ |
 | XI. Evolução incremental | Sem abstrações, renderer, settings ou JS. Escopo idêntico ao da spec. | ✅ |
 | XII. Software livre | GPL v3+; cabeçalho padrão em todo PHP; sem `thirdpartylibs.xml` (nenhuma biblioteca); README, CHANGES, CONTRIBUTING e LICENSE. | ✅ |
@@ -76,9 +76,9 @@ Nenhum item está como NEEDS CLARIFICATION: todos foram resolvidos em [research.
 en/pt_br e pacote sem `translations/`; 5) matriz com a versão mínima e a mais recente suportada.
 Como `supported = [405, 405]`, as duas coincidem no 4.5.
 
-**Resultado do gate (pré-pesquisa e pós-design)**: **PASSA**. Princípios I, IV e VII sem
-violações. A única observação (IX) é uma interpretação, não uma violação dos princípios
-inegociáveis.
+**Resultado do gate (pré-pesquisa e pós-design)**: **PASSA**, sem violações, contra a constituição
+1.1.1. A observação sobre o IX registrada na 1.1.0 foi resolvida pela emenda 1.1.1 (PR
+saymoncastro/moodle-block_coursecare#1).
 
 ## Project Structure
 
@@ -320,6 +320,6 @@ Qualquer falha bloqueia a integração à `main`.
 
 ## Complexity Tracking
 
-| Violação ou desvio | Por que é necessário | Alternativa mais simples rejeitada porque |
-| --- | --- | --- |
-| IX/C6: as camadas de coleta, análise e regras não são criadas nesta feature (C6 diz "obrigatórias desde a primeira feature") | A feature não tem coleta, análise nem regras. Criar namespaces ou classes vazias contraria o Princípio XI e a diretriz "não criar abstrações sem necessidade". | Classes vazias seriam código sem uso, sem testes significativos e sujeito a retrabalho na Feature 002. **Recomendação**: emenda PATCH esclarecendo que as camadas são obrigatórias desde a primeira feature que contenha a respectiva responsabilidade. |
+Nenhuma violação a justificar. O desvio de IX/C6 registrado contra a constituição 1.1.0 foi
+resolvido pela emenda 1.1.1, que esclarece que cada camada só é obrigatória a partir da primeira
+feature com a responsabilidade correspondente.
