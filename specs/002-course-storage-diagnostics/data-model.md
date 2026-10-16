@@ -23,7 +23,7 @@ Decisões e evidências: [research.md](research.md) (R7–R10, R14). Algoritmos:
 | `timecompleted` | int(10) | sim | Fim da última análise **concluída**. Nulo = nunca concluída |
 | `lastattemptfailed` | int(1) | não, padrão 0 | 1 se a última tentativa falhou |
 | `failurecount` | int(4) | não, padrão 0 | Falhas consecutivas (zera no sucesso) |
-| `failurereason` | char(30) | sim | Código curto: nome curto da classe da exceção, `interrupted` ou `inconsistent`. Sem mensagem livre |
+| `failurereason` | char(30) | sim | Código curto: nome curto da classe da exceção (sem namespace, truncado em 30 caracteres), `interrupted` ou `inconsistent`. Sem mensagem livre |
 | `methodversion` | int(4) | sim | Versão da metodologia usada no resultado vigente |
 | `largethreshold` | int(20) | sim | Limite de grande porte usado, em bytes (FR-015b) |
 | `filecount` | int(10) | sim | Registros do escopo principal |
@@ -135,6 +135,14 @@ em execução --processo morto há > 2 h (tarefa agendada)--> igual à exceção
 na fila --sem execução há > 24 h (tarefa agendada)--> requeststatus=0 (pode ser reenfileirada)
 qualquer --última instância removida / curso excluído / sala não elegível (tarefa agendada)--> registro e filhos apagados
 ```
+
+### Solicitação de análise (entidade da spec)
+
+A solicitação é representada pelos campos `requeststatus` e `timerequested` do registro da sala e
+pela tarefa ad hoc correspondente. A **origem** (automática ao adicionar o bloco, periódica ou
+administrador) **não é persistida**: nenhum requisito ou feature prevista a consome, e guardá-la
+seria dado sem finalidade (Princípio VII, minimização). Ela aparece só na saída da tarefa ou da CLI
+que fez o pedido. Se uma feature futura precisar, um campo `requestorigin` entra com `db/upgrade.php`.
 
 ## Entidades core apenas lidas
 

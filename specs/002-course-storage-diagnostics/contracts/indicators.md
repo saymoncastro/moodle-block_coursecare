@@ -5,6 +5,14 @@ conta uma vez e o que **não** representa (FR-030). As consultas abaixo mostram 
 (agregação no banco, uma instrução por consulta); o texto final do SQL é da implementação e MUST
 usar apenas a DML API e funções portáveis.
 
+**Parâmetros nomeados únicos**: a DML do Moodle 4.5 rejeita o mesmo parâmetro nomeado usado duas
+vezes na mesma instrução (`dml_exception('duplicateparaminsql')`, `lib/dml/moodle_database.php:978-994`).
+Toda ocorrência MUST ter nome próprio (por exemplo `:t1`, `:t2`), mesmo com o mesmo valor. O gerador
+da expressão `CASE` MUST receber um prefixo por uso e numerar os parâmetros de cada regra
+(`:<prefixo>c<n>`, `:<prefixo>a<n>`), para que a mesma expressão possa aparecer em consultas
+diferentes sem colisão. Nomes com no máximo 30 caracteres (limite de `xmldb_field::NAME_MAX_LENGTH`
+verificado na mesma função).
+
 ## Conjuntos
 
 - **S** (registros da sala): `files` com contexto = contexto do curso ou descendente (R1), exceto
@@ -50,8 +58,8 @@ Em PHP: mapa `contextid → cmid` (ancestral de nível módulo, pelo caminho).
 ```text
 SELECT f.contextid, f.component, f.filearea, <reftype> AS reftype,
        COUNT(1), SUM(f.filesize),
-       SUM(CASE WHEN f.filesize >= :t THEN 1 ELSE 0 END),
-       SUM(CASE WHEN f.filesize >= :t THEN f.filesize ELSE 0 END)
+       SUM(CASE WHEN f.filesize >= :t1 THEN 1 ELSE 0 END),
+       SUM(CASE WHEN f.filesize >= :t2 THEN f.filesize ELSE 0 END)
   <base> LEFT JOIN {files_reference} r ... LEFT JOIN {repository_instances} ri ... LEFT JOIN {repository} rp ...
  GROUP BY f.contextid, f.component, f.filearea, <reftype>
 ```
@@ -76,7 +84,7 @@ conteúdo único do conjunto BR.
 **Q4 — grande porte**:
 ```text
 SELECT f.id, f.contextid, f.component, f.filearea, f.contenthash, f.filesize
-  <base> AND f.referencefileid IS NULL AND f.filesize >= :t
+  <base> AND f.referencefileid IS NULL AND f.filesize >= :t1
 ```
 Resultado limitado ao número de arquivos grandes (recordset, fechado ao fim). Em PHP:
 classificação; para f ∈ P, D único (geral e por `cmid`, por conjuntos de hashes pequenos) e

@@ -157,8 +157,10 @@ Novos itens marcados com `+`, alterados com `~`. Itens com ✗ ficam fora do pac
 ├── lang/en/block_coursecare.php         ~ strings de estado, configurações, tarefas, CLI, privacidade
 ├── tests/
 │   ├── analysis/                        + testes puros: regras, cálculo, estados
-│   ├── collector/                       + testes com File API real (CT-01–CT-13, CT-21, CT-22, CT-29–CT-35)
-│   ├── task/                            + tarefas: elegibilidade, lock, falha, presos, órfãos, devidas
+│   ├── collector/                       + course_files_test.php (File API real: CT-01–CT-13, CT-21, CT-22, CT-29–CT-35)
+│   │                                      e diagnostic_store_test.php (gravação atômica, solicitações)
+│   ├── task/                            + analyse_course_test.php, queue_analyses_test.php e cli_diagnostics_test.php
+│   ├── generator/                       + lib.php e behat_block_coursecare_generator.php (diagnósticos de teste)
 │   ├── block_coursecare_test.php        ~ ciclo de vida do bloco, leituras na renderização
 │   ├── privacy/provider_test.php        ~ razão revisada; inspeção de colunas (SC-006)
 │   └── behat/block_coursecare_diagnostic.feature  + estados no bloco, permissões, axe

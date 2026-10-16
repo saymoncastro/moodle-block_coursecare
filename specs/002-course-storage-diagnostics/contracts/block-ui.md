@@ -42,5 +42,7 @@ links nesta feature (FR-050, FR-039d).
 `get_content()` faz, além do que a Feature 001 já fazia: uma leitura de
 `block_coursecare_diag` por `courseid` e a leitura de `stalenessthreshold` pela configuração do
 plugin (em cache pelo core). Nenhuma consulta a `files`, nenhuma escrita, nenhuma tarefa enfileirada.
-Teste: diferença de leituras no banco ≤ 2 em relação ao bloco sem diagnóstico, e nenhuma consulta a
-`{files}` (por inspeção do log de consultas do teste).
+Teste: diferença de leituras no banco (`$DB->perf_get_reads()`) ≤ 2 em relação ao bloco sem
+diagnóstico, e nenhuma consulta à tabela `files`: o teste liga `$DB->set_debug(true)`, captura a
+saída com `ob_start()`/`ob_get_clean()` em volta de `get_content()`, desliga o debug e verifica que o
+nome da tabela (`{$CFG->prefix}files`) não aparece no texto capturado.

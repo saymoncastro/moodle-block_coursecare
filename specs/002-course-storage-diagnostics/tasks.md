@@ -150,9 +150,12 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
   invariantes de contracts/indicators.md. Depende de T012 e T013.
 - [ ] T015 Criar `classes/local/collector/course_files.php`: Q0 (contextos da sala por `ctx.id =
   :ctxid OR ctx.path LIKE :path`) e Q1 (agrupamento por `contextid, component, filearea, reftype`,
-  com `COUNT`, `SUM(filesize)` e os `SUM(CASE …)` do limite `:t`, `f.filename <> '.'`), e o
-  gerador da expressão `CASE` de categoria a partir da tabela de T012 (parâmetros nomeados,
-  portável). Converter todos os agregados para `int`. Sem `stored_file`. Depende de T012.
+  com `COUNT`, `SUM(filesize)` e os `SUM(CASE …)` do limite com parâmetros `:t1` e `:t2`,
+  `f.filename <> '.'`), e o gerador da expressão `CASE` de categoria a partir da tabela de T012,
+  portável. **Cada parâmetro nomeado aparece uma única vez por instrução** (a DML rejeita repetição
+  com `duplicateparaminsql`, contracts/indicators.md): o gerador recebe um prefixo por uso e numera
+  os parâmetros de cada regra (`:<prefixo>c<n>`, `:<prefixo>a<n>`, nomes com até 30 caracteres).
+  Converter todos os agregados para `int`. Sem `stored_file`. Depende de T012.
 - [ ] T016 [P] Criar `classes/local/collector/eligibility.php`: `is_eligible(int $courseid): bool` e
   `get_eligible_courses_query()` (junção `block_instances.blockname = 'coursecare'` com `context`
   de nível curso, excluindo `SITEID`; sem filtro por `block.visible`), usados pela tarefa ad hoc,
@@ -168,7 +171,7 @@ lógico, gravação atômica e tarefa ad hoc com lock. Bloqueia todas as histór
   espera 0, validade 7.200 s; elegibilidade (T016); frescor (`timecompleted >= $requestedsince`);
   `mark_running`; coleta (T015) e cálculo (T014); invariantes com uma nova coleta se falharem e
   falha `inconsistent` se falharem de novo; `save_result`; `\Throwable` → rollback, `save_failure`
-  com o nome curto da classe da exceção, sem relançar; lock liberado em `finally`. Aceita a
+  com o nome curto da classe da exceção (sem namespace, truncado em 30 caracteres), sem relançar; lock liberado em `finally`. Aceita a
   coleta por injeção no construtor (para o teste de falha da US5). Depende de T014–T017.
 - [ ] T019 Criar `classes/task/analyse_course.php` (`\core\task\adhoc_task`): `customdata`
   `{"courseid": <int>}`, `get_default_concurrency_limit()` = 2, `execute()` chama
@@ -199,8 +202,10 @@ ver "nenhum arquivo encontrado".
 - [ ] T021 [P] [US1] Em `tests/block_coursecare_test.php`: `instance_create()` grava a solicitação e
   enfileira **uma** tarefa `analyse_course` (verificar `task_adhoc`); segunda adição impossível já
   coberta pela 001; bloco no contexto do site não enfileira; `get_content()` com diagnóstico faz no
-  máximo 2 leituras a mais que sem diagnóstico (`$DB->perf_get_reads()`) e nenhuma consulta a
-  `{files}` (SC-002, contracts/block-ui.md).
+  máximo 2 leituras a mais que sem diagnóstico (`$DB->perf_get_reads()`) e nenhuma consulta à tabela
+  `files`: `$DB->set_debug(true)`, `ob_start()` em volta de `get_content()`, `ob_get_clean()`,
+  `$DB->set_debug(false)` e verificação de que `{$CFG->prefix}files` não aparece no texto capturado
+  (SC-002, contracts/block-ui.md).
 - [ ] T022 [P] [US1] Criar `tests/behat/block_coursecare_diagnostic.feature` (tag `@block_coursecare`)
   com: professor com edição adiciona o bloco e vê a mensagem de preparação; `I run all adhoc tasks`;
   vê o volume e a data numa sala com arquivos gerados; vê a mensagem de nenhum arquivo numa sala
@@ -212,7 +217,7 @@ ver "nenhum arquivo encontrado".
 - [ ] T023 [P] [US1] Criar `classes/local/analysis/state_resolver.php` com
   `resolve(?object $record, int $now, int $stalenessseconds)` devolvendo estado, marcador parcial e
   se há resultado exibível, pela tabela de estados de data-model.md (A, B, C, D, G nesta tarefa;
-  E e F em T051). Sem `$DB`.
+  E e F em T052). Sem `$DB`.
 - [ ] T024 [US1] Criar `classes/output/diagnostic_line.php` (`templatable`, `renderable`) que
   recebe o estado resolvido e monta, com `get_string()`, as frases `diagnostic:notavailable`,
   `diagnostic:preparing`, `diagnostic:volume` (parâmetro: `display_size($logicalbytes)`),
@@ -247,15 +252,23 @@ mão, em PHPUnit com File API real.
   3 recursos → A = 30 MB, B = 10 MB), CT-05 (mesmo conteúdo nas salas X e Y → B = 10 MB em cada),
   CT-12 e CT-13 (arquivo de 5 MB adicionado/removido entre duas análises → resultado anterior até a
   nova análise; a nova mostra A ± 5 MB).
-- [ ] T028 [P] [US2] Em `tests/collector/course_files_test.php`, referências: CT-09 (atalho interno
-  criado com `create_file_from_reference` para um arquivo privado do professor via repositório
-  `user`, 3 MB; atalho externo com instância criada pelo gerador de repositórios do core, 4 MB e
-  `lastsync` preenchido → 1 interna 3 MB, 1 externa 4 MB, fora de A e B; `files_reference.lastsync`
-  inalterado depois da análise), CT-22 (arquivo de 0 byte conta sem volume; referência com
-  `status = 666` → indeterminada, sem tamanho; externa com `lastsync` nulo → indeterminada) e CT-32
-  (recurso de 10 MB + atalho interno para ele → A = B = 10 MB; 1 interna com 10 MB). Se o gerador
-  de repositório externo exigir rede, usar um tipo de repositório de teste do core e registrar a
-  escolha no comentário do teste.
+- [ ] T028 [P] [US2] Em `tests/collector/course_files_test.php`, referências, sem rede:
+  - **Interna** (CT-09): `create_repository_type('user')` e `create_repository('user')` pelo gerador
+    de dados; arquivo de 3 MB em `user/private` do professor; atalho num recurso com
+    `get_file_storage()->create_file_from_reference($record, $repositoryid,
+    file_storage::pack_reference(<registro do arquivo privado>))`.
+  - **Externa** (CT-09): `create_repository_type('dropbox')` e `create_repository('dropbox')`
+    (gerador de teste do core em `repository/dropbox/tests/generator/lib.php`); atalho criado com
+    `create_file_from_reference()` e uma referência fictícia (a criação não sincroniza; ela só reusa
+    o resultado de sincronização já gravado, `lib/filestorage/file_storage.php:1540-1665`);
+    tamanho e `lastsync` gravados com `file_storage::update_references($referencefileid, time(),
+    null, <hash vazio>, 4 MB, 0)`, sem chamar o repositório.
+  - Esperado: 1 interna com 3 MB e 1 externa com 4 MB, fora de A, B, categorias e atividades;
+    `files_reference.lastsync` e `files.timemodified` dos atalhos inalterados depois da análise.
+  - CT-22: arquivo de 0 byte conta sem volume; atalho com `status = 666` (gravado por
+    `update_references(..., status 666)`) → indeterminado, sem tamanho; atalho externo com
+    `lastsync` nulo → indeterminado.
+  - CT-32: recurso de 10 MB + atalho interno para ele → A = B = 10 MB; 1 interna com 10 MB.
 - [ ] T029 [P] [US2] Em `tests/collector/course_files_test.php`, backup e lixeira: CT-29 (10 MB de
   materiais + backup real da sala por `backup_controller` + atividade de 5 MB excluída com a lixeira
   de curso ativada via `course_delete_module` → A = 10 MB; agregado com subtotais de backup e
@@ -272,7 +285,9 @@ mão, em PHPUnit com File API real.
   `coursefiles`, `contentbank`, `recent`} como constante documentada, indeterminada para
   `status = 666`, junção nula ou externa com `lastsync` nulo (research.md R4); e Q3 (únicos por
   conjunto `main`/`br` agrupando por grupo e `contenthash`, `MAX(filesize)`, só `referencefileid IS
-  NULL`, por subconsultas aninhadas sem `GROUP BY` por apelido).
+  NULL`, por subconsultas aninhadas sem `GROUP BY` por apelido, com a expressão `CASE` gerada com um
+  prefixo de parâmetros próprio). A lista interna entra por `$DB->get_in_or_equal(...,
+  SQL_PARAMS_NAMED, '<prefixo>')`, com prefixo diferente em cada uso na mesma instrução.
 - [ ] T032 [US2] Em `classes/local/analysis/indicator_calculator.php`: B e `uniquecount` de Q3;
   contagens e bytes de referências por tipo; agregado de backup e lixeira (`brcount`, `brbytes`,
   `bruniquecount`, `bruniquebytes` e linhas de categoria `backup` e `recyclebin`); invariantes de
@@ -302,6 +317,10 @@ SC-004.
   com nulos primeiro); "em execução" há mais de 2 h vira falha `interrupted`; "na fila" há mais de
   24 h volta a 0; diagnóstico de sala sem bloco ou excluída é apagado (até 500); duas execuções
   seguidas não duplicam solicitações (CT-18); sala sem bloco nunca recebe registro (CT-28).
+  **Nova tentativa limitada** (FR-039a): com 1 falha, a sala não volta à fila antes de 1 h e volta
+  depois; com 3 falhas, espera de 4 h; com 5 ou mais falhas, só depois de `reanalysisinterval`; um
+  sucesso zera a contagem. **Sala restaurada** (edge case da spec): curso restaurado com o bloco por
+  `restore_controller` não tem registro e é enfileirado na execução seguinte.
 - [ ] T035 [P] [US3] Criar `tests/task/cli_diagnostics_test.php` executando a CLI como processo
   (`proc_open` com o PHP do teste) ou pelas funções que ela chama: `--queue --course` respeita
   elegibilidade e duplicidade; `--run` com lock ocupado sai com código 3; sala não elegível sai com
@@ -322,7 +341,10 @@ SC-004.
   --course=<id>`, `--queue --all` (lotes de 500 por transação), `--run --course=<id>` (mesma
   orquestração e lock; mostra duração e pico de memória), `--show --course=<id>`, `--json`, `-h`;
   códigos de saída 0–4; ajuda e rótulos por `get_string()` com chaves `cli:*` em en e pt_br;
-  JSON com chaves em inglês. Depende de T018 e T033.
+  JSON com chaves em inglês. **Validação de entrada** (Princípio VII): exatamente um modo por
+  execução; `--course` obrigatório com `--queue` sem `--all`, com `--run` e com `--show`, convertido
+  com `clean_param(..., PARAM_INT)` e maior que zero; `--all` só com `--queue`; `--json` só com
+  `--run` ou `--show`; qualquer violação → `cli_error()` com código 1. Depende de T018 e T033.
 - [ ] T039 [P] [US3] Criar `tools/dev/bench/generate.php` (CLI de desenvolvimento, fora do pacote)
   conforme benchmark.md: perfis pequeno/médio/grande/extremo, `--profile`, `--courses`, `--seed`,
   geradores do core e `create_file_from_string()` com conteúdo pseudoaleatório de semente fixa,
@@ -361,7 +383,8 @@ papéis sem permissão e remover o bloco ou a sala.
   instâncias na mesma sala (criadas por código), remover uma mantém o diagnóstico; `delete_course()`
   de sala com diagnóstico e tarefa pendente → dados apagados e a tarefa termina sem erro (CT-20);
   desativar e reativar o tipo de bloco (`block.visible`) mantém o diagnóstico e a elegibilidade
-  (CT-27); desinstalação remove as tabelas.
+  (CT-27); desinstalação remove as tabelas; bloco removido e adicionado de novo → nenhum dado da
+  análise anterior (registro recriado na fila, sem resultado) (edge case da spec).
 - [ ] T044 [P] [US4] Em `tests/behat/block_coursecare_diagnostic.feature`: estudante e professor sem
   edição não veem o diagnóstico; professor da sala A não vê dados da sala B (CT-16); a sala com
   atividade oculta mostra só o total, sem nome de atividade (CT-19).
@@ -390,32 +413,38 @@ tentativa limitada.
 **Independent Test**: provocar idade acima do limite e uma falha forçada, e ver no bloco o valor
 anterior com data e aviso.
 
-### Tests for User Story 5 (escrever antes de T051)
+### Test infrastructure for User Story 5 (antes dos testes)
 
-- [ ] T048 [P] [US5] Em `tests/analysis/state_resolver_test.php`: E (idade > limite), F com resultado
+- [ ] T048 [US5] Criar o gerador de dados de teste `tests/generator/lib.php`
+  (`block_coursecare_generator::create_diagnostic()`, que grava `block_coursecare_diag` com datas,
+  `requeststatus`, falha e resultado controlados, sem passar pela análise) e o passo de dados Behat
+  em `tests/generator/behat_block_coursecare_generator.php` (entidade `diagnostics`, com colunas
+  `course`, `logicalbytes`, `filecount`, `timecompleted` relativo em segundos e `lastattemptfailed`).
+  Usado por T050 e T051.
+
+### Tests for User Story 5 (escrever antes de T052)
+
+- [ ] T049 [P] [US5] Em `tests/analysis/state_resolver_test.php`: E (idade > limite), F com resultado
   (aviso de atualização não concluída), F sem resultado (exibido como A), precedência F → E → G/D, e
   CT-23 (sem processamento, o resultado passa a E após o limite).
-- [ ] T049 [P] [US5] Em `tests/task/analyse_course_test.php`: CT-14 — coleta injetada que lança
+- [ ] T050 [P] [US5] Em `tests/task/analyse_course_test.php`: CT-14 — coleta injetada que lança
   exceção numa sala com resultado anterior → resultado intacto, `lastattemptfailed = 1`,
-  `failurecount` incrementado, `failurereason` com o nome curto da classe; outra sala na mesma
-  execução de cron é analisada; falha de invariante duas vezes → `inconsistent`.
-- [ ] T050 [P] [US5] Em `tests/behat/block_coursecare_diagnostic.feature`: com o limite de
-  atualidade em 1 hora e um diagnóstico gerado com `timecompleted` antigo por um passo de dados do
-  plugin, o bloco mostra o valor, a data e o aviso de desatualização (CT-15); com falha registrada,
-  o aviso de atualização não concluída.
+  `failurecount` incrementado, `failurereason` com o nome curto da classe (no máximo 30 caracteres);
+  outra sala na mesma execução de cron é analisada; falha de invariante duas vezes → `inconsistent`.
+  Depende de T048.
+- [ ] T051 [P] [US5] Em `tests/behat/block_coursecare_diagnostic.feature`: com o limite de
+  atualidade em 1 hora e um diagnóstico criado pelo passo de dados de T048 com `timecompleted` de
+  2 horas atrás, o bloco mostra o valor, a data e o aviso de desatualização (CT-15); com falha
+  registrada, o aviso de atualização não concluída. Depende de T048.
 
 ### Implementation for User Story 5
 
-- [ ] T051 [US5] Em `classes/local/analysis/state_resolver.php`: estados E e F e a precedência de
+- [ ] T052 [US5] Em `classes/local/analysis/state_resolver.php`: estados E e F e a precedência de
   data-model.md. Depende de T023.
-- [ ] T052 [US5] Em `classes/output/diagnostic_line.php`: frases `diagnostic:mayoutdated` e
-  `diagnostic:updatefailed` (en e pt_br) acrescentadas à linha de D. Depende de T051.
-- [ ] T053 [US5] Criar o gerador de dados de teste `tests/generator/lib.php`
-  (`block_coursecare_generator::create_diagnostic()`) e, se o Behat precisar, o passo de dados em
-  `tests/generator/behat_block_coursecare_generator.php`, para criar diagnósticos com datas e falhas
-  controladas, usados por T049 e T050.
+- [ ] T053 [US5] Em `classes/output/diagnostic_line.php`: frases `diagnostic:mayoutdated` e
+  `diagnostic:updatefailed` (en e pt_br) acrescentadas à linha de D. Depende de T052.
 
-**Checkpoint**: T048–T050 verdes.
+**Checkpoint**: T049–T051 verdes.
 
 ---
 
@@ -442,7 +471,8 @@ PHPUnit e na CLI `--show`.
 ### Implementation for User Story 6
 
 - [ ] T056 [US6] Em `classes/local/collector/course_files.php`: Q2 (únicos por categoria a partir da
-  expressão `CASE`, excluindo `excluded`, por subconsultas aninhadas).
+  expressão `CASE` gerada com um prefixo de parâmetros próprio desta consulta, excluindo
+  `excluded`, por subconsultas aninhadas).
 - [ ] T057 [US6] Em `classes/local/analysis/indicator_calculator.php` e `diagnostic_store.php`:
   linhas `material`, `submission`, `other` e `unclassified` de `block_coursecare_cat` (só categorias
   com registros), `unclassifiedcount`, `unclassifiedbytes` e `partial`. Depende de T056.
@@ -475,8 +505,8 @@ por `cmid` e contagens de grande porte conferidos.
 
 ### Implementation for User Story 7
 
-- [ ] T060 [US7] Em `classes/local/collector/course_files.php`: Q4 (registros com `filesize >= :t`,
-  sem referências, por recordset fechado ao fim), lendo o limite de `largefilethreshold` × 1.048.576
+- [ ] T060 [US7] Em `classes/local/collector/course_files.php`: Q4 (registros com `filesize >= :t1`,
+  parâmetro único na instrução, sem referências, por recordset fechado ao fim), lendo o limite de `largefilethreshold` × 1.048.576
   no início da análise.
 - [ ] T061 [US7] Em `classes/local/analysis/indicator_calculator.php`: mapa contexto → `cmid` (Q0);
   linhas de atividade com volume por categoria; D (`largecount`, `largebytes`, `largeuniquecount`,
@@ -548,7 +578,7 @@ US6: T054 T055 → T056 → T057                               (após T033)
 US7: T058 T059 → T060 → T061 → T062                        (após T057, T038)
 US3: T034 T035 → T036 → T037 ; T038 (após T033) ; T039 T040 → T041 (após US7)
 US4: T042 T043 T044 → T045 (após T026) → T046 → T047 (após T060)
-US5: T048 T049 T050 → T051 → T052 ; T053
+US5: T048 → T049 T050 T051 → T052 → T053
 Final: T063..T070
 ```
 
@@ -564,7 +594,7 @@ Final: T063..T070
 - Phase 2: T007–T011 (testes), depois T012, T013 e T016.
 - Depois da Phase 2: US1 (bloco, saída, template) em paralelo com US2 (coleta e cálculo); T039 e
   T040 (ferramentas de benchmark) em paralelo com qualquer história.
-- US4: T042, T043 e T044. US5: T048, T049 e T050.
+- US4: T042, T043 e T044. US5: T049, T050 e T051 (depois de T048).
 - Polish: T063 e T064.
 
 ## Parallel Example: Phase 2
@@ -592,8 +622,8 @@ Task: "T030 B e invariantes em tests/analysis/indicator_calculator_test.php"
 | CT | Tarefa | CT | Tarefa | CT | Tarefa |
 | --- | --- | --- | --- | --- | --- |
 | CT-01 | T009, T022 | CT-13 | T027 | CT-25 | T003, T068 |
-| CT-02 | T009 | CT-14 | T049 | CT-26 | T043 |
-| CT-03 | T009, T058 | CT-15 | T048, T050 | CT-27 | T043 |
+| CT-02 | T009 | CT-14 | T050 | CT-26 | T043 |
+| CT-03 | T009, T058 | CT-15 | T049, T051 | CT-27 | T043 |
 | CT-04 | T027 | CT-16 | T044 | CT-28 | T034 |
 | CT-05 | T027 | CT-17 | T041 | CT-29 | T029 |
 | CT-06 | T054 | CT-18 | T011, T034 | CT-30 | T029 |
@@ -601,7 +631,7 @@ Task: "T030 B e invariantes em tests/analysis/indicator_calculator_test.php"
 | CT-08 | T054 | CT-20 | T043 | CT-32 | T028 |
 | CT-09 | T028 | CT-21 | T054 | CT-33 | T058 |
 | CT-10 | T009 | CT-22 | T028 | CT-34 | T058 |
-| CT-11 | T054 | CT-23 | T048 | CT-35 | T058 |
+| CT-11 | T054 | CT-23 | T049 | CT-35 | T058 |
 | CT-12 | T027 | CT-24 | T041 | | |
 
 ### Requisitos funcionais → tarefas
@@ -617,20 +647,20 @@ Task: "T030 B e invariantes em tests/analysis/indicator_calculator_test.php"
 | FR-018, FR-019 | T058, T059, T061 |
 | FR-019a–d | T029, T032, T033 |
 | FR-019e–h | T028, T031, T032, T047 |
-| FR-020 | T017, T048 |
+| FR-020 | T017, T049 |
 | FR-021–FR-023, FR-025 | T007, T009, T012, T015, T054 |
-| FR-030–FR-033 | T063, T066 |
+| FR-030–FR-033 | T028 (FR-031), T063, T066 |
 | FR-034 | T021, T026 |
 | FR-035–FR-037, FR-039, FR-039c, FR-039d | T019, T026, T034–T038 |
 | FR-036a | T026, T036 |
-| FR-038 | T048, T051 |
-| FR-039a, FR-039b | T018, T034, T049 |
+| FR-038 | T049, T052 |
+| FR-039a, FR-039b | T018, T034, T050 |
 | FR-040 | T009 (SC-010) |
 | FR-041, FR-044a | T026, T044 |
 | FR-042, FR-043 | T019, T042, T047 |
 | FR-044 | T046 |
 | FR-044b | T043, T045 |
-| FR-045–FR-048 | T020, T023, T048, T051 |
+| FR-045–FR-048 | T020, T023, T049, T052 |
 | FR-049–FR-051 | T022, T024–T026, T065 |
 | FR-052 | T003, T068 |
 | FR-053 | T017 |
@@ -646,7 +676,7 @@ Task: "T030 B e invariantes em tests/analysis/indicator_calculator_test.php"
 | SC-003, SC-004 | T041 |
 | SC-005 | T044 |
 | SC-006 | T042 |
-| SC-007 | T020, T048, T068 |
+| SC-007 | T020, T049, T068 |
 | SC-008 | T066 |
 | SC-009 | T069 |
 | SC-010 | T009 |
