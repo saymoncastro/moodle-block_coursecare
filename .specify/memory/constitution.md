@@ -193,6 +193,10 @@ conflitos de precedência, sem atrasar a validação da tradução brasileira.
   3. **Regras de recomendação** — decisões puras sobre dados já analisados, sem acesso a banco,
      sessão ou saída.
   4. **Apresentação** — renderers, templates Mustache e JavaScript.
+
+  Cada camada passa a existir na primeira feature que tiver a responsabilidade correspondente.
+  Camadas sem responsabilidade concreta MUST NOT ser criadas vazias ou antecipadamente. Quando uma
+  responsabilidade existir, ela MUST ficar na sua camada, nunca misturada a outra.
 - Toda regra de negócio MUST ter testes PHPUnit. Todo fluxo de interface MUST ter cenário Behat
   quando a feature introduzir interface.
 - Toda funcionalidade MUST possuir critérios de aceitação objetivos e verificáveis na especificação.
@@ -306,9 +310,10 @@ Os conflitos identificados na ratificação e a resolução vinculante de cada u
   categoria, protegidas por capability própria, em linguagem não punitiva e sem identificar ou
   ordenar professores. Cada visão exige especificação própria e Constitution Check específica.
 - **C6 — Evolução incremental (XI) × Extensibilidade e separação de camadas (IX, V).**
-  **Resolução**: as quatro camadas de IX são obrigatórias desde a primeira feature, com
-  implementação mínima (classes simples). Mecanismos genéricos de extensão só entram quando
-  houver ao menos dois casos concretos (Princípio XI).
+  **Resolução** (esclarecida em 1.1.1): a separação das quatro camadas de IX é obrigatória desde a
+  primeira feature que contenha cada responsabilidade. A camada é então criada com implementação
+  mínima (classes simples), e nenhuma camada é criada vazia para cumprir a estrutura. Mecanismos
+  genéricos de extensão só entram quando houver ao menos dois casos concretos (Princípio XI).
 - **C7 — pt_BR obrigatório (VIII) × Política do diretório de plugins (XII).** O diretório do
   Moodle orienta que o plugin traga apenas as strings em inglês e que as traduções sejam
   contribuídas ao AMOS. **Resolução** (emenda 1.1.0): os regimes de desenvolvimento, distribuição
@@ -346,6 +351,14 @@ da feature e, se recorrente, incorporado a esta seção por emenda.
 
 ### Histórico de emendas
 
+- **1.1.1 (2026-10-16)** — Esclarece o conflito C6 e o Princípio IX: cada camada (coleta, análise,
+  regras, apresentação) é obrigatória a partir da primeira feature que tenha a responsabilidade
+  correspondente, e nenhuma camada é criada vazia. **Justificativa**: o texto anterior ("desde a
+  primeira feature") podia ser lido como exigência de criar camadas sem conteúdo. Essa leitura
+  contradiz o Princípio XI e a própria resolução do C6, que pede implementação mínima. O problema
+  surgiu no plano da Feature 001, que só tem apresentação. **Versão PATCH**: a emenda não cria
+  obrigação nova nem remove alguma; ela fixa a interpretação compatível entre IX e XI. A exigência
+  de separação continua intacta para todo código que exista.
 - **1.1.0 (2026-10-16)** — Resolve o TODO(PT_BR_DISTRIBUTION) e o conflito C7. Define três regimes
   para a tradução pt_BR (desenvolvimento, distribuição pública e fallback) no Princípio VIII,
   além de restrição de idiomas e gate de paridade de strings. **Justificativa**: a decisão não
@@ -357,4 +370,4 @@ da feature e, se recorrente, incorporado a esta seção por emenda.
   ampliação material de orientação. Nenhum princípio foi removido ou redefinido.
 - **1.0.0 (2026-10-16)** — Ratificação inicial.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
+**Version**: 1.1.1 | **Ratified**: 2026-10-16 | **Last Amended**: 2026-10-16
