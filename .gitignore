@@ -6,3 +6,6 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Pacotes gerados localmente (tools/package/build.sh)
+build/

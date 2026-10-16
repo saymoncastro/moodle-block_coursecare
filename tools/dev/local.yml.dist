@@ -1,0 +1,6 @@
+# moodle-docker local override: mounts this plugin into the Moodle code base.
+# Copy to <moodle-docker>/local.yml and export COURSECARE_PLUGIN_DIR (absolute path of this repository).
+services:
+  webserver:
+    volumes:
+      - "${COURSECARE_PLUGIN_DIR}:/var/www/html/blocks/coursecare"
