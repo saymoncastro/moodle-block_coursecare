@@ -54,7 +54,7 @@ $string['diagnostic:preparing'] = 'O panorama de arquivos desta sala está sendo
 $string['diagnostic:volume'] = 'Arquivos desta sala, conforme registrados no Moodle: {$a}.';
 $string['intro'] = 'Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala de forma mais consciente.';
 $string['pluginname'] = 'AVA Consciente';
-$string['privacy:metadata'] = 'O bloco AVA Consciente não armazena dados pessoais.';
+$string['privacy:metadata'] = 'O bloco AVA Consciente não armazena dados pessoais. O panorama de armazenamento guarda apenas medições agregadas dos arquivos de cada sala e atividade.';
 $string['settings:largefilethreshold'] = 'Limite de arquivo grande (MB)';
 $string['settings:largefilethreshold_desc'] = 'Arquivos deste tamanho ou maiores são contados como arquivos grandes no panorama de armazenamento da sala (1 MB = 1.048.576 bytes). É um valor neutro de triagem, não um limite pedagógico nem um julgamento sobre o uso do arquivo.';
 $string['settings:reanalysisinterval'] = 'Intervalo de reanálise';

@@ -24,6 +24,7 @@
 
 use block_coursecare\local\analysis\state_resolver;
 use block_coursecare\local\collector\diagnostic_store;
+use block_coursecare\local\collector\eligibility;
 use block_coursecare\output\diagnostic_line;
 use block_coursecare\task\analyse_course;
 
@@ -120,6 +121,25 @@ class block_coursecare extends block_base {
         $courseid = $this->course_id();
         if ($courseid !== null) {
             analyse_course::request($courseid, time());
+        }
+        return true;
+    }
+
+    /**
+     * Delete the course diagnostic when the last CourseCare instance of the course is removed (FR-044b).
+     *
+     * Also called for every instance when the course is deleted or the plugin uninstalled. Light: index reads and
+     * deletes only. The row of this instance still exists during the call, so it is excluded from the count.
+     *
+     * @return bool
+     */
+    public function instance_delete() {
+        $courseid = $this->course_id();
+        if (
+            $courseid !== null
+                && (new eligibility())->count_instances((int)$this->instance->parentcontextid, (int)$this->instance->id) === 0
+        ) {
+            (new diagnostic_store())->delete_for_course($courseid);
         }
         return true;
     }

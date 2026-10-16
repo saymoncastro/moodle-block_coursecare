@@ -373,28 +373,28 @@ papéis sem permissão e remover o bloco ou a sala.
 
 ### Tests for User Story 4 (escrever antes de T046)
 
-- [ ] T042 [P] [US4] Em `tests/privacy/provider_test.php`: a razão do `null_provider` é a nova chave
+- [X] T042 [P] [US4] Em `tests/privacy/provider_test.php`: a razão do `null_provider` é a nova chave
   de privacidade; depois de analisar uma sala com envios de estudantes (CT-07) e com atividade oculta
   e com restrição (CT-19), nenhuma coluna das 4 tabelas contém id de usuário dos participantes, nome
   de arquivo, `pathnamehash` ou `filepath`, e `block_coursecare_large` só tem `fileid` de arquivos da
   categoria Materiais (SC-006, D10).
-- [ ] T043 [P] [US4] Em `tests/block_coursecare_test.php`: remover a única instância apaga o
+- [X] T043 [P] [US4] Em `tests/block_coursecare_test.php`: remover a única instância apaga o
   diagnóstico e os filhos (CT-26), com tarefa pendente que depois termina sem gravar; com duas
   instâncias na mesma sala (criadas por código), remover uma mantém o diagnóstico; `delete_course()`
   de sala com diagnóstico e tarefa pendente → dados apagados e a tarefa termina sem erro (CT-20);
   desativar e reativar o tipo de bloco (`block.visible`) mantém o diagnóstico e a elegibilidade
   (CT-27); desinstalação remove as tabelas; bloco removido e adicionado de novo → nenhum dado da
   análise anterior (registro recriado na fila, sem resultado) (edge case da spec).
-- [ ] T044 [P] [US4] Em `tests/behat/block_coursecare_diagnostic.feature`: estudante e professor sem
+- [X] T044 [P] [US4] Em `tests/behat/block_coursecare_diagnostic.feature`: estudante e professor sem
   edição não veem o diagnóstico; professor da sala A não vê dados da sala B (CT-16); a sala com
   atividade oculta mostra só o total, sem nome de atividade (CT-19).
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Em `block_coursecare.php`: `instance_delete()` verifica outra instância
+- [X] T045 [US4] Em `block_coursecare.php`: `instance_delete()` verifica outra instância
   `coursecare` com o mesmo `parentcontextid` excluindo `$this->instance->id` e, se não houver, chama
   `diagnostic_store::delete_for_course()` (operação leve por índice).
-- [ ] T046 [US4] Atualizar `classes/privacy/provider.php` (continua `null_provider`) e a string
+- [X] T046 [US4] Atualizar `classes/privacy/provider.php` (continua `null_provider`) e a string
   `privacy:metadata` em en e pt_br: o bloco guarda só medições agregadas de armazenamento por sala e
   atividade, sem dados pessoais (plan.md, "Registro de tratamento de dados").
 - [ ] T047 [US4] Revisar `classes/local/collector/course_files.php` e `diagnostic_store.php`: Q4 e
@@ -779,4 +779,21 @@ verde: run 38964414578 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `93be1c4`
   iguais ao manifesto do gerador; `queue_analyses` e `analyse_course` executados pelos CLIs do cron,
   inclusive um "fresh" para uma sala já analisada.
 - **T041 (benchmark) continua pendente**: depende de US6 e US7 (mede a análise completa).
+
+### US4 (T042–T046) — 2026-10-17
+
+Resultado local: PHPUnit 137 testes verdes, Behat 21 cenários verdes, `moodle-cs` sem erros.
+CI da US3 verde: run 38966216241 (8.1/pgsql, 8.3/mariadb e i18n-package), commit `482830d`.
+
+- `instance_delete()` apaga o diagnóstico só quando não resta outra instância no mesmo contexto pai
+  (a própria linha ainda existe durante a chamada). Cobre remoção, exclusão da sala e desinstalação.
+- Desinstalação: em vez de desinstalar o plugin dentro do PHPUnit (removeria o esquema para os testes
+  seguintes), o teste confirma que as 4 tabelas estão declaradas no `install.xml`, que o core remove na
+  desinstalação; a verificação real fica no quickstart (T068).
+- SC-006 verificado pelo esquema (nenhuma coluna de usuário, nome, caminho ou hash) e pelos valores
+  gravados (nenhum nome de arquivo, atividade ou participante).
+- `privacy:metadata` revisada em en e pt_br; o provider continua `null_provider`.
+- **T047 continua aberta**: a revisão das ligações de arquivos grandes depende da Q4 (T060, US7). A parte
+  de consultas já está cumprida (nenhuma consulta seleciona `userid`, `filename`, `filepath`, `author` ou
+  `source`).
 

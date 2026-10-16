@@ -61,3 +61,39 @@ Feature: CourseCare file overview line
     When I am on the "C1" "Course" page
     Then I should see "Files in this course, as recorded by Moodle: 6" in the "CourseCare" "block"
     And the "CourseCare" "block" should meet accessibility standards
+
+  @javascript
+  Scenario: Only editing teachers see the overview, always of their own course, without activity names
+    Given the following "users" exist:
+      | username   | firstname | lastname  | email                  |
+      | student1   | Student   | One       | student1@example.com   |
+      | assistant1 | Assistant | One       | assistant1@example.com |
+      | teacher2   | Teacher   | Two       | teacher2@example.com   |
+    And the following "course enrolments" exist:
+      | user       | course | role           |
+      | student1   | C1     | student        |
+      | assistant1 | C1     | teacher        |
+      | teacher2   | C2     | editingteacher |
+    And the following "activities" exist:
+      | activity | course | name           | defaultfilename                            | uploaded | visible |
+      | resource | C1     | Hidden reading | mod/resource/tests/fixtures/samplefile.txt | 1        | 0       |
+    And I am on the "C1" "Course" page logged in as "teacher1"
+    And I turn editing mode on
+    And I add the "CourseCare" block
+    And I am on the "C2" "Course" page
+    And I add the "CourseCare" block
+    And I run all adhoc tasks
+    When I am on the "C1" "Course" page
+    Then I should see "Files in this course, as recorded by Moodle: 12" in the "CourseCare" "block"
+    And I should not see "Hidden reading" in the "CourseCare" "block"
+    And I should not see "Reading" in the "CourseCare" "block"
+    And I log out
+    And I am on the "C1" "Course" page logged in as "student1"
+    And "CourseCare" "block" should not exist
+    And I log out
+    And I am on the "C1" "Course" page logged in as "assistant1"
+    And "CourseCare" "block" should not exist
+    And I log out
+    And I am on the "C2" "Course" page logged in as "teacher2"
+    And I should see "No files were found in this course's materials and activities." in the "CourseCare" "block"
+    And I should not see "Files in this course" in the "CourseCare" "block"

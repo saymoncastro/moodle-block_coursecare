@@ -54,7 +54,7 @@ $string['diagnostic:preparing'] = 'The file overview for this course is being pr
 $string['diagnostic:volume'] = 'Files in this course, as recorded by Moodle: {$a}.';
 $string['intro'] = 'Soon you will find guidance here on using your course resources more mindfully.';
 $string['pluginname'] = 'CourseCare';
-$string['privacy:metadata'] = 'The CourseCare block does not store any personal data.';
+$string['privacy:metadata'] = 'The CourseCare block does not store any personal data. Its storage overview keeps only aggregated measurements of the files of each course and activity.';
 $string['settings:largefilethreshold'] = 'Large-file threshold (MB)';
 $string['settings:largefilethreshold_desc'] = 'Files of this size or larger are counted as large files in the course storage overview (1 MB = 1,048,576 bytes). It is a neutral screening value, not a teaching limit and not a judgement about how a file is used.';
 $string['settings:reanalysisinterval'] = 'Reanalysis interval';

@@ -29,7 +29,8 @@ use core_privacy\local\metadata\null_provider;
  */
 final class provider_test extends \advanced_testcase {
     /**
-     * The provider declares that no personal data is stored, with an existing reason string.
+     * The provider declares that no personal data is stored, with an existing reason string that describes the
+     * aggregated measurements kept by the diagnostic (Feature 002).
      */
     public function test_null_provider_reason(): void {
         $this->assertTrue(is_subclass_of(provider::class, null_provider::class));
@@ -37,5 +38,62 @@ final class provider_test extends \advanced_testcase {
         $reason = provider::get_reason();
         $this->assertSame('privacy:metadata', $reason);
         $this->assertTrue(get_string_manager()->string_exists($reason, 'block_coursecare'));
+        $this->assertStringContainsString('aggregated', get_string($reason, 'block_coursecare'));
+    }
+
+    /**
+     * SC-006: after analysing a course with student submissions and hidden or restricted activities, the plugin
+     * tables have no user, file name or path column, their text values hold no file or activity name, and large-file
+     * links only point to course materials (D10).
+     */
+    public function test_stored_data_has_no_personal_data(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => \context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign = $this->getDataGenerator()->create_module('assign', ['course' => $course->id, 'name' => 'Essay task']);
+        $hidden = $this->getDataGenerator()->create_module('resource', ['course' => $course->id, 'name' => 'Hidden reading',
+            'visible' => 0]);
+        $restricted = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'name' => 'Restricted page',
+            'availability' => '{"op":"&","c":[{"type":"date","d":">=","t":4102444800}],"showc":[true]}']);
+        $fs = get_file_storage();
+        $fs->create_file_from_string(['contextid' => \context_module::instance($assign->cmid)->id,
+            'component' => 'assignsubmission_file', 'filearea' => 'submission_files', 'itemid' => 1, 'filepath' => '/',
+            'filename' => 'student-essay-private.pdf', 'userid' => $student->id], str_repeat('s', 60 * 1048576));
+        $fs->create_file_from_string(['contextid' => \context_module::instance($restricted->cmid)->id,
+            'component' => 'mod_page', 'filearea' => 'content', 'itemid' => 0, 'filepath' => '/',
+            'filename' => 'restricted-image.png'], 'restricted');
+
+        $this->assertSame(
+            \block_coursecare\local\course_analysis::DONE,
+            (new \block_coursecare\local\course_analysis())->run($course->id, true)
+        );
+
+        $forbidden = ['userid', 'usermodified', 'filename', 'filepath', 'pathnamehash', 'contenthash', 'author', 'source'];
+        $names = ['student-essay-private', 'restricted-image', 'Essay task', 'Hidden reading', 'Restricted page',
+            fullname($student), $student->username];
+        $tables = ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'];
+        foreach ($tables as $table) {
+            foreach (array_keys($DB->get_columns($table)) as $column) {
+                $this->assertNotContains($column, $forbidden, "{$table}.{$column}");
+            }
+            foreach ($DB->get_records($table) as $record) {
+                foreach ((array)$record as $value) {
+                    foreach ($names as $name) {
+                        $this->assertStringNotContainsString($name, (string)$value);
+                    }
+                }
+            }
+        }
+        foreach ($DB->get_records('block_coursecare_large') as $link) {
+            $file = $DB->get_record('files', ['id' => $link->fileid], '*', MUST_EXIST);
+            $this->assertNotSame('assignsubmission_file', $file->component);
+        }
     }
 }

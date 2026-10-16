@@ -347,4 +347,114 @@ final class block_coursecare_test extends \advanced_testcase {
         $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries);
         $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries);
     }
+
+    /**
+     * Create a course with a block, a diagnostic and a pending analysis task.
+     *
+     * @return array{0: stdClass, 1: \block_base}
+     */
+    private function analysed_course_with_pending_task(): array {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $block = $this->add_block_through_manager($course);
+        ob_start();
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $store = new \block_coursecare\local\collector\diagnostic_store();
+        $this->assertNotNull($store->get_summary($course->id)->timecompleted);
+        \block_coursecare\task\analyse_course::request($course->id, time());
+        return [$course, $block];
+    }
+
+    /**
+     * CT-26: removing the only instance deletes the diagnostic; the pending task then ends without writing.
+     */
+    public function test_removing_the_block_deletes_the_diagnostic(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        $diagid = $DB->get_field('block_coursecare_diag', 'id', ['courseid' => $course->id]);
+        $DB->insert_record('block_coursecare_cat', ['diagid' => $diagid, 'category' => 'material', 'filecount' => 0,
+            'logicalbytes' => 0, 'uniquecount' => 0, 'uniquebytes' => 0]);
+
+        blocks_delete_instance($block->instance);
+
+        $this->assertFalse($DB->record_exists('block_coursecare_diag', ['courseid' => $course->id]));
+        $this->assertFalse($DB->record_exists('block_coursecare_cat', ['diagid' => $diagid]));
+        ob_start();
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $this->assertFalse($DB->record_exists('block_coursecare_diag', ['courseid' => $course->id]));
+    }
+
+    /**
+     * With two instances in the same course (possible only by code), removing one keeps the diagnostic.
+     */
+    public function test_removing_one_of_two_instances_keeps_the_diagnostic(): void {
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+        blocks_delete_instance($block->instance);
+        $this->assertNotNull((new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id));
+    }
+
+    /**
+     * CT-20: deleting a course with a diagnostic and a pending task removes the data; the task ends without error.
+     */
+    public function test_deleting_the_course(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$course] = $this->analysed_course_with_pending_task();
+        ob_start();
+        delete_course($course->id, false);
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $this->assertSame(0, $DB->count_records('block_coursecare_diag'));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\block_coursecare\task\analyse_course::class));
+    }
+
+    /**
+     * CT-27: disabling and enabling the block type keeps the diagnostic and the course eligible.
+     */
+    public function test_disabling_the_block_type_keeps_the_diagnostic(): void {
+        $this->resetAfterTest();
+        [$course] = $this->analysed_course_with_pending_task();
+        \core\plugininfo\block::enable_plugin('coursecare', 0);
+        $store = new \block_coursecare\local\collector\diagnostic_store();
+        $this->assertNotNull($store->get_summary($course->id));
+        $this->assertTrue((new \block_coursecare\local\collector\eligibility())->is_eligible($course->id));
+        \core\plugininfo\block::enable_plugin('coursecare', 1);
+        $this->assertNotNull($store->get_summary($course->id)->timecompleted);
+    }
+
+    /**
+     * Edge case of the spec: a block removed and added again shows no data from before the removal.
+     */
+    public function test_block_added_again_starts_clean(): void {
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        blocks_delete_instance($block->instance);
+        $this->add_block_through_manager($course);
+        $record = (new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id);
+        $this->assertSame(\block_coursecare\local\collector\diagnostic_store::STATUS_QUEUED, (int)$record->requeststatus);
+        $this->assertNull($record->timecompleted);
+        $this->assertNull($record->logicalbytes);
+    }
+
+    /**
+     * Uninstall: every plugin table is declared in install.xml, so the core uninstall drops it with the plugin.
+     */
+    public function test_tables_are_declared_for_uninstall(): void {
+        global $CFG;
+        $xmldb = new \xmldb_file($CFG->dirroot . '/blocks/coursecare/db/install.xml');
+        $this->assertTrue($xmldb->loadXMLStructure());
+        $names = array_map(fn($table) => $table->getName(), $xmldb->getStructure()->getTables());
+        $this->assertSame(
+            ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'],
+            $names
+        );
+    }
 }
