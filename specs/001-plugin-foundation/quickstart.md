@@ -35,6 +35,13 @@ cp "$COURSECARE_PLUGIN_DIR/tools/dev/local.yml.dist" moodle-docker/local.yml
 
 O `local.yml` monta o plugin em `/var/www/html/blocks/coursecare` (volume do serviço `webserver`).
 
+> **Notas verificadas na implementação** (2026-10-16):
+> - No macOS, mantenha o ambiente sob `/Users`. O Docker Desktop não compartilha `/private/tmp`, e os
+>   arquivos montados de lá aparecem vazios.
+> - Se a porta 8000 ou o nome de projeto `moodle-docker` já estiverem em uso por outro Moodle, defina
+>   `export COMPOSE_PROJECT_NAME=coursecare MOODLE_DOCKER_WEB_PORT=127.0.0.1:8045` antes do `up`.
+>   Nesse caso, o site fica em http://localhost:8045.
+
 ```bash
 cd moodle-docker && bin/moodle-docker-compose up -d && bin/moodle-docker-wait-for-db
 ```
@@ -207,9 +214,11 @@ Estrutura, dentro de `specs/001-plugin-foundation/` e, portanto, fora do pacote 
 
 ```text
 evidence/
-├── README.md        # Tabela CA-01..CA-13 → evidência, status e aprovações
-├── screenshots/     # <tema>-<idioma>-<largura>-<cena>.png
-└── logs/            # Saídas de comandos (instalação, upgrade, desinstalação, checks)
+├── README.md          # Tabela CA-01..CA-13 → evidência, status e aprovações
+├── display-matrix.md  # T020: matriz de exibição e permissões no Moodle real
+├── accessibility.md   # T045: verificação dos critérios WCAG 2.2 AA aplicáveis (axe + manual)
+├── screenshots/       # <tema>-<idioma>-<largura>-<cena>.png (e recortes *-block.png)
+└── logs/              # Saídas de comandos e dos roteiros de validação (instalação, upgrade, checks)
 ```
 
 - Cada linha da tabela registra a data, a versão exata do Moodle (`version.php` do core), o tema, o

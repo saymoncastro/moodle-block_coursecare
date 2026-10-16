@@ -45,23 +45,23 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
 
 **Purpose**: base do repositório, do ambiente reproduzível e da estrutura de evidências.
 
-- [ ] T001 Criar `.gitattributes` na raiz com `export-ignore` para `translations/`, `tools/`,
+- [X] T001 Criar `.gitattributes` na raiz com `export-ignore` para `translations/`, `tools/`,
   `specs/`, `.specify/`, `.claude/`, `.github/`, `.gitattributes`, `.gitignore`, `CONTRIBUTING.md` e
   `build/`, e acrescentar `build/` ao `.gitignore` existente (plan.md, "Estratégia de distribuição").
-- [ ] T002 [P] Adicionar `LICENSE` (texto integral da GNU GPL v3 obtido de gnu.org) e `CHANGES.md`
+- [X] T002 [P] Adicionar `LICENSE` (texto integral da GNU GPL v3 obtido de gnu.org) e `CHANGES.md`
   com a entrada "0.1.0 (não publicada) — fundação do bloco" na raiz.
-- [ ] T003 [P] Criar `tools/dev/local.yml.dist` (serviço `webserver` com o volume
+- [X] T003 [P] Criar `tools/dev/local.yml.dist` (serviço `webserver` com o volume
   `${COURSECARE_PLUGIN_DIR}:/var/www/html/blocks/coursecare`) e os CSVs fictícios
   `tools/dev/demo/courses.csv` (curso `CC-DEMO`, formato `topics`, categoria 1) e
   `tools/dev/demo/users.csv` (usuários `editor`, `assistente`, `aluno` e `gestor`; e-mails
   `@example.com`; senhas de teste; `course1=CC-DEMO`; `role1` = `editingteacher`, `teacher`,
   `student` e `manager`), conforme quickstart.md §3.
-- [ ] T004 [P] Criar `specs/001-plugin-foundation/evidence/README.md` com a tabela CA-01 a CA-13
+- [X] T004 [P] Criar `specs/001-plugin-foundation/evidence/README.md` com a tabela CA-01 a CA-13
   (colunas: CA, evidência, data, Moodle, tema, idioma, navegador, status = "pendente"), a seção
   "Aprovações" **vazia** (ativo visual, textos en, textos pt_BR) e os diretórios `screenshots/` e
   `logs/` com `.gitkeep`, conforme quickstart.md §10. Nenhuma aprovação pode ser pré-preenchida
   (FR-014, FR-015).
-- [ ] T005 [MANUAL] Provisionar o Moodle 4.5 local conforme quickstart.md §2: `moodle-docker`,
+- [X] T005 [MANUAL] Provisionar o Moodle 4.5 local conforme quickstart.md §2: `moodle-docker`,
   clone `MOODLE_405_STABLE`, PHP 8.1, pgsql e `local.yml` copiado de T003.
   - **Procedimento**: executar os comandos do quickstart §2 (até `install_database.php`) e §3
     (carga dos CSVs).
@@ -79,11 +79,11 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
 
 **⚠️ CRITICAL**: nenhuma história começa antes desta fase.
 
-- [ ] T006 Criar `version.php` com `$plugin->component = 'block_coursecare'`, `$plugin->version`
+- [X] T006 Criar `version.php` com `$plugin->component = 'block_coursecare'`, `$plugin->version`
   no formato AAAAMMDDXX da data de implementação, `$plugin->requires = 2024100700`,
   `$plugin->supported = [405, 405]`, `$plugin->maturity = MATURITY_ALPHA` e
   `$plugin->release = '0.1.0'` (FR-001, FR-003; research R1).
-- [ ] T007 [P] Criar `lang/en/block_coursecare.php` no padrão core (research R5):
+- [X] T007 [P] Criar `lang/en/block_coursecare.php` no padrão core (research R5):
   - cabeçalho GPL e docblock do arquivo;
   - **sem** `defined('MOODLE_INTERNAL')` e sem comentários entre as strings;
   - só dados (`$string['chave'] = 'texto';`), sem title case;
@@ -94,27 +94,27 @@ Não criar classes vazias, interfaces, serviços, renderers, `classes/local/`, `
     not store any personal data."; `tagline` = "Small choices, a better learning space for
     everyone."
   (FR-019, FR-020; data-model "Catálogo de strings").
-- [ ] T008 [P] Criar `db/access.php` conforme [contracts/capabilities.md](contracts/capabilities.md):
+- [X] T008 [P] Criar `db/access.php` conforme [contracts/capabilities.md](contracts/capabilities.md):
   - `block/coursecare:addinstance`: `captype` `write`, `CONTEXT_BLOCK`, `RISK_SPAM | RISK_XSS`,
     arquétipos `editingteacher` e `manager`, `clonepermissionsfrom` `moodle/site:manageblocks`;
   - `block/coursecare:view`: `captype` `read`, `CONTEXT_BLOCK`, arquétipos `editingteacher` e
     `manager`, sem risco;
   - **não** definir `myaddinstance` (FR-007, FR-009).
-- [ ] T009 [P] Criar `classes/privacy/provider.php` com `\block_coursecare\privacy\provider`
+- [X] T009 [P] Criar `classes/privacy/provider.php` com `\block_coursecare\privacy\provider`
   implementando `\core_privacy\local\metadata\null_provider`, em que `get_reason()` retorna
   `'privacy:metadata'` (FR-005).
-- [ ] T010 [P] Criar `templates/content.mustache` com a estrutura de
+- [X] T010 [P] Criar `templates/content.mustache` com a estrutura de
   [contracts/block-ui.md](contracts/block-ui.md): parágrafos `{{#str}} tagline, block_coursecare
   {{/str}}` e `{{#str}} intro, block_coursecare {{/str}}`, sem textos fixos, e bloco de documentação
   com "Example context (json)" `{}` para o `mustache lint`. O ícone do ativo entra em T026
   (FR-012, FR-019).
-- [ ] T011 Criar `block_coursecare.php` com `class block_coursecare extends block_base`:
+- [X] T011 Criar `block_coursecare.php` com `class block_coursecare extends block_base`:
   - `init()` define `$this->title = get_string('pluginname', 'block_coursecare')`;
   - `has_config()` retorna `false`;
   - `get_content()` retorna o template de T010 via
     `$OUTPUT->render_from_template('block_coursecare/content', [...])`;
   - sem outras sobrescritas nesta tarefa (FR-001, FR-011). Depende de T006–T010.
-- [ ] T012 Criar `.github/workflows/ci.yml` com o job `moodle`, a partir do `gha.dist.yml` oficial do
+- [X] T012 Criar `.github/workflows/ci.yml` com o job `moodle`, a partir do `gha.dist.yml` oficial do
   `moodle-plugin-ci` ^4:
   - matriz `MOODLE_405_STABLE` × {PHP 8.1 + pgsql, PHP 8.3 + mariadb};
   - etapas phplint, phpmd (`continue-on-error`), phpcs `--max-warnings 0`, phpdoc
@@ -140,13 +140,13 @@ desabilitar, reabilitar e desinstalar, sempre pelos fluxos nativos (spec US1).
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Criar `tests/privacy/provider_test.php` (`\core_privacy\tests\provider_testcase`
+- [X] T013 [P] [US1] Criar `tests/privacy/provider_test.php` (`\core_privacy\tests\provider_testcase`
   ou `advanced_testcase`). Ele confirma que `\block_coursecare\privacy\provider` implementa
   `null_provider` e que `get_reason()` aponta para uma string existente em `lang/en` (FR-005).
 
 ### Implementation and validation for User Story 1
 
-- [ ] T014 [US1] [MANUAL] Validar a instalação e o ciclo habilitar/desabilitar no ambiente de T005
+- [X] T014 [US1] [MANUAL] Validar a instalação e o ciclo habilitar/desabilitar no ambiente de T005
   (quickstart §2 e V11).
   - **Procedimento**: confirmar que `block_coursecare` está instalado; desabilitar e reabilitar em
     Administração › Plugins › Blocos; rodar `git -C moodle status --porcelain`.
@@ -158,7 +158,7 @@ desabilitar, reabilitar e desinstalar, sempre pelos fluxos nativos (spec US1).
     desabilitar/reabilitar sobre instâncias existentes (US1-2) é validado em T043, quando já há
     instâncias.
   - Depende de T005 e T011.
-- [ ] T015 [US1] [MANUAL] Validar a desinstalação e a reinstalação sem instâncias (quickstart §9).
+- [X] T015 [US1] [MANUAL] Validar a desinstalação e a reinstalação sem instâncias (quickstart §9).
   - **Procedimento**: `admin/cli/uninstall_plugins.php --plugins=block_coursecare --run` e, depois,
     `admin/cli/upgrade.php --non-interactive`.
   - **Esperado**: desinstalação sem erros, capabilities `block/coursecare:*` removidas e reinstalação
@@ -181,7 +181,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
 
 ### Tests for User Story 2 (escrever antes de T019)
 
-- [ ] T016 [P] [US2] Criar `tests/block_coursecare_test.php` (`advanced_testcase`, gerador padrão
+- [X] T016 [P] [US2] Criar `tests/block_coursecare_test.php` (`advanced_testcase`, gerador padrão
   de blocos do core, sem `tests/generator/`). Casos:
   - `applicable_formats()` retorna exatamente `['course-view' => true, 'course-view-section' => false]`;
   - `instance_allow_multiple()` e `has_config()` retornam `false`;
@@ -194,7 +194,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
   - com `course-view-section-topics` e `mod-page-view`: conteúdo vazio e `instance_can_be_edited()`
     falso.
   (FR-006 a FR-010; contracts/capabilities.md, invariantes 1–5).
-- [ ] T017 [P] [US2] Criar `tests/behat/block_coursecare_permissions.feature`
+- [X] T017 [P] [US2] Criar `tests/behat/block_coursecare_permissions.feature`
   (`@block @block_coursecare`). Cenários:
   - `editor` adiciona "CourseCare" e vê o conteúdo;
   - com o bloco presente, `the add block selector should not contain "CourseCare" block`;
@@ -202,7 +202,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
   - com `addinstance` proibido para `editingteacher`, o bloco não é oferecido em outro curso;
   - com `:view` concedido a `teacher` no curso, `assistente` vê o bloco
   (US2-1 a US2-5; CA-02, CA-04).
-- [ ] T018 [P] [US2] Criar `tests/behat/block_coursecare_display.feature`
+- [X] T018 [P] [US2] Criar `tests/behat/block_coursecare_display.feature`
   (`@block @block_coursecare`). Cenários:
   - página principal com edição desligada (`editor` vê; `aluno` não);
   - página principal com edição ligada (`editor` vê bloco e controles);
@@ -216,7 +216,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Completar `block_coursecare.php`:
+- [X] T019 [US2] Completar `block_coursecare.php`:
   - `applicable_formats()` retorna `['course-view' => true, 'course-view-section' => false]`;
   - `instance_allow_multiple()` retorna `false`;
   - método privado `is_main_page()`: tipo de página começa com `course-view-` e não com
@@ -227,7 +227,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
   - nenhuma verificação por nome de papel.
   (research R2/R3; contracts/capabilities.md). Depende de T016–T018. Os testes devem passar no
   ambiente de T005 (quickstart §7).
-- [ ] T020 [US2] [MANUAL] Validar a matriz de exibição e permissões em Moodle real (quickstart V1–V6,
+- [X] T020 [US2] [MANUAL] Validar a matriz de exibição e permissões em Moodle real (quickstart V1–V6,
   V3, V3a).
   - **Procedimento**: em `CC-DEMO`, percorrer {página principal, página de seção, atividade com
     "Exibir nos tipos de página" = qualquer página} × {edição ligada, desligada} × {`editor`,
@@ -242,7 +242,7 @@ configura e vê o bloco, e que ele não aparece em seções nem em atividades (s
     `evidence/screenshots/boost-en-1280-<cena>.png`.
   - **Aprovação**: todas as células iguais ao esperado. Qualquer divergência bloqueia CA-02 e CA-04.
   - Depende de T019.
-- [ ] T021 [US2] [MANUAL] Validar a restauração de backup sobre sala que já tem o bloco (quickstart
+- [X] T021 [US2] [MANUAL] Validar a restauração de backup sobre sala que já tem o bloco (quickstart
   V3b; decisão registrada no plano).
   - **Procedimento**: fazer backup de `CC-DEMO` com blocos e restaurar em "mesclar com o curso
     existente" no próprio `CC-DEMO`.
@@ -268,7 +268,7 @@ acontece em T046.
 
 ### Tests for User Story 3 (escrever antes de T026)
 
-- [ ] T022 [P] [US3] Acrescentar a `tests/block_coursecare_test.php`:
+- [X] T022 [P] [US3] Acrescentar a `tests/block_coursecare_test.php`:
   - o HTML de `get_content()` contém `tagline` e `intro` na ordem;
   - o texto visível, sem marcação, não contém dígitos;
   - não há `<a`, `<button`, `<form` nem `<input`;
@@ -276,7 +276,7 @@ acontece em T046.
     texto alternativo), e não há marcação de imagem escrita à mão no template (Princípio X);
   - nenhum texto fixo fora das strings (FR-012, FR-013, FR-016, FR-019; contracts/block-ui.md).
   Depende de T016, por ser o mesmo arquivo.
-- [ ] T023 [P] [US3] Criar `tests/behat/block_coursecare_ui.feature` (`@block @block_coursecare`):
+- [X] T023 [P] [US3] Criar `tests/behat/block_coursecare_ui.feature` (`@block @block_coursecare`):
   - conteúdo correto em inglês, sem links;
   - `@javascript`: `the "CourseCare" "block" should meet accessibility standards`;
   - `I change viewport size to "mobile"` e `"tablet"` com o conteúdo visível;
@@ -286,20 +286,20 @@ acontece em T046.
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Criar `pix/sprout.svg`:
+- [X] T024 [P] [US3] Criar `pix/sprout.svg`:
   - broto original de duas folhas em tons de verde suaves, traço simples;
   - `viewBox` quadrado, sem texto, sem script, sem referências externas;
   - comentário de licença GPL v3+;
   - legível a 40 px em fundo claro e escuro;
   - sem personagens, emojis ou elementos de alerta (FR-015, FR-015a).
-- [ ] T025 [P] [US3] Criar `styles.css` com seletores exclusivamente sob `.block_coursecare`:
+- [X] T025 [P] [US3] Criar `styles.css` com seletores exclusivamente sob `.block_coursecare`:
   - layout flexível (ativo de 40 px ao lado do texto e empilhado em larguras estreitas);
   - tamanho do ícone em `.block_coursecare .icon` (largura e altura de cerca de 40 px), sem alterar
     a classe `icon` fora do bloco;
   - tagline com destaque moderado, sem cor própria;
   - sem `!important`, sem cores de texto e sem utilitários que divergem entre BS4 e BS5
     (research R4; contracts/block-ui.md, regras 1, 5–7).
-- [ ] T026 [US3] Completar `templates/content.mustache`:
+- [X] T026 [US3] Completar `templates/content.mustache`:
   - acrescentar o ativo com `{{#pix}} sprout, block_coursecare {{/pix}}` (sem texto alternativo:
     o core gera `aria-hidden="true"`), usando apenas utilitários comuns a BS4 e BS5;
   - nenhuma marcação de imagem escrita à mão nem `image_url()`;
@@ -322,7 +322,7 @@ terceiro idioma, conferindo o texto em cada caso (spec US4).
 
 ### Tests for User Story 4 (escrever antes de T028)
 
-- [ ] T027 [P] [US4] Criar `tests/translation_test.php` (`advanced_testcase`, research R7):
+- [X] T027 [P] [US4] Criar `tests/translation_test.php` (`advanced_testcase`, research R7):
   - criar no `dataroot` de testes um `lang/pt_br/langconfig.php` mínimo;
   - aplicar `translations/pt_br/block_coursecare.php` como `lang/pt_br_local/block_coursecare.php`;
   - reiniciar o string manager (`get_string_manager(true)`);
@@ -334,7 +334,7 @@ terceiro idioma, conferindo o texto em cada caso (spec US4).
 
 ### Implementation for User Story 4
 
-- [ ] T028 [US4] Criar `translations/pt_br/block_coursecare.php` com o mesmo formato de T007:
+- [X] T028 [US4] Criar `translations/pt_br/block_coursecare.php` com o mesmo formato de T007:
   cabeçalho GPL e docblock, sem `MOODLE_INTERNAL`, sem comentários entre as strings e as mesmas
   chaves na mesma ordem alfabética:
   - `coursecare:addinstance` = "Adicionar um novo bloco AVA Consciente";
@@ -346,12 +346,12 @@ terceiro idioma, conferindo o texto em cada caso (spec US4).
   - `tagline` = "Pequenas escolhas, um AVA melhor para todos.";
   - terminologia genérica, sem referência institucional (FR-021, FR-024).
   T027 deve passar.
-- [ ] T029 [P] [US4] Criar `CONTRIBUTING.md`: como contribuir; tradução mantida em
+- [X] T029 [P] [US4] Criar `CONTRIBUTING.md`: como contribuir; tradução mantida em
   `translations/pt_br/`; instalação da tradução de desenvolvimento por
   `admin/tool/customlang/cli/import.php --lang=pt_br --source=<plugin>/translations/pt_br --checkin`
   (exclusiva de desenvolvimento e homologação, nunca para produção); contribuição ao AMOS após a
   publicação; proibição de concatenação de strings (FR-022; Princípio VIII).
-- [ ] T030 [US4] [MANUAL] Validar idiomas e fallback em Moodle real (quickstart §4 e V7–V10).
+- [X] T030 [US4] [MANUAL] Validar idiomas e fallback em Moodle real (quickstart §4 e V7–V10).
   - **Procedimento**: instalar o pacote oficial pt_br; importar a tradução por `tool_customlang` com
     o comando de T029; purgar caches; conferir o bloco como `editor` em English e em Português -
     Brasil; remover toda a personalização pt_br; depois remover só a chave `intro`; conferir com um
@@ -381,13 +381,13 @@ gerado, conferindo os códigos de saída e as mensagens (spec US5;
 
 ### Tests for User Story 5 (escrever antes de T033–T036)
 
-- [ ] T031 [P] [US5] Criar as fixtures em `tools/i18n/tests/fixtures/`:
+- [X] T031 [P] [US5] Criar as fixtures em `tools/i18n/tests/fixtures/`:
   - `valid/`;
   - um diretório por código de regra (`missing-key`, `extra-key`, `placeholder-mismatch` com
     `{$a}` e `{$a->name}`, `empty-value`, `invalid-syntax` com concatenação, heredoc, variável e
     chamada de função, `duplicate-key`, `missing-file`, `same-as-english`);
   - cada um com `lang/en/` e `translations/<idioma>/` (FR-025, FR-028).
-- [ ] T032 [US5] Criar `tools/i18n/tests/run.php` (PHP puro):
+- [X] T032 [US5] Criar `tools/i18n/tests/run.php` (PHP puro):
   - executar `tools/i18n/check.php --root=<fixture>` para cada fixture e comparar o código de saída
     (`0`, `1` ou `2`) e a linha `ERROR|WARNING <código>` esperada;
   - testar `--strict` com `same-as-english`;
@@ -399,24 +399,24 @@ gerado, conferindo os códigos de saída e as mensagens (spec US5;
 
 ### Implementation for User Story 5
 
-- [ ] T033 [P] [US5] Criar `tools/i18n/check.php` conforme contracts/dev-tools-cli.md:
+- [X] T033 [P] [US5] Criar `tools/i18n/check.php` conforme contracts/dev-tools-cli.md:
   - análise por `token_get_all` sem executar os arquivos;
   - regras `missing-key`, `extra-key`, `placeholder-mismatch`, `empty-value`, `invalid-syntax`,
     `duplicate-key`, `missing-file` e `same-as-english` (aviso; erro com `--strict`);
   - saída `ERROR|WARNING <código> <idioma> <arquivo>:<chave> <detalhe>` mais o resumo;
   - códigos de saída 0/1/2; `--root`;
   - cabeçalho GPL e PHPDoc (FR-025, FR-027).
-- [ ] T034 [US5] Rodar `php tools/i18n/tests/run.php` (casos do verificador de traduções) e
+- [X] T034 [US5] Rodar `php tools/i18n/tests/run.php` (casos do verificador de traduções) e
   `php tools/i18n/check.php` sobre o repositório (`lang/en` × `translations/pt_br`).
   - **Esperado**: todos os casos passam; repositório com `0` erros.
   - **Evidência**: `evidence/logs/i18n-check.txt` (CA-08).
   - Depende de T028, T032 e T033.
-- [ ] T035 [P] [US5] Criar `tools/package/build.sh`:
+- [X] T035 [P] [US5] Criar `tools/package/build.sh`:
   - `git archive --format=zip --prefix=coursecare/` de `<ref>` (padrão `HEAD`) para
     `build/block_coursecare-<release>.zip`, com `<release>` lido de `version.php`;
   - falha se houver alterações em arquivos rastreados;
   - respeita `.gitattributes` de T001 (contracts/dev-tools-cli.md).
-- [ ] T036 [P] [US5] Criar `tools/package/check.php` conforme contracts/dev-tools-cli.md:
+- [X] T036 [P] [US5] Criar `tools/package/check.php` conforme contracts/dev-tools-cli.md:
   - lê o ZIP real com `ZipArchive`;
   - aplica a allowlist do plan.md (`version.php`, `block_coursecare.php`, `db/access.php`,
     `classes/privacy/provider.php`, `lang/en/block_coursecare.php`, `templates/*.mustache`,
@@ -425,13 +425,13 @@ gerado, conferindo os códigos de saída e as mensagens (spec US5;
     `.specify/`, `.claude/`, `.github/`, `build/`, `vendor/`, `node_modules/`, arquivos ocultos ou
     obrigatório ausente;
   - códigos de saída 0/1/2 (FR-026).
-- [ ] T037 [US5] Acrescentar o job `i18n-package` a `.github/workflows/ci.yml`: PHP 8.1 com a
+- [X] T037 [US5] Acrescentar o job `i18n-package` a `.github/workflows/ci.yml`: PHP 8.1 com a
   extensão zip, sem Moodle; passos `php -l` em todos os PHP de `tools/` (exceto
   `tools/i18n/tests/fixtures/`) e de `translations/`, que ficam fora do `moodle-plugin-ci` (T012),
   `php tools/i18n/tests/run.php`, `php tools/i18n/check.php`,
   `tools/package/build.sh`, `php tools/package/check.php build/block_coursecare-*.zip` e upload do
   ZIP como artefato (FR-027; Quality Gate 4). Depende de T012, T032, T033, T035 e T036.
-- [ ] T038 [US5] Gerar e inspecionar o pacote real:
+- [X] T038 [US5] Gerar e inspecionar o pacote real:
   - rodar `tools/package/build.sh && php tools/package/check.php build/block_coursecare-*.zip`
     e `unzip -l build/block_coursecare-*.zip`;
   - **Esperado**: `check.php` retorna `0`; a raiz é `coursecare/`; só há arquivos da allowlist;
@@ -448,10 +448,10 @@ gerado, conferindo os códigos de saída e as mensagens (spec US5;
 **Purpose**: documentação, CI verde, validações manuais transversais em Moodle real, evidências e
 aprovação do proprietário do produto.
 
-- [ ] T039 Confirmar o CI verde nos dois jobs (`moodle` e `i18n-package`) no último commit da branch
+- [X] T039 Confirmar o CI verde nos dois jobs (`moodle` e `i18n-package`) no último commit da branch
   e registrar os links das execuções em `evidence/README.md` (Quality Gates 1–5). Depende de T037 e
   de todas as tarefas de código.
-- [ ] T040 [P] Criar `README.md`:
+- [X] T040 [P] Criar `README.md`:
   - finalidade;
   - compatibilidade (apenas Moodle 4.5 validado; PHP 8.1–8.3);
   - instalação pelo ZIP de release;
@@ -463,14 +463,14 @@ aprovação do proprietário do produto.
   - idiomas (inglês no pacote; pt_BR via AMOS após a publicação);
   - ponteiro para `CONTRIBUTING.md`
   (Princípio XII; FR-004).
-- [ ] T041 [P] Revisar o código de `block_coursecare.php`, `templates/`, `styles.css` e `lang/`:
+- [X] T041 [P] Revisar o código de `block_coursecare.php`, `templates/`, `styles.css` e `lang/`:
   - nenhum texto de interface fixo (SC-003);
   - nenhuma URL ou chamada externa (FR-004);
   - nenhuma consulta ao banco em `get_content()` (SC-009);
   - nenhuma concatenação de strings (Princípio VIII);
   - nenhum arquivo ou classe fora da estrutura do plan.md (Regras de complexidade).
   Registrar o resultado em `evidence/logs/code-review.txt`.
-- [ ] T042 [MANUAL] Instalar o ZIP gerado em T038 em um site limpo (quickstart §8).
+- [X] T042 [MANUAL] Instalar o ZIP gerado em T038 em um site limpo (quickstart §8).
   - **Procedimento** (US1-1, "Moodle 4.5 sem o plugin"):
     1. Remover o `local.yml` e recriar os containers do zero (`bin/moodle-docker-compose down` e
        `up -d`, com banco novo).
@@ -485,7 +485,7 @@ aprovação do proprietário do produto.
     `evidence/screenshots/boost-en-1280-zip-install.png`.
   - **Aprovação**: CA-01 e CA-09 confirmados também a partir do pacote.
   - Depende de T038.
-- [ ] T043 [MANUAL] Simular a atualização e validar desabilitar/reabilitar com instâncias
+- [X] T043 [MANUAL] Simular a atualização e validar desabilitar/reabilitar com instâncias
   (quickstart §9 e V11; US1-2).
   - **Procedimento**:
     1. Com o bloco presente em `CC-DEMO` e `:view` concedido a `teacher`, incrementar
@@ -501,7 +501,7 @@ aprovação do proprietário do produto.
   - **Aprovação**: os logs não têm erros, o estado foi preservado, e as duas capturas correspondem
     ao esperado (CA-01).
   - Depende de T020.
-- [ ] T044 [MANUAL] Validar a desinstalação **com** instâncias (quickstart §9; US1-3).
+- [X] T044 [MANUAL] Validar a desinstalação **com** instâncias (quickstart §9; US1-3).
   - **Procedimento**: com o bloco em `CC-DEMO`, rodar
     `admin/cli/uninstall_plugins.php --plugins=block_coursecare --run` e consultar `block_instances`
     e `capabilities`.
@@ -524,6 +524,9 @@ aprovação do proprietário do produto.
     2.2 AA aplicáveis ao bloco (axe + manual)", nunca como conformidade integral.
   - **Aprovação**: CA-10 e CA-12 marcados com os links.
   - Depende de T026 e T030.
+  - **Estado (2026-10-16)**: executada com Playwright no sistema real, com axe no CI. Falta só a parte
+    humana: leitor de tela real (VoiceOver/NVDA) e alto contraste real do sistema operacional
+    (ver `evidence/accessibility.md`). Por isso a tarefa continua aberta.
 - [ ] T046 Apresentar as evidências visuais de T030 e T045 ao proprietário do produto para revisão
   da clareza dos textos (SC-002) e aprovação do ativo visual e dos textos en/pt_BR (FR-014, FR-015).
   - Registrar em `evidence/README.md`, seção "Aprovações", **somente depois** da manifestação do
@@ -531,6 +534,8 @@ aprovação do proprietário do produto.
   - Se houver ajustes, aplicá-los nas tarefas de origem (T007, T024–T028) e reapresentar.
   - A revisão opcional por um ou dois docentes é registrada quando houver e não bloqueia a entrega.
   - Não registrar nenhuma aprovação antecipada. Depende de T045.
+  - **Estado (2026-10-16)**: evidências prontas em `evidence/`. Aguarda a manifestação do proprietário do
+    produto. Nenhuma aprovação registrada.
 - [ ] T047 Fechar a feature:
   - preencher a tabela CA-01 a CA-13 em `evidence/README.md` só com itens que tenham link de
     evidência (SC-010);
@@ -539,7 +544,8 @@ aprovação do proprietário do produto.
   - atualizar `CHANGES.md`;
   - deixar a branch pronta para PR à `main`.
   Depende de T039–T046.
-
+  - **Estado (2026-10-16)**: depende de T045 (parte humana) e T046 (aprovação). O CI está verde no
+    último commit validado.
 ---
 
 ## Dependencies & Execution Order
@@ -710,3 +716,26 @@ Com mais de uma pessoa, depois da Phase 2:
 - Validações manuais **complementam** e não substituem a paridade automatizada (T034, T037).
 - Fora do escopo (Feature 002+): coleta, análise, indicadores, tarefas agendadas, recomendações,
   tabelas, `classes/local/` e renderers.
+
+---
+
+## Execução (2026-10-16)
+
+- **Concluídas**: 44 de 47 (T001–T044), cada uma com evidência em `evidence/`.
+- **Abertas**: T045 (parte humana de acessibilidade), T046 (aprovação do proprietário) e T047
+  (fechamento).
+- **Desvios registrados**:
+  - T020/V3: a configuração "qualquer página + exibir em subcontextos" foi aplicada no banco (campos
+    nativos `pagetypepattern` e `showinsubcontexts` da instância), não pelo formulário. O Behat do CI
+    cobre o mesmo cenário com o gerador.
+  - T021: a mesclagem usou a API de backup/restauração com `TARGET_EXISTING_ADDING` (mesmo
+    `restore_block_instance_structure_step` da interface), com controle de restauração em outra sala.
+  - T030: a extração manual do pacote pt_br exige purgar os caches antes do import do
+    `tool_customlang`. Documentado no quickstart e no CONTRIBUTING.
+  - T027: `get_string_manager()->get_string(..., 'pt_br')` substitui `get_string(..., 'pt_br')`, que
+    não aceita idioma.
+- **Pendências LOW da análise**:
+  - Resolvidas: E4 (Behat), E5 (`logs/playwright-e5.json`), E6 (fixture `multi-language`), B1 (7 s no
+    E2), F1, F2, F3 e F4 (0 senhas fracas).
+  - Abertas: B2 (sem medição numérica de consultas; T041 confirma ausência de acesso ao banco em
+    `get_content()`) e E3 (proteção de branch, decisão do proprietário).

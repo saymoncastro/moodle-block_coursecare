@@ -130,7 +130,9 @@ O repositório é a raiz do plugin, instalado em `<moodle>/blocks/coursecare`. O
 │   ├── privacy/
 │   │   └── provider_test.php       # Razão do null_provider
 │   └── behat/
-│       └── block_coursecare.feature
+│       ├── block_coursecare_permissions.feature  # US2: adição, segunda instância, papéis, overrides
+│       ├── block_coursecare_display.feature      # US2/US3-7: página principal, seção, atividade, formato
+│       └── block_coursecare_ui.feature           # US3: conteúdo, axe (@accessibility), tablet, mobile, Classic
 ├── README.md                       # Instalação, permissões, limitações, compatibilidade
 ├── CHANGES.md
 ├── LICENSE                         # GPL v3
@@ -278,7 +280,13 @@ desinstalação (`uninstall_plugins.php`).
 | Qualidade | `moodle-plugin-ci` | phplint, phpcs, phpdoc, validate, savepoints, mustache, grunt |
 | Manual com evidência | quickstart | CA-01, CA-06, CA-11; restauração sobre sala com o bloco (FR-010); desktop, tablet e smartphone; Boost e Classic; en e pt_BR; teclado; leitor de tela; zoom de 200%; 320 px; revisão de clareza pelo proprietário do produto (SC-002) e, opcionalmente, por 1–2 docentes |
 
-A feature **não** é considerada concluída só com testes automatizados (CA-13, SC-010). Para
+A feature **não** é considerada concluída só com testes automatizados (CA-13, SC-010).
+
+O Quality Gate 3 cita o passo `the page should meet accessibility standards`. Para um bloco numa página
+existente (não uma tela nova), o equivalente é o passo com escopo
+`the "CourseCare" "block" should meet accessibility standards`, que roda as mesmas tags axe só sobre o
+bloco, evitando reprovar por problemas do core fora do escopo. No Moodle 4.5, cenários com axe exigem a
+tag `@accessibility` (verificado no CI). Para
 acessibilidade, o axe cobre apenas o que é verificável automaticamente. As verificações manuais
 complementam, e o resultado é registrado como verificação dos critérios aplicáveis ao bloco, sem
 declarar conformidade integral com a WCAG (FR-017, SC-007).
