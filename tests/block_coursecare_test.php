@@ -155,10 +155,10 @@ final class block_coursecare_test extends \advanced_testcase {
         ]);
         $blockcontext = context_block::instance($record->id);
 
-        assign_capability('block/coursecare:view', CAP_PROHIBIT,
-            $DB->get_field('role', 'id', ['shortname' => 'editingteacher']), $blockcontext->id);
-        assign_capability('block/coursecare:view', CAP_ALLOW,
-            $DB->get_field('role', 'id', ['shortname' => 'teacher']), $blockcontext->id);
+        $editingteacherrole = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        $teacherrole = $DB->get_field('role', 'id', ['shortname' => 'teacher']);
+        assign_capability('block/coursecare:view', CAP_PROHIBIT, $editingteacherrole, $blockcontext->id);
+        assign_capability('block/coursecare:view', CAP_ALLOW, $teacherrole, $blockcontext->id);
         accesslib_clear_all_caches_for_unit_testing();
 
         $this->setUser($editor);
