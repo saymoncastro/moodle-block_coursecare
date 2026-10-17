@@ -30,30 +30,48 @@
     * none
 
     Context variables required for this template:
-    * diagnostic - optional object with "sentences", a list of objects with a "text" property, and,
-      when a result exists, "overviewurl" and "overviewlink" (the link to the overview page)
+    * diagnostic - optional object: with a result and files, "hasvolume", "volumelabel" and "volume"
+      (the volume apart, to be seen at once); otherwise "sentences" (objects with "text"); then
+      "date", "notes" (objects with "text") and, when a result exists, "overviewurl" and
+      "overviewlink" (the link to the overview page)
 
     Example context (json):
     {
         "diagnostic": {
-            "sentences": [
-                {"text": "Files in this course, as recorded by Moodle: 6.0 MB."},
-                {"text": "Calculated on 16/10/26, 10:12."}
-            ],
+            "hasvolume": true,
+            "volumelabel": "Files in this course, as recorded by Moodle",
+            "volume": "6.0 MB",
+            "sentences": [],
+            "date": "Calculated on 16/10/26, 10:12.",
+            "notes": [],
             "overviewurl": "https://example.com/blocks/coursecare/overview.php?id=4",
             "overviewlink": "Learn more about the files in your course"
         }
     }
 }}
 <div class="block_coursecare-content">
-    <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
-    <div class="block_coursecare-text">
-        <p class="block_coursecare-tagline">{{#str}} tagline, block_coursecare {{/str}}</p>
-        {{#diagnostic}}
-        <p class="block_coursecare-diagnostic mb-0">{{#sentences}}{{text}} {{/sentences}}</p>
+    <div class="block_coursecare-identity">
+        <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
+        <p class="block_coursecare-tagline mb-0">{{#str}} tagline, block_coursecare {{/str}}</p>
+    </div>
+    {{#diagnostic}}
+    <div class="block_coursecare-overviewbox">
+        {{#hasvolume}}
+        <p class="block_coursecare-volumelabel mb-0">{{volumelabel}}</p>
+        <p class="block_coursecare-volume mb-0">{{volume}}</p>
+        {{/hasvolume}}
+        {{#sentences}}
+        <p class="block_coursecare-sentence mb-0">{{text}}</p>
+        {{/sentences}}
+        {{#date}}
+        <p class="block_coursecare-date mb-0">{{date}}</p>
+        {{/date}}
+        {{#notes}}
+        <p class="block_coursecare-note mb-0">{{text}}</p>
+        {{/notes}}
         {{#overviewurl}}
         <p class="block_coursecare-overviewlink mb-0"><a href="{{overviewurl}}">{{overviewlink}}</a></p>
         {{/overviewurl}}
-        {{/diagnostic}}
     </div>
+    {{/diagnostic}}
 </div>

@@ -17,8 +17,9 @@
 {{!
     @template block_coursecare/overview_categories
 
-    "Where the files are" section of the overview page: the four categories of the course with their
-    explanation, size and share (FR-012). Students' files appear only here, for the whole course.
+    "Where the files are" section of the overview page: one stacked bar of the four categories of the
+    course (decorative) and a legend with each category, its explanation, size and share of all the
+    files of the course in text (FR-012, FR-016). Students' files appear only here, for the whole course.
 
     Classes required for JS:
     * none
@@ -27,28 +28,44 @@
     * none
 
     Context variables required for this template:
-    * categories - object with "heading" and "rows" (see block_coursecare/overview_item)
+    * categories - object with "heading", "help" and "rows" (key, segment, name, help, size, share)
 
     Example context (json):
     {
         "categories": {
             "heading": "Where the files are",
+            "help": "How much of all the files of the course each kind of file represents.",
             "rows": [
-                {"name": "Course materials", "help": "Files you and other editors published.", "hasurl": false,
-                 "size": "4.0 MB", "share": "60%", "width": 60}
+                {"key": "material", "segment": 60, "name": "Course materials", "help": "Files you published.",
+                 "size": "4.0 MB", "share": "60%"},
+                {"key": "submission", "segment": 40, "name": "Files submitted in activities",
+                 "help": "Shown only for the whole course.", "size": "2.6 MB", "share": "40%"}
             ]
         }
     }
 }}
 {{#categories}}
-<section class="block_coursecare-overview-section card">
-    <div class="card-body">
-        <h3 class="block_coursecare-overview-sectiontitle">{{heading}}</h3>
-        <ul class="block_coursecare-overview-list list-unstyled mb-0">
-            {{#rows}}
-            <li>{{> block_coursecare/overview_item }}</li>
-            {{/rows}}
-        </ul>
+<section class="block_coursecare-overview-section block_coursecare-overview-distribution">
+    <h3 class="block_coursecare-overview-sectiontitle">{{heading}}</h3>
+    <p class="block_coursecare-overview-help">{{help}}</p>
+    <div class="block_coursecare-overview-stack" aria-hidden="true">
+        {{#rows}}
+        <span class="block_coursecare-overview-segment block_coursecare-overview-{{key}}" style="width: {{segment}}%;"></span>
+        {{/rows}}
     </div>
+    <ul class="block_coursecare-overview-legend list-unstyled mb-0">
+        {{#rows}}
+        <li class="block_coursecare-overview-legenditem">
+            <span class="block_coursecare-overview-swatch block_coursecare-overview-{{key}}" aria-hidden="true"></span>
+            <div class="block_coursecare-overview-legendtext">
+                <div class="block_coursecare-overview-itemtext">
+                    <span class="block_coursecare-overview-itemname">{{name}}</span>
+                    <span class="block_coursecare-overview-itemvalue">{{size}} · {{share}}</span>
+                </div>
+                <p class="block_coursecare-overview-help mb-0">{{help}}</p>
+            </div>
+        </li>
+        {{/rows}}
+    </ul>
 </section>
 {{/categories}}

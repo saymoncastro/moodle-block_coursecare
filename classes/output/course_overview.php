@@ -89,7 +89,7 @@ class course_overview implements \renderable, \templatable {
             'intro' => get_string('overview:intro', 'block_coursecare'),
             'backurl' => $this->courseurl->out(false),
             'backtext' => get_string('overview:back', 'block_coursecare'),
-            'summary' => array_map(fn(string $text): array => ['text' => $text], $this->summary_sentences()),
+            'hero' => $this->hero_data(),
             'hascategories' => $this->view['categories'] !== null,
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
@@ -128,10 +128,12 @@ class course_overview implements \renderable, \templatable {
         }
         return [
             'heading' => get_string('overview:large', 'block_coursecare'),
-            'summary' => get_string('overview:large_summary', 'block_coursecare', (object)[
-                'threshold' => display_size($large['threshold']), 'count' => $large['count'],
-                'size' => display_size($large['bytes']),
-            ]),
+            'summary' => $large['count'] > 0
+                ? get_string('overview:large_summary', 'block_coursecare', (object)[
+                    'threshold' => display_size($large['threshold']), 'count' => $large['count'],
+                    'size' => display_size($large['bytes']),
+                ])
+                : get_string('overview:large_none', 'block_coursecare', display_size($large['threshold'])),
             'help' => get_string('overview:large_help', 'block_coursecare'),
             'hasmaterials' => $rows !== [],
             'materialsheading' => get_string('overview:large_materials', 'block_coursecare'),
@@ -188,8 +190,12 @@ class course_overview implements \renderable, \templatable {
      */
     private function categories_data(): array {
         $rows = [];
+        $total = (int)$this->view['total'];
         foreach ($this->view['categories'] ?? [] as $category) {
             $rows[] = [
+                'key' => $category['key'],
+                // Width of the segment in the stacked bar (decorative): the exact share, so the segments add up.
+                'segment' => $total > 0 ? round(100 * $category['bytes'] / $total, 2) : 0,
                 'name' => get_string('overview:category:' . $category['key'], 'block_coursecare'),
                 'help' => get_string('overview:category:' . $category['key'] . '_help', 'block_coursecare'),
                 'url' => null,
@@ -198,6 +204,7 @@ class course_overview implements \renderable, \templatable {
         }
         return [
             'heading' => get_string('overview:categories', 'block_coursecare'),
+            'help' => get_string('overview:categories_help', 'block_coursecare'),
             'rows' => $rows,
         ];
     }
@@ -252,36 +259,30 @@ class course_overview implements \renderable, \templatable {
     }
 
     /**
-     * Sentences of the summary for the state of the diagnostic (FR-020).
+     * The opening of the page: the same parts as the block line (diagnostic_line::parts()), so that the volume is
+     * seen at once, plus the coverage note of state H (FR-020).
      *
-     * @return string[]
+     * @return array
      */
-    private function summary_sentences(): array {
+    private function hero_data(): array {
         $view = $this->view;
-        if (!$view['hasresult']) {
-            $key = in_array($view['state'], [diagnostic_state::QUEUED, diagnostic_state::RUNNING], true)
-                ? 'diagnostic:preparing' : 'diagnostic:notavailable';
-            return [get_string($key, 'block_coursecare')];
-        }
-        $sentences = [];
-        $sentences[] = $view['state'] === diagnostic_state::NO_FILES
-            ? get_string('diagnostic:nofiles', 'block_coursecare')
-            : get_string('overview:total', 'block_coursecare', display_size($view['total']));
-        $date = userdate($view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
-        $sentences[] = get_string('diagnostic:calculatedon', 'block_coursecare', $date);
-        if ($view['outdated']) {
-            $sentences[] = get_string('diagnostic:mayoutdated', 'block_coursecare');
-        } else if ($view['failed']) {
-            $sentences[] = get_string('diagnostic:updatefailed', 'block_coursecare');
-        }
-        if ($view['partial'] && $view['technical']['coverage']['bytes'] > 0) {
+        $state = new diagnostic_state(
+            $view['state'],
+            $view['hasresult'],
+            $view['partial'],
+            $view['total'],
+            $view['timecompleted'],
+            $view['hasresult'] ? ($view['state'] === diagnostic_state::NO_FILES ? 0 : 1) : null
+        );
+        $hero = diagnostic_line::parts($state) + ['coverage' => ''];
+        if ($view['partial'] && $view['technical'] !== null && $view['technical']['coverage']['bytes'] > 0) {
             $coverage = $view['technical']['coverage'];
-            $sentences[] = get_string('overview:partial', 'block_coursecare', (object)[
+            $hero['coverage'] = get_string('overview:partial', 'block_coursecare', (object)[
                 'size' => display_size($coverage['bytes']),
                 'share' => self::share_text($coverage['share']),
             ]);
         }
-        return $sentences;
+        return $hero;
     }
 
     /**

@@ -74,6 +74,10 @@ try:
         # The demo site shares the developer config.php (performance footer); hide that footer only.
         script('document.querySelectorAll(".performanceinfo, #page-footer .debuggingmessage").forEach(e => e.remove());')
         if kind == 'block':
+            # The block drawer slides in when the page opens: wait for it to settle. A core user tour of the course
+            # page may open over the drawer; it is not part of the block.
+            time.sleep(1.5)
+            script('document.querySelectorAll("[data-flexitour]").forEach(e => e.remove());')
             png = call('GET', base + f'/element/{find("section.block_coursecare")}/screenshot')
         else:
             if kind == 'pageopen':

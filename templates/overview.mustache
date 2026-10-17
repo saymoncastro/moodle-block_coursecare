@@ -19,7 +19,9 @@
 
     The "Your course in numbers" page of the CourseCare block (Feature 003, contracts/overview-page.md).
     Every sentence comes already translated from the course_overview renderable; this template only lays
-    them out. Sections without data are left out (states A, B, C and G).
+    them out: the way back, the opening with the volume of the course, then where the files are and the
+    large files side by side on wide screens, the materials by activity and the technical details.
+    Sections without data are left out (states A, B, C and G).
 
     Classes required for JS:
     * none
@@ -29,7 +31,7 @@
 
     Context variables required for this template:
     * title, intro, backurl, backtext - page title, introduction and the way back to the course
-    * summary - list of objects with "text": the sentences about the state of the diagnostic
+    * hero - the opening, see block_coursecare/overview_summary
     * hascategories, categories - see block_coursecare/overview_categories
     * hasactivities, activities - see block_coursecare/overview_activities
     * haslarge, large - see block_coursecare/overview_large
@@ -38,13 +40,18 @@
     Example context (json):
     {
         "title": "Your course in numbers",
-        "intro": "Get to know the files of your course: where they are and when they were measured.",
+        "intro": "See where the files of your course are and when they were measured.",
         "backurl": "https://example.com/course/view.php?id=2",
         "backtext": "Back to the course",
-        "summary": [
-            {"text": "Files in this course, as recorded by Moodle: 6.0 MB"},
-            {"text": "Calculated on 16/10/26, 10:12."}
-        ],
+        "hero": {
+            "hasvolume": true,
+            "volumelabel": "Files in this course, as recorded by Moodle",
+            "volume": "6.0 MB",
+            "sentences": [],
+            "date": "Calculated on 16/10/26, 10:12.",
+            "notes": [],
+            "coverage": ""
+        },
         "hascategories": false,
         "hasactivities": false,
         "haslarge": false,
@@ -52,16 +59,19 @@
     }
 }}
 <div class="block_coursecare-overview">
+    <p class="block_coursecare-overview-back"><a href="{{backurl}}">{{backtext}}</a></p>
     {{> block_coursecare/overview_summary }}
     {{#hascategories}}
-    {{> block_coursecare/overview_categories }}
+    <div class="block_coursecare-overview-grid">
+        {{> block_coursecare/overview_categories }}
+        {{#haslarge}}
+        {{> block_coursecare/overview_large }}
+        {{/haslarge}}
+    </div>
     {{/hascategories}}
     {{#hasactivities}}
     {{> block_coursecare/overview_activities }}
     {{/hasactivities}}
-    {{#haslarge}}
-    {{> block_coursecare/overview_large }}
-    {{/haslarge}}
     {{#hastechnical}}
     {{> block_coursecare/overview_technical }}
     {{/hastechnical}}

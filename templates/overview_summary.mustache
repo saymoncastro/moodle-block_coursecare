@@ -17,8 +17,9 @@
 {{!
     @template block_coursecare/overview_summary
 
-    Summary of the overview page: the identity, the title, the state of the diagnostic with its date, and
-    the way back to the course.
+    Opening of the overview page: the sprout and the title, a short introduction, the volume of the
+    course apart from its label so that it is seen at once, the date of the analysis, the notes of the
+    out-of-date and failed states, and the partial coverage. Without a result, one sentence.
 
     Classes required for JS:
     * none
@@ -27,32 +28,49 @@
     * none
 
     Context variables required for this template:
-    * title, intro, backurl, backtext
-    * summary - list of objects with "text"
+    * title, intro
+    * hero - object with hasvolume, volumelabel, volume, sentences (objects with "text"), date, notes
+      (objects with "text") and coverage
 
     Example context (json):
     {
         "title": "Your course in numbers",
-        "intro": "Get to know the files of your course: where they are and when they were measured.",
-        "backurl": "https://example.com/course/view.php?id=2",
-        "backtext": "Back to the course",
-        "summary": [
-            {"text": "The file overview for this course is not available yet."}
-        ]
+        "intro": "See where the files of your course are and when they were measured.",
+        "hero": {
+            "hasvolume": false,
+            "volumelabel": "",
+            "volume": "",
+            "sentences": [{"text": "The file overview for this course is not available yet."}],
+            "date": "",
+            "notes": [],
+            "coverage": ""
+        }
     }
 }}
-<section class="block_coursecare-overview-section block_coursecare-overview-summary card">
-    <div class="card-body">
-        <div class="block_coursecare-overview-heading">
-            <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
-            <h2 class="block_coursecare-overview-title">{{title}}</h2>
-        </div>
-        <p class="block_coursecare-overview-intro">{{intro}}</p>
-        <div class="block_coursecare-overview-state">
-            {{#summary}}
-            <p>{{text}}</p>
-            {{/summary}}
-        </div>
-        <p class="block_coursecare-overview-back mb-0"><a href="{{backurl}}">{{backtext}}</a></p>
+<section class="block_coursecare-overview-hero">
+    <div class="block_coursecare-overview-heading">
+        <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
+        <h2 class="block_coursecare-overview-title">{{title}}</h2>
     </div>
+    <p class="block_coursecare-overview-intro">{{intro}}</p>
+    {{#hero}}
+    <div class="block_coursecare-overview-figure">
+        {{#hasvolume}}
+        <p class="block_coursecare-overview-volumelabel mb-0">{{volumelabel}}</p>
+        <p class="block_coursecare-overview-volume mb-0">{{volume}}</p>
+        {{/hasvolume}}
+        {{#sentences}}
+        <p class="block_coursecare-overview-sentence mb-0">{{text}}</p>
+        {{/sentences}}
+        {{#date}}
+        <p class="block_coursecare-overview-date mb-0">{{date}}</p>
+        {{/date}}
+    </div>
+    {{#notes}}
+    <p class="block_coursecare-overview-note">{{text}}</p>
+    {{/notes}}
+    {{#coverage}}
+    <p class="block_coursecare-overview-coverage mb-0">{{coverage}}</p>
+    {{/coverage}}
+    {{/hero}}
 </section>
