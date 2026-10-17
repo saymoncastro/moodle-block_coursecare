@@ -18,6 +18,7 @@ namespace block_coursecare\task;
 
 use block_coursecare\local\admin_cli;
 use block_coursecare\local\collector\diagnostic_store;
+use block_coursecare\local\course_analysis;
 
 /**
  * Tests of the administrator command line operations (contracts/admin-cli.md).
@@ -108,6 +109,114 @@ final class cli_diagnostics_test extends \advanced_testcase {
         [$code, $data] = $cli->run_course($course->id);
         $this->assertSame(admin_cli::EXIT_OK, $code);
         $this->assertSame(['courseid', 'outcome', 'failure', 'seconds', 'peakmemory'], array_keys($data));
+    }
+
+    /**
+     * An admin_cli whose --run uses the given analysis.
+     *
+     * @param course_analysis $analysis Analysis to use.
+     * @return admin_cli
+     */
+    private static function cli_with(course_analysis $analysis): admin_cli {
+        return new class ($analysis) extends admin_cli {
+            /** @var course_analysis Analysis to use. */
+            private course_analysis $analysis;
+
+            /**
+             * Constructor.
+             *
+             * @param course_analysis $analysis Analysis to use.
+             */
+            public function __construct(course_analysis $analysis) {
+                parent::__construct();
+                $this->analysis = $analysis;
+            }
+
+            /**
+             * The given analysis.
+             *
+             * @return course_analysis
+             */
+            protected function create_analysis(): course_analysis {
+                return $this->analysis;
+            }
+        };
+    }
+
+    /**
+     * A store whose mark_running() fails as a broken database would: a failure before the analysis, thrown.
+     *
+     * @return diagnostic_store
+     */
+    private static function store_failing_before_analysis(): diagnostic_store {
+        return new class extends diagnostic_store {
+            /**
+             * Fail as a broken database would.
+             *
+             * @param int $courseid Course id.
+             * @param int $now Current time.
+             */
+            public function mark_running(int $courseid, int $now): void {
+                throw new \dml_write_exception('Simulated write failure');
+            }
+        };
+    }
+
+    /**
+     * --run exits with 4 for any failure: an analysis failure, or a database failure that the analysis throws,
+     * which is then recorded in the existing diagnostic (never a PHP error with the exit code 1 of invalid options).
+     */
+    public function test_run_failures_exit_4(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->course_with_block();
+        get_file_storage()->create_file_from_string(['contextid' => \context_course::instance($course->id)->id,
+            'component' => 'course', 'filearea' => 'summary', 'itemid' => 0, 'filepath' => '/',
+            'filename' => 'material.bin'], str_repeat('m', 3000));
+        $this->assertSame(admin_cli::EXIT_OK, (new admin_cli())->run_course($course->id)[0]);
+        $DB->set_field('block_coursecare_diag', 'timecompleted', time() - HOURSECS, ['courseid' => $course->id]);
+        $previous = (new diagnostic_store())->get_summary($course->id);
+
+        // A failure of the analysis itself: recorded by the analysis.
+        $collector = new class extends \block_coursecare\local\collector\course_files {
+            /**
+             * Fail as a broken database would.
+             *
+             * @param \context_course $context Course context.
+             * @return array
+             */
+            public function get_contexts(\context_course $context): array {
+                throw new \dml_read_exception('Simulated read failure');
+            }
+        };
+        [$code, $data] = self::cli_with(new course_analysis($collector))->run_course($course->id);
+        $this->assertSame(admin_cli::EXIT_FAILED, $code);
+        $this->assertSame(course_analysis::FAILED, $data['outcome']);
+        $this->assertSame('dml_read_exception', $data['failure']);
+
+        // A database failure before the analysis, thrown by the analysis: reported and recorded by the CLI.
+        [$code, $data] = self::cli_with(new course_analysis(null, self::store_failing_before_analysis()))
+            ->run_course($course->id);
+        $this->assertSame(admin_cli::EXIT_FAILED, $code);
+        $this->assertSame(course_analysis::FAILED, $data['outcome']);
+        $this->assertSame('dml_write_exception', $data['failure']);
+        $record = (new diagnostic_store())->get_summary($course->id);
+        $this->assertSame(1, (int)$record->lastattemptfailed);
+        $this->assertSame(2, (int)$record->failurecount);
+        $this->assertSame('dml_write_exception', $record->failurereason);
+        $this->assertSame(diagnostic_store::STATUS_NONE, (int)$record->requeststatus);
+        $this->assertSame((int)$previous->timecompleted, (int)$record->timecompleted);
+        $this->assertSame(3000, (int)$record->logicalbytes);
+
+        // The lock was released: the next run analyses again.
+        $this->assertSame(admin_cli::EXIT_OK, (new admin_cli())->run_course($course->id)[0]);
+
+        // A course without a diagnostic gets none from a thrown failure.
+        $other = $this->course_with_block();
+        $DB->delete_records('block_coursecare_diag', ['courseid' => $other->id]);
+        [$code] = self::cli_with(new course_analysis(null, self::store_failing_before_analysis()))->run_course($other->id);
+        $this->assertSame(admin_cli::EXIT_FAILED, $code);
+        $this->assertNull((new diagnostic_store())->get_summary($other->id));
     }
 
     /**

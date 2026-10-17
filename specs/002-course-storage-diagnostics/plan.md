@@ -197,7 +197,8 @@ cron (a cada minuto)
                                   Q3 únicos por conjunto, Q4 arquivos ≥ T
           analysis\indicator_calculator (classification_rules) → invariantes (refaz 1×)
           diagnostic_store::save_result()  — uma transação
-          exceção → save_failure() (resultado anterior intacto); término normal
+          exceção da análise → save_failure() (resultado anterior intacto); término normal
+          falha do banco antes da análise ou ao gravar a falha → lançada ao core (repete)
 CLI administrativa: --queue / --run / --show (mesma orquestração e mesmo lock)
 ```
 

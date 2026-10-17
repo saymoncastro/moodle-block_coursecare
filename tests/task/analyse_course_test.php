@@ -207,7 +207,8 @@ final class analyse_course_test extends \advanced_testcase {
         $this->assertStringContainsString($done, $output);
         $this->assertLessThan(strpos($output, $done), strpos($output, $failed));
         $this->assertStringContainsString('Adhoc task complete: ' . analyse_course_with_failure::class, $output);
-        $this->assertStringNotContainsString('Adhoc task failed', $output);
+        // Only the plugin's tasks matter here; the runner may also run tasks that the core generators queued.
+        $this->assertStringNotContainsString('Adhoc task failed: block_coursecare', $output);
         $this->assertStringNotContainsString('private detail', $output);
         $this->assertSame(0, $DB->count_records('task_adhoc', ['component' => 'block_coursecare']));
 

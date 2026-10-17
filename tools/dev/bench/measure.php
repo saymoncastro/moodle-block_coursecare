@@ -79,9 +79,14 @@ class bench_recording_db {
     }
 }
 
-// How each database prints the executed plan of a query.
+// How each database prints the executed plan of a query. MariaDB reached through the mysqli driver reports the
+// vendor "mysql" and a bare version number; only the server description still says MariaDB.
 $vendor = $DB->get_dbvendor();
-$version = $DB->get_server_info()['version'];
+$serverinfo = $DB->get_server_info();
+$version = $serverinfo['version'];
+if ($vendor === 'mysql' && stripos((string)$serverinfo['description'], 'mariadb') !== false) {
+    $vendor = 'mariadb';
+}
 if ($options['explain']) {
     if ($vendor === 'postgres') {
         $explain = 'EXPLAIN (ANALYZE, BUFFERS) ';

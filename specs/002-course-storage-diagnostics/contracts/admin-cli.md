@@ -28,7 +28,7 @@ teste e benchmark.
 | 1 | Opções inválidas |
 | 2 | Sala inexistente ou não elegível |
 | 3 | Análise já em execução (lock ocupado) |
-| 4 | Falha da análise (`--run`); resultado anterior preservado |
+| 4 | Falha da análise (`--run`), inclusive falha do banco antes da análise; resultado anterior preservado e falha registrada no diagnóstico existente quando o banco permite |
 
 ## Saída de `--show` (texto)
 

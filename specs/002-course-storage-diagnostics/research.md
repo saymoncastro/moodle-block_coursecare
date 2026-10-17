@@ -254,9 +254,15 @@ porque `instance_delete()` já é chamado; ficariam como segunda via de limpeza 
 - A análise calcula tudo em memória (agregados pequenos) e grava o resultado **em uma única
   transação delegada**: apaga as linhas filhas do diagnóstico, insere as novas e atualiza o
   registro. Antes da transação, nada do resultado anterior é tocado.
-- Em exceção, a tarefa registra a falha (`lastattemptfailed = 1`, `failurecount + 1`,
-  `failurereason` = código curto da classe da exceção, sem mensagem) e **termina normalmente**, sem
-  relançar. O resultado anterior permanece.
+- Em exceção da coleta, do cálculo ou da gravação do resultado (e em invariantes que falham duas
+  vezes), a tarefa registra a falha (`lastattemptfailed = 1`, `failurecount + 1`, `failurereason` =
+  código curto da classe da exceção, sem mensagem) e **termina normalmente**, sem relançar. O
+  resultado anterior permanece.
+- Uma falha do banco **antes** da análise (elegibilidade, frescor, `mark_running`) ou ao gravar a
+  própria falha é lançada ao core: o banco não consegue guardar o estado da solicitação, então a
+  tarefa ad hoc falha e o core a repete. O resultado anterior não foi tocado e o lock da sala é
+  liberado. Na CLI (`--run`), sem tarefa para repetir, a mesma falha sai com o código 4 e é
+  registrada no diagnóstico existente quando o banco permite (contracts/admin-cli.md).
 - **Nova tentativa limitada**: a tarefa agendada reenfileira uma sala com falha após
   `min(2^(falhas − 1), 24)` horas. A partir da 5ª falha consecutiva, só no intervalo normal de
   reanálise.

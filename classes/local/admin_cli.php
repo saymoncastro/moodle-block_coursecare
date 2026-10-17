@@ -129,19 +129,40 @@ class admin_cli {
     }
 
     /**
+     * The analysis to run. Tests override it to inject a database failure.
+     *
+     * @return course_analysis
+     */
+    protected function create_analysis(): course_analysis {
+        return new course_analysis();
+    }
+
+    /**
      * Analyse one course in this process, with the same lock as the task.
+     *
+     * A failure that the analysis throws (a database failure before the analysis, or while recording a failure; see
+     * course_analysis) has no task to retry it here, so it is reported as a failed analysis (EXIT_FAILED) with its
+     * short code, never as a PHP error with the exit code of invalid options. If the course has a diagnostic, the
+     * failure is also recorded in it when the database allows; the previous result stays.
      *
      * @param int $courseid Course id.
      * @return array{0: int, 1: array} Exit code and data (courseid, outcome, failure, seconds, peakmemory).
      */
     public function run_course(int $courseid): array {
         $start = microtime(true);
-        $analysis = new course_analysis();
-        $outcome = $analysis->run($courseid, true);
+        $analysis = $this->create_analysis();
+        try {
+            $outcome = $analysis->run($courseid, true);
+            $failure = $analysis->get_last_failure();
+        } catch (\Throwable $e) {
+            $outcome = course_analysis::FAILED;
+            $failure = (new \ReflectionClass($e))->getShortName();
+            $this->record_failure($courseid, $failure);
+        }
         $data = [
             'courseid' => $courseid,
             'outcome' => $outcome,
-            'failure' => $analysis->get_last_failure(),
+            'failure' => $failure,
             'seconds' => round(microtime(true) - $start, 3),
             'peakmemory' => memory_get_peak_usage(),
         ];
@@ -152,6 +173,26 @@ class admin_cli {
             default => self::EXIT_OK,
         };
         return [$code, $data];
+    }
+
+    /**
+     * Record a failure thrown during --run in the diagnostic of the course, if it has one and the database allows.
+     *
+     * A course without a diagnostic gets none here: it may not even be eligible. A second failure is ignored, since
+     * the first one is already reported.
+     *
+     * @param int $courseid Course id.
+     * @param string $failure Short failure code.
+     */
+    private function record_failure(int $courseid, string $failure): void {
+        try {
+            if ($this->store->get_summary($courseid) !== null) {
+                $this->store->save_failure($courseid, $failure, time());
+            }
+        } catch (\Throwable $e) {
+            // The database cannot record it either; the exit code and the output still report the failure.
+            return;
+        }
     }
 
     /**
