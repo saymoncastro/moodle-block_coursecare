@@ -59,10 +59,10 @@
         <p class="block_coursecare-overview-help">{{help}}</p>
         <ul class="block_coursecare-overview-list list-unstyled">
             {{#first}}
-            {{> block_coursecare/overview_item }}
+            <li>{{> block_coursecare/overview_item }}</li>
             {{/first}}
             {{#groups}}
-            {{> block_coursecare/overview_item }}
+            <li>{{> block_coursecare/overview_item }}</li>
             {{/groups}}
         </ul>
         {{#hasrest}}
@@ -70,7 +70,7 @@
             <summary>{{showall}}</summary>
             <ul class="block_coursecare-overview-list list-unstyled mb-0">
                 {{#rest}}
-                {{> block_coursecare/overview_item }}
+                <li>{{> block_coursecare/overview_item }}</li>
                 {{/rest}}
             </ul>
         </details>

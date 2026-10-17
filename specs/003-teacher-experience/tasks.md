@@ -174,17 +174,24 @@ Conteúdo único, referências, cópias e cobertura, fora do total (CT-05, CT-11
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Em `tests/analysis/overview_builder_test.php`, testar a tabela de estados de contracts/overview-page.md: A, B, C e F sem resultado sem seções; D com todas; E e F com resultado com `outdated`/`failed` e todas as seções; G com resumo e `technical`, sem `categories`, `activities` e `large`; H com `partial` e a proporção dos não classificados; resultado com nova análise pendente mostra o resultado vigente.
-- [ ] T025 [P] [US3] Em `tests/analysis/overview_builder_test.php`, testar `technical`: Conteúdo único; referências internas e externas com quantidade e tamanho e indeterminadas só com quantidade; cópias de segurança e lixeira com quantidade e volume e o conteúdo único do conjunto; limite usado; nenhum desses valores somado a `total`.
-- [ ] T026 [P] [US3] Em `tests/output/course_overview_test.php`, renderizar cada estado e verificar as frases de contracts/overview-page.md (`diagnostic:*` reaproveitadas, `overview:partial`), a data, `overview:notmeaning` nos detalhes técnicos e o `<details>` técnico sem o atributo `open`; nenhum "0" fora de G e de categoria vazia de resultado concluído.
-- [ ] T027 [P] [US3] No Behat `tests/behat/block_coursecare_overview.feature`: página em E mostra o aviso de desatualização, em F com resultado o aviso de falha, em G "No files were found…" sem a seção de atividades, sem resultado só a mensagem; "Technical details" recolhido abre ao clicar.
+- [X] T024 [P] [US3] Em `tests/analysis/overview_builder_test.php`, testar a tabela de estados de contracts/overview-page.md: A, B, C e F sem resultado sem seções; D com todas; E e F com resultado com `outdated`/`failed` e todas as seções; G com resumo e `technical`, sem `categories`, `activities` e `large`; H com `partial` e a proporção dos não classificados; resultado com nova análise pendente mostra o resultado vigente.
+- [X] T025 [P] [US3] Em `tests/analysis/overview_builder_test.php`, testar `technical`: Conteúdo único; referências internas e externas com quantidade e tamanho e indeterminadas só com quantidade; cópias de segurança e lixeira com quantidade e volume e o conteúdo único do conjunto; limite usado; nenhum desses valores somado a `total`.
+- [X] T026 [P] [US3] Em `tests/output/course_overview_test.php`, renderizar cada estado e verificar as frases de contracts/overview-page.md (`diagnostic:*` reaproveitadas, `overview:partial`), a data, `overview:notmeaning` nos detalhes técnicos e o `<details>` técnico sem o atributo `open`; nenhum "0" fora de G e de categoria vazia de resultado concluído.
+- [X] T027 [P] [US3] No Behat `tests/behat/block_coursecare_overview.feature`: página em E mostra o aviso de desatualização, em F com resultado o aviso de falha, em G "No files were found…" sem a seção de atividades, sem resultado só a mensagem; "Technical details" recolhido abre ao clicar.
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Em `classes/local/analysis/overview_builder.php`, implementar a tabela de estados e `technical` conforme o data-model.
-- [ ] T029 [US3] Completar `templates/overview_summary.mustache` (total `overview:total`, data, aviso do estado, `overview:partial`) e criar `templates/overview_technical.mustache` (`<details><summary>` `overview:technical`, com Conteúdo único, referências, cópias, cobertura, limite e `overview:notmeaning`); exportar o contexto em `classes/output/course_overview.php`; strings `overview:total`, `overview:partial`, `overview:technical`, `overview:unique`, `overview:unique_help`, `overview:references*`, `overview:copies*`, `overview:threshold`, `overview:notmeaning` (en e pt_br).
+- [X] T028 [US3] Em `classes/local/analysis/overview_builder.php`, implementar a tabela de estados e `technical` conforme o data-model.
+- [X] T029 [US3] Completar `templates/overview_summary.mustache` (total `overview:total`, data, aviso do estado, `overview:partial`) e criar `templates/overview_technical.mustache` (`<details><summary>` `overview:technical`, com Conteúdo único, referências, cópias, cobertura, limite e `overview:notmeaning`); exportar o contexto em `classes/output/course_overview.php`; strings `overview:total`, `overview:partial`, `overview:technical`, `overview:unique`, `overview:unique_help`, `overview:references*`, `overview:copies*`, `overview:threshold`, `overview:notmeaning` (en e pt_br).
 
 **Checkpoint**: US1 a US3 verdes; todos os estados da página.
+
+*Execução (US3, 2026-10-17)*: `overview:partial` passa a receber tamanho e proporção
+(`{$a->size}`, `{$a->share}`); duas strings novas nos detalhes técnicos, `overview:coverage` e
+`overview:copies_unique` (contrato da página atualizado). `tests/behat/behat_block_coursecare.php` resolve a
+página nomeada "block_coursecare > overview" (pela sala), para o cenário sem resultado, em que o bloco não
+mostra o link. O partial `overview_item` deixou de começar com `<li>` (o lint de Mustache do CI renderiza o
+partial sozinho); os templates pais põem o `<li>`.
 
 ---
 

@@ -83,3 +83,52 @@ Feature: CourseCare "Your course in numbers" page
     And I should not see "Reading 01"
     And I click on "Show all activities (12)" "text"
     And I should see "Reading 01"
+
+  Scenario: An old result keeps its numbers and says it may be out of date
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago |
+      | C1     | 2048         | 2         | 400000           |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    Then I should see "This information may be out of date."
+    And I should see "Where the files are"
+
+  Scenario: A failed update keeps the previous result and says that the update was not completed
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | lastattemptfailed |
+      | C1     | 2048         | 2         | 600              | 1                 |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    Then I should see "The latest update could not be completed."
+
+  Scenario: A course without files shows the summary and the technical details only
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago |
+      | C1     | 0            | 0         | 600              |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    Then I should see "No files were found in this course's materials and activities."
+    And I should see "Technical details"
+    And I should not see "Where the files are"
+    And I should not see "Materials by activity"
+
+  Scenario: Without a result, the page only says that the overview is not available yet
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | requeststatus |
+      | C1     | 1             |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I am on the "C1" "block_coursecare > overview" page
+    Then I should see "The file overview for this course is being prepared."
+    And I should not see "Technical details"
+
+  @javascript
+  Scenario: The technical details are collapsed and open on request
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | uniquebytes | uniquecount |
+      | C1     | 2048         | 2         | 600              | 1024        | 1           |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    Then I should not see "These numbers show the files Moodle records for this course."
+    And I click on "Technical details" "text"
+    And I should see "These numbers show the files Moodle records for this course."
+    And I should see "Unique content: 1.0 KB"

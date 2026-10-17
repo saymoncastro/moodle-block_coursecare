@@ -1,0 +1,79 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_coursecare/overview_technical
+
+    Technical details of the overview page, collapsed by default (level 3 of Principle II): unique
+    content, references, backups and recycle bin, coverage, the large-file threshold used, and what the
+    numbers do not mean. None of these values is added to the total (FR-017, FR-018).
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * technical - object with summary, unique, uniquehelp, references, referenceshelp, referencelines,
+      copies, copieshelp, copylines, coverage, threshold and notmeaning (all already translated)
+
+    Example context (json):
+    {
+        "technical": {
+            "summary": "Technical details",
+            "unique": "Unique content: 4.0 MB",
+            "uniquehelp": "The same file counted once, even when used in several places.",
+            "references": "Links to files kept elsewhere",
+            "referenceshelp": "Counted apart and not added to the total.",
+            "referencelines": [{"text": "Inside Moodle: 0 (0 bytes)"}],
+            "copies": "Backups and recycle bin recorded in Moodle for this course",
+            "copieshelp": "Measured apart, not added to the total.",
+            "copylines": [{"text": "Backups: 1 (40.0 MB)"}],
+            "coverage": "Files that could not be classified: 0 (0 bytes, 0%)",
+            "threshold": "Large-file threshold used: 50.0 MB",
+            "notmeaning": "These numbers show the files Moodle records for this course."
+        }
+    }
+}}
+{{#technical}}
+<section class="block_coursecare-overview-section card">
+    <div class="card-body">
+        <details class="block_coursecare-overview-technical">
+            <summary>{{summary}}</summary>
+            <h4 class="block_coursecare-overview-subtitle">{{unique}}</h4>
+            <p>{{uniquehelp}}</p>
+            <h4 class="block_coursecare-overview-subtitle">{{references}}</h4>
+            <p>{{referenceshelp}}</p>
+            <ul>
+                {{#referencelines}}
+                <li>{{text}}</li>
+                {{/referencelines}}
+            </ul>
+            <h4 class="block_coursecare-overview-subtitle">{{copies}}</h4>
+            <p>{{copieshelp}}</p>
+            <ul>
+                {{#copylines}}
+                <li>{{text}}</li>
+                {{/copylines}}
+            </ul>
+            <p>{{coverage}}</p>
+            <p>{{threshold}}</p>
+            <p class="mb-0">{{notmeaning}}</p>
+        </details>
+    </div>
+</section>
+{{/technical}}

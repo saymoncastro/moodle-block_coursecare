@@ -32,6 +32,7 @@
     * summary - list of objects with "text": the sentences about the state of the diagnostic
     * hascategories, categories - see block_coursecare/overview_categories
     * hasactivities, activities - see block_coursecare/overview_activities
+    * hastechnical, technical - see block_coursecare/overview_technical
 
     Example context (json):
     {
@@ -44,7 +45,8 @@
             {"text": "Calculated on 16/10/26, 10:12."}
         ],
         "hascategories": false,
-        "hasactivities": false
+        "hasactivities": false,
+        "hastechnical": false
     }
 }}
 <div class="block_coursecare-overview">
@@ -55,4 +57,7 @@
     {{#hasactivities}}
     {{> block_coursecare/overview_activities }}
     {{/hasactivities}}
+    {{#hastechnical}}
+    {{> block_coursecare/overview_technical }}
+    {{/hastechnical}}
 </div>

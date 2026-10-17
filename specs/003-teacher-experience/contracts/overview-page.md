@@ -55,7 +55,7 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | `overview:intro` | Get to know the files of your course: where they are and when they were measured. | Conheça os arquivos da sua sala: onde estão e quando foram medidos. |
 | `overview:back` | Back to the course | Voltar à sala |
 | `overview:total` | Files in this course, as recorded by Moodle: {$a} | Arquivos desta sala, conforme registrados no Moodle: {$a} |
-| `overview:partial` | Part of the files ({$a}) could not be classified; they are included in the total. | Parte dos arquivos ({$a}) não pôde ser classificada; ela está incluída no total. |
+| `overview:partial` | Part of the files ({$a->size}, {$a->share}) could not be classified; they are included in the total. | Parte dos arquivos ({$a->size}, {$a->share}) não pôde ser classificada; ela está incluída no total. |
 | `overview:categories` | Where the files are | Onde estão os arquivos |
 | `overview:category:material` | Course materials | Materiais da sala |
 | `overview:category:material_help` | Files you and other editors published: resources, folders, pages, books and descriptions. | Arquivos publicados por quem edita a sala: recursos, pastas, páginas, livros e descrições. |
@@ -90,6 +90,8 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | `overview:copies_help` | Measured apart, not added to the total; backups kept outside Moodle are not included. | Medidas à parte, não somadas ao total; cópias guardadas fora do Moodle não entram. |
 | `overview:copies_backup` | Backups: {$a->count} ({$a->size}) | Cópias de segurança: {$a->count} ({$a->size}) |
 | `overview:copies_recyclebin` | Recycle bin: {$a->count} ({$a->size}) | Lixeira: {$a->count} ({$a->size}) |
+| `overview:copies_unique` | Unique content of the copies: {$a} | Conteúdo único das cópias: {$a} |
+| `overview:coverage` | Files that could not be classified: {$a->count} ({$a->size}, {$a->share}) | Arquivos que não puderam ser classificados: {$a->count} ({$a->size}, {$a->share}) |
 | `overview:threshold` | Large-file threshold used: {$a} | Limite de grande porte usado: {$a} |
 | `overview:notmeaning` | These numbers show the files Moodle records for this course. They are not the disk space used only by this course and do not show how much space deleting files would free. | Estes números mostram os arquivos que o Moodle registra para esta sala. Eles não são o espaço em disco ocupado só por ela e não indicam quanto espaço seria liberado ao apagar arquivos. |
 

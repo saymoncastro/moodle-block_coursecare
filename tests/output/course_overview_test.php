@@ -138,4 +138,78 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringNotContainsString(s(get_string('overview:activities', 'block_coursecare')), $html);
         $this->assertDoesNotMatchRegularExpression('/\d/', strip_tags(preg_replace('/<a [^>]*>/', '', $html)));
     }
+    /**
+     * The page in each state: the sentence of the state, the technical details collapsed and always explaining what
+     * the numbers do not mean, and no section without data (FR-020; CT-05, CT-11).
+     */
+    public function test_states(): void {
+        $this->resetAfterTest();
+        $technical = s(get_string('overview:technical', 'block_coursecare'));
+        $notmeaning = s(get_string('overview:notmeaning', 'block_coursecare'));
+        $categories = s(get_string('overview:categories', 'block_coursecare'));
+        $partial = s(get_string('overview:partial', 'block_coursecare', (object)['size' => display_size(120),
+            'share' => get_string('overview:share', 'block_coursecare', 12)]));
+        $cases = [
+            'E' => [['timecompletedago' => 4 * DAYSECS], get_string('diagnostic:mayoutdated', 'block_coursecare'), true],
+            'F' => [['lastattemptfailed' => 1], get_string('diagnostic:updatefailed', 'block_coursecare'), true],
+            'G' => [['logicalbytes' => 0, 'filecount' => 0, 'categories' => []],
+                get_string('diagnostic:nofiles', 'block_coursecare'), false],
+            'H' => [['partial' => 1, 'unclassifiedcount' => 2, 'unclassifiedbytes' => 120], $partial, true],
+        ];
+        foreach ($cases as $name => [$values, $expected, $hassections]) {
+            [$course] = $this->course_with_diagnostic(
+                ['Reading' => 880],
+                ['material' => 880, 'unclassified' => 120],
+                $values
+            );
+            $html = $this->render((int)$course->id);
+            $this->assertStringContainsString(s($expected), $html, $name);
+            $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-technical">\s*<summary>' .
+                preg_quote($technical, '/') . '/', $html, $name);
+            $this->assertStringContainsString($notmeaning, $html, $name);
+            $this->assertSame($hassections, str_contains($html, $categories), $name);
+        }
+
+        // B: a request is queued and there is no result yet.
+        $course = $this->getDataGenerator()->create_course();
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $plugin->create_diagnostic(['courseid' => $course->id, 'requeststatus' => 1, 'timerequested' => time()]);
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $html = $this->render((int)$course->id);
+        $this->assertStringContainsString(s(get_string('diagnostic:preparing', 'block_coursecare')), $html);
+        $this->assertStringNotContainsString($technical, $html);
+    }
+
+    /**
+     * Technical details: unique content, references, copies, coverage and threshold, each with its explanation.
+     */
+    public function test_technical_details(): void {
+        $this->resetAfterTest();
+        [$course] = $this->course_with_diagnostic(
+            ['Reading' => 1000],
+            ['material' => 1000, 'backup' => 4000],
+            ['logicalbytes' => 1000, 'uniquecount' => 1, 'uniquebytes' => 800, 'refinternalcount' => 3, 'refinternalbytes' => 900,
+            'refexternalcount' => 1, 'refexternalbytes' => 5000, 'refundeterminedcount' => 4, 'bruniquebytes' => 4000,
+            'largethreshold' => 52428800]
+        );
+        $html = $this->render((int)$course->id);
+        $strings = [
+            ['overview:unique', display_size(800)],
+            ['overview:unique_help', null],
+            ['overview:references', null],
+            ['overview:references_help', null],
+            ['overview:references_internal', (object)['count' => 3, 'size' => display_size(900)]],
+            ['overview:references_external', (object)['count' => 1, 'size' => display_size(5000)]],
+            ['overview:references_undetermined', 4],
+            ['overview:copies', null],
+            ['overview:copies_help', null],
+            ['overview:copies_backup', (object)['count' => 1, 'size' => display_size(4000)]],
+            ['overview:copies_unique', display_size(4000)],
+            ['overview:threshold', display_size(52428800)],
+        ];
+        foreach ($strings as [$key, $a]) {
+            $this->assertStringContainsString(s(get_string($key, 'block_coursecare', $a)), $html, $key);
+        }
+    }
 }

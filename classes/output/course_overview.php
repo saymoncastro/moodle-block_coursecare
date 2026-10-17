@@ -94,6 +94,49 @@ class course_overview implements \renderable, \templatable {
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
             'activities' => $this->activities_data(),
+            'hastechnical' => $this->view['technical'] !== null,
+            'technical' => $this->technical_data(),
+        ];
+    }
+
+    /**
+     * Template data of the technical details (collapsed by default).
+     *
+     * @return array
+     */
+    private function technical_data(): array {
+        $technical = $this->view['technical'];
+        if ($technical === null) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
+        $counted = fn(array $values): \stdClass => (object)['count' => $values['count'],
+            'size' => display_size($values['bytes'])];
+        $references = $technical['references'];
+        $copies = $technical['copies'];
+        $coverage = $technical['coverage'];
+        return [
+            'summary' => $str('overview:technical'),
+            'unique' => $str('overview:unique', display_size($technical['unique']['bytes'])),
+            'uniquehelp' => $str('overview:unique_help'),
+            'references' => $str('overview:references'),
+            'referenceshelp' => $str('overview:references_help'),
+            'referencelines' => [
+                ['text' => $str('overview:references_internal', $counted($references['internal']))],
+                ['text' => $str('overview:references_external', $counted($references['external']))],
+                ['text' => $str('overview:references_undetermined', $references['undetermined']['count'])],
+            ],
+            'copies' => $str('overview:copies'),
+            'copieshelp' => $str('overview:copies_help'),
+            'copylines' => [
+                ['text' => $str('overview:copies_backup', $counted($copies['backup']))],
+                ['text' => $str('overview:copies_recyclebin', $counted($copies['recyclebin']))],
+                ['text' => $str('overview:copies_unique', display_size($copies['uniquebytes']))],
+            ],
+            'coverage' => $str('overview:coverage', (object)['count' => $coverage['count'],
+                'size' => display_size($coverage['bytes']), 'share' => self::share_text($coverage['share'])]),
+            'threshold' => $str('overview:threshold', display_size($technical['threshold'])),
+            'notmeaning' => $str('overview:notmeaning'),
         ];
     }
 
@@ -189,6 +232,13 @@ class course_overview implements \renderable, \templatable {
             $sentences[] = get_string('diagnostic:mayoutdated', 'block_coursecare');
         } else if ($view['failed']) {
             $sentences[] = get_string('diagnostic:updatefailed', 'block_coursecare');
+        }
+        if ($view['partial'] && $view['technical']['coverage']['bytes'] > 0) {
+            $coverage = $view['technical']['coverage'];
+            $sentences[] = get_string('overview:partial', 'block_coursecare', (object)[
+                'size' => display_size($coverage['bytes']),
+                'share' => self::share_text($coverage['share']),
+            ]);
         }
         return $sentences;
     }

@@ -263,4 +263,80 @@ final class overview_builder_test extends \basic_testcase {
         $this->assertNull($view['activities']['removed']);
         $this->assertSame([], $view['activities']['rest']);
     }
+    /**
+     * The sections of each state (contracts/overview-page.md, "Estados"; FR-020, FR-021; CT-05).
+     */
+    public function test_states(): void {
+        $rows = self::categories(['material' => 1000]);
+        $build = fn(diagnostic_state $state, array $record = []): array => (new overview_builder())->build(
+            $state,
+            self::record($record),
+            $rows,
+            self::activities([11 => 1000]),
+            [],
+            self::structure([11 => 'Reading'])
+        );
+
+        foreach ([diagnostic_state::COMPLETE, diagnostic_state::OUTDATED, diagnostic_state::FAILED] as $name) {
+            $view = $build(self::state($name));
+            $this->assertNotNull($view['categories'], $name);
+            $this->assertNotNull($view['activities'], $name);
+            $this->assertNotNull($view['technical'], $name);
+            $this->assertSame($name === diagnostic_state::OUTDATED, $view['outdated'], $name);
+            $this->assertSame($name === diagnostic_state::FAILED, $view['failed'], $name);
+        }
+
+        // G: summary and technical details only.
+        $view = $build(self::state(diagnostic_state::NO_FILES, 0), ['logicalbytes' => 0, 'filecount' => 0]);
+        $this->assertSame(0, $view['total']);
+        $this->assertNull($view['categories']);
+        $this->assertNull($view['activities']);
+        $this->assertNull($view['large']);
+        $this->assertNotNull($view['technical']);
+
+        // H: the partial marker and the share of what could not be classified.
+        $view = $build(self::state(diagnostic_state::COMPLETE, 1000, true), ['partial' => 1, 'unclassifiedcount' => 2,
+            'unclassifiedbytes' => 120]);
+        $this->assertTrue($view['partial']);
+        $this->assertSame(['count' => 2, 'bytes' => 120, 'share' => 12], $view['technical']['coverage']);
+
+        // A pending new analysis keeps showing the result (the state resolver already gives D, E or F).
+        $view = $build(self::state(diagnostic_state::COMPLETE), ['requeststatus' => 1]);
+        $this->assertSame(1000, $view['total']);
+        $this->assertNotNull($view['categories']);
+    }
+
+    /**
+     * Technical details: unique content, references, backups and recycle bin, coverage and threshold, never added
+     * to the total (FR-017, FR-018; CT-11).
+     */
+    public function test_technical(): void {
+        $rows = self::categories(['material' => 1000, 'backup' => 4000, 'recyclebin' => 300]);
+        $rows['backup']->filecount = 2;
+        $rows['recyclebin']->filecount = 1;
+        $record = self::record(['uniquecount' => 2, 'uniquebytes' => 800, 'refinternalcount' => 3,
+            'refinternalbytes' => 900, 'refexternalcount' => 1, 'refexternalbytes' => 5000, 'refundeterminedcount' => 4,
+            'bruniquebytes' => 4100, 'largethreshold' => 1048576]);
+        $view = (new overview_builder())->build(
+            self::state(diagnostic_state::COMPLETE, 1000),
+            $record,
+            $rows,
+            [],
+            [],
+            []
+        );
+        $technical = $view['technical'];
+        $this->assertSame(['count' => 2, 'bytes' => 800], $technical['unique']);
+        $this->assertSame(['count' => 3, 'bytes' => 900], $technical['references']['internal']);
+        $this->assertSame(['count' => 1, 'bytes' => 5000], $technical['references']['external']);
+        $this->assertSame(['count' => 4], $technical['references']['undetermined']);
+        $this->assertSame(['count' => 2, 'bytes' => 4000], $technical['copies']['backup']);
+        $this->assertSame(['count' => 1, 'bytes' => 300], $technical['copies']['recyclebin']);
+        $this->assertSame(4100, $technical['copies']['uniquebytes']);
+        $this->assertSame(1048576, $technical['threshold']);
+        $this->assertSame(['count' => 0, 'bytes' => 0, 'share' => 0], $technical['coverage']);
+        // Nothing of it enters the total or the categories.
+        $this->assertSame(1000, $view['total']);
+        $this->assertNotContains('backup', array_column($view['categories'], 'key'));
+    }
 }

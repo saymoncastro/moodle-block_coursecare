@@ -90,13 +90,49 @@ class overview_builder {
             'large' => null,
             'technical' => null,
         ];
-        if (!$state->hasresult || $state->state === diagnostic_state::NO_FILES) {
+        if (!$state->hasresult) {
+            return $view;
+        }
+        $view['technical'] = $this->technical($record, $categories, (int)$view['total']);
+        if ($state->state === diagnostic_state::NO_FILES) {
             return $view;
         }
         $view['categories'] = $this->categories($categories, (int)$view['total']);
         $materials = (int)($categories[classification_rules::MATERIAL]->logicalbytes ?? 0);
         $view['activities'] = $this->activities($activities, $structure, $materials);
         return $view;
+    }
+
+    /**
+     * Technical details (data-model.md, "technical"): measured apart, never added to the total (FR-017, FR-018).
+     *
+     * @param \stdClass|null $record Diagnostic record.
+     * @param array $categories Category rows keyed by category.
+     * @param int $total Logical storage of the course.
+     * @return array unique, references, copies, coverage and threshold.
+     */
+    private function technical(?\stdClass $record, array $categories, int $total): array {
+        $value = fn(string $field): int => (int)($record->$field ?? 0);
+        $copy = fn(string $category): array => [
+            'count' => (int)($categories[$category]->filecount ?? 0),
+            'bytes' => (int)($categories[$category]->logicalbytes ?? 0),
+        ];
+        return [
+            'unique' => ['count' => $value('uniquecount'), 'bytes' => $value('uniquebytes')],
+            'references' => [
+                'internal' => ['count' => $value('refinternalcount'), 'bytes' => $value('refinternalbytes')],
+                'external' => ['count' => $value('refexternalcount'), 'bytes' => $value('refexternalbytes')],
+                'undetermined' => ['count' => $value('refundeterminedcount')],
+            ],
+            'copies' => [
+                'backup' => $copy(classification_rules::BACKUP),
+                'recyclebin' => $copy(classification_rules::RECYCLEBIN),
+                'uniquebytes' => $value('bruniquebytes'),
+            ],
+            'coverage' => ['count' => $value('unclassifiedcount'), 'bytes' => $value('unclassifiedbytes'),
+                'share' => self::share($value('unclassifiedbytes'), $total)],
+            'threshold' => $value('largethreshold'),
+        ];
     }
 
     /**

@@ -18,7 +18,7 @@
     @template block_coursecare/overview_item
 
     One measured row of the overview page: a name (with a link when there is one), the size, the share
-    in text and a decorative bar of the same share.
+    in text and a decorative bar of the same share. The parent template puts it inside a list item.
 
     Classes required for JS:
     * none
@@ -42,7 +42,7 @@
         "width": 38
     }
 }}
-<li class="block_coursecare-overview-item">
+<div class="block_coursecare-overview-item">
     <div class="block_coursecare-overview-itemtext">
         <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}{{^hasurl}}{{name}}{{/hasurl}}</span>
         <span class="block_coursecare-overview-itemvalue">{{size}} · {{share}}</span>
@@ -51,4 +51,4 @@
     <p class="block_coursecare-overview-help mb-0">{{help}}</p>
     {{/help}}
     <div class="block_coursecare-overview-bar" aria-hidden="true"><span style="width: {{width}}%;"></span></div>
-</li>
+</div>
