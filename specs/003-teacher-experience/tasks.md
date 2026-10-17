@@ -61,7 +61,7 @@ subdiretório (`block_coursecare\analysis`, `block_coursecare\collector`, `block
 
 - [X] T001 Atualizar `version.php` para `$plugin->version = 2026101700` e `$plugin->release = '0.3.0'` (sem passo de upgrade: nenhuma mudança em `db/`) e abrir a entrada `0.3.0 (unreleased)` em `CHANGES.md`.
 - [X] T002 [P] Criar `evidence/README.md` com a tabela "Item | Teste ou evidência | Data | Moodle | Banco | Status" para CT-01 a CT-24 e SC-001 a SC-011 da spec, todos "pendente", e as seções vazias "Revisão de tom e rótulos", "Reconstrução e validação visual", "Avaliação com professores", "Runs de CI" e "Constitution Check reavaliado".
-- [ ] T003 [P] Criar `tools/dev/demo/setup.php` (CLI de desenvolvimento, fora do pacote, cabeçalho GPL e PHPDoc), conforme research R8 e quickstart §1:
+- [X] T003 [P] Criar `tools/dev/demo/setup.php` (CLI de desenvolvimento, fora do pacote, cabeçalho GPL e PHPDoc), conforme research R8 e quickstart §1:
   - recusa rodar sem `--confirm` e avisa que é só para site descartável;
   - cria o usuário professor `demo.teacher` (senha do argumento `--password`, nunca fixa no código), estudantes fictícios e as salas: completa (materiais, uma tarefa com envios, um fórum com anexos, área de texto e mídia, página, recurso, pasta), com mais de 10 atividades com materiais, sem arquivos (G), com área não classificada (H), e salas a deixar em A, B, E e F;
   - arquivos reais pela File API, com conteúdo pequeno e tamanho controlado; limite de grande porte opcional `--threshold-mb` para gerar materiais e envios grandes sem ocupar disco;
@@ -285,7 +285,7 @@ the ..."), a suíte do plugin roda em cerca de 2 min.
 **Purpose**: desempenho, documentação, reconstrução e aprovação visual, avaliação com cinco
 professores, quality gates e fechamento.
 
-- [ ] T043 [P] Em `tools/dev/bench/render.php`, acrescentar `--page`, que mede a montagem e renderização completas da página (coleta, `overview_builder`, `course_overview`) para um professor, com média, desvio e leituras por chamada.
+- [X] T043 [P] Em `tools/dev/bench/render.php`, acrescentar `--page`, que mede a montagem e renderização completas da página (coleta, `overview_builder`, `course_overview`) para um professor, com média, desvio e leituras por chamada.
 - [ ] T044 [MANUAL] Medir no ambiente de referência, na sala criada por `tools/dev/demo/setup.php --activities=200` (T003), com 200 atividades com materiais: página com `render.php --page` (SC-003, ≤ 2 s) e bloco 0.2.0 × 0.3.0 com `render.php` na mesma sala (SC-004, ≤ +50 ms); registrar em `evidence/README.md` com as saídas JSON em `evidence/logs/`.
 - [ ] T045 [P] Atualizar `README.md`: o bloco e a página "Your course in numbers", quem pode vê-los, o que cada seção mostra, que por atividade só aparecem materiais e por quê, os detalhes técnicos, o que os números não significam e as limitações (spec, "Limitações reconhecidas"); completar `CHANGES.md` 0.3.0.
 - [ ] T046 [MANUAL] Reconstrução visual (FR-073): no site de demonstração (T003), propor a interface a partir das diretrizes aprovadas, ajustar os valores de `styles.css` (tons, espaçamentos, cartões, barras) e apresentar capturas reais ao proprietário do produto (bloco e página em D, desktop e celular, en e pt_BR); iterar até a aprovação da direção, registrada em `evidence/README.md` com data, só quando ocorrer.

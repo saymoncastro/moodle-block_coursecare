@@ -19,8 +19,10 @@
  *
  * Renders the block content of one course many times for an administrator and prints the mean, the standard
  * deviation and the database reads per rendering. Run it with the 0.1.0 checkout and with the current one.
+ * With --page (Feature 003, SC-003), it measures the whole "Your course in numbers" page instead: reading the
+ * diagnostic and the course structure, building the view and rendering the template.
  *
- * Usage: php blocks/coursecare/tools/dev/bench/render.php --course=ID [--iterations=1000]
+ * Usage: php blocks/coursecare/tools/dev/bench/render.php --course=ID [--iterations=1000] [--page]
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -33,10 +35,11 @@ require(__DIR__ . '/../../../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->libdir . '/blocklib.php');
 
-[$options, $unrecognised] = cli_get_params(['course' => 0, 'iterations' => 1000, 'help' => false], ['h' => 'help']);
+[$options, $unrecognised] = cli_get_params(['course' => 0, 'iterations' => 1000, 'page' => false, 'help' => false],
+    ['h' => 'help']);
 $courseid = (int)$options['course'];
 if ($options['help'] || $unrecognised || $courseid <= 0) {
-    cli_writeln('Usage: php render.php --course=ID [--iterations=1000]');
+    cli_writeln('Usage: php render.php --course=ID [--iterations=1000] [--page]');
     exit($options['help'] ? 0 : 1);
 }
 
@@ -52,10 +55,19 @@ for ($i = 0; $i < $iterations; $i++) {
     $page = new moodle_page();
     $page->set_course($course);
     $page->set_pagetype('course-view-' . $course->format);
-    $block = block_instance('coursecare', $record, $page);
-    $before = $DB->perf_get_reads();
-    $start = microtime(true);
-    $block->get_content();
+    if ($options['page']) {
+        // The overview page: the same calls as overview.php after the access check.
+        $output = $page->get_renderer('core');
+        $before = $DB->perf_get_reads();
+        $start = microtime(true);
+        $output->render_from_template('block_coursecare/overview',
+            \block_coursecare\output\course_overview::for_course($courseid)->export_for_template($output));
+    } else {
+        $block = block_instance('coursecare', $record, $page);
+        $before = $DB->perf_get_reads();
+        $start = microtime(true);
+        $block->get_content();
+    }
     $times[] = (microtime(true) - $start) * 1000;
     $reads += $DB->perf_get_reads() - $before;
 }
@@ -64,6 +76,7 @@ $mean = array_sum($times) / count($times);
 $variance = array_sum(array_map(fn(float $t): float => ($t - $mean) ** 2, $times)) / count($times);
 cli_writeln(json_encode([
     'courseid' => $courseid,
+    'measured' => $options['page'] ? 'overview page' : 'block',
     'iterations' => $iterations,
     'meanms' => round($mean, 3),
     'stdevms' => round(sqrt($variance), 3),

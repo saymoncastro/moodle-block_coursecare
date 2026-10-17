@@ -162,7 +162,8 @@ demo_file(context_module::instance($page->cmid)->id, 'mod_page', 'content', 0, '
 $label = $generator->create_module('label', ['course' => $course->id, 'intro' => 'Boas-vindas à disciplina']);
 demo_file(context_module::instance($label->cmid)->id, 'mod_label', 'intro', 0, 'boas-vindas.png', 90000, $teacher->id);
 $assignrecord = $generator->create_module('assign', ['course' => $course->id, 'name' => 'Relatório de laboratório',
-    'assignsubmission_file_enabled' => 1, 'assignsubmission_file_maxfiles' => 5]);
+    'assignsubmission_file_enabled' => 1, 'assignsubmission_file_maxfiles' => 5,
+    'assignsubmission_file_maxsizebytes' => 0]);
 $assigncontext = context_module::instance($assignrecord->cmid);
 $assign = new assign($assigncontext, get_coursemodule_from_id('assign', $assignrecord->cmid), $course);
 demo_file($assigncontext->id, 'mod_assign', 'introattachment', 0, 'modelo-de-relatorio.docx', 60000, $teacher->id);

@@ -48,7 +48,22 @@ Pendente.
 
 ## Reconstrução e validação visual (T046, T048)
 
-Pendente.
+### Proposta 1 (T046), 2026-10-17 — aguardando a revisão do proprietário do produto
+
+- Ambiente: site de demonstração limpo e descartável (`moodle-docker`, projeto `coursecare-demo`), Moodle
+  4.5.15, PHP 8.1, PostgreSQL 17, tema Boost, pacote oficial pt_br e tradução do projeto instalada por
+  `tool_customlang`; salas fictícias criadas por `tools/dev/demo/setup.php --threshold-mb=1
+  --activities=200` (limite de grande porte de 1 MB para a demonstração).
+- Capturas em `screenshots/proposal-1/`, feitas pelo Chrome do próprio stack com
+  `tools/dev/demo/screenshots.py`, como o professor `demo.teacher`, em en e pt_BR:
+  - bloco nos estados D e A (`block-d-*`, `block-a-*`);
+  - página nos estados D (fechada e com os detalhes técnicos abertos), D com 14 atividades
+    (`page-many-*`), E, F, G, H e sem resultado (`page-a-*`), em desktop (1280 px);
+  - página em D e G em celular (375 px, emulação do Chrome; `*-mobile-*`).
+- O rodapé de desempenho do modo de desenvolvedor (do `config.php` compartilhado pelos sites de
+  desenvolvimento) foi ocultado só no momento da captura; ele não existe num site de produção.
+- Observação fora do plugin: em pt_BR o rótulo de tamanho vem do pacote oficial do core ("Mb", "Kb").
+- A aprovação da direção visual será registrada aqui com data, só quando ocorrer.
 
 ## Avaliação com professores (T049–T051)
 
