@@ -534,7 +534,7 @@ por `cmid` e contagens de grande porte conferidos.
 - [X] T064 [P] Atualizar `CHANGES.md` com a entrada 0.2.0.
 - [X] T065 Executar `php tools/i18n/check.php` e corrigir qualquer falta de paridade, ordem de
   chaves ou parâmetros; revisar o pt_br das novas strings.
-- [ ] T066 [MANUAL] Revisão de tom e rótulos (SC-008; Princípios I, II e IV): ler todas as strings
+- [X] T066 [MANUAL] Revisão de tom e rótulos (SC-008; Princípios I, II e IV): ler todas as strings
   novas em en e pt_br contra as restrições de contracts/block-ui.md e registrar o resultado em
   `evidence/README.md`.
 - [X] T067 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php
@@ -868,3 +868,7 @@ erros.
   grava as ligações que o resultado traz. Nenhuma consulta seleciona `userid`, `filename`,
   `filepath`, `author` ou `source` (`filename` só aparece no filtro `<> '.'`).
 - **T041 (benchmark)** agora pode ser executada: US6 e US7 estão completas.
+
+## Phase 11: Convergence
+
+- [X] T071 [MANUAL] Registrar a aprovação do proprietário do produto para a revisão de tom e rótulos já feita (seção T066 de `evidence/README.md`), atualizar a linha SC-008 e marcar T066 per SC-008 (partial)

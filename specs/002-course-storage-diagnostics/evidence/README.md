@@ -48,7 +48,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | SC-005 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | SC-006 | T042 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | SC-007 | T020, T049, T068 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
-| SC-008 | T066 | 2026-10-16 | — | — | revisão de tom do agente feita (seção abaixo), sem termo de infraestrutura nem leitura de consumo físico; **aprovação do proprietário do produto pendente** |
+| SC-008 | T066 | 2026-10-17 | — | — | atendido: revisão de tom e rótulos (seção abaixo), aprovada pelo proprietário do produto em 2026-10-17 |
 | SC-009 | T069 | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11 | verde: `moodle-plugin-ci` completo, PHPUnit, Behat com axe, paridade de strings e pacote (run 38984854623) |
 | SC-010 | T009 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local; CI verde (run 38962129016) |
 
@@ -56,8 +56,9 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 
 Revisão feita em 2026-10-16 sobre as 24 strings novas ou alteradas da Feature 002, em en e pt_br,
 contra as restrições de [contracts/block-ui.md](../contracts/block-ui.md) e os Princípios I, II e IV.
-Revisão do agente de implementação; a aprovação do proprietário do produto, como na Feature 001,
-fica registrada à parte quando acontecer.
+Revisão do agente de implementação, **aprovada pelo proprietário do produto em 2026-10-17**, por
+manifestação no chat da sessão de implementação: "Aprovo a revisão de tom e rótulos das 24 strings
+da Feature 002 em en e pt_br (T066)."
 
 | Grupo | Chaves | Resultado |
 | --- | --- | --- |
