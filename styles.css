@@ -43,24 +43,64 @@
 }
 
 /*
- * Feature 003: the "Your course in numbers" page. Provisional values, finalised in the visual reconstruction
- * (tasks T035 and T046); every selector stays under .block_coursecare-overview and no theme colour is redefined.
+ * Feature 003: the "Your course in numbers" page, after the approved visual direction (spec, "Diretrizes visuais
+ * aprovadas"): soft greens and neutrals, rounded corners, discreet cards and the sprout. Every selector stays under
+ * .block_coursecare-overview and no theme colour or variable is redefined. Text keeps the colour of the theme, so its
+ * contrast is the theme's; the tones below are provisional until the visual reconstruction (tasks T046 and T048).
  */
 .block_coursecare-overview {
-    --block-coursecare-bar: #5a8f6b;
-    --block-coursecare-bar-track: #e6efe8;
+    --block-coursecare-surface: #f5f9f5;
+    --block-coursecare-border: #d5e4d8;
+    --block-coursecare-bar: #4f8a61;
+    --block-coursecare-bar-track: #e3eee5;
     max-width: 48rem;
 }
 
 .block_coursecare-overview .block_coursecare-overview-section {
     margin-bottom: 1rem;
+    border: 1px solid var(--block-coursecare-border);
     border-radius: 0.75rem;
+    background-color: var(--block-coursecare-surface);
 }
 
 .block_coursecare-overview .block_coursecare-overview-heading {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-title {
+    margin: 0;
+}
+
+/* Core themes cap .icon at 24px; the decorative sprout of the page is slightly larger, inside this page only. */
+.block_coursecare-overview .block_coursecare-overview-illustration .icon {
+    width: 32px;
+    height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    margin: 0;
+    font-size: 32px;
+}
+
+.block_coursecare-overview .block_coursecare-overview-sectiontitle,
+.block_coursecare-overview .block_coursecare-overview-summaryheading {
+    font-size: 1.125rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-summaryheading {
+    display: inline;
+    margin: 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-subtitle {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-help {
+    font-size: 0.875rem;
 }
 
 .block_coursecare-overview .block_coursecare-overview-item {
@@ -75,20 +115,36 @@
     overflow-wrap: anywhere;
 }
 
+.block_coursecare-overview .block_coursecare-overview-itemvalue {
+    white-space: nowrap;
+}
+
 .block_coursecare-overview .block_coursecare-overview-bar {
     height: 0.5rem;
     margin-top: 0.25rem;
     border-radius: 0.25rem;
-    background: var(--block-coursecare-bar-track);
+    background-color: var(--block-coursecare-bar-track);
 }
 
 .block_coursecare-overview .block_coursecare-overview-bar span {
     display: block;
     height: 100%;
     border-radius: 0.25rem;
-    background: var(--block-coursecare-bar);
+    background-color: var(--block-coursecare-bar);
 }
 
-.block_coursecare-overview .block_coursecare-overview-more summary {
+.block_coursecare-overview details > summary {
     cursor: pointer;
+    font-weight: 600;
+}
+
+/* Small screens: one column, values under the names, no horizontal scrolling. */
+@media (max-width: 575.98px) {
+    .block_coursecare-overview .block_coursecare-overview-itemtext {
+        flex-direction: column;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-itemvalue {
+        white-space: normal;
+    }
 }

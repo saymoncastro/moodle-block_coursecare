@@ -100,7 +100,51 @@ class overview_builder {
         $view['categories'] = $this->categories($categories, (int)$view['total']);
         $materials = (int)($categories[classification_rules::MATERIAL]->logicalbytes ?? 0);
         $view['activities'] = $this->activities($activities, $structure, $materials);
+        $view['large'] = $this->large($record, $largebyactivity, $structure);
         return $view;
+    }
+
+    /**
+     * Large files (data-model.md, "large_summary"): the totals of the course from the summary, and the large
+     * materials per activity from the links only (FR-033). The large totals of an activity row include submissions
+     * and are never used.
+     *
+     * @param \stdClass|null $record Diagnostic record.
+     * @param array $largebyactivity Large-material links by cmid.
+     * @param array $structure Current activities by cmid.
+     * @return array count, bytes, threshold, truncated, materials, courselevel, others and removed.
+     */
+    private function large(?\stdClass $record, array $largebyactivity, array $structure): array {
+        $materials = [];
+        $groups = ['courselevel' => null, 'others' => null, 'removed' => null];
+        $add = function (string $group, \stdClass $row) use (&$groups): void {
+            $groups[$group] = [
+                'count' => ($groups[$group]['count'] ?? 0) + (int)$row->count,
+                'bytes' => ($groups[$group]['bytes'] ?? 0) + (int)$row->bytes,
+            ];
+        };
+        foreach ($largebyactivity as $cmid => $row) {
+            $cmid = (int)$cmid;
+            if ($cmid === 0) {
+                $add('courselevel', $row);
+            } else if (!isset($structure[$cmid])) {
+                $add('removed', $row);
+            } else if (!$structure[$cmid]->uservisible) {
+                $add('others', $row);
+            } else {
+                $materials[] = ['cmid' => $cmid, 'name' => (string)$structure[$cmid]->name,
+                    'url' => $structure[$cmid]->url, 'count' => (int)$row->count, 'bytes' => (int)$row->bytes];
+            }
+        }
+        usort($materials, fn(array $a, array $b): int => [$b['bytes'], \core_text::strtolower($a['name'])]
+            <=> [$a['bytes'], \core_text::strtolower($b['name'])]);
+        return [
+            'count' => (int)($record->largecount ?? 0),
+            'bytes' => (int)($record->largebytes ?? 0),
+            'threshold' => (int)($record->largethreshold ?? 0),
+            'truncated' => (int)($record->largelinkstruncated ?? 0) === 1,
+            'materials' => $materials,
+        ] + $groups;
     }
 
     /**

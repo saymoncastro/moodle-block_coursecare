@@ -238,13 +238,13 @@ nenhum valor por atividade inclui envios (CT-12 a CT-15).
 
 ### Tests for User Story 5
 
-- [ ] T034 [P] [US5] No Behat `tests/behat/block_coursecare_overview.feature`: "the page should meet accessibility standards" no bloco e na página nos estados D, G e sem resultado, em tamanho de desktop e com `I change viewport size to "mobile"`; `<details>` operáveis pelo teclado (`I press the tab key` até o `summary` e `I press the enter key`).
+- [X] T034 [P] [US5] No Behat `tests/behat/block_coursecare_overview.feature`: "the page should meet accessibility standards" no bloco e na página nos estados D, G e sem resultado, em tamanho de desktop e com `I change viewport size to "mobile"`; `<details>` operáveis pelo teclado (`I press the tab key` até o `summary` e `I press the enter key`).
 
 ### Implementation for User Story 5
 
-- [ ] T035 [US5] Em `styles.css`, implementar as diretrizes visuais aprovadas (spec) só sob `.block_coursecare` e `.block_coursecare-overview`: propriedades `--block-coursecare-*` para verdes suaves e neutros, cantos arredondados, cartões discretos (classes `card` do core) para as seções, barras de proporção, broto no cabeçalho da página; contraste mínimo de 4,5:1 para texto e 3:1 para barras; layout de uma coluna até 320 px sem rolagem horizontal e quebra de nomes longos; valores provisórios, finalizados em T046.
-- [ ] T036 [US5] Revisar todos os templates (`overview*.mustache`, `content.mustache`): títulos `h2`/`h3` em ordem, listas semânticas, barras com `aria-hidden="true"`, `<details>`/`<summary>` com texto descritivo, nenhum `tabindex` positivo, links com texto completo e alvo de pelo menos 24 × 24 px.
-- [ ] T037 [US5] Rodar `php tools/i18n/check.php` e corrigir toda falta de paridade de chaves e parâmetros; revisar a terminologia pt_br ("sala", "AVA Consciente", "panorama de arquivos") de todas as chaves `overview:*`.
+- [X] T035 [US5] Em `styles.css`, implementar as diretrizes visuais aprovadas (spec) só sob `.block_coursecare` e `.block_coursecare-overview`: propriedades `--block-coursecare-*` para verdes suaves e neutros, cantos arredondados, cartões discretos (classes `card` do core) para as seções, barras de proporção, broto no cabeçalho da página; contraste mínimo de 4,5:1 para texto e 3:1 para barras; layout de uma coluna até 320 px sem rolagem horizontal e quebra de nomes longos; valores provisórios, finalizados em T046.
+- [X] T036 [US5] Revisar todos os templates (`overview*.mustache`, `content.mustache`): títulos `h2`/`h3` em ordem, listas semânticas, barras com `aria-hidden="true"`, `<details>`/`<summary>` com texto descritivo, nenhum `tabindex` positivo, links com texto completo e alvo de pelo menos 24 × 24 px.
+- [X] T037 [US5] Rodar `php tools/i18n/check.php` e corrigir toda falta de paridade de chaves e parâmetros; revisar a terminologia pt_br ("sala", "AVA Consciente", "panorama de arquivos") de todas as chaves `overview:*`.
 
 **Checkpoint**: US1 a US5 verdes.
 
@@ -259,16 +259,24 @@ material na atividade, o envio só no total; aviso com mais de 1.000 materiais g
 
 ### Tests for User Story 6
 
-- [ ] T038 [P] [US6] Em `tests/analysis/overview_builder_test.php`, testar `large`: `count` e `bytes` da sala do resumo; `threshold`; `materials` só das ligações, por atividade, ordenados por `largebytes`, com os grupos `others` e `removed` como nas atividades; `truncated` quando `largelinkstruncated = 1`; nenhum `largecount`/`largebytes` da linha de atividade usado.
-- [ ] T039 [P] [US6] Em `tests/output/course_overview_test.php`, renderizar a seção de grandes: `overview:large_summary` com limite, quantidade e tamanho; `overview:large_help`; a lista por atividade com link; `overview:large_truncated` só quando truncado; o envio grande não aparece por atividade.
-- [ ] T040 [P] [US6] No Behat `tests/behat/block_coursecare_overview.feature`: página com ligações de materiais grandes mostra "Large files" e a atividade do material.
+- [X] T038 [P] [US6] Em `tests/analysis/overview_builder_test.php`, testar `large`: `count` e `bytes` da sala do resumo; `threshold`; `materials` só das ligações, por atividade, ordenados por `largebytes`, com os grupos `others` e `removed` como nas atividades; `truncated` quando `largelinkstruncated = 1`; nenhum `largecount`/`largebytes` da linha de atividade usado.
+- [X] T039 [P] [US6] Em `tests/output/course_overview_test.php`, renderizar a seção de grandes: `overview:large_summary` com limite, quantidade e tamanho; `overview:large_help`; a lista por atividade com link; `overview:large_truncated` só quando truncado; o envio grande não aparece por atividade.
+- [X] T040 [P] [US6] No Behat `tests/behat/block_coursecare_overview.feature`: página com ligações de materiais grandes mostra "Large files" e a atividade do material.
 
 ### Implementation for User Story 6
 
-- [ ] T041 [US6] Em `classes/local/analysis/overview_builder.php`, implementar `large` conforme o data-model (`large_summary`).
-- [ ] T042 [US6] Criar `templates/overview_large.mustache` (seção `h3` `overview:large`) e exportar o contexto em `classes/output/course_overview.php`; strings `overview:large`, `overview:large_summary`, `overview:large_help`, `overview:large_materials`, `overview:large_truncated` (en e pt_br).
+- [X] T041 [US6] Em `classes/local/analysis/overview_builder.php`, implementar `large` conforme o data-model (`large_summary`).
+- [X] T042 [US6] Criar `templates/overview_large.mustache` (seção `h3` `overview:large`) e exportar o contexto em `classes/output/course_overview.php`; strings `overview:large`, `overview:large_summary`, `overview:large_help`, `overview:large_materials`, `overview:large_truncated` (en e pt_br).
 
 **Checkpoint**: todas as histórias verdes.
+
+*Execução (US5 e US6, 2026-10-17)*: a seção de grandes usa um template próprio, sem barras (contagem e tamanho
+por atividade), e uma string a mais, `overview:large_count`. Os detalhes técnicos têm o `h3` dentro do
+`summary`, para os títulos seguirem a ordem (`h2` → `h3` → `h4`). Os estilos seguem as diretrizes aprovadas,
+escopados, com o texto na cor do tema; os tons ficam provisórios até a reconstrução visual (T046). No Behat,
+um passo inexistente faz o Behat perguntar interativamente qual contexto gera o trecho, e o
+`admin/tool/behat/cli/run.php` fica esperando para sempre; corrigido o passo de foco ("I set the focus on
+the ..."), a suíte do plugin roda em cerca de 2 min.
 
 ---
 

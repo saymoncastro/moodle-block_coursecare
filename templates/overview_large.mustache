@@ -1,0 +1,74 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_coursecare/overview_large
+
+    "Large files" section of the overview page: the totals of the course with the threshold used and a
+    screening explanation, and the large materials per activity (FR-033). Large submissions count only
+    in the totals of the course.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * large - object with heading, summary, help, hasmaterials, materialsheading, materials (rows with
+      name, hasurl, url, count and size) and truncated (empty when not truncated)
+
+    Example context (json):
+    {
+        "large": {
+            "heading": "Large files",
+            "summary": "Files of 50.0 MB or more: 2 (120.0 MB).",
+            "help": "The threshold is a screening value set by the site, not a teaching rule.",
+            "hasmaterials": true,
+            "materialsheading": "Large materials by activity",
+            "materials": [
+                {"name": "Lab video", "hasurl": true, "url": "https://example.com/mod/resource/view.php?id=7",
+                 "count": "Files: 1", "size": "60.0 MB"}
+            ],
+            "truncated": ""
+        }
+    }
+}}
+{{#large}}
+<section class="block_coursecare-overview-section card">
+    <div class="card-body">
+        <h3 class="block_coursecare-overview-sectiontitle">{{heading}}</h3>
+        <p>{{summary}}</p>
+        <p class="block_coursecare-overview-help">{{help}}</p>
+        {{#hasmaterials}}
+        <h4 class="block_coursecare-overview-subtitle">{{materialsheading}}</h4>
+        <ul class="block_coursecare-overview-list list-unstyled">
+            {{#materials}}
+            <li class="block_coursecare-overview-item">
+                <div class="block_coursecare-overview-itemtext">
+                    <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}{{^hasurl}}{{name}}{{/hasurl}}</span>
+                    <span class="block_coursecare-overview-itemvalue">{{count}} · {{size}}</span>
+                </div>
+            </li>
+            {{/materials}}
+        </ul>
+        {{/hasmaterials}}
+        {{#truncated}}
+        <p class="block_coursecare-overview-help mb-0">{{truncated}}</p>
+        {{/truncated}}
+    </div>
+</section>
+{{/large}}

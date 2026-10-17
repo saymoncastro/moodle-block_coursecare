@@ -22,7 +22,7 @@ Arquivo: `overview.php` na raiz do bloco (dentro do pacote). Dados: [overview-da
 ## Estrutura (FR-011)
 
 Hierarquia de títulos: `h2` para o título da página (o cabeçalho do curso vem do tema), `h3` por
-seção. Cada seção pode ser um cartão discreto (`card` do core) conforme as diretrizes visuais.
+seção (nos detalhes técnicos, o `h3` fica dentro do `summary`), `h4` para as subdivisões. Cada seção pode ser um cartão discreto (`card` do core) conforme as diretrizes visuais.
 
 | # | Seção | Conteúdo | Recolhida |
 | --- | --- | --- | --- |
@@ -77,6 +77,7 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | `overview:large_summary` | Files of {$a->threshold} or more: {$a->count} ({$a->size}). | Arquivos de {$a->threshold} ou mais: {$a->count} ({$a->size}). |
 | `overview:large_help` | The threshold is a screening value set by the site, not a teaching rule. | O limite é um valor de triagem definido pelo site, não uma regra pedagógica. |
 | `overview:large_materials` | Large materials by activity | Materiais de grande porte por atividade |
+| `overview:large_count` | Files: {$a} | Arquivos: {$a} |
 | `overview:large_truncated` | This list considers the 1,000 largest materials. | Esta lista considera os 1.000 maiores materiais. |
 | `overview:technical` | Technical details | Detalhes técnicos |
 | `overview:unique` | Unique content: {$a} | Conteúdo único: {$a} |

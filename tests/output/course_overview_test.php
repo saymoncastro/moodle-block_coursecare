@@ -164,7 +164,7 @@ final class course_overview_test extends \advanced_testcase {
             );
             $html = $this->render((int)$course->id);
             $this->assertStringContainsString(s($expected), $html, $name);
-            $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-technical">\s*<summary>' .
+            $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-technical">\s*<summary><h3[^>]*>' .
                 preg_quote($technical, '/') . '/', $html, $name);
             $this->assertStringContainsString($notmeaning, $html, $name);
             $this->assertSame($hassections, str_contains($html, $categories), $name);
@@ -271,5 +271,40 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringNotContainsString('pluginfile.php', $html);
         $this->assertStringNotContainsString('draftfile.php', $html);
         $this->assertFalse($DB->record_exists('block_coursecare_large', []));
+    }
+    /**
+     * Large files section: totals of the course with the threshold used, the screening explanation, materials per
+     * activity with a link, and the truncation notice only when the links were truncated (CT-10, CT-22).
+     */
+    public function test_large_files(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $mb = 1048576;
+        [$course, $cms] = $this->course_with_diagnostic(
+            ['Lab video' => 60 * $mb, 'Slides' => 2 * $mb],
+            ['material' => 62 * $mb, 'submission' => 60 * $mb],
+            ['largecount' => 2, 'largebytes' => 120 * $mb,
+            'largethreshold' => 50 * $mb]
+        );
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $plugin->create_diagnostic_largelink(['courseid' => $course->id, 'cmid' => $cms['Lab video']->cmid,
+            'filesize' => 60 * $mb]);
+        $html = $this->render((int)$course->id);
+
+        $this->assertStringContainsString(s(get_string('overview:large', 'block_coursecare')), $html);
+        $this->assertStringContainsString(s(get_string('overview:large_summary', 'block_coursecare', (object)[
+            'threshold' => display_size(50 * $mb), 'count' => 2, 'size' => display_size(120 * $mb)])), $html);
+        $this->assertStringContainsString(s(get_string('overview:large_help', 'block_coursecare')), $html);
+        $this->assertStringContainsString(s(get_string('overview:large_materials', 'block_coursecare')), $html);
+        $this->assertStringContainsString(s(get_string('overview:large_count', 'block_coursecare', 1)), $html);
+        $url = s((new \moodle_url('/mod/resource/view.php', ['id' => $cms['Lab video']->cmid]))->out(false));
+        $this->assertSame(2, substr_count($html, 'href="' . $url . '"'));
+        $this->assertStringNotContainsString(s(get_string('overview:large_truncated', 'block_coursecare')), $html);
+
+        // With truncated links, the notice appears.
+        $DB->set_field('block_coursecare_diag', 'largelinkstruncated', 1, ['courseid' => $course->id]);
+        $html = $this->render((int)$course->id);
+        $this->assertStringContainsString(s(get_string('overview:large_truncated', 'block_coursecare')), $html);
     }
 }

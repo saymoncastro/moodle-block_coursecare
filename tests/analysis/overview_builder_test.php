@@ -339,4 +339,72 @@ final class overview_builder_test extends \basic_testcase {
         $this->assertSame(1000, $view['total']);
         $this->assertNotContains('backup', array_column($view['categories'], 'key'));
     }
+    /**
+     * Large files: totals of the course from the summary, materials per activity only from the links, ordered by
+     * size, with hidden and removed activities grouped; never the large totals of an activity row (FR-033, FR-030;
+     * CT-10, CT-22).
+     */
+    public function test_large(): void {
+        $record = self::record(['largecount' => 5, 'largebytes' => 500, 'largethreshold' => 100,
+            'largelinkstruncated' => 0]);
+        $links = [
+            11 => (object)['count' => 1, 'bytes' => 120],
+            12 => (object)['count' => 2, 'bytes' => 260],
+            40 => (object)['count' => 1, 'bytes' => 110],
+            50 => (object)['count' => 1, 'bytes' => 101],
+            0 => (object)['count' => 1, 'bytes' => 150],
+        ];
+        $structure = self::structure([11 => 'Video', 12 => 'Slides', 40 => '-Hidden', 13 => 'Quiet']);
+        // Activity rows carry large totals that mix in submissions (activities()); they must not appear.
+        $view = (new overview_builder())->build(
+            self::state(diagnostic_state::COMPLETE),
+            $record,
+            self::categories(['material' => 1000]),
+            self::activities([11 => 300, 12 => 400, 13 => 300]),
+            $links,
+            $structure
+        );
+        $large = $view['large'];
+        $this->assertSame(5, $large['count']);
+        $this->assertSame(500, $large['bytes']);
+        $this->assertSame(100, $large['threshold']);
+        $this->assertFalse($large['truncated']);
+        $this->assertSame(['Slides', 'Video'], array_column($large['materials'], 'name'));
+        $this->assertSame(
+            [['count' => 2, 'bytes' => 260], ['count' => 1, 'bytes' => 120]],
+            array_map(
+                fn(array $item): array => ['count' => $item['count'], 'bytes' => $item['bytes']],
+                $large['materials']
+            )
+        );
+        $this->assertSame(['count' => 1, 'bytes' => 150], $large['courselevel']);
+        $this->assertSame(['count' => 1, 'bytes' => 110], $large['others']);
+        $this->assertSame(['count' => 1, 'bytes' => 101], $large['removed']);
+        foreach ($large['materials'] as $item) {
+            $this->assertNotSame(50, $item['count']);
+            $this->assertNotSame(80000000, $item['bytes']);
+        }
+
+        // Truncated links, and no large file at all.
+        $view = (new overview_builder())->build(
+            self::state(diagnostic_state::COMPLETE),
+            self::record(['largecount' => 2000, 'largebytes' => 9000, 'largelinkstruncated' => 1]),
+            self::categories(['material' => 1000]),
+            [],
+            [],
+            []
+        );
+        $this->assertTrue($view['large']['truncated']);
+        $view = (new overview_builder())->build(
+            self::state(diagnostic_state::COMPLETE),
+            self::record(),
+            self::categories(['material' => 1000]),
+            [],
+            [],
+            []
+        );
+        $this->assertSame(0, $view['large']['count']);
+        $this->assertSame([], $view['large']['materials']);
+        $this->assertNull($view['large']['courselevel']);
+    }
 }

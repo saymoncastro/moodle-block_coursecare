@@ -149,3 +149,79 @@ Feature: CourseCare "Your course in numbers" page
     When I am on the "C1" "block_coursecare > overview" page logged in as "teacher2"
     Then I should not see "Your course in numbers"
     And I should not see "Files in this course"
+
+  Scenario: Large files appear for the course, and the large materials by activity
+    Given the following "activities" exist:
+      | activity | course | name      | idnumber |
+      | page     | C1     | Lab video | lab      |
+    And the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | largecount | largebytes | largethreshold |
+      | C1     | 125829120    | 2         | 600              | 2          | 125829120  | 52428800       |
+    And the following "block_coursecare > diagnostic categories" exist:
+      | course | category   | filecount | logicalbytes |
+      | C1     | material   | 1         | 62914560     |
+      | C1     | submission | 1         | 62914560     |
+    And the following "block_coursecare > diagnostic activities" exist:
+      | course | activity | materialbytes |
+      | C1     | lab      | 62914560      |
+    And the following "block_coursecare > diagnostic large links" exist:
+      | course | activity | filesize |
+      | C1     | lab      | 62914560 |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    Then I should see "Large files"
+    And I should see "Large materials by activity"
+    And I should see "The threshold is a screening value set by the site, not a teaching rule."
+
+  @javascript @accessibility
+  Scenario Outline: The block and the page meet the accessibility standards on desktop and mobile
+    Given the following "activities" exist:
+      | activity | course | name    | idnumber |
+      | page     | C1     | Reading | reading  |
+    And the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes   | filecount   | timecompletedago |
+      | C1     | <logicalbytes> | <filecount> | 600              |
+    And the following "block_coursecare > diagnostic categories" exist:
+      | course | category | filecount   | logicalbytes   |
+      | C1     | material | <filecount> | <logicalbytes> |
+    And the following "block_coursecare > diagnostic activities" exist:
+      | course | activity | materialbytes  |
+      | C1     | reading  | <logicalbytes> |
+    And I change viewport size to "<size>"
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    Then the page should meet accessibility standards
+    And I am on the "C1" "block_coursecare > overview" page
+    And the page should meet accessibility standards
+    And I should see "<sentence>"
+
+    Examples:
+      | size   | logicalbytes | filecount | sentence                                                         |
+      | large  | 2048         | 1         | Materials by activity                                            |
+      | mobile | 2048         | 1         | Materials by activity                                            |
+      | large  | 0            | 0         | No files were found in this course's materials and activities. |
+      | mobile | 0            | 0         | No files were found in this course's materials and activities. |
+
+  @javascript @accessibility
+  Scenario Outline: The page without a result meets the accessibility standards on desktop and mobile
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | requeststatus |
+      | C1     | 1             |
+    And I change viewport size to "<size>"
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
+    Then the page should meet accessibility standards
+    And I should see "The file overview for this course is being prepared."
+
+    Examples:
+      | size   |
+      | large  |
+      | mobile |
+
+  @javascript
+  Scenario: The technical details open with the keyboard
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago |
+      | C1     | 2048         | 1         | 600              |
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
+    And I set the focus on the ".block_coursecare-overview-technical summary" "css_element"
+    And I press the enter key
+    Then I should see "These numbers show the files Moodle records for this course."

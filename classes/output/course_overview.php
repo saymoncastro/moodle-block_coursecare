@@ -94,8 +94,49 @@ class course_overview implements \renderable, \templatable {
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
             'activities' => $this->activities_data(),
+            'haslarge' => $this->view['large'] !== null,
+            'large' => $this->large_data(),
             'hastechnical' => $this->view['technical'] !== null,
             'technical' => $this->technical_data(),
+        ];
+    }
+
+    /**
+     * Template data of the large files: totals of the course and large materials per activity.
+     *
+     * @return array
+     */
+    private function large_data(): array {
+        $large = $this->view['large'];
+        if ($large === null) {
+            return [];
+        }
+        $row = fn(string $name, ?string $url, array $values): array => ['name' => $name, 'url' => $url,
+            'hasurl' => $url !== null, 'size' => display_size($values['bytes']),
+            'count' => get_string('overview:large_count', 'block_coursecare', $values['count'])];
+        $rows = [];
+        foreach ($large['materials'] as $item) {
+            $rows[] = $row($item['name'], $item['url'], $item);
+        }
+        foreach (
+            ['courselevel' => 'overview:courselevel', 'others' => 'overview:otheractivities',
+                'removed' => 'overview:removed'] as $key => $string
+        ) {
+            if ($large[$key] !== null) {
+                $rows[] = $row(get_string($string, 'block_coursecare'), null, $large[$key]);
+            }
+        }
+        return [
+            'heading' => get_string('overview:large', 'block_coursecare'),
+            'summary' => get_string('overview:large_summary', 'block_coursecare', (object)[
+                'threshold' => display_size($large['threshold']), 'count' => $large['count'],
+                'size' => display_size($large['bytes']),
+            ]),
+            'help' => get_string('overview:large_help', 'block_coursecare'),
+            'hasmaterials' => $rows !== [],
+            'materialsheading' => get_string('overview:large_materials', 'block_coursecare'),
+            'materials' => $rows,
+            'truncated' => $large['truncated'] ? get_string('overview:large_truncated', 'block_coursecare') : '',
         ];
     }
 
