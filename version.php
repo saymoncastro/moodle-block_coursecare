@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_coursecare';
-$plugin->version = 2026101602;
+$plugin->version = 2026101700;
 $plugin->requires = 2024100700;
 $plugin->supported = [405, 405];
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.2.0';
+$plugin->release = '0.3.0';

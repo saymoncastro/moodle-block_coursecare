@@ -95,10 +95,8 @@ final class translation_test extends \advanced_testcase {
         $this->assertSame('AVA Consciente', $manager->get_string('pluginname', 'block_coursecare', null, 'pt_br'));
         $tagline = $manager->get_string('tagline', 'block_coursecare', null, 'pt_br');
         $this->assertSame('Pequenas escolhas, um AVA melhor para todos.', $tagline);
-        $intro = $manager->get_string('intro', 'block_coursecare', null, 'pt_br');
-        $expected = 'Em breve, você encontrará aqui orientações para utilizar os recursos da sua sala ' .
-            'de forma mais consciente.';
-        $this->assertSame($expected, $intro);
+        $link = $manager->get_string('overview:link', 'block_coursecare', null, 'pt_br');
+        $this->assertSame('Conheça melhor os arquivos da sua sala', $link);
     }
 
     /**
@@ -106,13 +104,13 @@ final class translation_test extends \advanced_testcase {
      */
     public function test_missing_key_falls_back_to_english(): void {
         $this->require_translation();
-        $content = preg_replace('/^\$string\[\'intro\'\].*$\n/m', '', file_get_contents($this->source));
-        $this->assertStringNotContainsString("\$string['intro']", $content);
+        $content = preg_replace('/^\$string\[\'overview:link\'\].*$\n/m', '', file_get_contents($this->source));
+        $this->assertStringNotContainsString("\$string['overview:link']", $content);
 
         $manager = $this->install_customisation($content);
 
-        $intro = $manager->get_string('intro', 'block_coursecare', null, 'pt_br');
-        $this->assertSame(get_string('intro', 'block_coursecare'), $intro);
+        $link = $manager->get_string('overview:link', 'block_coursecare', null, 'pt_br');
+        $this->assertSame(get_string('overview:link', 'block_coursecare'), $link);
         $tagline = $manager->get_string('tagline', 'block_coursecare', null, 'pt_br');
         $this->assertSame('Pequenas escolhas, um AVA melhor para todos.', $tagline);
     }

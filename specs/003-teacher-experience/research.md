@@ -44,7 +44,9 @@ própria na Block API); relatório do curso em `report/` (exigiria outro plugin,
 
 **Rationale**: o Princípio IX exige coleta, análise e apresentação separadas; a regra de privacidade
 FR-030 e as proporções ficam numa classe pura, testável sem Moodle populado. Nenhuma leitura de
-`files` (FR-040): todos os números vêm das tabelas da Feature 002 **[código 4.5]**:
+`files` pelo plugin (FR-040). **[código 4.5]** A reconstrução do cache de módulos do core, feita depois de
+uma mudança na sala (também pela própria página da sala, onde fica o link), lê os arquivos dos recursos
+para escolher o ícone (`mod_resource`); com o cache já construído, nada lê `files`: todos os números vêm das tabelas da Feature 002 **[código 4.5]**:
 `block_coursecare_act` tem `materialbytes` por atividade, `block_coursecare_large` tem `cmid` e
 `filesize` só de materiais (D10 da Feature 002), e o resumo tem `largelinkstruncated`.
 

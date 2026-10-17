@@ -32,20 +32,25 @@ class diagnostic_line implements \renderable, \templatable {
     /** @var diagnostic_state State to describe. */
     private diagnostic_state $state;
 
+    /** @var \moodle_url|null Overview page of the course (Feature 003), linked only when a result exists. */
+    private ?\moodle_url $overviewurl;
+
     /**
      * Constructor.
      *
      * @param diagnostic_state $state Resolved state.
+     * @param \moodle_url|null $overviewurl Overview page of the course.
      */
-    public function __construct(diagnostic_state $state) {
+    public function __construct(diagnostic_state $state, ?\moodle_url $overviewurl = null) {
         $this->state = $state;
+        $this->overviewurl = $overviewurl;
     }
 
     /**
      * Data for the template: the sentences of the line.
      *
      * @param \renderer_base $output Renderer.
-     * @return array{sentences: array<int, array{text: string}>}
+     * @return array{sentences: array<int, array{text: string}>, overviewurl?: string, overviewlink?: string}
      */
     public function export_for_template(\renderer_base $output): array {
         $sentences = [];
@@ -71,7 +76,13 @@ class diagnostic_line implements \renderable, \templatable {
             default:
                 $sentences[] = get_string('diagnostic:notavailable', 'block_coursecare');
         }
-        return ['sentences' => array_map(fn(string $text): array => ['text' => $text], $sentences)];
+        $data = ['sentences' => array_map(fn(string $text): array => ['text' => $text], $sentences)];
+        if ($this->state->hasresult && $this->overviewurl !== null) {
+            // Feature 003: the way to the overview page, only when it has something to show.
+            $data['overviewurl'] = $this->overviewurl->out(false);
+            $data['overviewlink'] = get_string('overview:link', 'block_coursecare');
+        }
+        return $data;
     }
 
     /**

@@ -17,10 +17,11 @@
 {{!
     @template block_coursecare/content
 
-    Educational content of the CourseCare block: a decorative icon, the identity sentence, the
-    message announcing upcoming guidance and one line about the course file overview (Feature 002).
-    The line holds at most one number, the files recorded by Moodle for the course, with the date
-    of the analysis; its sentences come already translated from the diagnostic_line renderable.
+    Educational content of the CourseCare block: a decorative icon, the identity sentence and one
+    line about the course file overview (Feature 002). The line holds at most one number, the files
+    recorded by Moodle for the course, with the date of the analysis; its sentences come already
+    translated from the diagnostic_line renderable. When a result exists, a link leads to the
+    "Your course in numbers" page (Feature 003).
 
     Classes required for JS:
     * none
@@ -29,7 +30,8 @@
     * none
 
     Context variables required for this template:
-    * diagnostic - optional object with "sentences", a list of objects with a "text" property
+    * diagnostic - optional object with "sentences", a list of objects with a "text" property, and,
+      when a result exists, "overviewurl" and "overviewlink" (the link to the overview page)
 
     Example context (json):
     {
@@ -37,7 +39,9 @@
             "sentences": [
                 {"text": "Files in this course, as recorded by Moodle: 6.0 MB."},
                 {"text": "Calculated on 16/10/26, 10:12."}
-            ]
+            ],
+            "overviewurl": "https://example.com/blocks/coursecare/overview.php?id=4",
+            "overviewlink": "Learn more about the files in your course"
         }
     }
 }}
@@ -45,9 +49,11 @@
     <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
     <div class="block_coursecare-text">
         <p class="block_coursecare-tagline">{{#str}} tagline, block_coursecare {{/str}}</p>
-        <p class="block_coursecare-intro mb-0">{{#str}} intro, block_coursecare {{/str}}</p>
         {{#diagnostic}}
         <p class="block_coursecare-diagnostic mb-0">{{#sentences}}{{text}} {{/sentences}}</p>
+        {{#overviewurl}}
+        <p class="block_coursecare-overviewlink mb-0"><a href="{{overviewurl}}">{{overviewlink}}</a></p>
+        {{/overviewurl}}
         {{/diagnostic}}
     </div>
 </div>

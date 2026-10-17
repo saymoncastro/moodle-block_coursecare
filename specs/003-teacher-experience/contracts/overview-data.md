@@ -11,7 +11,8 @@ as regras verificáveis.
 - `course_structure::get_activities(int $courseid): array` — `cmid → {name, url|null, uservisible}`
   para o usuário atual, de `get_fast_modinfo($courseid)`; `name` por `get_formatted_name()`; `url`
   nula quando a atividade não tem página (por exemplo, área de texto e mídia). Nenhuma consulta a
-  `files`.
+  `files` pelo plugin; se o cache de módulos estiver frio, o core o reconstrói e essa reconstrução lê os
+  arquivos dos recursos (comportamento do core, o mesmo da página da sala).
 
 ## Análise (`\block_coursecare\local\analysis\overview_builder`, pura)
 

@@ -36,3 +36,59 @@
 .block_coursecare .block_coursecare-diagnostic {
     margin-top: 0.5rem;
 }
+
+/* Feature 003: the link to the overview page, below the file overview line. */
+.block_coursecare .block_coursecare-overviewlink {
+    margin-top: 0.5rem;
+}
+
+/*
+ * Feature 003: the "Your course in numbers" page. Provisional values, finalised in the visual reconstruction
+ * (tasks T035 and T046); every selector stays under .block_coursecare-overview and no theme colour is redefined.
+ */
+.block_coursecare-overview {
+    --block-coursecare-bar: #5a8f6b;
+    --block-coursecare-bar-track: #e6efe8;
+    max-width: 48rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-section {
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-item {
+    margin-bottom: 0.75rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-itemtext {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 1rem;
+    overflow-wrap: anywhere;
+}
+
+.block_coursecare-overview .block_coursecare-overview-bar {
+    height: 0.5rem;
+    margin-top: 0.25rem;
+    border-radius: 0.25rem;
+    background: var(--block-coursecare-bar-track);
+}
+
+.block_coursecare-overview .block_coursecare-overview-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 0.25rem;
+    background: var(--block-coursecare-bar);
+}
+
+.block_coursecare-overview .block_coursecare-overview-more summary {
+    cursor: pointer;
+}

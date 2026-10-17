@@ -213,11 +213,11 @@ final class block_coursecare_test extends \advanced_testcase {
 
         $html = $this->get_block($course, 'course-view-topics')->get_content()->text;
 
+        // Feature 003: the identity sentence stays; the message announcing upcoming guidance is gone.
         $tagline = get_string('tagline', 'block_coursecare');
-        $intro = get_string('intro', 'block_coursecare');
         $this->assertNotFalse(strpos($html, $tagline));
-        $this->assertNotFalse(strpos($html, $intro));
-        $this->assertLessThan(strpos($html, $intro), strpos($html, $tagline));
+        $this->assertFalse(get_string_manager()->string_exists('intro', 'block_coursecare'));
+        $this->assertStringNotContainsString('Soon you will find guidance', $html);
 
         // No numbers, indicators, links or actions in the visible text.
         $this->assertDoesNotMatchRegularExpression('/\d/', strip_tags($html));
@@ -347,6 +347,11 @@ final class block_coursecare_test extends \advanced_testcase {
             'H partial' => [['partial' => 1] + $result, $volume],
         ];
 
+        // Feature 003: the link to the overview page appears only when a result exists.
+        $withlink = ['D complete', 'E outdated', 'F failed with result', 'G no files', 'H partial'];
+        $link = s(get_string('overview:link', 'block_coursecare'));
+        $url = s((new \moodle_url('/blocks/coursecare/overview.php', ['id' => $instance->id]))->out(false));
+
         // One rendering first, so that string, configuration and template caches are warm in every measured state.
         $this->get_block($course, 'course-view-topics', $instance)->get_content();
         $reads = [];
@@ -366,6 +371,13 @@ final class block_coursecare_test extends \advanced_testcase {
             $reads[$name] = $DB->perf_get_reads() - $before;
 
             $this->assertStringContainsString(s($expected), $html, $name);
+            if (in_array($name, $withlink, true)) {
+                $this->assertStringContainsString($link, $html, $name);
+                $this->assertStringContainsString('href="' . $url . '"', $html, $name);
+            } else {
+                $this->assertStringNotContainsString($link, $html, $name);
+                $this->assertStringNotContainsString('overview.php', $html, $name);
+            }
             $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries, $name);
             $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries, $name);
         }

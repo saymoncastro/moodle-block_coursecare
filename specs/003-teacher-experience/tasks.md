@@ -59,8 +59,8 @@ subdiretório (`block_coursecare\analysis`, `block_coursecare\collector`, `block
 
 **Purpose**: versão, registro de evidências, ambiente de demonstração e gerador de dados de teste.
 
-- [ ] T001 Atualizar `version.php` para `$plugin->version = 2026101700` e `$plugin->release = '0.3.0'` (sem passo de upgrade: nenhuma mudança em `db/`) e abrir a entrada `0.3.0 (unreleased)` em `CHANGES.md`.
-- [ ] T002 [P] Criar `evidence/README.md` com a tabela "Item | Teste ou evidência | Data | Moodle | Banco | Status" para CT-01 a CT-24 e SC-001 a SC-011 da spec, todos "pendente", e as seções vazias "Revisão de tom e rótulos", "Reconstrução e validação visual", "Avaliação com professores", "Runs de CI" e "Constitution Check reavaliado".
+- [X] T001 Atualizar `version.php` para `$plugin->version = 2026101700` e `$plugin->release = '0.3.0'` (sem passo de upgrade: nenhuma mudança em `db/`) e abrir a entrada `0.3.0 (unreleased)` em `CHANGES.md`.
+- [X] T002 [P] Criar `evidence/README.md` com a tabela "Item | Teste ou evidência | Data | Moodle | Banco | Status" para CT-01 a CT-24 e SC-001 a SC-011 da spec, todos "pendente", e as seções vazias "Revisão de tom e rótulos", "Reconstrução e validação visual", "Avaliação com professores", "Runs de CI" e "Constitution Check reavaliado".
 - [ ] T003 [P] Criar `tools/dev/demo/setup.php` (CLI de desenvolvimento, fora do pacote, cabeçalho GPL e PHPDoc), conforme research R8 e quickstart §1:
   - recusa rodar sem `--confirm` e avisa que é só para site descartável;
   - cria o usuário professor `demo.teacher` (senha do argumento `--password`, nunca fixa no código), estudantes fictícios e as salas: completa (materiais, uma tarefa com envios, um fórum com anexos, área de texto e mídia, página, recurso, pasta), com mais de 10 atividades com materiais, sem arquivos (G), com área não classificada (H), e salas a deixar em A, B, E e F;
@@ -68,7 +68,7 @@ subdiretório (`block_coursecare\analysis`, `block_coursecare\collector`, `block
   - adiciona o bloco às salas, roda as análises com `course_analysis` e ajusta o registro de E (data antiga) e de F (falha simulada pelo `diagnostic_store::save_failure`) e o de B (pedido na fila sem resultado);
   - opção `--activities=N` que cria, além das salas acima, uma sala com N atividades com materiais (páginas e recursos com arquivo), para a medição do SC-003 (`--activities=200`);
   - imprime os ids das salas e o estado esperado de cada uma.
-- [ ] T004 [P] Estender `tests/generator/lib.php` (`create_diagnostic`) e `tests/generator/behat_block_coursecare_generator.php` para aceitar, além dos campos atuais: `categories` (categoria → `filecount`, `logicalbytes`, `uniquecount`, `uniquebytes`), `activities` (cmid ou, no Behat, o `idnumber` da atividade → campos de `block_coursecare_act`), `largelinks` (lista de `cmid`/`idnumber` e `filesize`, com `fileid` sintético) e os campos de resumo de referências, cópias e cobertura; manter o comportamento atual quando ausentes; PHPDoc de cada coluna.
+- [X] T004 [P] Estender `tests/generator/lib.php` (`create_diagnostic`) e `tests/generator/behat_block_coursecare_generator.php` para aceitar, além dos campos atuais: `categories` (categoria → `filecount`, `logicalbytes`, `uniquecount`, `uniquebytes`), `activities` (cmid ou, no Behat, o `idnumber` da atividade → campos de `block_coursecare_act`), `largelinks` (lista de `cmid`/`idnumber` e `filesize`, com `fileid` sintético) e os campos de resumo de referências, cópias e cobertura; manter o comportamento atual quando ausentes; PHPDoc de cada coluna.
 
 ---
 
@@ -80,17 +80,17 @@ subdiretório (`block_coursecare\analysis`, `block_coursecare\collector`, `block
 
 ### Tests for Foundational
 
-- [ ] T005 [P] Criar `tests/collector/course_structure_test.php`: para uma sala com página, recurso, área de texto e mídia e uma atividade oculta, `get_activities()` devolve `cmid → {name, url|null, uservisible}` com o nome formatado, URL nula na área de texto e mídia, `uservisible` falso para a oculta quando o usuário é estudante e verdadeiro para professor com edição; nenhuma consulta a `files` (`$DB->set_debug`).
-- [ ] T006 [P] Em `tests/collector/diagnostic_store_test.php`, testar `get_large_materials_by_activity($diagid)`: ligações em três atividades e no `cmid 0` voltam agregadas por `cmid` com `count` e `bytes` corretos; diagnóstico sem ligações devolve array vazio; ligações de outro diagnóstico não entram.
-- [ ] T007 [P] Criar `tests/analysis/overview_builder_test.php` com os testes da base: `share()` (`whole = 0` → 0; `part = 0` → 0; `0 < x < 1%` → "menos de 1%" como marcador, inclusive 0,5% e 0,99%; 1% → 1; 1,4% → 1; 1,5% → 2; arredondamento ao inteiro mais próximo a partir de 1%; 100% para a parte igual ao todo); sem resultado (estados A, B, C, F sem resultado) a visão não tem `total`, `categories`, `activities`, `large` nem `technical`; com resultado D, `hasresult`, `timecompleted` e `total` vêm do registro.
+- [X] T005 [P] Criar `tests/collector/course_structure_test.php`: para uma sala com página, recurso, área de texto e mídia e uma atividade oculta, `get_activities()` devolve `cmid → {name, url|null, uservisible}` com o nome formatado, URL nula na área de texto e mídia, `uservisible` falso para a oculta quando o usuário é estudante e verdadeiro para professor com edição; nenhuma consulta a `files` (`$DB->set_debug`).
+- [X] T006 [P] Em `tests/collector/diagnostic_store_test.php`, testar `get_large_materials_by_activity($diagid)`: ligações em três atividades e no `cmid 0` voltam agregadas por `cmid` com `count` e `bytes` corretos; diagnóstico sem ligações devolve array vazio; ligações de outro diagnóstico não entram.
+- [X] T007 [P] Criar `tests/analysis/overview_builder_test.php` com os testes da base: `share()` (`whole = 0` → 0; `part = 0` → 0; `0 < x < 1%` → "menos de 1%" como marcador, inclusive 0,5% e 0,99%; 1% → 1; 1,4% → 1; 1,5% → 2; arredondamento ao inteiro mais próximo a partir de 1%; 100% para a parte igual ao todo); sem resultado (estados A, B, C, F sem resultado) a visão não tem `total`, `categories`, `activities`, `large` nem `technical`; com resultado D, `hasresult`, `timecompleted` e `total` vêm do registro.
 
 ### Implementation for Foundational
 
-- [ ] T008 Criar `classes/local/collector/course_structure.php` com `get_activities(int $courseid): array` a partir de `get_fast_modinfo($courseid)` (usuário atual): para cada `cm_info`, `name` por `get_formatted_name()`, `url` por `$cm->url` (ou `null`), `uservisible`; PHPDoc dizendo que não lê `files` (contracts/overview-data.md).
-- [ ] T009 Em `classes/local/collector/diagnostic_store.php`, criar `get_large_materials_by_activity(int $diagid): array` com uma consulta `SELECT cmid, COUNT(1), SUM(filesize) ... WHERE diagid = :diagid GROUP BY cmid`, devolvendo `cmid → {count, bytes}` em inteiros.
-- [ ] T010 Criar `classes/local/analysis/overview_builder.php` (puro), com `build(diagnostic_state $state, ?\stdClass $record, array $categories, array $activities, array $largebyactivity, array $structure): array` devolvendo a visão do data-model; nesta tarefa, só a base: `share(int $part, int $whole)` exatamente como a tabela "Função share" do data-model, o mapeamento de `hasresult`, `outdated`, `failed`, `partial`, `timecompleted` e `total`, e a omissão de todas as seções sem resultado.
-- [ ] T011 Criar `classes/output/course_overview.php` (renderable, templatable) e `templates/overview.mustache`, que inclui o partial `templates/overview_summary.mustache` (resumo: título `h2` `overview:title`, `overview:intro`, data e link `overview:back` para a sala); exemplos de contexto nos templates; strings `overview:title`, `overview:intro`, `overview:back` (en e pt_br).
-- [ ] T012 Criar a verificação de acesso e a página em `classes/local/overview_access.php` e `overview.php`, conforme contracts/overview-page.md, "Endereço e acesso":
+- [X] T008 Criar `classes/local/collector/course_structure.php` com `get_activities(int $courseid): array` a partir de `get_fast_modinfo($courseid)` (usuário atual): para cada `cm_info`, `name` por `get_formatted_name()`, `url` por `$cm->url` (ou `null`), `uservisible`; PHPDoc dizendo que não lê `files` (contracts/overview-data.md).
+- [X] T009 Em `classes/local/collector/diagnostic_store.php`, criar `get_large_materials_by_activity(int $diagid): array` com uma consulta `SELECT cmid, COUNT(1), SUM(filesize) ... WHERE diagid = :diagid GROUP BY cmid`, devolvendo `cmid → {count, bytes}` em inteiros.
+- [X] T010 Criar `classes/local/analysis/overview_builder.php` (puro), com `build(diagnostic_state $state, ?\stdClass $record, array $categories, array $activities, array $largebyactivity, array $structure): array` devolvendo a visão do data-model; nesta tarefa, só a base: `share(int $part, int $whole)` exatamente como a tabela "Função share" do data-model, o mapeamento de `hasresult`, `outdated`, `failed`, `partial`, `timecompleted` e `total`, e a omissão de todas as seções sem resultado.
+- [X] T011 Criar `classes/output/course_overview.php` (renderable, templatable) e `templates/overview.mustache`, que inclui o partial `templates/overview_summary.mustache` (resumo: título `h2` `overview:title`, `overview:intro`, data e link `overview:back` para a sala); exemplos de contexto nos templates; strings `overview:title`, `overview:intro`, `overview:back` (en e pt_br).
+- [X] T012 Criar a verificação de acesso e a página em `classes/local/overview_access.php` e `overview.php`, conforme contracts/overview-page.md, "Endereço e acesso":
   - em `classes/local/collector/eligibility.php`, `get_course_instance(int $instanceid): ?\stdClass` (instância com `blockname = 'coursecare'` ou `null`);
   - `classes/local/overview_access.php` com `require_access(int $instanceid): array` que, na ordem do contrato, exige a instância, um contexto pai de curso diferente de `SITEID`, `require_login($course, false)` e `require_capability('block/coursecare:view', context_block::instance($instanceid))`, devolvendo o curso e o contexto do bloco; em qualquer falha, a exceção padrão do Moodle;
   - `overview.php`: `required_param('id', PARAM_INT)`, `overview_access::require_access()` **antes** de qualquer leitura do diagnóstico; depois, `diagnostic_store` (`get_summary`, `get_categories`, `get_activities`, `get_large_materials_by_activity`) e `course_structure`, estado pelo `state_resolver` com `stalenessthreshold`, visão pelo `overview_builder` e renderização; `set_url`, `set_pagelayout('incourse')`, `set_title`, `set_heading`, trilha `overview:title`.
@@ -109,13 +109,13 @@ resultado, só a mensagem, sem link (CT-01 a CT-03).
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Em `tests/block_coursecare_test.php`: o link `overview:link` com a URL `overview.php?id=<instância>` aparece nos estados D, E, F com resultado, G e H e não aparece em A, B, C e F sem resultado; a mensagem `intro` não aparece; a frase de identidade continua; `test_render_reads_no_files` continua verde com o mesmo número de leituras em todos os estados (CT-01 a CT-03, CT-20); atualizar `test_initial_content` e `tests/translation_test.php` para a remoção de `intro`.
-- [ ] T014 [P] [US1] Criar `tests/behat/block_coursecare_overview.feature` (`@block @block_coursecare`) com: bloco em D mostra "Learn more about the files in your course" e o link abre "Your course in numbers" da mesma sala, e o link de volta leva à sala (CT-06); bloco em A não mostra o link; atualizar `tests/behat/block_coursecare_ui.feature` para a remoção de `intro`.
+- [X] T013 [P] [US1] Em `tests/block_coursecare_test.php`: o link `overview:link` com a URL `overview.php?id=<instância>` aparece nos estados D, E, F com resultado, G e H e não aparece em A, B, C e F sem resultado; a mensagem `intro` não aparece; a frase de identidade continua; `test_render_reads_no_files` continua verde com o mesmo número de leituras em todos os estados (CT-01 a CT-03, CT-20); atualizar `test_initial_content` e `tests/translation_test.php` para a remoção de `intro`.
+- [X] T014 [P] [US1] Criar `tests/behat/block_coursecare_overview.feature` (`@block @block_coursecare`) com: bloco em D mostra "Learn more about the files in your course" e o link abre "Your course in numbers" da mesma sala, e o link de volta leva à sala (CT-06); bloco em A não mostra o link; atualizar `tests/behat/block_coursecare_ui.feature` para a remoção de `intro`.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Em `classes/output/diagnostic_line.php`, aceitar a URL da página (`?\moodle_url`) e exportá-la como `overviewurl` só quando o estado tem resultado; em `block_coursecare.php` (`diagnostic_line()`), passar `new moodle_url('/blocks/coursecare/overview.php', ['id' => $this->instance->id])`, sem consulta adicional.
-- [ ] T016 [US1] Em `templates/content.mustache`, remover o parágrafo `intro` e acrescentar, depois da linha do diagnóstico, o link `overview:link` quando `overviewurl` existir; atualizar o comentário e o exemplo de contexto; remover a chave `intro` de `lang/en` e `translations/pt_br` e criar `overview:link` (contracts/block-ui.md).
+- [X] T015 [US1] Em `classes/output/diagnostic_line.php`, aceitar a URL da página (`?\moodle_url`) e exportá-la como `overviewurl` só quando o estado tem resultado; em `block_coursecare.php` (`diagnostic_line()`), passar `new moodle_url('/blocks/coursecare/overview.php', ['id' => $this->instance->id])`, sem consulta adicional.
+- [X] T016 [US1] Em `templates/content.mustache`, remover o parágrafo `intro` e acrescentar, depois da linha do diagnóstico, o link `overview:link` quando `overviewurl` existir; atualizar o comentário e o exemplo de contexto; remover a chave `intro` de `lang/en` e `translations/pt_br` e criar `overview:link` (contracts/block-ui.md).
 
 **Checkpoint**: US1 verde nos testes; o bloco leva à página.
 
@@ -132,18 +132,36 @@ iguais ao diagnóstico; atividades com o volume dos materiais, 10 primeiras e "M
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Em `tests/analysis/overview_builder_test.php`, testar as categorias: ordem `material`, `submission`, `other`, `unclassified`; `bytes` do `logicalbytes` de cada categoria e `0` sem linha; `share` sobre o total; `Σ bytes = total`; categorias de cópias e lixeira nunca nesta lista.
-- [ ] T018 [P] [US2] Em `tests/analysis/overview_builder_test.php`, testar os materiais por atividade (data-model, `activity_list`): só `materialbytes > 0`; ordem por `materialbytes` decrescente e desempate pelo nome; `first` com até 10 e `rest` com o restante; `cmid 0` em `courselevel`; `uservisible = false` somado em `others` sem nome; `cmid` ausente da estrutura somado em `removed` sem nome; `share` sobre o total de materiais; `Σ bytes` de itens e grupos igual aos bytes da categoria `material`; atividade sem URL sem link.
-- [ ] T019 [P] [US2] Criar `tests/output/course_overview_test.php` com a renderização no estado D de uma sala do gerador (T004): as quatro categorias com nome, frase explicativa, tamanho e proporção em texto; as atividades com nome e link; `<details>` com `overview:showall` quando há mais de 10; nenhuma consulta a `files` durante a renderização (`$DB->set_debug`).
-- [ ] T020 [P] [US2] No Behat `tests/behat/block_coursecare_overview.feature`: página em D com categorias e atividades (gerador com `activities` por `idnumber`), 12 atividades mostram 10 e "Show all activities (12)" revela as outras.
+- [X] T017 [P] [US2] Em `tests/analysis/overview_builder_test.php`, testar as categorias: ordem `material`, `submission`, `other`, `unclassified`; `bytes` do `logicalbytes` de cada categoria e `0` sem linha; `share` sobre o total; `Σ bytes = total`; categorias de cópias e lixeira nunca nesta lista.
+- [X] T018 [P] [US2] Em `tests/analysis/overview_builder_test.php`, testar os materiais por atividade (data-model, `activity_list`): só `materialbytes > 0`; ordem por `materialbytes` decrescente e desempate pelo nome; `first` com até 10 e `rest` com o restante; `cmid 0` em `courselevel`; `uservisible = false` somado em `others` sem nome; `cmid` ausente da estrutura somado em `removed` sem nome; `share` sobre o total de materiais; `Σ bytes` de itens e grupos igual aos bytes da categoria `material`; atividade sem URL sem link.
+- [X] T019 [P] [US2] Criar `tests/output/course_overview_test.php` com a renderização no estado D de uma sala do gerador (T004): as quatro categorias com nome, frase explicativa, tamanho e proporção em texto; as atividades com nome e link; `<details>` com `overview:showall` quando há mais de 10; nenhuma consulta a `files` durante a renderização (`$DB->set_debug`).
+- [X] T020 [P] [US2] No Behat `tests/behat/block_coursecare_overview.feature`: página em D com categorias e atividades (gerador com `activities` por `idnumber`), 12 atividades mostram 10 e "Show all activities (12)" revela as outras.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Em `classes/local/analysis/overview_builder.php`, implementar `categories` conforme o data-model (`category`).
-- [ ] T022 [US2] Em `classes/local/analysis/overview_builder.php`, implementar `activities` conforme o data-model (`activity_list`, `activity_item`) e a regra FR-030 de contracts/overview-data.md (regras 1 a 5): nenhum campo por atividade além de `materialbytes` e das ligações.
-- [ ] T023 [US2] Criar `templates/overview_categories.mustache` (seção `h3` `overview:categories`, lista com nome, ajuda, tamanho, proporção em texto e barra decorativa com `aria-hidden="true"`) e `templates/overview_activities.mustache` (seção `h3` `overview:activities`, `overview:activities_help`, lista das 10 primeiras, nível da sala, outras e removidas, e `<details><summary>` `overview:showall` com o restante); em `classes/output/course_overview.php`, exportar o contexto com `display_size()` e `overview:share`/`overview:shareless`; strings `overview:categories`, `overview:category:*` e `*_help`, `overview:share`, `overview:shareless`, `overview:activities`, `overview:activities_help`, `overview:courselevel`, `overview:otheractivities`, `overview:removed`, `overview:showall` (en e pt_br).
+- [X] T021 [US2] Em `classes/local/analysis/overview_builder.php`, implementar `categories` conforme o data-model (`category`).
+- [X] T022 [US2] Em `classes/local/analysis/overview_builder.php`, implementar `activities` conforme o data-model (`activity_list`, `activity_item`) e a regra FR-030 de contracts/overview-data.md (regras 1 a 5): nenhum campo por atividade além de `materialbytes` e das ligações.
+- [X] T023 [US2] Criar `templates/overview_categories.mustache` (seção `h3` `overview:categories`, lista com nome, ajuda, tamanho, proporção em texto e barra decorativa com `aria-hidden="true"`) e `templates/overview_activities.mustache` (seção `h3` `overview:activities`, `overview:activities_help`, lista das 10 primeiras, nível da sala, outras e removidas, e `<details><summary>` `overview:showall` com o restante); em `classes/output/course_overview.php`, exportar o contexto com `display_size()` e `overview:share`/`overview:shareless`; strings `overview:categories`, `overview:category:*` e `*_help`, `overview:share`, `overview:shareless`, `overview:activities`, `overview:activities_help`, `overview:courselevel`, `overview:otheractivities`, `overview:removed`, `overview:showall` (en e pt_br).
 
 **Checkpoint**: US1 e US2 verdes; MVP utilizável (bloco → página com distribuição).
+
+*Execução (MVP, 2026-10-17)*:
+- `course_overview::for_course()` reúne as leituras da página (store, estrutura, estado, builder), usada por
+  `overview.php` e pelos testes; a apresentação lê pela `diagnostic_store`, como o bloco.
+- Um partial a mais, `templates/overview_item.mustache`, para a linha medida (atividade, grupo ou
+  categoria). As linhas definem todas as chaves (`help` vazio), para o Mustache não herdar o texto da
+  seção.
+- **[código 4.5]** A reconstrução do cache de módulos do core lê os arquivos dos recursos (ícone de
+  `mod_resource`); o plugin não lê `files` e, com o cache construído pela página da sala, a página do
+  plugin também não (research R2, contrato de dados).
+- `overview.php` declara `phpcs:ignore moodle.Files.RequireLogin.Missing`: o login e a capability são
+  exigidos por `overview_access::require_access()`, na ordem do contrato.
+- `styles.css` recebe estilos provisórios da página (barras, cartões), escopados; os valores finais são
+  das tarefas T035 e T046.
+- T003 (`tools/dev/demo/setup.php`) está escrito e passa no lint; fica sem marcar até rodar de ponta a
+  ponta no site limpo de validação (T046).
+- `overview:share` (`{$a}%`) é igual em en e pt_br de propósito; o `tools/i18n/check.php` avisa, sem
+  erro.
 
 ---
 

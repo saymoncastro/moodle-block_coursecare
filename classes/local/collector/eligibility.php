@@ -51,6 +51,22 @@ class eligibility {
     }
 
     /**
+     * A CourseCare block instance by id, or null if there is none with that id (Feature 003 overview page).
+     *
+     * @param int $instanceid Block instance id.
+     * @return \stdClass|null The block_instances record.
+     */
+    public function get_course_instance(int $instanceid): ?\stdClass {
+        global $DB;
+
+        if ($instanceid <= 0) {
+            return null;
+        }
+        $record = $DB->get_record('block_instances', ['id' => $instanceid, 'blockname' => self::BLOCKNAME]);
+        return $record ?: null;
+    }
+
+    /**
      * Number of CourseCare instances whose parent is a given context, optionally ignoring one instance.
      *
      * @param int $parentcontextid Parent context id.
