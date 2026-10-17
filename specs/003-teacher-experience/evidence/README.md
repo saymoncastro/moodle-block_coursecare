@@ -32,8 +32,8 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-24 | T046, T048 | | | | pendente |
 | SC-001 | T024, T026 | | | | pendente |
 | SC-002 | T019, T031 | | | | pendente |
-| SC-003 | T044 | | | | pendente |
-| SC-004 | T044 | | | | pendente |
+| SC-003 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | atendido: página com 200 atividades montada em 5,5–6,2 ms no servidor; aberta no navegador em 1,4 s com cache vazio e 0,56 s (mediana) depois (limite 2 s); nenhuma consulta a `files` (PHPUnit) ([medições](#medições-t044)) |
+| SC-004 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | atendido: bloco 0.3.0 × 0.2.0 na mesma sala, mesma quantidade de leituras (4) e tempo igual dentro da variação (0,74–0,99 ms × 0,76–0,91 ms; limite +50 ms) ([medições](#medições-t044)) |
 | SC-005 | T030, T032 | | | | pendente |
 | SC-006 | T031 | | | | pendente |
 | SC-007 | T034, T052 | | | | pendente |
@@ -41,6 +41,42 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | SC-009 | T048 | | | | pendente |
 | SC-010 | T053, T054 | | | | pendente |
 | SC-011 | T050, T051 | | | | pendente |
+
+## Medições (T044)
+
+Stack descartável `coursecare-b003` (Moodle 4.5.15, PHP 8.1, PostgreSQL 17.11, mesmo hospedeiro da
+Feature 002: Apple M5 Pro, VM do Docker com 4 CPUs), modo de desenvolvedor ligado. Mesmo método da
+Feature 002 (SC-002):
+
+1. instalação da 0.2.0 (`origin/main`);
+2. salas de demonstração com `tools/dev/demo/setup.php --threshold-mb=1 --activities=200` (sala
+   DEMO-SIZE-200, id 9, com 200 atividades com materiais, analisada);
+3. medição do bloco;
+4. atualização do mesmo site para a 0.3.0 (`dd4a26d`) com `admin/cli/upgrade.php`;
+5. nova medição do bloco e medição da página.
+
+Ferramenta: `tools/dev/bench/render.php` (a mesma nas duas versões), como administrador. Saídas em
+`logs/t044/`.
+
+| Medição | Execução 1 | Execução 2 | Execução 3 | Leituras por chamada |
+| --- | --- | --- | --- | --- |
+| Bloco 0.2.0 (1.000 renderizações), média ms | 0,914 | 0,757 | 0,788 | 4 |
+| Bloco 0.3.0 (1.000 renderizações), média ms | 0,985 | 0,744 | 0,777 | 4 |
+| Página 0.3.0 (`--page`, 100 montagens), média ms | 6,195 | 5,511 | 5,584 | 10,13 / 4,05 / 4,05 |
+
+- **SC-004:** a diferença entre as versões fica dentro da variação entre execuções (−0,01 a +0,07
+  ms); o limite é +50 ms. **Atendido.**
+- **SC-003:** a página é montada em cerca de 6 ms no servidor. A primeira execução inclui a carga do
+  cache de módulos do core (10 leituras; depois 4). A página real foi aberta 11 vezes pelo Chrome no
+  site de demonstração (sala com 200 atividades, mesmo hospedeiro), pela Navigation Timing API
+  (`logs/t044/sc003-navigation-timing.json`):
+  - primeira abertura logo após `purge_caches` (CSS e JavaScript do tema recompilados): 1,40 s até o
+    fim do carregamento;
+  - nas 10 seguintes: mediana de 0,56 s, máximo de 0,74 s.
+
+  O limite é 2 s. **Atendido.**
+- **Limitação:** site com modo de desenvolvedor e depuração ligados (mais lento que um site de
+  produção); uma única base (PostgreSQL), como define o SC.
 
 ## Revisão de tom e rótulos (T047)
 
