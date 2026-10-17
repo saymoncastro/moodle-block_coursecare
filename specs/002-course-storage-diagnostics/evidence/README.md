@@ -88,7 +88,9 @@ job `i18n-package`, na branch `002-course-storage-diagnostics`. Todos verdes:
 | 38964414578 | 93be1c4 | US2: conteúdo único, referências, cópias de segurança |
 | 38962129016 | 84daca5 | MVP (T001–T026) |
 
-O run do commit de consolidação do benchmark é acrescentado quando terminar.
+Consolidação do benchmark: o run 39018617157 (`d70e5f1`) falhou no phpcs porque o script temporário do
+relatório do SC-004 estava salvo como `.php` nas evidências; guardado como `.txt`, o run 39018986620
+(`86fb1fd`) ficou verde nos três jobs.
 
 ## Constitution Check reavaliado (T070)
 
