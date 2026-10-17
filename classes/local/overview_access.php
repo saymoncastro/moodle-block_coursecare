@@ -42,7 +42,8 @@ class overview_access {
             throw new \dml_missing_record_exception('block_instances');
         }
         $parent = \context::instance_by_id((int)$instance->parentcontextid, IGNORE_MISSING);
-        if (!$parent instanceof \context_course || (int)$parent->instanceid === SITEID) {
+        // SITEID holds the id as read from the database (a string): compare as integers.
+        if (!$parent instanceof \context_course || (int)$parent->instanceid === (int)SITEID) {
             throw new \dml_missing_record_exception('block_instances');
         }
         $course = get_course((int)$parent->instanceid);

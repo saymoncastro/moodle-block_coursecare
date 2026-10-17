@@ -132,3 +132,20 @@ Feature: CourseCare "Your course in numbers" page
     And I click on "Technical details" "text"
     And I should see "These numbers show the files Moodle records for this course."
     And I should see "Unique content: 1.0 KB"
+
+  Scenario: A teacher of another course cannot open the page of this course
+    Given the following "courses" exist:
+      | fullname | shortname | format |
+      | Course 2 | C2        | topics |
+    And the following "users" exist:
+      | username | firstname | lastname | email                |
+      | teacher2 | Teacher   | Two      | teacher2@example.com |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher2 | C2     | editingteacher |
+    And the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago |
+      | C1     | 6291456      | 3         | 600              |
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher2"
+    Then I should not see "Your course in numbers"
+    And I should not see "Files in this course"

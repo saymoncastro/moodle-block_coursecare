@@ -205,15 +205,27 @@ nenhum valor por atividade inclui envios (CT-12 a CT-15).
 
 ### Tests for User Story 4
 
-- [ ] T030 [P] [US4] Criar `tests/overview_access_test.php` (`@covers \block_coursecare\local\overview_access`), chamando `overview_access::require_access()` com cada usuário definido por `setUser()`: permitido para professor com edição e gerente; negado (exceção, nenhuma saída de dado) para estudante, professor sem edição, professor de outra sala, visitante e usuário não autenticado; negado para `id` inexistente, instância de outro bloco, instância no curso do site ou fora de um curso; negado quando a capability é proibida por sobreposição na própria instância.
-- [ ] T031 [P] [US4] Em `tests/output/course_overview_test.php`, teste de privacidade (FR-030, SC-006): sala do gerador com uma tarefa de `materialbytes` pequeno e `submissionbytes`, `otherbytes` e `largebytes` grandes, e uma atividade só com envios; no HTML, nenhum número igual a `logicalbytes`, `submissionbytes`, `otherbytes`, `filecount` ou `largebytes` por atividade, a atividade só com envios ausente e a ordem igual à de `materialbytes`; nenhum nome de estudante (usuários do gerador) nem nome de arquivo, e nenhum link para arquivo (FR-034).
-- [ ] T032 [P] [US4] No Behat `tests/behat/block_coursecare_overview.feature`: estudante e professor de outra sala que abrem o endereço da página recebem a negação e não veem números (CT-12, CT-13).
+- [X] T030 [P] [US4] Criar `tests/overview_access_test.php` (`@covers \block_coursecare\local\overview_access`), chamando `overview_access::require_access()` com cada usuário definido por `setUser()`: permitido para professor com edição e gerente; negado (exceção, nenhuma saída de dado) para estudante, professor sem edição, professor de outra sala, visitante e usuário não autenticado; negado para `id` inexistente, instância de outro bloco, instância no curso do site ou fora de um curso; negado quando a capability é proibida por sobreposição na própria instância.
+- [X] T031 [P] [US4] Em `tests/output/course_overview_test.php`, teste de privacidade (FR-030, SC-006): sala do gerador com uma tarefa de `materialbytes` pequeno e `submissionbytes`, `otherbytes` e `largebytes` grandes, e uma atividade só com envios; no HTML, nenhum número igual a `logicalbytes`, `submissionbytes`, `otherbytes`, `filecount` ou `largebytes` por atividade, a atividade só com envios ausente e a ordem igual à de `materialbytes`; nenhum nome de estudante (usuários do gerador) nem nome de arquivo, e nenhum link para arquivo (FR-034).
+- [X] T032 [P] [US4] No Behat `tests/behat/block_coursecare_overview.feature`: estudante e professor de outra sala que abrem o endereço da página recebem a negação e não veem números (CT-12, CT-13).
 
 ### Implementation for User Story 4
 
-- [ ] T033 [US4] Em `classes/local/overview_access.php`, tratar os casos de borda de T030: instância cujo contexto pai não existe mais (sala apagada), contexto pai de atividade, de categoria ou de usuário, e `id` de outro bloco; todos terminam com a mesma exceção padrão de registro inexistente (`invalidrecord`), sem revelar se a instância existe, e acrescentar esses casos a `tests/overview_access_test.php`.
+- [X] T033 [US4] Em `classes/local/overview_access.php`, tratar os casos de borda de T030: instância cujo contexto pai não existe mais (sala apagada), contexto pai de atividade, de categoria ou de usuário, e `id` de outro bloco; todos terminam com a mesma exceção padrão de registro inexistente (`invalidrecord`), sem revelar se a instância existe, e acrescentar esses casos a `tests/overview_access_test.php`.
 
 **Checkpoint**: US1 a US4 verdes; acesso e privacidade comprovados.
+
+*Execução (US4, 2026-10-17)*:
+- **Correção de segurança encontrada pelo T030**: `SITEID` vem do banco como string, e a comparação estrita
+  com inteiro em `overview_access` deixava passar uma instância na página inicial do site; agora compara
+  como inteiros.
+- No PHPUnit, o visitante sem login termina em redirecionamento para o login (exceção `moodle_exception`), não
+  em `require_login_exception`; o teste verifica a recusa.
+- T032: a recusa do estudante fica só no PHPUnit (T030), porque o Behat trata a página de exceção de
+  permissão como falha do próprio passo; o cenário do professor de outra sala (redirecionado à inscrição)
+  fica no Behat.
+- T031 confere cada valor por atividade como número inteiro (`6.0 MB` não pode casar dentro de
+  `16.0 MB`) e falha se a página usar o total da atividade no lugar dos materiais (mutação verificada).
 
 ---
 

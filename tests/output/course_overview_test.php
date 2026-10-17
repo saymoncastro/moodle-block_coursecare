@@ -212,4 +212,64 @@ final class course_overview_test extends \advanced_testcase {
             $this->assertStringContainsString(s(get_string($key, 'block_coursecare', $a)), $html, $key);
         }
     }
+    /**
+     * FR-030, FR-031, FR-034 and SC-006: nothing per activity reveals submissions or other files of students, an
+     * activity with submissions only is not listed, and no student name, file name or file link appears (CT-14).
+     */
+    public function test_privacy(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $essay = $generator->create_module('assign', ['course' => $course->id, 'name' => 'Essay with a guide']);
+        $quiet = $generator->create_module('assign', ['course' => $course->id, 'name' => 'Submissions only']);
+        $students = [];
+        foreach (['Zuleica', 'Yaroslav'] as $firstname) {
+            $students[] = $generator->create_and_enrol($course, 'student', ['firstname' => $firstname,
+                'lastname' => 'Privatestudent']);
+        }
+        $mb = 1048576;
+        // Distinct sizes per activity, none equal to a total of the course.
+        $perassign = ['filecount' => 37, 'logicalbytes' => 10 * $mb + 2048, 'materialbytes' => 2048,
+            'submissionbytes' => 7 * $mb, 'otherbytes' => 3 * $mb, 'largecount' => 1, 'largebytes' => 70 * $mb];
+        $perquiet = ['filecount' => 5, 'logicalbytes' => 6 * $mb, 'materialbytes' => 0, 'submissionbytes' => 5 * $mb,
+            'otherbytes' => $mb];
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $generator->get_plugin_generator('block_coursecare');
+        $plugin->create_diagnostic(['courseid' => $course->id, 'timecompletedago' => 600, 'filecount' => 42,
+            'logicalbytes' => 16 * $mb + 2048, 'categories' => [
+                'material' => ['filecount' => 1, 'logicalbytes' => 2048],
+                'submission' => ['filecount' => 30, 'logicalbytes' => 12 * $mb],
+                'other' => ['filecount' => 11, 'logicalbytes' => 4 * $mb],
+            ], 'activities' => [$essay->cmid => $perassign, $quiet->cmid => $perquiet]]);
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+        $html = $this->render((int)$course->id);
+
+        // The activity with materials shows only its materials; the one with submissions only is not listed.
+        $this->assertStringContainsString('Essay with a guide', $html);
+        $this->assertStringContainsString(display_size(2048), $html);
+        $this->assertStringNotContainsString('Submissions only', $html);
+        foreach ([$perassign, $perquiet] as $values) {
+            foreach (['logicalbytes', 'submissionbytes', 'otherbytes', 'largebytes'] as $field) {
+                if (!empty($values[$field])) {
+                    // A whole number only: "6.0 MB" must not match inside the course total "16.0 MB".
+                    $this->assertDoesNotMatchRegularExpression('/(?<![\d.])' . preg_quote(display_size($values[$field]), '/') .
+                        '/u', $html, $field);
+                }
+            }
+        }
+        $this->assertDoesNotMatchRegularExpression('/\b37\b/', strip_tags($html));
+        // The course totals of submissions are shown, as the decision of the product owner allows.
+        $this->assertStringContainsString(display_size(12 * $mb), $html);
+
+        // No student name, no file name or link to a file.
+        foreach ($students as $student) {
+            $this->assertStringNotContainsString($student->firstname, $html);
+            $this->assertStringNotContainsString($student->lastname, $html);
+        }
+        $this->assertStringNotContainsString('pluginfile.php', $html);
+        $this->assertStringNotContainsString('draftfile.php', $html);
+        $this->assertFalse($DB->record_exists('block_coursecare_large', []));
+    }
 }
