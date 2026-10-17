@@ -237,6 +237,26 @@ Verificada nas 5.001 salas de cada base, não só pelo término das tarefas:
   instalações grandes; impacto: capacidade diária; prioridade: média, quando houver um caso real
   acima de cerca de 10.000 salas elegíveis.
 
+## Reprodução
+
+Os sites de benchmark e de quickstart eram descartáveis e foram apagados depois do merge (2026-10-17).
+Para reproduzir:
+
+1. **Ambiente**: o `moodle-docker` de [CONTRIBUTING.md](../../../CONTRIBUTING.md), com
+   `tools/dev/local.yml.dist` copiado para `local.yml`, Moodle 4.5.15 (`215f4438`) e
+   `moodle-docker` `f4c2324`. Um stack por base, com `MOODLE_DOCKER_DB=pgsql` ou `mariadb`,
+   `MOODLE_DOCKER_PHP_VERSION=8.1`, `COMPOSE_PROJECT_NAME=coursecare-bench-pg` ou
+   `coursecare-bench-maria`, uma `MOODLE_DOCKER_WEB_PORT` livre e `COURSECARE_PLUGIN_DIR` apontando
+   para o checkout. Site instalado vazio, com o plugin.
+2. **Scripts** (`logs/benchmark/`): `mb` e `mbc` executam comandos no stack; os caminhos absolutos
+   da máquina original precisam ser ajustados. Ordem: `bench-generate.sh <base>` (sementes fixas),
+   `bench-sc003.sh <base>`, apagar os diagnósticos das 4 salas do SC-003, `bench-sc004.sh <base>`
+   e, no fim, o relatório `sc004-report.php.txt` copiado como `.php` para a raiz do Moodle e
+   executado com o horário de início do laço (Unix) como argumento.
+3. **Manifestos**: `logs/benchmark/manifests.tar.gz` guarda os 15 manifestos do gerador (valores
+   esperados de registros, A e B por sala), idênticos nas duas bases. Eles usam os ids de sala destes
+   sites: um site novo só reproduz os mesmos ids se for gerado vazio e na mesma ordem.
+
 ## Limitações gerais do benchmark
 
 - Dados sintéticos (`--mode=metadata`), gerados por perfil; não equivalem à validação numa instalação
