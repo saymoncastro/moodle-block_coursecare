@@ -8,7 +8,7 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | --- | --- | --- | --- | --- | --- |
 | CT-01 | T009, T022 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local; CI verde (run 38962129016) |
 | CT-02 | T009 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local; CI verde (run 38962129016) |
-| CT-03 | T009, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | parcial: total da sala (T009) verde; por atividade (T058) pendente |
+| CT-03 | T009, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local: total da sala (T009) e por atividade (T058); CI verde (run 38971119869) |
 | CT-04 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-05 | T027 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-06 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
@@ -29,8 +29,8 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | CT-21 | T054 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US6); CI verde (run 38968677593) |
 | CT-22 | T028 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US2); CI verde (run 38964414578) |
 | CT-23 | T049 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
-| CT-24 | T041 (benchmark) | | | | pendente |
-| CT-25 | T003, T068 | | | | pendente |
+| CT-24 | T041 (benchmark) | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | verde: lote limitado a 500 por execução; 5.001 salas em 9 h 21 min e 9 h 09 min ([benchmark.md](benchmark.md)) |
+| CT-25 | T003, T068 | 2026-10-16 | 4.5.15 | PostgreSQL 17 | verde: atualização real a partir da 0.1.0 no quickstart ([logs/quickstart-002.md](logs/quickstart-002.md) §1) e de novo no SC-002; `savepoints` no CI |
 | CT-26 | T043 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | CT-27 | T043 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | CT-28 | T034 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (T034); CI verde (run 38966216241) |
@@ -44,12 +44,12 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 | SC-001 | T009, T027–T029, T054, T058 | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11 (CI) | todos os cenários verdes local e no CI (último run 38980720482) |
 | SC-002 | T021, T040, T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | atendido: nenhuma consulta a `files` em A–H (PHPUnit); +0,8 ms por renderização em relação à 0.1.0 (limite 50 ms) ([benchmark.md](benchmark.md)) |
 | SC-003 | T041 | 2026-10-16 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | atendido nas duas bases ([benchmark.md](benchmark.md)) |
-| SC-004 | T041 | | | | pendente |
+| SC-004 | T041 | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11.4 | atendido nas duas bases: 5.001 salas em ≤ 9 h 21 min, nenhuma execução acima de 4,5 s ([benchmark.md](benchmark.md)) |
 | SC-005 | T044 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | SC-006 | T042 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US4); CI verde (run 38966922553) |
 | SC-007 | T020, T049, T068 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local (US5); CI verde (run 38967792551) |
-| SC-008 | T066 | | | | pendente |
-| SC-009 | T069 | | | | pendente |
+| SC-008 | T066 | 2026-10-16 | — | — | revisão de tom do agente feita (seção abaixo), sem termo de infraestrutura nem leitura de consumo físico; **aprovação do proprietário do produto pendente** |
+| SC-009 | T069 | 2026-10-17 | 4.5.15 | PostgreSQL 17, MariaDB 11 | verde: `moodle-plugin-ci` completo, PHPUnit, Behat com axe, paridade de strings e pacote (run 38984854623) |
 | SC-010 | T009 | 2026-10-17 | 4.5.15 | PostgreSQL 17 | verde local; CI verde (run 38962129016) |
 
 ## Revisão de tom e rótulos (T066)
@@ -78,6 +78,7 @@ job `i18n-package`, na branch `002-course-storage-diagnostics`. Todos verdes:
 
 | Run | Commit | Conteúdo |
 | --- | --- | --- |
+| 38984854623 | 1cdb3e0 | Segunda revisão: código 4 da CLI para falhas lançadas |
 | 38980720482 | f59412b | Revisão de código (testes fortalecidos), polimento e evidência do SC-003 |
 | 38971119869 | d1fef5e | US7: atividades e arquivos grandes |
 | 38968677593 | 531d8f3 | US6: volume por categoria |
@@ -87,4 +88,24 @@ job `i18n-package`, na branch `002-course-storage-diagnostics`. Todos verdes:
 | 38964414578 | 93be1c4 | US2: conteúdo único, referências, cópias de segurança |
 | 38962129016 | 84daca5 | MVP (T001–T026) |
 
-O run final da branch, depois do SC-004, será acrescentado aqui.
+O run do commit de consolidação do benchmark é acrescentado quando terminar.
+
+## Constitution Check reavaliado (T070)
+
+Reavaliação do Constitution Check do [plan.md](../plan.md) contra o código entregue, em 2026-10-17.
+Sem violações.
+
+| Princípio | Evidência no código entregue |
+| --- | --- |
+| I. Educação, não fiscalização | Nenhum arquivo criado, alterado ou removido (SC-010 no PHPUnit; tabela `files` intacta no SC-004); nenhum alerta, ranking ou notificação. |
+| II. Simplicidade | O bloco mostra uma linha com no máximo um número; detalhe só na CLI de administrador; revisão de tom T066. |
+| III. Recomendações | Nenhuma recomendação nesta feature; limite de arquivo grande configurável, neutro. |
+| IV. Honestidade dos indicadores | Volume rotulado "registrado pelo Moodle", sempre com data; ausência não vira zero (SC-007, estados A–H); referências e backup/lixeira à parte; A e B exatos contra o manifesto nas 5.001 salas. |
+| V. Integração nativa | Task, Lock, DML/XMLDB, Block, String e Output APIs; sem patch do core; consultas portáveis verdes em PostgreSQL e MariaDB. |
+| VI. Desempenho | Renderização: uma leitura por índice, nenhuma consulta a `files` (SC-002); análise de 50.000 registros em ≤ 0,57 s (SC-003); 5.001 salas em ≤ 9 h 21 min com lote horário e concorrência 2 (SC-004). |
+| VII. Segurança e privacidade | Nenhuma coluna de usuário, nome ou caminho; ligações só para arquivos grandes de Materiais (teste de privacidade com controle positivo); log sem dado pessoal. |
+| VIII. Internacionalização | `tools/i18n/check.php` sem erros; strings novas em en e pt_br. |
+| IX. Qualidade e camadas | `$DB` só em `local\collector` e `db/upgrade.php`; `local\analysis` puro; 162 testes PHPUnit e 23 cenários Behat verdes; CI verde. |
+| X. Experiência visual | Texto simples, sem cor de alerta; axe no Behat. |
+| XI. Evolução incremental | Sem cache, fila própria nem abstrações extras; a capacidade configurável por execução fica registrada como melhoria futura, não implementada. |
+| XII. Software livre | GPL v3+, cabeçalhos, README e CHANGES atualizados, sem dependências; pacote verificado por `check.php`. |

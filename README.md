@@ -168,8 +168,11 @@ The analysis reads the course with indexed aggregate queries (`context.path` and
 and keeps only aggregates in memory, so its memory stays almost flat as the course grows. Figures are
 for one analysis with a cold database cache; they depend on the server.
 
-<!-- T041: the site-wide figure (courses analysed per day with the default schedule, SC-004) is added
-     when its run is complete. -->
+With the default schedule (cron every minute, the scheduled task hourly, at most 500 courses queued
+per run and two analyses at a time), a site with 5,001 eligible courses had every course analysed in
+about 9 h 20 min on both databases. The batch of 500 per hour, not the queries, sets that pace: the
+nominal ceiling is about 12,000 courses per day, a limit of the configuration rather than a measured
+capacity at that scale.
 
 ### Limitations
 

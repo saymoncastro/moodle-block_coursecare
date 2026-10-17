@@ -6,10 +6,10 @@ Tudo o que aparece aqui foi **medido**, salvo quando marcado como **projeção**
 | Meta | Situação |
 | --- | --- |
 | SC-003 / CT-17: sala de 50.000 registros em ≤ 5 min, memória sem crescimento proporcional | **Atendida** nas duas bases (medida em 2026-10-16) |
-| SC-004 / CT-24: 5.001 salas concluídas em ≤ 24 h com o cron real | Pendente (execução de cerca de 11 h) |
+| SC-004 / CT-24: 5.001 salas concluídas em ≤ 24 h com o cron real | **Atendida** nas duas bases: 9 h 21 min (PostgreSQL) e 9 h 09 min (MariaDB) |
 | SC-002: renderização do bloco, 0.1.0 × 0.2.0 | **Atendida**: +0,8 ms por renderização (limite 50 ms); nenhuma consulta a `files` |
 | Concorrência (`--run` simultâneo, `--queue --all` duas vezes) | **Atendida** (site de quickstart, 0.2.0) |
-| Exatidão por amostragem (20 salas por perfil) | Parcial: as 4 salas do SC-003 conferem com o manifesto nas duas bases; amostragem por perfil pendente |
+| Exatidão por amostragem (20 salas por perfil) | **Atendida**, além da amostra: as 5.001 salas conferem com o manifesto nas duas bases |
 
 ## Ambiente
 
@@ -150,6 +150,98 @@ lidos com `docker exec`, sem filtros (`logs/benchmark/qs/concurrency-*.txt`):
 - **`--queue --all` duas vezes seguidas**: a primeira solicita 22 análises (as 22 salas elegíveis do
   site), a segunda 0; ficam 22 tarefas ad hoc, exatamente uma por sala, e 22 registros na fila.
 
-## SC-004 e amostragem por perfil
+## SC-004: 5.001 salas com o cron real
 
-Em execução (iniciado em 2026-10-16T23:19:09Z nas duas bases); serão registrados aqui.
+Método (script `logs/benchmark/bench-sc004.sh`): com as 5.001 salas sem diagnóstico (os 4 do SC-003
+apagados), `admin/cli/cron.php` a cada 60 s em cada base, como o Moodle recomenda, até todas as salas
+terem diagnóstico concluído e nenhuma solicitação pendente. Configuração padrão: `queue_analyses`
+de hora em hora num minuto sorteado (:40 no PostgreSQL, :28 no MariaDB), lote de 500, concorrência 2
+de `analyse_course`, `task_adhoc_concurrency_limit` 3. As duas bases rodaram **ao mesmo tempo, na
+mesma VM** (4 CPUs); a interferência possível é declarada e não altera a conclusão, porque a duração
+é determinada pelo lote horário, não pela CPU. Código em uso: `f59412b`; os commits seguintes
+(`f3113f1`, `1cdb3e0`) não tocam o caminho do cron (só a CLI administrativa, `measure.php`, testes e
+documentos). Durante a execução também rodaram, na mesma VM, o SC-002, a concorrência (site de
+quickstart) e o PHPUnit (site de desenvolvimento).
+
+Relatório (`logs/benchmark/<base>/sc004-report.json`, gerado por `sc004-report.php` a partir de
+`task_log` e das tabelas do plugin), progresso por minuto em `sc004-progress.csv` e saída completa do
+cron em `sc004-cron.log.gz`:
+
+| Medida | PostgreSQL | MariaDB |
+| --- | --- | --- |
+| Salas elegíveis | 5.001 | 5.001 |
+| Diagnósticos concluídos | 5.001 | 5.001 |
+| Salas elegíveis sem diagnóstico / diagnósticos de salas não elegíveis | 0 / 0 | 0 / 0 |
+| Início → última sala concluída | 23:19:09 → 08:40:02 UTC (**9 h 21 min**) | 23:19:09 → 08:28:05 UTC (**9 h 09 min**) |
+| Vazão | 500 salas por execução horária (11 execuções: 10 × 500 e 1 × 1); média de 535 salas/h no período | igual por execução; média de 547 salas/h no período |
+| Falhas de análise, tarefas com erro no `task_log`, novas tentativas | 0, 0, 0 | 0, 0, 0 |
+| Salas analisadas mais de uma vez | 0 | 0 |
+| Análises simultâneas (máximo) / sobreposição da mesma sala | 2 / 0 | 2 / 0 |
+| `queue_analyses`: execuções, duração máxima | 11, 0,25 s | 11, 0,29 s |
+| Linhas "task failed" de qualquer componente na saída do cron | 0 | 0 |
+
+Duração de cada tarefa de análise (`timeend − timestart` do `task_log`, em segundos):
+
+| Perfil | Salas | PostgreSQL média / mediana / p95 / p99 / máx. | MariaDB média / mediana / p95 / p99 / máx. |
+| --- | --- | --- | --- |
+| Todas | 5.001 | 0,007 / 0,0045 / 0,011 / 0,089 / 0,96 | 0,013 / 0,0034 / 0,031 / 0,276 / 4,53 |
+| pequeno | 4.500 | 0,0046 / 0,0045 / 0,0053 / 0,0084 / 0,021 | 0,0036 / 0,0033 / 0,0047 / 0,0089 / 0,023 |
+| médio | 450 | 0,011 / 0,011 / 0,015 / 0,018 / 0,022 | 0,030 / 0,029 / 0,046 / 0,052 / 0,061 |
+| grande | 50 | 0,17 / 0,17 / 0,24 / 0,29 / 0,29 | 0,58 / 0,58 / 0,81 / 0,83 / 0,83 |
+| extremo | 1 | 0,96 | 4,53 |
+
+Leituras por tarefa: 18 (PostgreSQL) e 15 (MariaDB), praticamente constantes; escritas: mediana 7,
+máximo 9 (PostgreSQL) e 30 (MariaDB, conforme o número de linhas por atividade e de ligações). Memória: o pico registrado é o do processo
+do cron (cerca de 37 MB), não o da análise; o pico da análise isolada está no SC-003 (≤ 16,2 MB).
+
+**Critério (texto da spec)**: "todas as salas têm diagnóstico concluído em até 24 horas, e nenhuma
+execução excede o limite de tempo configurado". Medido: 9 h 21 min e 9 h 09 min; a execução mais
+longa de tarefa agendada foi de 0,29 s (limite do plano: 30 min) e a de análise, 4,5 s. **Atendido.**
+
+### Integridade
+
+Verificada nas 5.001 salas de cada base, não só pelo término das tarefas:
+
+- **Exatidão**: número de registros, A e B de **todas** as 5.001 salas iguais ao manifesto do
+  gerador (4.500 pequenas, 450 médias, 50 grandes e a extrema), nas duas bases, sem divergência.
+- **Invariantes**: em todos os diagnósticos, conteúdo único ≤ armazenamento lógico, grandes ≤ total,
+  soma das categorias principais = total, soma das atividades = total (registros, bytes e grandes),
+  ligações ≤ 1.000 e ≤ grandes, versão do método 1.
+- **Estados finais**: 5.001 concluídos, nenhum na fila, em execução ou com falha.
+- **Tabela de arquivos intacta**: mesmo número de registros (5.731.758) e mesmo `MAX(id)` e soma de
+  `filesize` nas duas bases; nenhum registro com `timemodified` posterior à geração dos dados
+  (22:20 e 22:30 UTC), antes do SC-003 e do SC-004.
+- **Preservação após falha**: não houve falha nesta execução; o comportamento está coberto pelos
+  testes com o executor real do cron (CT-14, `analyse_course_test`).
+
+### Agendamento: o que foi medido e o que vem da leitura do código
+
+- **Medido**: todas as salas processadas, inclusive a última (o lote final de 1 sala, às 08:40 e
+  08:28); a vazão é a do lote horário (500 por execução), e cada análise leva milissegundos, então o
+  **agendamento**, e não as consultas, determina a duração total; a concorrência 2 foi respeitada
+  durante toda a execução; nenhuma análise duplicada.
+- **Pelo código, não demonstrado por esta execução**:
+  - a seleção horária põe primeiro as salas nunca tentadas (`timeattempted` nulo), antes das
+    reanálises devidas, e adicionar o bloco já solicita a primeira análise sem esperar a tarefa
+    horária; por isso as reanálises acumuladas não atrasam nem impedem a primeira análise de uma
+    sala nova. Esta execução só tinha salas nunca analisadas: **não comprova o comportamento numa
+    fila mista** de primeiras análises e reanálises;
+  - com o cron atrasado, a seleção é por data e nada se perde (só atrasa); solicitações presas são
+    recuperadas pela tarefa agendada (em execução há mais de 2 h, na fila há mais de 24 h).
+- **Capacidade nominal**: 500 salas por hora correspondem a no máximo **12.000 salas por dia**, com o
+  cron pontual. É um limite da configuração atual, **não uma garantia medida** nessa escala. Com o
+  intervalo padrão de reanálise (24 h), um site com mais de cerca de 12.000 salas elegíveis não
+  conseguiria reanalisar todas a cada dia.
+- **Melhoria futura (não bloqueante, fora da Feature 002)**: permitir ao administrador configurar a
+  quantidade de salas por execução, com limites seguros e orientação de desempenho. Relevância:
+  instalações grandes; impacto: capacidade diária; prioridade: média, quando houver um caso real
+  acima de cerca de 10.000 salas elegíveis.
+
+## Limitações gerais do benchmark
+
+- Dados sintéticos (`--mode=metadata`), gerados por perfil; não equivalem à validação numa instalação
+  de produção, com seus padrões reais de áreas, repetição e carga concorrente.
+- Uma VM de desenvolvimento (4 CPUs, 5,8 GB) com as duas bases ao mesmo tempo e configuração padrão
+  dos bancos; o "frio" do SC-003 é frio para o banco, não para o cache do sistema operacional.
+- Não houve falhas nem cron atrasado durante o SC-004: esses caminhos estão cobertos por testes e pela
+  leitura do código, não por esta execução.

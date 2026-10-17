@@ -352,7 +352,7 @@ SC-004.
   `filesize` ajustado só nesses dados, com aviso na saída.
 - [X] T040 [P] [US3] Criar `tools/dev/bench/render.php`: 1.000 chamadas de `get_content()` para um
   professor numa sala, com média e desvio, para comparar a 0.1.0 e a nova versão (SC-002).
-- [ ] T041 [US3] [MANUAL] Executar o benchmark de benchmark.md nas duas bases (PostgreSQL 17 e
+- [X] T041 [US3] [MANUAL] Executar o benchmark de benchmark.md nas duas bases (PostgreSQL 17 e
   MariaDB 11): SC-003 (5.000, 20.000, 50.000 e 200.000 registros, 3 execuções, `EXPLAIN` de Q1–Q4),
   SC-004 (5.001 salas até a fila esvaziar com o cron real a cada minuto), SC-002 (T040), concorrência
   e exatidão por amostragem. Registrar `evidence/benchmark.md` e os JSON em `evidence/logs/`,
@@ -360,7 +360,8 @@ SC-004.
   ajuste antes da fase final (por exemplo, RK1 do plano).
   *Execução (2026-10-16)*: SC-003 medido e atendido nas duas bases (50.000 registros em ≤ 0,57 s,
   memória 1,02 ×; `evidence/benchmark.md`), com dados em `--mode=metadata` (desvio declarado).
-  Pendentes: SC-004, SC-002 (microbenchmark), concorrência e amostragem por perfil.
+  Depois: SC-002 (+0,8 ms por renderização), concorrência e SC-004 (5.001 salas em 9 h 21 min e
+  9 h 09 min, todas exatas contra o manifesto) atendidos; ver `evidence/benchmark.md`.
 
 **Checkpoint**: T034–T035 verdes; evidência de benchmark registrada.
 
@@ -525,7 +526,7 @@ por `cmid` e contagens de grande porte conferidos.
 
 ## Phase 10: Polish, validação final e evidências
 
-- [ ] T063 [P] Atualizar `README.md`: o que o diagnóstico mede e não mede (consumo físico, economia),
+- [X] T063 [P] Atualizar `README.md`: o que o diagnóstico mede e não mede (consumo físico, economia),
   metodologia de cada indicador, matriz resumida com link para os critérios, estados do bloco,
   configurações com padrões e unidades (limite de grande porte em MB = 1.048.576 bytes, como
   triagem e não limite pedagógico), CLI, privacidade, limites de escalabilidade **medidos** em T041 e
@@ -543,10 +544,10 @@ por `cmid` e contagens de grande porte conferidos.
   a partir da 0.1.0 (CT-25), primeira análise, conferência dos números, estados, ciclo de vida.
   Capturas do bloco nos estados A, B, D, E, F e G em `evidence/screenshots/` e saídas da CLI em
   `evidence/logs/`.
-- [ ] T069 Verificar o CI da branch: `moodle-plugin-ci` completo (phplint, phpcs, phpdoc, validate,
+- [X] T069 Verificar o CI da branch: `moodle-plugin-ci` completo (phplint, phpcs, phpdoc, validate,
   savepoints, mustache, grunt), PHPUnit e Behat verdes em 8.1/pgsql e 8.3/mariadb, e o job
   `i18n-package`. Registrar o run em `evidence/README.md`.
-- [ ] T070 Reavaliar o Constitution Check do plan.md contra o código entregue (camadas, nenhuma
+- [X] T070 Reavaliar o Constitution Check do plan.md contra o código entregue (camadas, nenhuma
   consulta a `files` na renderização, nenhum dado pessoal) e preencher a tabela de `evidence/README.md`
   (nenhum item marcado sem evidência). Depende de T041, T063–T069.
 
