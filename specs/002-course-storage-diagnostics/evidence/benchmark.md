@@ -163,7 +163,7 @@ mesma VM** (4 CPUs); a interferência possível é declarada e não altera a con
 documentos). Durante a execução também rodaram, na mesma VM, o SC-002, a concorrência (site de
 quickstart) e o PHPUnit (site de desenvolvimento).
 
-Relatório (`logs/benchmark/<base>/sc004-report.json`, gerado por `sc004-report.php` a partir de
+Relatório (`logs/benchmark/<base>/sc004-report.json`, gerado por `sc004-report.php.txt` (script PHP temporário, guardado como texto) a partir de
 `task_log` e das tabelas do plugin), progresso por minuto em `sc004-progress.csv` e saída completa do
 cron em `sc004-cron.log.gz`:
 
