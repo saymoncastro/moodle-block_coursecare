@@ -280,7 +280,13 @@ o tour aberto prende o foco e cobre a gaveta de blocos.
 
 ## Runs de CI (T054)
 
-Pendente.
+| Commit | Run | Data | Jobs | Resultado |
+| --- | --- | --- | --- | --- |
+| `f19d663` (ajustes finais, T044, T053) | [39076096522](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39076096522) | 2026-10-17 | `moodle-plugin-ci` completo, PHPUnit e Behat em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | verde |
+
+Runs anteriores da branch, todos verdes: US3 (`c83a620`), US4 (`8f3a2c9`) e US5/US6 (`a8aca8d`).
+Qualquer commit posterior (por exemplo, correções vindas da avaliação com professores) precisa de um
+novo run registrado aqui.
 
 ## Constitution Check reavaliado (T055)
 

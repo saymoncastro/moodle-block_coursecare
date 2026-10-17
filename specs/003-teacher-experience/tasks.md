@@ -296,7 +296,7 @@ professores, quality gates e fechamento.
 - [ ] T051 Corrigir todos os problemas críticos da avaliação (FR-071a) nos arquivos afetados, com testes quando houver regra, repetir a validação visual afetada (T048) e confirmar com os professores ou o proprietário do produto; registrar os problemas menores como melhorias futuras em `CHANGES.md` e `evidence/README.md`.
 - [ ] T052 [MANUAL] Executar o quickstart.md §1–§9 num ambiente limpo (inclusive teclado, leitor de tela, 320 px, Boost e Classic, pt_BR com e sem a tradução) e registrar o resultado em `evidence/logs/quickstart-003.md`.
 - [X] T053 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.3.0.zip`; corrigir a lista de arquivos permitidos em `tools/package/check.php` para `overview.php` e os novos templates, se necessário.
-- [ ] T054 Verificar o CI da branch (`moodle-plugin-ci` completo, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package`) e registrar os runs em `evidence/README.md`.
+- [X] T054 Verificar o CI da branch (`moodle-plugin-ci` completo, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package`) e registrar os runs em `evidence/README.md`.
 - [ ] T055 Reavaliar o Constitution Check do plan.md contra o código entregue (camadas, nenhuma consulta a `files`, FR-030, nenhum dado novo, diretrizes visuais) e completar a tabela de `evidence/README.md` (nenhum item marcado sem evidência). Depende de T044 a T054.
 
 ---
