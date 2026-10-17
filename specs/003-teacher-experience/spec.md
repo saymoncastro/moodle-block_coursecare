@@ -367,7 +367,8 @@ material; o envio entra só no total da sala.
   "filearea", "contexto", "deduplicação", "blob") e sem apresentar números como espaço físico
   exclusivo, economia ou mau uso. Conceitos técnicos necessários MUST ser explicados em uma frase.
 - **FR-025**: Os textos MUST ser construtivos e não alarmistas, sem culpa, pressão ou comparação
-  entre pessoas.
+  entre pessoas, verificado na revisão de tom e rótulos com aprovação do proprietário do produto
+  (SC-008).
 
 **Privacidade e segurança**
 
@@ -378,7 +379,8 @@ material; o envio entra só no total da sala.
   associados" e "Não classificado", que podem conter arquivos de estudantes (anexos de fórum,
   respostas): por atividade, só os materiais.
 - **FR-031**: A página MUST NOT exibir nomes de estudantes, nomes ou identificadores de arquivos de
-  envios, nem dados individuais de estudantes (Princípio VII).
+  envios, nem dados individuais de estudantes (Princípio VII). A FR-033 estende a proibição de nomes
+  a todos os arquivos.
 - **FR-032**: A feature MUST reutilizar a capability de visualização existente e MUST NOT criar
   capabilities novas para o professor.
 - **FR-033**: A página MUST NOT exibir nomes de arquivos. Arquivos de grande porte de materiais são
@@ -490,7 +492,7 @@ material; o envio entra só no total da sala.
 - **SC-002**: Em 100% dos cenários com resultado, os valores exibidos (total, categorias, materiais
   por atividade, arquivos de grande porte, Conteúdo único, referências e cópias) são iguais aos do
   diagnóstico armazenado, e a soma das categorias é igual ao total exibido.
-- **SC-003**: Abrir a página de uma sala com 200 atividades com arquivos leva até 2 segundos no
+- **SC-003**: Abrir a página de uma sala com 200 atividades com materiais leva até 2 segundos no
   ambiente de referência, e nem o bloco nem a página consultam os registros de arquivos.
 - **SC-004**: O bloco não acrescenta mais que 50 ms à página da sala em relação à 0.2.0, no ambiente
   de referência.

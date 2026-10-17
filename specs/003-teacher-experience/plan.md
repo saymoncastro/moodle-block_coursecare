@@ -63,7 +63,7 @@ Boost e Classic e derivados; navegadores de desktop e celular.
 **Scale/Scope**:
 - 1 página nova, 1 template de página com partes, o template do bloco alterado.
 - Cerca de 40 strings novas em en e pt_br.
-- 2 coletores (1 método novo e 1 classe nova), 1 classe de análise e 1 renderable.
+- Coleta: 2 métodos novos (`diagnostic_store`, `eligibility`) e 1 classe nova (`course_structure`); 1 verificação de acesso (`overview_access`), 1 classe de análise e 1 renderable.
 
 ## Constitution Check
 
@@ -126,8 +126,10 @@ blocks/coursecare/                       # raiz do repositório
 ├── block_coursecare.php                 # diagnostic_line com link; sem intro
 ├── overview.php                         # NOVO: página "Sua sala em números"
 ├── classes/
+│   ├── local/overview_access.php        # NOVO: verificação de acesso da página (ordem do contrato)
 │   ├── local/collector/
 │   │   ├── diagnostic_store.php         # + get_large_materials_by_activity()
+│   │   ├── eligibility.php              # + get_course_instance()
 │   │   └── course_structure.php         # NOVO: atividades da sala via get_fast_modinfo()
 │   ├── local/analysis/
 │   │   └── overview_builder.php         # NOVO, puro: proporções, grupos, FR-030, estados
@@ -171,8 +173,9 @@ Página da sala
     state_resolver → diagnostic_line(+URL se há resultado) → content.mustache
 
 overview.php?id=<instância>
-  required_param(id, PARAM_INT) → block_instances (blockname coursecare) → contexto pai = curso ≠ site
-  require_login(curso) → require_capability(block/coursecare:view, contexto do bloco)
+  required_param(id, PARAM_INT) → overview_access::require_access(id):
+    eligibility::get_course_instance (blockname coursecare) → contexto pai = curso ≠ site
+    → require_login(curso) → require_capability(block/coursecare:view, contexto do bloco)
   diagnostic_store: get_summary, get_categories, get_activities, get_large_materials_by_activity
   course_structure: atividades (nome formatado, URL, uservisible) — cache de módulos do core
   state_resolver → overview_builder (puro) → course_overview → overview.mustache (+ partials)

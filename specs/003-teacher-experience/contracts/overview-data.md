@@ -33,10 +33,11 @@ Regras (cada uma com teste PHPUnit):
 4. `cmid 0` → `courselevel`; `uservisible = false` → somado em `others`, sem nome; `cmid` ausente da
    estrutura → somado em `removed`, sem nome.
 5. `Σ bytes` de itens e grupos = bytes da categoria `material`; `Σ bytes` das categorias = total.
-6. `share()` conforme o data-model: "menos de 1%" para `0 < x < 0,5%`, nunca "0%" para valor
-   positivo.
+6. `share()` conforme o data-model: "menos de 1%" para `0 < x < 1%`, nunca "0%" nem "1%" para
+   esses valores; a partir de 1%, inteiro mais próximo.
 7. Sem resultado: nenhuma seção com números; G: só resumo e detalhes técnicos.
-8. Grandes de materiais por atividade ordenados por `largebytes`; `truncated` quando
+8. Grandes de materiais por atividade ordenados por `largebytes`, com atividades ocultas ao usuário
+   em `others` e removidas em `removed`, como na regra 4; `truncated` quando
    `largelinkstruncated = 1`.
 
 ## Apresentação (`\block_coursecare\output`)

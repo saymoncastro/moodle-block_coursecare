@@ -77,7 +77,7 @@ Regras: só `materialbytes > 0` entram; `Σ bytes` (itens, nível da sala e grup
 | --- | --- |
 | `count`, `bytes` | `diag.largecount`, `largebytes` (sala inteira, todas as categorias) |
 | `threshold` | `diag.largethreshold` |
-| `materials` | `activity_item` com `largecount > 0`, ordenados por `largebytes` |
+| `materials` | `activity_item` com `largecount > 0`, ordenados por `largebytes`; atividades que o usuário não pode ver somadas em `others` e as removidas após a análise em `removed`, sem nomes, como em `activity_list` |
 | `truncated` | `diag.largelinkstruncated = 1`: a lista de materiais considera só os 1.000 maiores |
 
 ### `technical`
@@ -92,8 +92,8 @@ volume de cada uma e conteúdo único do conjunto); cobertura (registros e volum
 | Caso | Resultado |
 | --- | --- |
 | `whole = 0` ou `part = 0` | `0` |
-| `0 < part/whole < 0,5%` | "menos de 1%" |
-| demais | inteiro mais próximo de `100 × part / whole` |
+| `0 < part/whole < 1%` | "menos de 1%" |
+| demais (`part/whole ≥ 1%`) | inteiro mais próximo de `100 × part / whole` (no mínimo 1) |
 
 As porcentagens não são normalizadas para somar 100.
 

@@ -51,7 +51,8 @@ negação padrão, nenhum número (CT-12). Trocar o `id` por uma instância de o
 
 ## §6 Desempenho
 
-- `php blocks/coursecare/tools/dev/bench/render.php --page --course=<sala com 200 atividades>`:
+- `php blocks/coursecare/tools/dev/demo/setup.php --confirm --activities=200` cria a sala de medição;
+  `php blocks/coursecare/tools/dev/bench/render.php --page --course=<essa sala>`:
   média ≤ 2 s (SC-003).
 - `render.php --course=<id>` na 0.2.0 e na 0.3.0, mesma sala: diferença ≤ 50 ms (SC-004).
 

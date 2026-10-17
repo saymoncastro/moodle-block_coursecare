@@ -6,7 +6,9 @@ verificados no Moodle 4.5.15 do ambiente de desenvolvimento.
 ## R1. Ponto de entrada da página e verificação de acesso
 
 **Decision**: página `blocks/coursecare/overview.php?id=<id da instância do bloco>`.
-O script carrega a instância (`block_instances`, `blockname = 'coursecare'`), exige que o contexto pai
+A verificação fica em `classes/local/overview_access.php`, com a leitura da instância pelo coletor
+(`eligibility::get_course_instance()`), e o script a chama antes de qualquer leitura. Ela carrega a
+instância (`block_instances`, `blockname = 'coursecare'`), exige que o contexto pai
 seja um contexto de curso diferente do curso do site, carrega o curso, chama
 `require_login($course, false)` e `require_capability('block/coursecare:view',
 context_block::instance($id))`. A sala exibida é sempre a da instância. Qualquer instância
@@ -101,8 +103,8 @@ ponto único e sem revisão de contraste); biblioteca de gráficos (dependência
 ## R6. Proporções e barras
 
 **Decision**: cada proporção é texto ("38%", "menos de 1%") e, ao lado, uma barra decorativa
-(`aria-hidden="true"`) cuja largura é a mesma proporção. Arredondamento ao inteiro mais próximo;
-valores positivos abaixo de 0,5% viram "menos de 1%", nunca "0%"; zero só para categoria vazia de um
+(`aria-hidden="true"`) cuja largura é a mesma proporção. Valores positivos abaixo de 1% viram
+"menos de 1%", nunca "0%" nem "1%" (spec, CT-21); a partir de 1%, inteiro mais próximo; zero só para categoria vazia de um
 resultado concluído. A soma em bytes das categorias é igual ao total (dado da Feature 002); as
 porcentagens arredondadas podem não somar 100, e nenhum texto afirma que somam.
 

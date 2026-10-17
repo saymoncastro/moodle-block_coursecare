@@ -6,7 +6,8 @@ Arquivo: `overview.php` na raiz do bloco (dentro do pacote). Dados: [overview-da
 
 - URL: `/blocks/coursecare/overview.php?id=<id da instância do bloco>`; `id` com
   `required_param('id', PARAM_INT)`. Nenhum outro parâmetro.
-- Ordem das verificações:
+- Ordem das verificações, em `classes/local/overview_access.php` (chamada antes de qualquer leitura do
+  diagnóstico; a instância é lida por `eligibility::get_course_instance()`):
   1. a instância existe e tem `blockname = 'coursecare'`;
   2. o contexto pai é um contexto de curso e o curso não é o do site;
   3. `require_login($course, false)`;
