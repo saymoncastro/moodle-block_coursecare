@@ -26,7 +26,7 @@ Feature: CourseCare "Your course in numbers" page
     And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
     Then I should see "Your course in numbers"
     # display_size() separates the number and the unit with a non-breaking space (U+00A0), written literally.
-    And I should see "Files in this course, as recorded by Moodle"
+    And I should see "Course files recorded in Moodle"
     And I should see "6.0 MB"
     And I click on "Back to the course" "link"
     And I should see "Learn more about the files in your course" in the "CourseCare" "block"

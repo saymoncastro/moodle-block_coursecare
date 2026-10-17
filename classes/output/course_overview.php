@@ -26,7 +26,8 @@ use block_coursecare\local\collector\diagnostic_store;
  * The "Your course in numbers" page (contracts/overview-page.md).
  *
  * Receives the course view built by overview_builder and turns it into template data: every sentence comes complete
- * from the string catalogue, sizes from display_size() and dates from userdate(). No file record is read here.
+ * from the string catalogue, sizes from diagnostic_line::size() and dates from userdate(). No file record is read
+ * here.
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -112,7 +113,7 @@ class course_overview implements \renderable, \templatable {
             return [];
         }
         $row = fn(string $name, ?string $url, array $values): array => ['name' => $name, 'url' => $url,
-            'hasurl' => $url !== null, 'size' => display_size($values['bytes']),
+            'hasurl' => $url !== null, 'size' => diagnostic_line::size($values['bytes']),
             'count' => get_string('overview:large_count', 'block_coursecare', $values['count'])];
         $rows = [];
         foreach ($large['materials'] as $item) {
@@ -130,10 +131,10 @@ class course_overview implements \renderable, \templatable {
             'heading' => get_string('overview:large', 'block_coursecare'),
             'summary' => $large['count'] > 0
                 ? get_string('overview:large_summary', 'block_coursecare', (object)[
-                    'threshold' => display_size($large['threshold']), 'count' => $large['count'],
-                    'size' => display_size($large['bytes']),
+                    'threshold' => diagnostic_line::size($large['threshold']), 'count' => $large['count'],
+                    'size' => diagnostic_line::size($large['bytes']),
                 ])
-                : get_string('overview:large_none', 'block_coursecare', display_size($large['threshold'])),
+                : get_string('overview:large_none', 'block_coursecare', diagnostic_line::size($large['threshold'])),
             'help' => get_string('overview:large_help', 'block_coursecare'),
             'hasmaterials' => $rows !== [],
             'materialsheading' => get_string('overview:large_materials', 'block_coursecare'),
@@ -154,13 +155,13 @@ class course_overview implements \renderable, \templatable {
         }
         $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
         $counted = fn(array $values): \stdClass => (object)['count' => $values['count'],
-            'size' => display_size($values['bytes'])];
+            'size' => diagnostic_line::size($values['bytes'])];
         $references = $technical['references'];
         $copies = $technical['copies'];
         $coverage = $technical['coverage'];
         return [
             'summary' => $str('overview:technical'),
-            'unique' => $str('overview:unique', display_size($technical['unique']['bytes'])),
+            'unique' => $str('overview:unique', diagnostic_line::size($technical['unique']['bytes'])),
             'uniquehelp' => $str('overview:unique_help'),
             'references' => $str('overview:references'),
             'referenceshelp' => $str('overview:references_help'),
@@ -174,11 +175,11 @@ class course_overview implements \renderable, \templatable {
             'copylines' => [
                 ['text' => $str('overview:copies_backup', $counted($copies['backup']))],
                 ['text' => $str('overview:copies_recyclebin', $counted($copies['recyclebin']))],
-                ['text' => $str('overview:copies_unique', display_size($copies['uniquebytes']))],
+                ['text' => $str('overview:copies_unique', diagnostic_line::size($copies['uniquebytes']))],
             ],
             'coverage' => $str('overview:coverage', (object)['count' => $coverage['count'],
-                'size' => display_size($coverage['bytes']), 'share' => self::share_text($coverage['share'])]),
-            'threshold' => $str('overview:threshold', display_size($technical['threshold'])),
+                'size' => diagnostic_line::size($coverage['bytes']), 'share' => self::share_text($coverage['share'])]),
+            'threshold' => $str('overview:threshold', diagnostic_line::size($technical['threshold'])),
             'notmeaning' => $str('overview:notmeaning'),
         ];
     }
@@ -252,7 +253,7 @@ class course_overview implements \renderable, \templatable {
      */
     private static function measure(int $bytes, int $share): array {
         return [
-            'size' => display_size($bytes),
+            'size' => diagnostic_line::size($bytes),
             'share' => self::share_text($share),
             'width' => $share === overview_builder::LESS_THAN_ONE ? 1 : $share,
         ];
@@ -278,7 +279,7 @@ class course_overview implements \renderable, \templatable {
         if ($view['partial'] && $view['technical'] !== null && $view['technical']['coverage']['bytes'] > 0) {
             $coverage = $view['technical']['coverage'];
             $hero['coverage'] = get_string('overview:partial', 'block_coursecare', (object)[
-                'size' => display_size($coverage['bytes']),
+                'size' => diagnostic_line::size($coverage['bytes']),
                 'share' => self::share_text($coverage['share']),
             ]);
         }

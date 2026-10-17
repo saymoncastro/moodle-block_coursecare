@@ -44,11 +44,28 @@ registro manual com data, versão do Moodle e banco de dados. Os arquivos ficam 
 
 ## Revisão de tom e rótulos (T047)
 
-Pendente.
+**Preparada em 2026-10-17; aguardando a aprovação do proprietário do produto.** Todas as strings novas,
+alteradas e removidas pela Feature 003 (comparação com `main`), em en e pt_BR, conferidas contra
+`contracts/block-ui.md` e `contracts/overview-page.md` e contra os Princípios I, II e IV:
+
+- nenhuma frase culpa o professor, recomenda ação ou fala em economia, carbono, desperdício ou ranking;
+- o número principal nunca é chamado de espaço em disco: o rótulo diz "registrados no Moodle", e o que
+  os números não significam fica nos detalhes técnicos (`overview:notmeaning`, `overview:unique_help`);
+- "grande porte" sempre vem com a frase de triagem (`overview:large_help`), e a ausência de arquivos
+  grandes é dita de forma neutra (`overview:large_none`);
+- termos técnicos (conteúdo único, referências, cópias, cobertura) só aparecem nos detalhes técnicos;
+- paridade en/pt_br: `tools/i18n/check.php` sem erros; os avisos de texto igual ao inglês são os
+  símbolos de unidade e `overview:share` ("{$a}%"), iguais por natureza.
+
+Ajuste já feito após a aprovação visual: `overview:files` passou de "Files in this course, as recorded
+by Moodle" / "Arquivos desta sala, conforme registrados no Moodle" para "Course files recorded in
+Moodle" / "Arquivos da sala registrados no Moodle".
+
+{table}
 
 ## Reconstrução e validação visual (T046, T048)
 
-### Proposta 1 (T046), 2026-10-17 — aguardando a revisão do proprietário do produto
+### Proposta 1 (T046), 2026-10-17 — não aprovada
 
 - Ambiente: site de demonstração limpo e descartável (`moodle-docker`, projeto `coursecare-demo`), Moodle
   4.5.15, PHP 8.1, PostgreSQL 17, tema Boost, pacote oficial pt_br e tradução do projeto instalada por
@@ -63,9 +80,17 @@ Pendente.
 - O rodapé de desempenho do modo de desenvolvedor (do `config.php` compartilhado pelos sites de
   desenvolvimento) foi ocultado só no momento da captura; ele não existe num site de produção.
 - Observação fora do plugin: em pt_BR o rótulo de tamanho vem do pacote oficial do core ("Mb", "Kb").
-- A aprovação da direção visual será registrada aqui com data, só quando ocorrer.
 
-### Proposta 2 (T046), 2026-10-17 — aguardando a revisão do proprietário do produto
+### Aprovação da direção visual (T046), 2026-10-17
+
+O proprietário do produto aprovou a **proposta 2** como direção visual da Feature 003, em 2026-10-17:
+a estrutura, a identidade visual, a hierarquia dos indicadores e a composição geral estão alinhadas à
+visão do CourseCare / AVA Consciente, sem necessidade de uma terceira proposta. A aprovação não encerra a
+feature. Ajustes finais pedidos na mesma decisão: equilíbrio da abertura da página (sobretudo sem
+diagnóstico), simplificação de rótulos técnicos, unidades no pacote pt_BR e conclusão de T048 (ver
+"Ajustes finais após a aprovação").
+
+### Proposta 2 (T046), 2026-10-17 — aprovada
 
 A proposta 1 não foi aprovada. A proposta 2 refina a mesma direção visual, sem mudar o diagnóstico, os dados
 exibidos nem o escopo: só os templates, os textos de interface, a folha de estilos e a forma como
@@ -117,15 +142,105 @@ exibidos nem o escopo: só os templates, os textos de interface, a folha de esti
 - Contraste: as quatro cores das categorias têm pelo menos 3:1 contra o fundo branco e contra o trilho da
   barra (4,1 a 4,9), como pede T035; cores vizinhas se distinguem pelo matiz e por um espaço branco, não pela
   luminosidade, e a informação está sempre no texto da legenda. A conferência com ferramenta fica para T048.
-- Ainda não validado no tema Classic, em zoom de 200% nem com leitor de tela (T048); tons provisórios até a
-  aprovação.
+- Ainda não validado no tema Classic, em zoom de 200% nem com leitor de tela (T048).
 - Na gaveta estreita do bloco, o rótulo do volume ocupa duas linhas.
 - A sala com 200 atividades não foi capturada; o caso de 14 atividades mostra a mesma lista com "Mostrar todas".
-- A aprovação da direção visual será registrada aqui com data, só quando ocorrer.
+
+### Ajustes finais após a aprovação, 2026-10-17
+
+1. **Abertura da página.** O título e a introdução ficam à esquerda e o quadro do volume com a data à
+   direita, a partir de 768 px. Avisos e cobertura parcial ficam abaixo, em largura total. Sem
+   resultado, a abertura mostra só a frase do estado sob a introdução, sem quadro: a seção caiu de
+   cerca de 180 px para 135 px de altura em desktop, sem informação nova.
+2. **Rótulo do volume.** `overview:files` passou a "Course files recorded in Moodle" / "Arquivos da
+   sala registrados no Moodle". "Registrados no Moodle" mantém a precisão (registro lógico, FR-002).
+   A explicação completa continua nos detalhes técnicos (`overview:notmeaning`, `overview:unique_help`).
+3. **Unidades.** Investigação no Moodle 4.5.15:
+   - `display_size()` monta o número com `sprintf('%.1f')`, sempre com ponto decimal, e a unidade com
+     as strings do core `sizekb`, `sizemb` e `sizegb`;
+   - o pacote oficial pt_br define `Kb`, `Mb` e `Gb` (mas `TB` e `PB`), símbolos que na notação usual
+     são de bits; o separador decimal do pt_br (`langconfig`, `decsep`) é a vírgula;
+   - resultado no pt_BR: "8.0 Mb", ambíguo (bit × byte) e com o separador de outra localidade.
+
+   Solução adotada, sem tocar no core: `diagnostic_line::size()` aplica a mesma regra de
+   `display_size()` (potências de 1024, uma casa decimal, bytes inteiros abaixo de 1 KB), mas formata o
+   número com `format_float()`, a API do Moodle que usa o separador decimal do idioma. As unidades vêm
+   de strings do plugin (`size:kb`, `size:mb`, `size:gb`, `size:tb`: KB, MB, GB, TB nas duas
+   línguas). Em inglês o texto é idêntico ao de `display_size()`, verificado por teste. Em pt_BR fica
+   "8,0 MB". O bloco e a página usam a função; a CLI e as configurações do administrador continuam com
+   `display_size()`, como o resto do Moodle. Complemento sugerido, fora do plugin: corrigir `sizekb`,
+   `sizemb` e `sizegb` do pt_br no AMOS. Até lá, um site pode ajustá-las com `tool_customlang`.
+4. **Barras.** As barras empilhadas não desenham mais segmentos de 0%. Antes, o separador de 2 px
+   desses segmentos deixava uma fresta no fim da barra.
+
+### Validação visual e de acessibilidade (T048), 2026-10-17
+
+Site de demonstração (Moodle 4.5.15, PHP 8.1, PostgreSQL 17), Chrome do stack. Professor de
+demonstração com o tour de usuário da página da sala concluído, como ficaria após o primeiro acesso:
+o tour aberto prende o foco e cobre a gaveta de blocos.
+
+- **Capturas** em `screenshots/final/boost/` e `screenshots/final/classic/` (44 por tema), en e pt_BR:
+  - sala com o bloco;
+  - bloco nos estados D, E, F com resultado, G e sem resultado (A);
+  - página nos estados D (fechada e aberta), E, F, G, H, A, 14 atividades e 200 atividades, em
+    desktop (1280 px);
+  - bloco e página em celular (375 px, emulação do Chrome): página em D, E, F, G, A e 200 atividades.
+
+  Também pt_BR sem a tradução do projeto (`*-pt_br-notranslation`): o plugin cai para o inglês sem
+  chaves cruas, com números e datas no formato pt_BR.
+- **Verificações** com `tools/dev/demo/checks.py`, resultados em `logs/t048/<tema>-<língua>/`:
+
+| Verificação | Páginas | Boost en | Boost pt_BR | Classic en | Classic pt_BR |
+| --- | --- | --- | --- | --- | --- |
+| axe-core 4.10 (cópia do Moodle), regras WCAG 2.0/2.1/2.2 A e AA | página D, E, F, G, A, 200 atividades; sala D e A | 0 violações | 0 violações | 0 violações | 0 violações |
+| Zoom de 200% (1280 px → 640 px CSS) | página D, 200 atividades; sala D | sem rolagem horizontal | idem | idem | idem |
+| 320 px (400%) | página D; sala D | sem rolagem horizontal | idem | idem | idem |
+| Teclado (Tab até repetir; Enter em cada `summary`) | página D | 10 paradas, todas com indicador de foco; detalhes técnicos abrem | idem | idem | idem |
+| Teclado | página com 200 atividades | 203 paradas, todas com indicador; "Mostrar todas" e detalhes abrem | idem | idem | idem |
+| Teclado | sala D (bloco) | o link do bloco é alcançado, com indicador | idem | idem | idem |
+| Árvore de acessibilidade do Chrome | página D e A; bloco | títulos h2 → h3 → h4, listas, links com nome, `summary` com estado expandido/recolhido, barras ausentes, números em texto | idem | idem | idem |
+
+- **Itens que o axe deixou para revisão humana** ("incomplete"):
+  - `aria-valid-attr-value` em elementos do tema (menu do usuário, notificações), fora do plugin;
+  - `color-contrast` na frase de ajuda da 3ª categoria, só no Classic pt_BR, porque o fundo "sobrepõe
+    parcialmente outros elementos". Conferido na captura: texto na cor do tema sobre o painel branco,
+    sem sobreposição visível.
+- **Leitor de tela: não realizado.** A árvore de acessibilidade mostra o que o leitor de tela recebe,
+  mas não substitui o teste com VoiceOver ou NVDA. Falta uma passagem humana, de cerca de 10 minutos,
+  num desktop:
+  1. abrir a sala *Biologia celular* e chegar ao bloco pelo atalho "Pular AVA Consciente" ou pelos
+     marcos;
+  2. ouvir o rótulo, o volume e a data;
+  3. seguir o link;
+  4. navegar a página por títulos (h2 → h3);
+  5. ouvir a legenda das categorias (nome, tamanho e percentual);
+  6. abrir "Mostrar todas" e "Detalhes técnicos" e conferir que o estado (recolhido/expandido) é
+     anunciado;
+  7. voltar à sala.
+
+  Registrar o leitor e o navegador usados.
+- **Não declaramos conformidade com a WCAG.** As verificações automáticas não encontraram violações e
+  as verificações de teclado, zoom e largura passaram, mas a conformidade depende do teste com leitor
+  de tela e de uma revisão humana.
+- **Pendente para fechar T048:** o teste com leitor de tela acima e a aprovação das capturas finais
+  pelo proprietário do produto (SC-009, CT-24).
 
 ## Avaliação com professores (T049–T051)
 
-Pendente.
+**Não realizada.** Nenhum resultado foi registrado ou presumido.
+
+- **Pronto:**
+  - roteiro em [`evaluation/protocol.md`](../evaluation/protocol.md) (T049): perfil anônimo, dez
+    tarefas com critério objetivo para as seis dimensões de FR-071, inclusive a leitura do resumo sem
+    abrir os detalhes técnicos (FR-019), perguntas abertas, critério de problema crítico e menor
+    (FR-071a) e o formulário de registro por participante;
+  - site de demonstração com a interface aprovada e as salas usadas no roteiro.
+- **Falta (organização externa ao desenvolvimento):**
+  - recrutar cinco professores com familiaridade e áreas diferentes;
+  - agendar as sessões (20 a 25 minutos cada) e dar acesso ao site de demonstração;
+  - conduzir as sessões (proprietário do produto) e registrar `evidence/evaluation/P1.md` a `P5.md`
+    (T050);
+  - corrigir os problemas críticos, se houver (T051).
 
 ## Runs de CI (T054)
 

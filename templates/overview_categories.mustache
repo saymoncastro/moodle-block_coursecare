@@ -50,7 +50,9 @@
     <p class="block_coursecare-overview-help">{{help}}</p>
     <div class="block_coursecare-overview-stack" aria-hidden="true">
         {{#rows}}
+        {{#segment}}
         <span class="block_coursecare-overview-segment block_coursecare-overview-{{key}}" style="width: {{segment}}%;"></span>
+        {{/segment}}
         {{/rows}}
     </div>
     <ul class="block_coursecare-overview-legend list-unstyled mb-0">

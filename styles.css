@@ -83,12 +83,27 @@
     margin-bottom: 1rem;
 }
 
-/* Opening. */
+/* Opening: title and introduction, and the volume beside them on wide screens. */
 .block_coursecare-overview .block_coursecare-overview-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem 2rem;
+    align-items: center;
     margin-bottom: 1.5rem;
-    padding: 1.5rem 1.75rem;
+    padding: 1.25rem 1.5rem;
     border-radius: 1rem;
     background-color: var(--block-coursecare-hero);
+}
+
+@media (min-width: 768px) {
+    .block_coursecare-overview .block_coursecare-overview-hero-result {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+.block_coursecare-overview .block_coursecare-overview-note,
+.block_coursecare-overview .block_coursecare-overview-coverage {
+    grid-column: 1 / -1;
 }
 
 .block_coursecare-overview .block_coursecare-overview-heading {
@@ -113,13 +128,16 @@
 }
 
 .block_coursecare-overview .block_coursecare-overview-intro {
-    margin: 0.5rem 0 1rem;
+    margin: 0.5rem 0 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-status {
+    margin-top: 0.75rem;
+    font-weight: 600;
 }
 
 .block_coursecare-overview .block_coursecare-overview-figure {
-    display: inline-block;
     min-width: 16rem;
-    max-width: 100%;
     padding: 1rem 1.25rem;
     border-radius: 0.75rem;
     background-color: var(--block-coursecare-panel);
@@ -138,7 +156,7 @@
 }
 
 .block_coursecare-overview .block_coursecare-overview-note {
-    margin: 0.75rem 0 0;
+    margin: 0;
     padding: 0.5rem 0.75rem;
     border-left: 4px solid var(--block-coursecare-submission);
     border-radius: 0.25rem;
@@ -146,7 +164,6 @@
 }
 
 .block_coursecare-overview .block_coursecare-overview-coverage {
-    margin-top: 0.75rem;
     font-size: 0.875rem;
 }
 
@@ -303,11 +320,10 @@
 /* Small screens: one column, values under the names, no horizontal scrolling. */
 @media (max-width: 575.98px) {
     .block_coursecare-overview .block_coursecare-overview-hero {
-        padding: 1.25rem;
+        padding: 1rem 1.125rem;
     }
 
     .block_coursecare-overview .block_coursecare-overview-figure {
-        display: block;
         min-width: 0;
     }
 

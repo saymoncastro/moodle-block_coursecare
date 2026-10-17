@@ -17,9 +17,10 @@
 {{!
     @template block_coursecare/overview_summary
 
-    Opening of the overview page: the sprout and the title, a short introduction, the volume of the
-    course apart from its label so that it is seen at once, the date of the analysis, the notes of the
-    out-of-date and failed states, and the partial coverage. Without a result, one sentence.
+    Opening of the overview page: the sprout and the title, a short introduction and, beside them on wide
+    screens, the volume of the course apart from its label so that it is seen at once, with the date of the
+    analysis; below, the notes of the out-of-date and failed states and the partial coverage. Without a
+    result, only the sentence of the state, under the introduction.
 
     Classes required for JS:
     * none
@@ -47,13 +48,23 @@
         }
     }
 }}
-<section class="block_coursecare-overview-hero">
-    <div class="block_coursecare-overview-heading">
-        <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
-        <h2 class="block_coursecare-overview-title">{{title}}</h2>
+<section class="block_coursecare-overview-hero{{#hero.date}} block_coursecare-overview-hero-result{{/hero.date}}">
+    <div class="block_coursecare-overview-herotext">
+        <div class="block_coursecare-overview-heading">
+            <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
+            <h2 class="block_coursecare-overview-title">{{title}}</h2>
+        </div>
+        <p class="block_coursecare-overview-intro">{{intro}}</p>
+        {{#hero}}
+        {{^date}}
+        {{#sentences}}
+        <p class="block_coursecare-overview-status mb-0">{{text}}</p>
+        {{/sentences}}
+        {{/date}}
+        {{/hero}}
     </div>
-    <p class="block_coursecare-overview-intro">{{intro}}</p>
     {{#hero}}
+    {{#date}}
     <div class="block_coursecare-overview-figure">
         {{#hasvolume}}
         <p class="block_coursecare-overview-volumelabel mb-0">{{volumelabel}}</p>
@@ -62,10 +73,9 @@
         {{#sentences}}
         <p class="block_coursecare-overview-sentence mb-0">{{text}}</p>
         {{/sentences}}
-        {{#date}}
         <p class="block_coursecare-overview-date mb-0">{{date}}</p>
-        {{/date}}
     </div>
+    {{/date}}
     {{#notes}}
     <p class="block_coursecare-overview-note">{{text}}</p>
     {{/notes}}

@@ -22,12 +22,12 @@ Arquivo: `overview.php` na raiz do bloco (dentro do pacote). Dados: [overview-da
 ## Estrutura (FR-011)
 
 Hierarquia de títulos: `h2` para o título da página (o cabeçalho do curso vem do tema), `h3` por
-seção (nos detalhes técnicos, o `h3` fica dentro do `summary`), `h4` para as subdivisões. Cada seção pode ser um cartão discreto (`card` do core) conforme as diretrizes visuais.
+seção (nos detalhes técnicos, o `h3` fica dentro do `summary`), `h4` para as subdivisões. Direção visual aprovada (proposta 2, T046): abertura com o volume em destaque; em telas largas, as seções 2 e 4 lado a lado; cartão só na seção 2 e fundo neutro na 4.
 
 | # | Seção | Conteúdo | Recolhida |
 | --- | --- | --- | --- |
-| 1 | Resumo | Total "como registrado pelo Moodle", data da análise, aviso do estado (E, F), cobertura (H), link "Voltar à sala" | Não |
-| 2 | Onde estão os arquivos | Quatro categorias da sala: nome, frase explicativa, volume, proporção em texto e barra decorativa | Não |
+| 1 | Resumo | Link "Voltar à sala" acima; total "registrado no Moodle" (rótulo `overview:files` e o volume à parte, em destaque), data da análise, aviso do estado (E, F), cobertura (H) | Não |
+| 2 | Onde estão os arquivos | Quatro categorias da sala: uma barra empilhada decorativa e a legenda com nome, frase explicativa, volume e proporção em texto | Não |
 | 3 | Materiais por atividade | Até 10 atividades por volume de materiais (nome com link, volume, proporção); nível da sala; "outras atividades"; "removidas após a última análise"; `<details>` "Mostrar todas" com o restante | Restante sim |
 | 4 | Arquivos de grande porte | Quantidade e volume da sala, limite usado e frase de triagem; materiais grandes por atividade; aviso de limite de 1.000 quando aplicável | Não |
 | 5 | Detalhes técnicos | `<details>` recolhido: Conteúdo único, referências, cópias de segurança e lixeira, cobertura, limite usado, o que os números não significam | Sim |
@@ -52,11 +52,12 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | Chave | en | pt_br |
 | --- | --- | --- |
 | `overview:title` | Your course in numbers | Sua sala em números |
-| `overview:intro` | Get to know the files of your course: where they are and when they were measured. | Conheça os arquivos da sua sala: onde estão e quando foram medidos. |
+| `overview:intro` | See where the files of your course are and when they were measured. | Veja onde estão os arquivos da sua sala e quando foram medidos. |
 | `overview:back` | Back to the course | Voltar à sala |
-| `overview:total` | Files in this course, as recorded by Moodle: {$a} | Arquivos desta sala, conforme registrados no Moodle: {$a} |
+| `overview:files` | Course files recorded in Moodle | Arquivos da sala registrados no Moodle |
 | `overview:partial` | Part of the files ({$a->size}, {$a->share}) could not be classified; they are included in the total. | Parte dos arquivos ({$a->size}, {$a->share}) não pôde ser classificada; ela está incluída no total. |
 | `overview:categories` | Where the files are | Onde estão os arquivos |
+| `overview:categories_help` | How much of all the files of the course each kind of file represents. | Quanto cada tipo de arquivo representa no total da sala. |
 | `overview:category:material` | Course materials | Materiais da sala |
 | `overview:category:material_help` | Files you and other editors published: resources, folders, pages, books and descriptions. | Arquivos publicados por quem edita a sala: recursos, pastas, páginas, livros e descrições. |
 | `overview:category:submission` | Files submitted in activities | Arquivos enviados em atividades |
@@ -68,13 +69,14 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | `overview:share` | {$a}% | {$a}% |
 | `overview:shareless` | less than 1% | menos de 1% |
 | `overview:activities` | Materials by activity | Materiais por atividade |
-| `overview:activities_help` | Only the materials of each activity are shown here. | Aqui aparecem só os materiais de cada atividade. |
+| `overview:activities_help` | Only the materials of each activity, as a share of all the materials of the course. | Só os materiais de cada atividade, em relação a todos os materiais da sala. |
 | `overview:courselevel` | Course page, sections and blocks | Página da sala, seções e blocos |
 | `overview:otheractivities` | Other activities | Outras atividades |
 | `overview:removed` | Activities removed after the last analysis | Atividades removidas após a última análise |
 | `overview:showall` | Show all activities ({$a}) | Mostrar todas as atividades ({$a}) |
 | `overview:large` | Large files | Arquivos de grande porte |
 | `overview:large_summary` | Files of {$a->threshold} or more: {$a->count} ({$a->size}). | Arquivos de {$a->threshold} ou mais: {$a->count} ({$a->size}). |
+| `overview:large_none` | No file of {$a} or more in this course. | Nenhum arquivo de {$a} ou mais nesta sala. |
 | `overview:large_help` | The threshold is a screening value set by the site, not a teaching rule. | O limite é um valor de triagem definido pelo site, não uma regra pedagógica. |
 | `overview:large_materials` | Large materials by activity | Materiais de grande porte por atividade |
 | `overview:large_count` | Files: {$a} | Arquivos: {$a} |

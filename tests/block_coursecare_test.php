@@ -296,7 +296,7 @@ final class block_coursecare_test extends \advanced_testcase {
 
         $html = $this->get_block($course, 'course-view-topics', $block->instance)->get_content()->text;
         $this->assertStringContainsString(get_string('overview:files', 'block_coursecare'), $html);
-        $this->assertStringContainsString(display_size(2048), $html);
+        $this->assertStringContainsString(\block_coursecare\output\diagnostic_line::size(2048), $html);
         $this->assertStringContainsString(substr(get_string('diagnostic:calculatedon', 'block_coursecare', ''), 0, 10), $html);
     }
 
@@ -331,7 +331,7 @@ final class block_coursecare_test extends \advanced_testcase {
         $result = ['timecompleted' => $now - HOURSECS, 'timeattempted' => $now - HOURSECS, 'methodversion' => 1,
             'filecount' => 3, 'logicalbytes' => 6291456, 'partial' => 0];
         $failure = ['lastattemptfailed' => 1, 'failurecount' => 1, 'failurereason' => 'dml_read_exception'];
-        $volume = display_size(6291456);
+        $volume = \block_coursecare\output\diagnostic_line::size(6291456);
         $states = [
             'A not analysed' => [null, get_string('diagnostic:notavailable', 'block_coursecare')],
             'B queued' => [['requeststatus' => 1, 'timerequested' => $now],

@@ -78,6 +78,12 @@ try:
             # page may open over the drawer; it is not part of the block.
             time.sleep(1.5)
             script('document.querySelectorAll("[data-flexitour]").forEach(e => e.remove());')
+            # On small screens Boost keeps the block drawer closed: open it as the teacher would.
+            script('const d = document.getElementById("theme_boost-drawers-blocks");'
+                   'const t = document.querySelector('
+                   '"[data-action=\\"toggle\\"][data-target=\\"theme_boost-drawers-blocks\\"]");'
+                   'if (d && t && !d.classList.contains("show")) { t.click(); }')
+            time.sleep(2)
             png = call('GET', base + f'/element/{find("section.block_coursecare")}/screenshot')
         else:
             if kind == 'pageopen':

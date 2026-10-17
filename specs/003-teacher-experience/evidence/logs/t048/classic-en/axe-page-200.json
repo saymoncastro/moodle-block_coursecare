@@ -1,0 +1,10 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=13",
+ "title": "Your course in numbers | DEMO-SIZE-200 | ccdemo",
+ "incomplete": [
+  "aria-valid-attr-value"
+ ],
+ "passes": 28,
+ "violations": []
+}

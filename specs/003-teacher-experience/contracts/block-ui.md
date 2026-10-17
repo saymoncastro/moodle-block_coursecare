@@ -19,7 +19,7 @@ tema, uma leitura do diagnóstico por renderização e nenhuma consulta a `files
 | --- | --- | --- |
 | A, F sem resultado | `diagnostic:notavailable` | Não |
 | B, C sem resultado | `diagnostic:preparing` | Não |
-| D, H com arquivos | `diagnostic:volume` + `diagnostic:calculatedon` | Sim |
+| D, H com arquivos | `overview:files` (rótulo) + volume em destaque + `diagnostic:calculatedon` | Sim |
 | E | D + `diagnostic:mayoutdated` | Sim |
 | F com resultado | D + `diagnostic:updatefailed` | Sim |
 | G, H sem arquivos | `diagnostic:nofiles` + `diagnostic:calculatedon` | Sim |

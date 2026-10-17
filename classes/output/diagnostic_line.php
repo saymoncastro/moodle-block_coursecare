@@ -57,6 +57,23 @@ class diagnostic_line implements \renderable, \templatable {
     }
 
     /**
+     * A size for teachers: the same rule as display_size() (powers of 1024, one decimal, whole bytes below 1 KB),
+     * with the decimal separator of the language (format_float) and unambiguous unit symbols from this plugin.
+     *
+     * @param int $bytes Size in bytes.
+     * @return string Size with a non-breaking space between the number and the unit.
+     */
+    public static function size(int $bytes): string {
+        if ($bytes < 1024) {
+            return display_size($bytes);
+        }
+        $units = ['kb', 'mb', 'gb', 'tb'];
+        $magnitude = min(count($units), (int)floor(log($bytes, 1024)));
+        return format_float($bytes / 1024 ** $magnitude, 1) . "\u{a0}" .
+            get_string('size:' . $units[$magnitude - 1], 'block_coursecare');
+    }
+
+    /**
      * The parts of the file overview line, shared by the block and the opening of the overview page (Feature 003).
      *
      * With a result and files, the volume is apart from its label so that it can be seen at once; the label is a
@@ -84,7 +101,7 @@ class diagnostic_line implements \renderable, \templatable {
                 } else {
                     $parts['hasvolume'] = true;
                     $parts['volumelabel'] = get_string('overview:files', 'block_coursecare');
-                    $parts['volume'] = display_size($state->logicalbytes);
+                    $parts['volume'] = self::size($state->logicalbytes);
                 }
                 $date = userdate($state->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
                 $parts['date'] = get_string('diagnostic:calculatedon', 'block_coursecare', $date);

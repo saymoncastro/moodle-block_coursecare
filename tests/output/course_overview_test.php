@@ -109,7 +109,7 @@ final class course_overview_test extends \advanced_testcase {
             );
         }
         $this->assertStringContainsString(s(get_string('overview:share', 'block_coursecare', 50)), $html);
-        $this->assertStringContainsString(display_size($total), $html);
+        $this->assertStringContainsString(diagnostic_line::size($total), $html);
         $this->assertStringContainsString(s(get_string('overview:activities', 'block_coursecare')), $html);
         $this->assertStringContainsString(s(get_string('overview:courselevel', 'block_coursecare')), $html);
         $url = s((new \moodle_url('/mod/resource/view.php', ['id' => $cms['Reading 12']->cmid]))->out(false));
@@ -147,7 +147,7 @@ final class course_overview_test extends \advanced_testcase {
         $technical = s(get_string('overview:technical', 'block_coursecare'));
         $notmeaning = s(get_string('overview:notmeaning', 'block_coursecare'));
         $categories = s(get_string('overview:categories', 'block_coursecare'));
-        $partial = s(get_string('overview:partial', 'block_coursecare', (object)['size' => display_size(120),
+        $partial = s(get_string('overview:partial', 'block_coursecare', (object)['size' => diagnostic_line::size(120),
             'share' => get_string('overview:share', 'block_coursecare', 12)]));
         $cases = [
             'E' => [['timecompletedago' => 4 * DAYSECS], get_string('diagnostic:mayoutdated', 'block_coursecare'), true],
@@ -195,18 +195,18 @@ final class course_overview_test extends \advanced_testcase {
         );
         $html = $this->render((int)$course->id);
         $strings = [
-            ['overview:unique', display_size(800)],
+            ['overview:unique', diagnostic_line::size(800)],
             ['overview:unique_help', null],
             ['overview:references', null],
             ['overview:references_help', null],
-            ['overview:references_internal', (object)['count' => 3, 'size' => display_size(900)]],
-            ['overview:references_external', (object)['count' => 1, 'size' => display_size(5000)]],
+            ['overview:references_internal', (object)['count' => 3, 'size' => diagnostic_line::size(900)]],
+            ['overview:references_external', (object)['count' => 1, 'size' => diagnostic_line::size(5000)]],
             ['overview:references_undetermined', 4],
             ['overview:copies', null],
             ['overview:copies_help', null],
-            ['overview:copies_backup', (object)['count' => 1, 'size' => display_size(4000)]],
-            ['overview:copies_unique', display_size(4000)],
-            ['overview:threshold', display_size(52428800)],
+            ['overview:copies_backup', (object)['count' => 1, 'size' => diagnostic_line::size(4000)]],
+            ['overview:copies_unique', diagnostic_line::size(4000)],
+            ['overview:threshold', diagnostic_line::size(52428800)],
         ];
         foreach ($strings as [$key, $a]) {
             $this->assertStringContainsString(s(get_string($key, 'block_coursecare', $a)), $html, $key);
@@ -248,20 +248,20 @@ final class course_overview_test extends \advanced_testcase {
 
         // The activity with materials shows only its materials; the one with submissions only is not listed.
         $this->assertStringContainsString('Essay with a guide', $html);
-        $this->assertStringContainsString(display_size(2048), $html);
+        $this->assertStringContainsString(diagnostic_line::size(2048), $html);
         $this->assertStringNotContainsString('Submissions only', $html);
         foreach ([$perassign, $perquiet] as $values) {
             foreach (['logicalbytes', 'submissionbytes', 'otherbytes', 'largebytes'] as $field) {
                 if (!empty($values[$field])) {
                     // A whole number only: "6.0 MB" must not match inside the course total "16.0 MB".
-                    $this->assertDoesNotMatchRegularExpression('/(?<![\d.])' . preg_quote(display_size($values[$field]), '/') .
-                        '/u', $html, $field);
+                    $size = preg_quote(diagnostic_line::size($values[$field]), '/');
+                    $this->assertDoesNotMatchRegularExpression('/(?<![\d.])' . $size . '/u', $html, $field);
                 }
             }
         }
         $this->assertDoesNotMatchRegularExpression('/\b37\b/', strip_tags($html));
         // The course totals of submissions are shown, as the decision of the product owner allows.
-        $this->assertStringContainsString(display_size(12 * $mb), $html);
+        $this->assertStringContainsString(diagnostic_line::size(12 * $mb), $html);
 
         // No student name, no file name or link to a file.
         foreach ($students as $student) {
@@ -294,7 +294,7 @@ final class course_overview_test extends \advanced_testcase {
 
         $this->assertStringContainsString(s(get_string('overview:large', 'block_coursecare')), $html);
         $this->assertStringContainsString(s(get_string('overview:large_summary', 'block_coursecare', (object)[
-            'threshold' => display_size(50 * $mb), 'count' => 2, 'size' => display_size(120 * $mb)])), $html);
+            'threshold' => diagnostic_line::size(50 * $mb), 'count' => 2, 'size' => diagnostic_line::size(120 * $mb)])), $html);
         $this->assertStringContainsString(s(get_string('overview:large_help', 'block_coursecare')), $html);
         $this->assertStringContainsString(s(get_string('overview:large_materials', 'block_coursecare')), $html);
         $this->assertStringContainsString(s(get_string('overview:large_count', 'block_coursecare', 1)), $html);
