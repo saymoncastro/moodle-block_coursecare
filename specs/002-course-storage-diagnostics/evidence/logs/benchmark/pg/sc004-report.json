@@ -1,0 +1,190 @@
+{
+    "eligible": 5001,
+    "diagnostics": 5001,
+    "states": {
+        "completed": 5001,
+        "queued": 0,
+        "running": 0,
+        "lastattemptfailed": 0,
+        "everfailed": 0,
+        "nofiles": 0,
+        "partial": 0
+    },
+    "eligible_without_diagnostic": 0,
+    "diagnostics_not_eligible": 0,
+    "first_completed": "2026-10-16T23:19:16+00:00",
+    "last_completed": "2026-10-17T08:40:02+00:00",
+    "elapsed_seconds_to_last": 33653,
+    "completed_per_hour": {
+        "2026-10-16 23:00": 1000,
+        "2026-10-17 00:00": 500,
+        "2026-10-17 01:00": 500,
+        "2026-10-17 02:00": 500,
+        "2026-10-17 03:00": 500,
+        "2026-10-17 04:00": 500,
+        "2026-10-17 05:00": 500,
+        "2026-10-17 06:00": 500,
+        "2026-10-17 07:00": 500,
+        "2026-10-17 08:00": 1
+    },
+    "adhoc": {
+        "outcomes": {
+            "done": 5001
+        },
+        "failed_tasks": 0,
+        "courses_analysed": 5001,
+        "courses_analysed_more_than_once": 0,
+        "task_seconds": {
+            "n": 5001,
+            "mean": 0.007,
+            "median": 0.0045,
+            "p95": 0.0112,
+            "p99": 0.0886,
+            "max": 0.9624
+        },
+        "dbreads": {
+            "n": 5001,
+            "mean": 17.9,
+            "median": 18,
+            "p95": 18,
+            "p99": 18,
+            "max": 18
+        },
+        "dbwrites": {
+            "n": 5001,
+            "mean": 7.1004,
+            "median": 7,
+            "p95": 8,
+            "p99": 8,
+            "max": 9
+        },
+        "task_seconds_by_profile": {
+            "small": {
+                "n": 4500,
+                "mean": 0.0046,
+                "median": 0.0045,
+                "p95": 0.0053,
+                "p99": 0.0084,
+                "max": 0.0207
+            },
+            "medium": {
+                "n": 450,
+                "mean": 0.0108,
+                "median": 0.0107,
+                "p95": 0.0147,
+                "p99": 0.0179,
+                "max": 0.0224
+            },
+            "large": {
+                "n": 50,
+                "mean": 0.1715,
+                "median": 0.1653,
+                "p95": 0.2401,
+                "p99": 0.2904,
+                "max": 0.2904
+            },
+            "extreme": {
+                "n": 1,
+                "mean": 0.9624,
+                "median": 0.9624,
+                "p95": 0.9624,
+                "p99": 0.9624,
+                "max": 0.9624
+            }
+        },
+        "max_simultaneous_analyses": 2,
+        "same_course_overlaps": 0
+    },
+    "queue_analyses": {
+        "runs": 11,
+        "max_seconds": 0.251,
+        "detail": [
+            {
+                "start": "23:19:11",
+                "seconds": 0.224,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "23:40:01",
+                "seconds": 0.23,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "00:40:01",
+                "seconds": 0.224,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "01:40:01",
+                "seconds": 0.222,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "02:40:01",
+                "seconds": 0.247,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "03:40:01",
+                "seconds": 0.228,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "04:40:01",
+                "seconds": 0.233,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "05:40:01",
+                "seconds": 0.226,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "06:40:01",
+                "seconds": 0.233,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "07:40:01",
+                "seconds": 0.251,
+                "queued": 500,
+                "result": 0
+            },
+            {
+                "start": "08:40:01",
+                "seconds": 0.026,
+                "queued": 1,
+                "result": 0
+            }
+        ]
+    },
+    "all_task_failures_in_log": 0,
+    "integrity": "all checks hold",
+    "manifest": {
+        "courses_in_manifests": 5001,
+        "compared": 5001,
+        "mismatches": 0,
+        "first_mismatches": [],
+        "compared_by_profile": {
+            "extreme": 1,
+            "large": 50,
+            "medium": 450,
+            "small": 4500
+        }
+    },
+    "files": {
+        "count": 5731758,
+        "maxid": 5777958,
+        "maxtimemodified": "2026-10-16T22:20:19+00:00",
+        "sumfilesize": "9753441019116"
+    }
+}

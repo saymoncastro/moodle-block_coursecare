@@ -1,0 +1,17 @@
+medium-5k: course 4951
+  run 1: {"courseid":4951,"outcome":"done","failure":null,"seconds":0.067,"peakmemory":14265072}
+  run 2: {"courseid":4951,"outcome":"done","failure":null,"seconds":0.035,"peakmemory":14454720}
+  run 3: {"courseid":4951,"outcome":"done","failure":null,"seconds":0.035,"peakmemory":14454720}
+large-20k: course 5000
+  run 1: {"courseid":5000,"outcome":"done","failure":null,"seconds":0.243,"peakmemory":14627216}
+  run 2: {"courseid":5000,"outcome":"done","failure":null,"seconds":0.158,"peakmemory":14627624}
+  run 3: {"courseid":5000,"outcome":"done","failure":null,"seconds":0.163,"peakmemory":14627624}
+large-50k: course 5001
+  run 1: {"courseid":5001,"outcome":"done","failure":null,"seconds":0.568,"peakmemory":14710864}
+  run 2: {"courseid":5001,"outcome":"done","failure":null,"seconds":0.392,"peakmemory":14711272}
+  run 3: {"courseid":5001,"outcome":"done","failure":null,"seconds":0.388,"peakmemory":14711272}
+extreme-200k: course 5002
+  run 1: {"courseid":5002,"outcome":"done","failure":null,"seconds":3.855,"peakmemory":16195544}
+  run 2: {"courseid":5002,"outcome":"done","failure":null,"seconds":3.35,"peakmemory":16195544}
+  run 3: {"courseid":5002,"outcome":"done","failure":null,"seconds":3.355,"peakmemory":16195544}
+done sc003 maria

@@ -31,3 +31,8 @@
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
+
+/* Feature 002: the line about the course file overview, plain text after the message. */
+.block_coursecare .block_coursecare-diagnostic {
+    margin-top: 0.5rem;
+}

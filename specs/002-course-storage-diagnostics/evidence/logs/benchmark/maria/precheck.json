@@ -1,0 +1,37 @@
+{
+    "vendor": "mariadb",
+    "version": "11.4.13",
+    "moodle": "4.5.15 (Build: 20261005)",
+    "files": 5731758,
+    "diagnostics": 0,
+    "adhocqueued": 0,
+    "task_adhoc_concurrency_limit": "3",
+    "task_logmode": "1",
+    "eligible": 5001,
+    "sc003": {
+        "medium-5k": {
+            "course": 4951,
+            "records": 5000,
+            "manifest": 5000,
+            "contexts": 22
+        },
+        "large-20k": {
+            "course": 5000,
+            "records": 20000,
+            "manifest": 20000,
+            "contexts": 202
+        },
+        "large-50k": {
+            "course": 5001,
+            "records": 50000,
+            "manifest": 50000,
+            "contexts": 202
+        },
+        "extreme-200k": {
+            "course": 5002,
+            "records": 200000,
+            "manifest": 200000,
+            "contexts": 202
+        }
+    }
+}

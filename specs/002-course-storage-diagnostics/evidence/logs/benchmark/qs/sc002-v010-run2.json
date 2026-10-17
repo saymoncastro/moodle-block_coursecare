@@ -1,0 +1,7 @@
+{
+    "courseid": 2,
+    "iterations": 1000,
+    "meanms": 0.05,
+    "stdevms": 0.677,
+    "readspercall": 0
+}

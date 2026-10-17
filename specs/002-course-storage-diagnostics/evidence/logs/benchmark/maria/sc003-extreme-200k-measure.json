@@ -1,0 +1,239 @@
+{
+    "courseid": 5002,
+    "dbvendor": "mariadb",
+    "dbversion": "11.4.13",
+    "records": 200000,
+    "sitefiles": 5731758,
+    "threshold": 52428800,
+    "queries": {
+        "Q0": {
+            "seconds": 0.0006,
+            "reads": 1,
+            "rows": 202
+        },
+        "Q1": {
+            "seconds": 0.6586,
+            "reads": 1,
+            "rows": 200,
+            "plan": [
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "ctx",
+                    "type": "index_merge",
+                    "possible_keys": "PRIMARY,m_cont_pat_ix",
+                    "key": "m_cont_pat_ix,PRIMARY",
+                    "key_len": "1023,8",
+                    "ref": null,
+                    "rows": "202",
+                    "r_rows": "202.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using sort_union(m_cont_pat_ix,PRIMARY); Using where; Using temporary; Using filesort"
+                },
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "f",
+                    "type": "ref",
+                    "possible_keys": "m_file_fil_ix,m_file_con2_ix",
+                    "key": "m_file_con2_ix",
+                    "key_len": "8",
+                    "ref": "moodle.ctx.id",
+                    "rows": "101",
+                    "r_rows": "1980.20",
+                    "filtered": "100.00",
+                    "r_filtered": "50.00",
+                    "extra": "Using where"
+                },
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "r",
+                    "type": "eq_ref",
+                    "possible_keys": "PRIMARY",
+                    "key": "PRIMARY",
+                    "key_len": "8",
+                    "ref": "moodle.f.referencefileid",
+                    "rows": "1",
+                    "r_rows": "0.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using where"
+                },
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "ri",
+                    "type": "eq_ref",
+                    "possible_keys": "PRIMARY",
+                    "key": "PRIMARY",
+                    "key_len": "8",
+                    "ref": "moodle.r.repositoryid",
+                    "rows": "1",
+                    "r_rows": "0.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using where"
+                },
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "rp",
+                    "type": "eq_ref",
+                    "possible_keys": "PRIMARY",
+                    "key": "PRIMARY",
+                    "key_len": "8",
+                    "ref": "moodle.ri.typeid",
+                    "rows": "1",
+                    "r_rows": "0.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using where"
+                }
+            ]
+        },
+        "Q3": {
+            "seconds": 1.2064,
+            "reads": 1,
+            "rows": 1,
+            "plan": [
+                {
+                    "id": "1",
+                    "select_type": "PRIMARY",
+                    "table": "<derived2>",
+                    "type": "ALL",
+                    "possible_keys": null,
+                    "key": null,
+                    "key_len": null,
+                    "ref": null,
+                    "rows": "20402",
+                    "r_rows": "150856.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using temporary; Using filesort"
+                },
+                {
+                    "id": "2",
+                    "select_type": "DERIVED",
+                    "table": "ctx",
+                    "type": "index_merge",
+                    "possible_keys": "PRIMARY,m_cont_pat_ix",
+                    "key": "m_cont_pat_ix,PRIMARY",
+                    "key_len": "1023,8",
+                    "ref": null,
+                    "rows": "202",
+                    "r_rows": "202.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using sort_union(m_cont_pat_ix,PRIMARY); Using where; Using temporary; Using filesort"
+                },
+                {
+                    "id": "2",
+                    "select_type": "DERIVED",
+                    "table": "f",
+                    "type": "ref",
+                    "possible_keys": "m_file_fil_ix,m_file_con2_ix,m_file_ref_ix",
+                    "key": "m_file_con2_ix",
+                    "key_len": "8",
+                    "ref": "moodle.ctx.id",
+                    "rows": "101",
+                    "r_rows": "1980.20",
+                    "filtered": "100.00",
+                    "r_filtered": "50.00",
+                    "extra": "Using where"
+                }
+            ]
+        },
+        "Q2": {
+            "seconds": 1.4684,
+            "reads": 1,
+            "rows": 3,
+            "plan": [
+                {
+                    "id": "1",
+                    "select_type": "PRIMARY",
+                    "table": "<derived2>",
+                    "type": "ALL",
+                    "possible_keys": null,
+                    "key": null,
+                    "key_len": null,
+                    "ref": null,
+                    "rows": "20402",
+                    "r_rows": "178449.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using temporary; Using filesort"
+                },
+                {
+                    "id": "2",
+                    "select_type": "DERIVED",
+                    "table": "ctx",
+                    "type": "index_merge",
+                    "possible_keys": "PRIMARY,m_cont_pat_ix",
+                    "key": "m_cont_pat_ix,PRIMARY",
+                    "key_len": "1023,8",
+                    "ref": null,
+                    "rows": "202",
+                    "r_rows": "202.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using sort_union(m_cont_pat_ix,PRIMARY); Using where; Using temporary; Using filesort"
+                },
+                {
+                    "id": "2",
+                    "select_type": "DERIVED",
+                    "table": "f",
+                    "type": "ref",
+                    "possible_keys": "m_file_fil_ix,m_file_con2_ix,m_file_ref_ix",
+                    "key": "m_file_con2_ix",
+                    "key_len": "8",
+                    "ref": "moodle.ctx.id",
+                    "rows": "101",
+                    "r_rows": "1980.20",
+                    "filtered": "100.00",
+                    "r_filtered": "50.00",
+                    "extra": "Using where"
+                }
+            ]
+        },
+        "Q4": {
+            "seconds": 0.4902,
+            "reads": 1,
+            "rows": 2041,
+            "plan": [
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "ctx",
+                    "type": "index_merge",
+                    "possible_keys": "PRIMARY,m_cont_pat_ix",
+                    "key": "m_cont_pat_ix,PRIMARY",
+                    "key_len": "1023,8",
+                    "ref": null,
+                    "rows": "202",
+                    "r_rows": "202.00",
+                    "filtered": "100.00",
+                    "r_filtered": "100.00",
+                    "extra": "Using sort_union(m_cont_pat_ix,PRIMARY); Using where"
+                },
+                {
+                    "id": "1",
+                    "select_type": "SIMPLE",
+                    "table": "f",
+                    "type": "ref",
+                    "possible_keys": "m_file_fil_ix,m_file_con2_ix,m_file_ref_ix",
+                    "key": "m_file_con2_ix",
+                    "key_len": "8",
+                    "ref": "moodle.ctx.id",
+                    "rows": "101",
+                    "r_rows": "1980.20",
+                    "filtered": "100.00",
+                    "r_filtered": "0.51",
+                    "extra": "Using where"
+                }
+            ]
+        }
+    },
+    "peakmemory": 14636008
+}

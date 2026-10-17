@@ -19,6 +19,9 @@ namespace block_coursecare\privacy;
 /**
  * Privacy provider for the CourseCare block, which stores no personal data.
  *
+ * The storage diagnostic keeps only aggregated measurements per course and per activity, and links to large files of
+ * course materials: no user id, file name or path (plan.md, "Registro de tratamento de dados").
+ *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

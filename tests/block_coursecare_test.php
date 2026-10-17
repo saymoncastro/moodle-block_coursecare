@@ -83,13 +83,13 @@ final class block_coursecare_test extends \advanced_testcase {
     }
 
     /**
-     * The block allows a single instance per page and has no own settings.
+     * The block allows a single instance per page, has site settings (Feature 002) and no per-instance settings.
      */
-    public function test_single_instance_and_no_settings(): void {
+    public function test_single_instance_and_settings(): void {
         $block = block_instance('coursecare');
 
         $this->assertFalse($block->instance_allow_multiple());
-        $this->assertFalse($block->has_config());
+        $this->assertTrue($block->has_config());
         $this->assertFalse($block->instance_allow_config());
     }
 
@@ -235,6 +235,251 @@ final class block_coursecare_test extends \advanced_testcase {
         $markup = preg_replace('/\{\{!.*?\}\}/s', '', $template);
         $this->assertStringNotContainsString('<img', $markup);
         $markup = preg_replace('/\{\{#(str|pix)\}\}.*?\{\{\/\1\}\}/s', '', $markup);
+        // Feature 002: the file overview line comes as already translated sentences, so only Mustache tags remain.
+        $markup = preg_replace('/\{\{[^}]*\}\}/', '', $markup);
         $this->assertSame('', trim(preg_replace('/<[^>]+>/', '', $markup)));
+    }
+
+    /**
+     * Add the block to a course page through the block manager, as the "Add a block" flow does.
+     *
+     * @param stdClass $course Course.
+     * @return \block_base
+     */
+    private function add_block_through_manager(stdClass $course): \block_base {
+        $page = new moodle_page();
+        $page->set_course($course);
+        $page->set_pagetype('course-view-topics');
+        $page->blocks->add_region('side-pre');
+        $page->blocks->add_block('coursecare', 'side-pre', 0, false, 'course-view-*');
+        return block_instance('coursecare', $GLOBALS['DB']->get_record('block_instances', ['blockname' => 'coursecare',
+            'parentcontextid' => context_course::instance($course->id)->id]), $page);
+    }
+
+    /**
+     * FR-036: adding the block requests the first analysis and queues exactly one task; nothing is analysed now.
+     */
+    public function test_adding_the_block_queues_first_analysis(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+
+        $this->add_block_through_manager($course);
+
+        $tasks = \core\task\manager::get_adhoc_tasks(\block_coursecare\task\analyse_course::class);
+        $this->assertCount(1, $tasks);
+        $this->assertEquals((object)['courseid' => (int)$course->id], reset($tasks)->get_custom_data());
+        $record = (new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id);
+        $this->assertSame(\block_coursecare\local\collector\diagnostic_store::STATUS_QUEUED, (int)$record->requeststatus);
+        $this->assertNull($record->timecompleted);
+    }
+
+    /**
+     * After the task runs, the block shows the recorded volume and the date; before, it says it is being prepared.
+     */
+    public function test_block_shows_volume_after_analysis(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
+        get_file_storage()->create_file_from_string(['contextid' => \context_module::instance($page->cmid)->id,
+            'component' => 'mod_page', 'filearea' => 'content', 'itemid' => 0, 'filepath' => '/',
+            'filename' => 'a.bin'], str_repeat('a', 2048));
+
+        $block = $this->add_block_through_manager($course);
+        $html = $this->get_block($course, 'course-view-topics', $block->instance)->get_content()->text;
+        $this->assertStringContainsString(get_string('diagnostic:preparing', 'block_coursecare'), $html);
+
+        ob_start();
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+
+        $html = $this->get_block($course, 'course-view-topics', $block->instance)->get_content()->text;
+        $this->assertStringContainsString(get_string('diagnostic:volume', 'block_coursecare', display_size(2048)), $html);
+        $this->assertStringContainsString(substr(get_string('diagnostic:calculatedon', 'block_coursecare', ''), 0, 10), $html);
+    }
+
+    /**
+     * A block on the site course does not request any analysis.
+     */
+    public function test_site_course_block_queues_nothing(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $page = new moodle_page();
+        $page->set_course(get_site());
+        $page->set_pagetype('site-index');
+        $page->blocks->add_region('side-pre');
+        $page->blocks->add_block('coursecare', 'side-pre', 0, false, '*');
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\block_coursecare\task\analyse_course::class));
+    }
+
+    /**
+     * SC-002 and FR-034: in every state, rendering reads the stored result only, with no query to the files table.
+     */
+    public function test_render_reads_no_files(): void {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $instance = $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+
+        $now = time();
+        $result = ['timecompleted' => $now - HOURSECS, 'timeattempted' => $now - HOURSECS, 'methodversion' => 1,
+            'filecount' => 3, 'logicalbytes' => 6291456, 'partial' => 0];
+        $failure = ['lastattemptfailed' => 1, 'failurecount' => 1, 'failurereason' => 'dml_read_exception'];
+        $volume = get_string('diagnostic:volume', 'block_coursecare', display_size(6291456));
+        $states = [
+            'A not analysed' => [null, get_string('diagnostic:notavailable', 'block_coursecare')],
+            'B queued' => [['requeststatus' => 1, 'timerequested' => $now],
+                get_string('diagnostic:preparing', 'block_coursecare')],
+            'C running' => [['requeststatus' => 2, 'timerequested' => $now, 'timestarted' => $now],
+                get_string('diagnostic:preparing', 'block_coursecare')],
+            'D complete' => [$result, $volume],
+            'E outdated' => [['timecompleted' => $now - 4 * DAYSECS] + $result,
+                get_string('diagnostic:mayoutdated', 'block_coursecare')],
+            'F failed with result' => [$failure + $result, get_string('diagnostic:updatefailed', 'block_coursecare')],
+            'F failed without result' => [$failure, get_string('diagnostic:notavailable', 'block_coursecare')],
+            'G no files' => [['filecount' => 0, 'logicalbytes' => 0] + $result,
+                get_string('diagnostic:nofiles', 'block_coursecare')],
+            'H partial' => [['partial' => 1] + $result, $volume],
+        ];
+
+        // One rendering first, so that string, configuration and template caches are warm in every measured state.
+        $this->get_block($course, 'course-view-topics', $instance)->get_content();
+        $reads = [];
+        foreach ($states as $name => [$values, $expected]) {
+            $DB->delete_records('block_coursecare_diag', ['courseid' => $course->id]);
+            if ($values !== null) {
+                $DB->insert_record('block_coursecare_diag', (object)($values + ['courseid' => $course->id,
+                    'requeststatus' => 0, 'lastattemptfailed' => 0, 'failurecount' => 0, 'timemodified' => $now]));
+            }
+            $block = $this->get_block($course, 'course-view-topics', $instance);
+            $before = $DB->perf_get_reads();
+            $DB->set_debug(true);
+            ob_start();
+            $html = $block->get_content()->text;
+            $queries = ob_get_clean();
+            $DB->set_debug(false);
+            $reads[$name] = $DB->perf_get_reads() - $before;
+
+            $this->assertStringContainsString(s($expected), $html, $name);
+            $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries, $name);
+            $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries, $name);
+        }
+        // The same light reads in every state: the state never adds a query.
+        $this->assertCount(1, array_unique($reads), json_encode($reads));
+    }
+
+    /**
+     * Create a course with a block, a diagnostic and a pending analysis task.
+     *
+     * @return array{0: stdClass, 1: \block_base}
+     */
+    private function analysed_course_with_pending_task(): array {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $block = $this->add_block_through_manager($course);
+        ob_start();
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $store = new \block_coursecare\local\collector\diagnostic_store();
+        $this->assertNotNull($store->get_summary($course->id)->timecompleted);
+        \block_coursecare\task\analyse_course::request($course->id, time());
+        return [$course, $block];
+    }
+
+    /**
+     * CT-26: removing the only instance deletes the diagnostic; the pending task then ends without writing.
+     */
+    public function test_removing_the_block_deletes_the_diagnostic(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        $diagid = $DB->get_field('block_coursecare_diag', 'id', ['courseid' => $course->id]);
+        $DB->insert_record('block_coursecare_cat', ['diagid' => $diagid, 'category' => 'material', 'filecount' => 0,
+            'logicalbytes' => 0, 'uniquecount' => 0, 'uniquebytes' => 0]);
+
+        blocks_delete_instance($block->instance);
+
+        $this->assertFalse($DB->record_exists('block_coursecare_diag', ['courseid' => $course->id]));
+        $this->assertFalse($DB->record_exists('block_coursecare_cat', ['diagid' => $diagid]));
+        ob_start();
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $this->assertFalse($DB->record_exists('block_coursecare_diag', ['courseid' => $course->id]));
+    }
+
+    /**
+     * With two instances in the same course (possible only by code), removing one keeps the diagnostic.
+     */
+    public function test_removing_one_of_two_instances_keeps_the_diagnostic(): void {
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+        blocks_delete_instance($block->instance);
+        $this->assertNotNull((new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id));
+    }
+
+    /**
+     * CT-20: deleting a course with a diagnostic and a pending task removes the data; the task ends without error.
+     */
+    public function test_deleting_the_course(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$course] = $this->analysed_course_with_pending_task();
+        ob_start();
+        delete_course($course->id, false);
+        $this->runAdhocTasks(\block_coursecare\task\analyse_course::class);
+        ob_end_clean();
+        $this->assertSame(0, $DB->count_records('block_coursecare_diag'));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\block_coursecare\task\analyse_course::class));
+    }
+
+    /**
+     * CT-27: disabling and enabling the block type keeps the diagnostic and the course eligible.
+     */
+    public function test_disabling_the_block_type_keeps_the_diagnostic(): void {
+        $this->resetAfterTest();
+        [$course] = $this->analysed_course_with_pending_task();
+        \core\plugininfo\block::enable_plugin('coursecare', 0);
+        $store = new \block_coursecare\local\collector\diagnostic_store();
+        $this->assertNotNull($store->get_summary($course->id));
+        $this->assertTrue((new \block_coursecare\local\collector\eligibility())->is_eligible($course->id));
+        \core\plugininfo\block::enable_plugin('coursecare', 1);
+        $this->assertNotNull($store->get_summary($course->id)->timecompleted);
+    }
+
+    /**
+     * Edge case of the spec: a block removed and added again shows no data from before the removal.
+     */
+    public function test_block_added_again_starts_clean(): void {
+        $this->resetAfterTest();
+        [$course, $block] = $this->analysed_course_with_pending_task();
+        blocks_delete_instance($block->instance);
+        $this->add_block_through_manager($course);
+        $record = (new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id);
+        $this->assertSame(\block_coursecare\local\collector\diagnostic_store::STATUS_QUEUED, (int)$record->requeststatus);
+        $this->assertNull($record->timecompleted);
+        $this->assertNull($record->logicalbytes);
+    }
+
+    /**
+     * Uninstall: every plugin table is declared in install.xml, so the core uninstall drops it with the plugin.
+     */
+    public function test_tables_are_declared_for_uninstall(): void {
+        global $CFG;
+        $xmldb = new \xmldb_file($CFG->dirroot . '/blocks/coursecare/db/install.xml');
+        $this->assertTrue($xmldb->loadXMLStructure());
+        $names = array_map(fn($table) => $table->getName(), $xmldb->getStructure()->getTables());
+        $this->assertSame(
+            ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'],
+            $names
+        );
     }
 }
