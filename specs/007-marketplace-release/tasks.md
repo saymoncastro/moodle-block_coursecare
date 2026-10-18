@@ -59,24 +59,24 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 - [X] T013 [US3] Verificação de i18n: paridade, textos fixos (templates e PHP), placeholders, plurais, datas, separador decimal e unidades em en e pt_BR; registrar.
 - [ ] T014 [US3] Auditoria visual das jornadas (bloco, página, distribuição, materiais grandes, sugestões, potencial, histórico, sem resultado, desatualizado, falha), desktop e celular, 4.5 (Boost e Classic) e 5.3 (Boost), com `checks.py` (axe, teclado, zoom, 320 px); corrigir só defeitos reais; registrar em `evidence/visual-accessibility.md`.
-- [ ] T015 [P] [US3] `docs/teacher-guide.md` (exemplos: números, lógico × único, materiais grandes, sugestões, potencial, histórico, crescimento não é problema, o que o plugin não mede) e `docs/indicators.md` (definições exatas conferidas no código); `docs/pt_br/guia-do-professor.md` (AVA Consciente).
+- [X] T015 [P] [US3] `docs/teacher-guide.md` (exemplos: números, lógico × único, materiais grandes, sugestões, potencial, histórico, crescimento não é problema, o que o plugin não mede) e `docs/indicators.md` (definições exatas conferidas no código); `docs/pt_br/guia-do-professor.md` (AVA Consciente).
 
 ## Phase 6: User Story 5 - Revisor avalia o pacote (P1)
 
 - [X] T016 [US5] Auditoria de segurança (contracts/audits.md) e correções de achados reais; registrar em `evidence/security-privacy.md`.
 - [X] T017 [US5] Auditoria de privacidade: tabelas × `null_provider`; inferência em turmas pequenas; ciclo de vida; registrar e escrever `docs/privacy.md`.
-- [ ] T018 [US5] Auditoria do pacote: conteúdo, metadados, inglês só, GPL e `@copyright` em cada arquivo, nenhum arquivo de desenvolvimento; ajustar `tools/package/check.php` se necessário; registrar.
-- [ ] T019 [P] [US5] Governança: `SECURITY.md` (reporte privado de vulnerabilidades), `CONTRIBUTING.md` atualizado (versões, compatibilidade, PRs), `.github/ISSUE_TEMPLATE/bug_report.md` e `.github/PULL_REQUEST_TEMPLATE.md` mínimos.
+- [X] T018 [US5] Auditoria do pacote: conteúdo, metadados, inglês só, GPL e `@copyright` em cada arquivo, nenhum arquivo de desenvolvimento; ajustar `tools/package/check.php` se necessário; registrar.
+- [X] T019 [P] [US5] Governança: `SECURITY.md` (reporte privado de vulnerabilidades), `CONTRIBUTING.md` atualizado (versões, compatibilidade, PRs), `.github/ISSUE_TEMPLATE/bug_report.md` e `.github/PULL_REQUEST_TEMPLATE.md` mínimos.
 - [ ] T020 [US5] Matriz de conformidade com o Marketplace (contracts/marketplace-conformance.md) preenchida com evidências em `evidence/README.md`.
 
 ## Phase 7: User Story 4 - Administrador configura e entende os dados (P2)
 
-- [ ] T021 [P] [US4] `docs/configuration.md` (as quatro configurações, efeitos, retenção e volume, cron) e `docs/troubleshooting.md` (sem cron, estado "preparando", falhas, limites de upload, desinstalação).
+- [X] T021 [P] [US4] `docs/configuration.md` (as quatro configurações, efeitos, retenção e volume, cron) e `docs/troubleshooting.md` (sem cron, estado "preparando", falhas, limites de upload, desinstalação).
 
 ## Phase 8: User Story 6 - Desenvolvedor prepara a submissão (P2)
 
-- [ ] T022 [US6] Relatório de titularidade e licenciamento (contracts/ownership-report.md) em `evidence/ownership-report.md`.
-- [ ] T023 [US6] Consolidação das 13 tarefas abertas de 001, 003, 004 e 005 nos grupos A–E em `evidence/human-validations.md`; executar as do grupo A (Constitution Checks de 003, 004 e 005; registro da decisão de formatação de tamanhos da 003, T057) e registrá-las nas respectivas evidências.
+- [X] T022 [US6] Relatório de titularidade e licenciamento (contracts/ownership-report.md) em `evidence/ownership-report.md`.
+- [X] T023 [US6] Consolidação das 13 tarefas abertas de 001, 003, 004 e 005 nos grupos A–E em `evidence/human-validations.md`; executar as do grupo A (Constitution Checks de 003, 004 e 005; registro da decisão de formatação de tamanhos da 003, T057) e registrá-las nas respectivas evidências.
 - [ ] T024 [US6] `docs/marketplace/listing.md` (nome, descrição curta e longa, tipo, versões verificadas, links, limitações, suporte) e capturas reais com dados fictícios em `docs/marketplace/screenshots/` (5.3 Boost e 4.5), sem dados pessoais; conferência das afirmações proibidas.
 - [ ] T025 [US6] Instruções exatas de submissão em `docs/marketplace/submission.md` (conta, campos, ZIP, verificações, chamado de revisão, correções, publicação manual, novas versões, contribuição pt_BR ao AMOS), com as etapas humanas e as conferências pendentes das diretrizes autenticadas.
 
