@@ -16,6 +16,7 @@ upgrade again changes nothing.
 
 **Upgrading Moodle itself** (for example from 4.5 to 5.3): install the CourseCare release that declares
 support for the target version first (0.7.0 declares 4.5 and 5.3). On Moodle 5.1 and later the plugin
-lives in `public/blocks/coursecare`.
+lives in `public/blocks/coursecare`: put it there in the new Moodle code before running the Moodle
+upgrade. The diagnostics and the history are kept across the Moodle upgrade.
 
 The version history is in [CHANGES.md](../CHANGES.md).

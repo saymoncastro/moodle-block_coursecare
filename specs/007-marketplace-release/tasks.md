@@ -38,22 +38,22 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 - [X] T003 Em `.github/workflows/ci.yml`, acrescentar à matriz `MOODLE_503_STABLE` × PHP 8.3 × PostgreSQL 17 e × PHP 8.4 × MariaDB 11.4 (serviço com a imagem correspondente), mantendo as duas combinações de 4.5.
 - [X] T004 Em `tests/behat/block_coursecare_ui.feature`, no cenário do Classic, `Given the "theme_classic" plugin is installed` como primeiro passo (roda no 4.5, pulado no 5.3).
-- [ ] T005 Pilha local 5.3: `moodle-docker` (PHP 8.3, PostgreSQL 17) sobre `coursecare-devenv/moodle-503`, plugin montado em `public/blocks/coursecare`, instalação do site e do plugin, PHPUnit e Behat inicializados; registrar o ambiente em `evidence/`.
+- [X] T005 Pilha local 5.3: `moodle-docker` (PHP 8.3, PostgreSQL 17) sobre `coursecare-devenv/moodle-503`, plugin montado em `public/blocks/coursecare`, instalação do site e do plugin, PHPUnit e Behat inicializados; registrar o ambiente em `evidence/`.
 - [ ] T006 Push da branch e execução do CI; corrigir as falhas de 5.3 (sem mudar comportamento; mudança arquitetural apresentada antes) até as quatro combinações e `i18n-package` verdes.
 
 ---
 
 ## Phase 3: User Story 1 - Administrador instala o plugin num site limpo (P1) 🎯
 
-- [ ] T007 [US1] Instalação limpa pelo ZIP (`tools/package/build.sh`) em 4.5 e 5.3, com depuração de desenvolvedor: sem avisos; tabelas, configurações, tarefa agendada, capabilities e bloco disponíveis; instalação a partir do código (pasta) igual; registrar em `evidence/install.md`.
-- [ ] T008 [US1] CLI e diagnóstico no 5.3: `cli/diagnostics.php --run` e `--show` numa sala de demonstração; bloco e página com resultado, sugestão, potencial e histórico; registrar.
+- [X] T007 [US1] Instalação limpa pelo ZIP (`tools/package/build.sh`) em 4.5 e 5.3, com depuração de desenvolvedor: sem avisos; tabelas, configurações, tarefa agendada, capabilities e bloco disponíveis; instalação a partir do código (pasta) igual; registrar em `evidence/install.md`.
+- [X] T008 [US1] CLI e diagnóstico no 5.3: `cli/diagnostics.php --run` e `--show` numa sala de demonstração; bloco e página com resultado, sugestão, potencial e histórico; registrar.
 - [ ] T009 [US1] Com T006–T008 verdes: `supported` = [405, 503] em `version.php`; README "Compatibility" com a matriz verificada.
 
 ## Phase 4: User Story 2 - Mantenedor atualiza uma instalação (P1)
 
-- [ ] T010 [US2] Atualização 0.6.0 → 0.7.0 com dados (diagnósticos e histórico) em 4.5 e 5.3: contagens e somas das tabelas do plugin iguais antes e depois; segunda execução sem mudança; registrar em `evidence/upgrade.md`.
-- [ ] T011 [US2] Desinstalação em 4.5 e 5.3: nenhuma tabela, configuração, tarefa ou capability do plugin; registrar.
-- [ ] T012 [P] [US2] `docs/upgrading.md` e `docs/installation.md` (requisitos por versão, ZIP, código, cron, efeitos da desinstalação).
+- [X] T010 [US2] Atualização 0.6.0 → 0.7.0 com dados (diagnósticos e histórico) em 4.5 e 5.3: contagens e somas das tabelas do plugin iguais antes e depois; segunda execução sem mudança; registrar em `evidence/upgrade.md`.
+- [X] T011 [US2] Desinstalação em 4.5 e 5.3: nenhuma tabela, configuração, tarefa ou capability do plugin; registrar.
+- [X] T012 [P] [US2] `docs/upgrading.md` e `docs/installation.md` (requisitos por versão, ZIP, código, cron, efeitos da desinstalação).
 
 ## Phase 5: User Story 3 - Professor usa o produto (P1)
 

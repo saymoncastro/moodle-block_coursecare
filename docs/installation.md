@@ -75,5 +75,11 @@ adjust every default through the standard role system; the plugin never checks r
 
 Site administration > Plugins > Plugins overview > CourseCare > Uninstall removes the plugin's tables
 (every diagnostic and the whole history), its settings, its tasks and its capabilities. Nothing outside
-the plugin is touched (course files are never changed by CourseCare). Disabling the block type in
-Manage blocks hides it without removing data.
+the plugin is touched (course files are never changed by CourseCare). Then delete the `blocks/coursecare`
+folder (`public/blocks/coursecare` in Moodle 5.3), or Moodle offers to install the plugin again.
+
+The block instances placed in courses are removed at once in Moodle 4.5. In Moodle 5.3, Moodle removes
+them with a background task on the next cron run after the folder is deleted; until then they are not
+displayed anywhere.
+
+Disabling the block type in Manage blocks hides it without removing data.
