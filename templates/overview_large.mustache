@@ -29,7 +29,8 @@
 
     Context variables required for this template:
     * large - object with heading, summary, help, hasmaterials, materialsheading, materials (rows with
-      name, hasurl, url, count and size) and truncated (empty when not truncated)
+      name, hasurl, url, count and size; name is already safe HTML, printed as is) and truncated (empty when not
+      truncated)
 
     Example context (json):
     {
@@ -59,7 +60,7 @@
             {{#materials}}
             <li class="block_coursecare-overview-item">
                 <div class="block_coursecare-overview-itemtext">
-                    <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}{{^hasurl}}{{name}}{{/hasurl}}</span>
+                    <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</span>
                     <span class="block_coursecare-overview-itemvalue">{{count}} · {{size}}</span>
                 </div>
             </li>

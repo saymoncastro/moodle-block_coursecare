@@ -27,7 +27,8 @@
     * none
 
     Context variables required for this template:
-    * name, hasurl, url - what is measured
+    * name, hasurl, url - what is measured; name is already safe HTML (format_string() for activity names, the
+      string catalogue otherwise) and is printed as is, so that it is not escaped twice
     * size, share - size and share as text
     * width - share in percent for the decorative bar
     * help - optional explanation sentence
@@ -44,7 +45,7 @@
 }}
 <div class="block_coursecare-overview-item">
     <div class="block_coursecare-overview-itemtext">
-        <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}{{^hasurl}}{{name}}{{/hasurl}}</span>
+        <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</span>
         <span class="block_coursecare-overview-itemvalue">{{size}} · {{share}}</span>
     </div>
     {{#help}}

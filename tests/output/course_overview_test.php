@@ -294,6 +294,29 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('block_coursecare_large', []));
     }
     /**
+     * Activity names come formatted by format_string() and are shown escaped once, in the materials by activity and
+     * in the large materials by activity.
+     */
+    public function test_activity_names_escaped_once(): void {
+        $this->resetAfterTest();
+        $mb = 1048576;
+        [$course, $cms] = $this->course_with_diagnostic(
+            ['Leituras & exercícios' => 60 * $mb],
+            ['material' => 60 * $mb],
+            ['largecount' => 1, 'largebytes' => 60 * $mb, 'largethreshold' => 50 * $mb]
+        );
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $plugin->create_diagnostic_largelink(['courseid' => $course->id, 'cmid' => $cms['Leituras & exercícios']->cmid,
+            'filesize' => 60 * $mb]);
+        $html = $this->render((int)$course->id);
+
+        // Once in the materials by activity and once in the large materials by activity.
+        $this->assertSame(2, substr_count($html, '>Leituras &amp; exercícios</a>'));
+        $this->assertStringNotContainsString('&amp;amp;', $html);
+    }
+
+    /**
      * Large files section: totals of the course with the threshold used, the screening explanation, materials per
      * activity with a link, and the truncation notice only when the links were truncated (CT-10, CT-22).
      */
