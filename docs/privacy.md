@@ -36,7 +36,8 @@ No user id, name, file name, path or content hash is stored.
 
 Editing teachers and managers of a course (by default) see that course's numbers, and only that course's.
 Files submitted by students appear only as the **total of the course**, never per activity or per
-student.
+student. The per-activity totals that the analysis stores (including submitted files) are shown only to
+site administrators, in the command-line tool (`cli/diagnostics.php --show`).
 
 ### Small classes
 

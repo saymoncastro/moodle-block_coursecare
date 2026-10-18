@@ -57,14 +57,14 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 ## Phase 5: User Story 3 - Professor usa o produto (P1)
 
-- [ ] T013 [US3] Verificação de i18n: paridade, textos fixos (templates e PHP), placeholders, plurais, datas, separador decimal e unidades em en e pt_BR; registrar.
+- [X] T013 [US3] Verificação de i18n: paridade, textos fixos (templates e PHP), placeholders, plurais, datas, separador decimal e unidades em en e pt_BR; registrar.
 - [ ] T014 [US3] Auditoria visual das jornadas (bloco, página, distribuição, materiais grandes, sugestões, potencial, histórico, sem resultado, desatualizado, falha), desktop e celular, 4.5 (Boost e Classic) e 5.3 (Boost), com `checks.py` (axe, teclado, zoom, 320 px); corrigir só defeitos reais; registrar em `evidence/visual-accessibility.md`.
 - [ ] T015 [P] [US3] `docs/teacher-guide.md` (exemplos: números, lógico × único, materiais grandes, sugestões, potencial, histórico, crescimento não é problema, o que o plugin não mede) e `docs/indicators.md` (definições exatas conferidas no código); `docs/pt_br/guia-do-professor.md` (AVA Consciente).
 
 ## Phase 6: User Story 5 - Revisor avalia o pacote (P1)
 
-- [ ] T016 [US5] Auditoria de segurança (contracts/audits.md) e correções de achados reais; registrar em `evidence/security-privacy.md`.
-- [ ] T017 [US5] Auditoria de privacidade: tabelas × `null_provider`; inferência em turmas pequenas; ciclo de vida; registrar e escrever `docs/privacy.md`.
+- [X] T016 [US5] Auditoria de segurança (contracts/audits.md) e correções de achados reais; registrar em `evidence/security-privacy.md`.
+- [X] T017 [US5] Auditoria de privacidade: tabelas × `null_provider`; inferência em turmas pequenas; ciclo de vida; registrar e escrever `docs/privacy.md`.
 - [ ] T018 [US5] Auditoria do pacote: conteúdo, metadados, inglês só, GPL e `@copyright` em cada arquivo, nenhum arquivo de desenvolvimento; ajustar `tools/package/check.php` se necessário; registrar.
 - [ ] T019 [P] [US5] Governança: `SECURITY.md` (reporte privado de vulnerabilidades), `CONTRIBUTING.md` atualizado (versões, compatibilidade, PRs), `.github/ISSUE_TEMPLATE/bug_report.md` e `.github/PULL_REQUEST_TEMPLATE.md` mínimos.
 - [ ] T020 [US5] Matriz de conformidade com o Marketplace (contracts/marketplace-conformance.md) preenchida com evidências em `evidence/README.md`.
