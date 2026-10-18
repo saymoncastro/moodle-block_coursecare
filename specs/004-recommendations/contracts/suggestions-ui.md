@@ -13,8 +13,8 @@ Posição: depois da abertura (`overview_summary`) e antes da grade de distribui
 | Situação | Conteúdo |
 | --- | --- |
 | Sem resultado (A, B, C, F sem resultado) | Seção ausente |
-| Com resultado e S1 | `h3` `suggestions:heading`; `suggestions:basedon` com a data; cartão de S1 |
-| Com resultado e sem S1 (inclui G e E/F sem arquivos) | `h3` `suggestions:heading`; `suggestions:none` |
+| Com resultado e S1 | `h3` `suggestions:heading`; `suggestions:basedon` com a data (FR-007); cartão de S1 |
+| Com resultado e sem S1 (inclui G e E/F sem arquivos) | `h3` `suggestions:heading`; `suggestions:none` (sem data: a abertura já a mostra) |
 
 **Cartão de S1** (cartão discreto, sem cor ou ícone de alerta):
 
@@ -51,7 +51,7 @@ Nenhum número, selo ou ícone novo no bloco.
 | `suggestion:why` | Why it may deserve attention | Por que pode merecer atenção |
 | `suggestion:todo` | What you can do, if you wish | O que você pode fazer, se quiser |
 | `suggestion:large:title` | Large materials | Materiais de grande porte |
-| `suggestion:large:observed` | {$a->count} materials of {$a->threshold} or more, {$a->size} in total, in: | {$a->count} materiais de {$a->threshold} ou mais, somando {$a->size}, em: |
+| `suggestion:large:observed` | {$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in: | {$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em: |
 | `suggestion:large:more` | and {$a} more places, listed under Large files. | e mais {$a} lugares, listados em Arquivos de grande porte. |
 | `suggestion:large:why` | Large files can take longer to open, especially on slow connections or on a phone. Size alone says nothing about the quality or the importance of a material. | Arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. |
 | `suggestion:large:todo` | When you review the activity, consider whether any of these options suits your material. Not all of them apply to every case: | Ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material. Nem todas se aplicam a todos os casos: |
@@ -64,7 +64,7 @@ Há duas variantes completas, escolhidas pela quantidade, não por concatenaçã
 
 | Chave | en | pt_br |
 | --- | --- | --- |
-| `suggestion:large:observed_one` | 1 material of {$a->threshold} or more, {$a->size}, in: | 1 material de {$a->threshold} ou mais, com {$a->size}, em: |
+| `suggestion:large:observed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in: | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, em: |
 | `suggestion:large:more_one` | and 1 more place, listed under Large files. | e mais 1 lugar, listado em Arquivos de grande porte. |
 
 Reaproveitadas: `overview:courselevel`, `overview:large_truncated`, tamanhos por

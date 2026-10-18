@@ -27,7 +27,8 @@ linhas de `materials` mais os grupos `courselevel`, `others` e `removed`), iguai
 
 **Motivo**: o resumo da sala (`largecount`, `largebytes`) inclui envios e outros arquivos; S1 fala de
 materiais, que o professor publicou. Usar o resumo diria "materiais" para arquivos de estudantes. A
-frase da spec "iguais aos da seção" é lida como iguais à lista por atividade da seção.
+spec (FR-004, SC-002) fixa a igualdade com a soma da lista por atividade e pede que o texto diga que
+conta materiais da sala, para não parecer contradizer a linha de abertura da seção.
 
 **Alternativas consideradas**: o resumo da sala (inclui envios; rejeitado pela privacidade e pela
 precisão).

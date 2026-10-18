@@ -125,8 +125,8 @@ link para a atividade.
 **Why this priority**: é a primeira orientação prática do produto e a razão de existir da feature.
 
 **Independent Test**: numa sala com materiais acima do limite, abrir a página e conferir a sugestão
-(três partes, atividades citadas, números iguais aos da seção "Arquivos de grande porte", link para
-a atividade). Numa sala sem materiais acima do limite, conferir que a sugestão não aparece.
+(três partes, atividades citadas, números iguais à soma da lista "Materiais de grande porte por
+atividade", link para a atividade). Numa sala sem materiais acima do limite, conferir que a sugestão não aparece.
 
 **Acceptance Scenarios**:
 
@@ -142,8 +142,8 @@ a atividade). Numa sala sem materiais acima do limite, conferir que a sugestão 
    acessibilidade, ou um link para onde o conteúdo já está publicado), apresentadas como opções que
    podem não se aplicar, separadas do fato observado.
 4. **Given** uma sala com materiais de grande porte em mais de três atividades, **When** o professor
-   abre a página, **Then** a sugestão cita as três de maior volume e informa quantas outras existem,
-   remetendo à seção "Arquivos de grande porte".
+   abre a página, **Then** a sugestão cita as três de maior volume e informa quantos outros lugares
+   existem, remetendo à seção "Arquivos de grande porte".
 5. **Given** uma sala cujos materiais de grande porte estão numa atividade que o professor não pode
    ver ou que foi removida depois da análise, **When** ele abre a página, **Then** essa atividade
    aparece só agregada, sem nome, como na Feature 003.
@@ -218,9 +218,9 @@ conforme a tabela de FR-020.
 
 | ID | Condição de exibição | Dados necessários (todos já existentes) | Exemplo de mensagem (pt_BR) | Ação disponível |
 | --- | --- | --- | --- | --- |
-| S1 | O resultado vigente tem pelo menos uma ligação a material de grande porte (material da sala ≥ limite registrado no resultado) | Ligações a materiais grandes por atividade (Feature 002); limite do resultado; nomes, links e visibilidade atuais das atividades (estrutura da sala) | **O que observamos** (fato): 3 materiais de 1,0 MB ou mais, somando 5,1 MB, em *Aula 1 — A célula* e *Vídeo de laboratório*, na análise de 17/10/26. **Por que pode merecer atenção:** arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. **O que você pode fazer, se quiser** (possibilidades): ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material — nem todas se aplicam a todos os casos: (1) uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens em resolução adequada para a tela ou um vídeo na resolução necessária; (2) dividir um conteúdo longo em partes menores; (3) um link para onde o conteúdo já está publicado. | Link "Abrir a atividade" para cada atividade citada (página nativa do Moodle); o professor decide e age no Moodle |
+| S1 | O resultado vigente tem pelo menos uma ligação a material de grande porte (material da sala ≥ limite registrado no resultado) | Ligações a materiais grandes por atividade (Feature 002); limite do resultado; nomes, links e visibilidade atuais das atividades (estrutura da sala) | **O que observamos** (fato): 2 materiais da sala de 1,0 MB ou mais, somando 3,9 MB, em *Aula 1 — A célula* e *Vídeo de laboratório*, na análise de 17/10/26. **Por que pode merecer atenção:** arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. **O que você pode fazer, se quiser** (possibilidades): ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material — nem todas se aplicam a todos os casos: (1) uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens em resolução adequada para a tela ou um vídeo na resolução necessária; (2) dividir um conteúdo longo em partes menores; (3) um link para onde o conteúdo já está publicado. | Link "Abrir a atividade" para cada atividade citada (página nativa do Moodle); o professor decide e age no Moodle |
 
-Em en, S1: "**What we noticed:** 3 materials of 1.0 MB or more, 5.1 MB in total, in *Lesson 1 — The
+Em en, S1: "**What we noticed:** 2 course materials of 1.0 MB or more, 3.9 MB in total, in *Lesson 1 — The
 cell* and *Lab video*, in the analysis of 17/10/26. **Why it may deserve attention:** large files can
 take longer to open, especially on slow connections or on a phone. Size alone says nothing about the
 quality or the importance of a material. **What you can do, if you wish:** when you review the
@@ -260,11 +260,16 @@ passa pela revisão de tom (SC-004).
   testável e descrita nesta especificação; nenhuma sugestão MUST aparecer por padrão, sorteio ou
   regra não documentada.
 - **FR-004**: A sugestão S1 MUST:
-  - citar a quantidade e o volume dos materiais de grande porte e o limite usado, iguais aos da
-    seção "Arquivos de grande porte" da Feature 003;
+  - citar a quantidade e o volume dos materiais de grande porte e o limite usado. Quantidade e volume
+    MUST ser iguais à soma da lista "Materiais de grande porte por atividade" da Feature 003 (só
+    materiais da sala), e não ao total da linha de abertura da seção "Arquivos de grande porte", que
+    inclui envios e outros arquivos; o texto MUST dizer que conta materiais da sala;
   - citar até três atividades, pelo nome atual e com link, ordenadas do maior para o menor volume de
     materiais de grande porte (empate pelo nome);
-  - informar quantas outras atividades têm materiais de grande porte, quando houver mais de três,
+  - informar quantos outros lugares têm materiais de grande porte, quando houver mais de três. Um
+    lugar é uma atividade com nome, o nível da sala, o grupo de atividades que o professor não pode
+    ver ou o grupo de atividades removidas (cada grupo conta como um lugar, porque o diagnóstico não
+    diz quantas atividades ele reúne),
     remetendo à seção "Arquivos de grande porte";
   - tratar atividades que o professor não pode ver, ou removidas depois da análise, só de forma
     agregada e sem nome, e o nível da sala como "Página da sala, seções e blocos";
@@ -284,8 +289,9 @@ passa pela revisão de tom (SC-004).
   atividade ou da sala). O plugin MUST NOT executar nenhuma ação, nem por um clique, e MUST NOT
   oferecer botão para dispensar, adiar ou marcar a sugestão como resolvida (ignorar não tem
   consequência e não é registrado).
-- **FR-007**: A seção MUST informar a data da análise em que as sugestões se baseiam. Nos estados E e
-  F com resultado, as sugestões MUST continuar visíveis, com o aviso que a abertura já mostra.
+- **FR-007**: Quando houver sugestão, a seção MUST informar a data da análise em que ela se baseia.
+  A frase neutra de FR-008 não repete a data, que a abertura da página já mostra. Nos estados E e F
+  com resultado, as sugestões MUST continuar visíveis, com o aviso que a abertura já mostra.
 - **FR-008**: Com resultado e sem sugestão aplicável, a seção MUST mostrar uma frase neutra única
   ("Não há sugestões para esta sala no momento."), sem elogio, cobrança ou indicação de que a sala
   esteja "boa" ou "ruim".
@@ -363,8 +369,8 @@ passa pela revisão de tom (SC-004).
 
 | ID | Cenário | Resultado esperado |
 | --- | --- | --- |
-| CT-01 | Sala com materiais de grande porte em duas atividades | S1 com três partes, números iguais aos da seção de grandes, duas atividades com link |
-| CT-02 | Mais de três atividades com materiais grandes | Três citadas por volume, "e outras N", remissão à seção de grandes |
+| CT-01 | Sala com materiais de grande porte em duas atividades e um envio grande | S1 com três partes, números iguais à soma da lista "Materiais de grande porte por atividade" (sem o envio), duas atividades com link |
+| CT-02 | Mais de três lugares com materiais grandes | Três citados por volume, "e mais N lugares", remissão à seção de grandes |
 | CT-03 | Atividade invisível para o professor e atividade removida com materiais grandes | Só agregadas, sem nome |
 | CT-04 | Envios grandes, nenhum material grande | Sem S1; frase neutra |
 | CT-05 | Estados A a H (tabela de FR-020) | Bloco e seção conforme a tabela |
@@ -384,7 +390,8 @@ passa pela revisão de tom (SC-004).
 - **SC-001**: Em 100% dos estados A a H, bloco e seção de sugestões seguem a tabela de FR-020
   (cenários automatizados).
 - **SC-002**: Em 100% das salas de teste em que a condição de S1 é verdadeira, a sugestão aparece com
-  as três partes e números iguais aos da seção "Arquivos de grande porte"; em 100% das salas em que é
+  as três partes e números iguais à soma da lista "Materiais de grande porte por atividade"; em 100%
+  das salas em que é
   falsa, ela não aparece.
 - **SC-003**: Nenhuma sugestão cita envio por atividade, nome de estudante, nome de arquivo ou
   atividade que o professor não pode ver (inspeção automatizada em salas com envios grandes).

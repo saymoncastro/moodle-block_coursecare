@@ -77,8 +77,8 @@ envios grandes, sem o cartão.
 
 ### Tests for User Story 1
 
-- [ ] T005 [P] [US1] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_large_materials`: sala com materiais grandes em 2 atividades (`create_diagnostic_largelink`) → o HTML tem `id="block_coursecare-suggestions"` antes de `overview:categories`; `suggestion:large:title`; os três rótulos (`suggestion:observed`, `suggestion:why`, `suggestion:todo`) em `<dt>`; `suggestion:large:observed` com `count`, `threshold` e `size` iguais à soma das ligações; os dois nomes com link (escapados uma vez); `suggestion:large:why`, `suggestion:large:todo` e as três opções; `suggestions:basedon` com a data. Variantes: 1 ligação → `suggestion:large:observed_one`; 5 lugares → 3 links e `suggestion:large:more` com 2; 4 lugares → `suggestion:large:more_one`; ligação no nível da sala → `overview:courselevel` com link para `/course/view.php`; atividade oculta ao professor e removida → sem nome, só em `more`; `largelinkstruncated = 1` → `overview:large_truncated` dentro do cartão.
-- [ ] T006 [P] [US1] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_privacy`: sala com envio grande (resumo com `largecount`/`largebytes` > 0, categoria `submission`) e nenhuma ligação a material → sem `suggestion:large:title`; o HTML não contém nome de estudante nem de arquivo; nenhuma palavra de julgamento ou promessa (inspeção das strings novas renderizadas: sem "must", "should", "waste", "save", "delete" em en).
+- [ ] T005 [P] [US1] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_large_materials`: sala com materiais grandes em 2 atividades (`create_diagnostic_largelink`) e um envio grande só no resumo (`largecount` e `largebytes` maiores que a soma das ligações) → o HTML tem `id="block_coursecare-suggestions"` antes de `overview:categories`; `suggestion:large:title`; os três rótulos (`suggestion:observed`, `suggestion:why`, `suggestion:todo`) em `<dt>`; `suggestion:large:observed` com `count`, `threshold` e `size` iguais à soma das ligações (o envio grande não entra); os dois nomes com link (escapados uma vez); `suggestion:large:why`, `suggestion:large:todo` e as três opções; `suggestions:basedon` com a data. Variantes: 1 ligação → `suggestion:large:observed_one`; 5 lugares → 3 links e `suggestion:large:more` com 2; 4 lugares → `suggestion:large:more_one`; ligação no nível da sala → `overview:courselevel` com link para `/course/view.php`; atividade oculta ao professor e removida → sem nome, só em `more`; `largelinkstruncated = 1` → `overview:large_truncated` dentro do cartão.
+- [ ] T006 [P] [US1] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_privacy`: sala com envio grande (resumo com `largecount`/`largebytes` > 0, categoria `submission`) e nenhuma ligação a material → sem `suggestion:large:title`; o HTML não contém nome de estudante nem de arquivo; nenhuma palavra de julgamento ou promessa nas strings novas: no HTML renderizado em en, sem "must", "should", "waste", "save", "delete"; nos valores das chaves novas de `translations/pt_br/block_coursecare.php` (lidos do arquivo, como em `tests/translation_test.php`), sem "deve", "desperdício", "excluir", "economia", "economizar".
 
 ### Implementation for User Story 1
 
@@ -106,7 +106,7 @@ envios grandes, sem o cartão.
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Conferir e ajustar `classes/output/course_overview.php` e `templates/overview_suggestions.mustache` para os casos de T012 e T013 (seção só com resultado; frase neutra quando `evaluate()` devolve `null` ou `large` é `null`); T012 e T013 verdes.
+- [ ] T014 [US3] Fazer T012 e T013 passarem em `classes/output/course_overview.php` e `templates/overview_suggestions.mustache`: `hassuggestionsection` só com `view['hasresult']`; frase neutra (`suggestions:none`, sem data) quando `large_materials::evaluate()` devolve `null`, inclusive com `view['large']` nulo (G e E/F sem arquivos).
 
 **Checkpoint**: US1 e US3 completas: a página atende à tabela de FR-020.
 
@@ -156,8 +156,8 @@ bloco igual ao da 003.
 ## Dependencies & Execution Order
 
 - **Setup (T001–T002)**: sem dependências.
-- **Foundational (T003–T004)**: depois de T002 (as strings não são usadas pela regra, mas os testes de US1 dependem das duas). Bloqueia US1 e US3.
-- **US1 (T005–T011)**: depois de T004. T007 antes de T009; T008 e T010 em paralelo com T007.
+- **Foundational (T003–T004)**: sem dependências (a regra é pura e não usa strings). Bloqueia US1 e US3.
+- **US1 (T005–T011)**: depois de T002 e T004. T007 antes de T009; T008 e T010 em paralelo com T007.
 - **US3 (T012–T014)**: depois de T007–T009 (mesmo renderable e template).
 - **US2 (T015–T021)**: depende só de T002; pode correr em paralelo com US1/US3 (arquivos diferentes), exceto T021, que usa a seção da página (depois de T009).
 - **Polish (T022–T032)**: depois das histórias; T032 por último.
