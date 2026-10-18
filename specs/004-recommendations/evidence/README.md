@@ -25,7 +25,7 @@ Ambiente local dos testes: Moodle 4.5.15, PHP 8.1, PostgreSQL 17 (stack de desen
 | SC-002 | `large_materials_test`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-003 | `test_suggestion_privacy`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-004 | Revisão de tom (T027) | | | | pendente (aprovação) |
-| SC-005 | Medições (T026) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | bloco atendido (+0,06 ms); página: aberturas normais < 1,4 s, primeira abertura após limpar caches > 2 s — pendente de investigação |
+| SC-005 | Medições (T026) e investigação | 2026-10-18 | 4.5.15 | PostgreSQL 17 | bloco atendido (+0,06 ms); página: aberturas normais atendidas (mediana 0,69 s); primeira abertura após limpar caches > 2 s também na 0.3.0 e no core (classificação C/B, sem regressão) — leitura do critério com o proprietário do produto |
 | SC-006 | Behat `@accessibility`; verificações de T028 | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-007 | Capturas de T028 | | | | pendente (aprovação) |
 | SC-008 | CI da branch (T030) | 2026-10-18 | 4.5 | PostgreSQL e MariaDB | atendido: `moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package` verdes ([run](#runs-de-ci-t030)) |
@@ -71,6 +71,52 @@ em `logs/t026/`.
   no servidor não mudou (cerca de 6 ms) e o ambiente estava mais lento que na 003 (a página do curso
   do core também), mas a diferença de 0,5 a 1 s entre a página e a do curso com cache vazio não foi
   explicada por estas medições. Fica pendente de investigação antes do encerramento.
+
+### Investigação do SC-005 (primeira abertura após limpar os caches), 2026-10-18
+
+**Método** (instrumentação existente, sem ferramenta nova):
+- o mesmo script de Navigation Timing, lendo também o rodapé de desempenho do Moodle (`perfdebug`:
+  tempo no servidor e leituras no banco) e as requisições de recurso com mais de 150 ms;
+- no stack de medição (mesmo site e mesmos dados), três rodadas alternando o código da 0.3.0
+  (`c053e3d`) e da 0.4.0 (`d35ddb7`). O número de versão do código foi igualado ao instalado, só no
+  stack descartável, para o Moodle executar as duas versões sem atualizar o banco (o esquema é igual);
+- em cada medição: `purge_caches`, depois 11 aberturas da página "Sua sala em números" da sala de 200
+  atividades; e o mesmo para a página do curso do core dessa sala. Saídas em `logs/sc005/`.
+
+**Resultados** (ms; "servidor" é o tempo medido pelo próprio Moodle):
+
+| Versão | Página | Primeira abertura: total | TTFB | Servidor | Leituras no banco | Aberturas seguintes (mediana): total / TTFB / servidor |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.3.0 | Sua sala em números | 2016 / 1518 / 1619 | 916 / 760 / 727 | 266 / 211 / 203 | 659 | 616 / 595 / 104 |
+| 0.4.0 | Sua sala em números | 1930 / 2252 / 1439 | 923 / 1096 / 713 | 209 / 344 / 182 | 659 | 687 / 652 / 106 |
+| 0.3.0 | Curso (core) | 2061 / 2056 / 1742 | 1031 / 1070 / 821 | 385 / 379 / 335 | 457 | 823 / 775 / 225 |
+| 0.4.0 | Curso (core) | 1762 / 2034 / 1792 | 889 / 1039 / 927 | 349 / 359 / 362 | 459 | 760 / 719 / 219 |
+
+**Leitura:**
+1. **Sem regressão da 004.** Na mesma máquina e no mesmo site, a 0.4.0 fica na mesma faixa da 0.3.0 na
+   primeira abertura (1,44–2,25 s contra 1,52–2,02 s) e nas seguintes. O tempo no servidor e as leituras
+   no banco são iguais (659 leituras nas duas versões).
+2. **A primeira abertura passa de 2 s também na 0.3.0 e na página do curso do core** (até 2,06 s),
+   nas mesmas condições.
+3. **O tempo do Moodle é a menor parte.** Na primeira abertura, o servidor mede 0,18–0,34 s, mas o
+   primeiro byte chega em 0,71–1,10 s; a diferença (0,5–0,8 s) acontece antes do cronômetro do Moodle
+   (inicialização do PHP e leitura dos arquivos num volume montado do Docker Desktop no macOS).
+4. **Depois do HTML, o navegador espera por requisições do core que reconstroem caches**: chamadas a
+   `lib/ajax/service.php` e `service-nologin.php` (strings e templates do JavaScript do core) e o ícone
+   do bloco servido por `theme/image.php`, cada uma com cerca de 0,8–1,3 s na primeira abertura, nas duas
+   versões e na página do curso.
+5. As medições anteriores de 2,27–2,73 s foram feitas no site de demonstração, com mais containers ativos
+   na mesma máquina.
+
+**Classificação: C (inicialização geral do Moodle após a limpeza de caches), agravada por B (sobrecarga
+do ambiente de desenvolvimento).** Não é regressão da Feature 004 (A).
+
+**Menor ação recomendada:** nenhuma mudança de código ou de consultas, porque não há gargalo do plugin.
+O critério SC-005 não foi alterado. Cabe ao proprietário do produto decidir como lê-lo:
+- como na Feature 003, pelas aberturas normais (atendido: mediana de 0,69 s), registrando a primeira
+  abertura após `purge_caches` como informação;
+- ou manter a primeira abertura como critério e repetir a medição num ambiente de referência sem
+  volume montado (por exemplo, um servidor Linux), onde a parte B desaparece.
 
 ## Revisão de tom (T027)
 
@@ -133,9 +179,22 @@ demonstração, temas Boost e Classic, en e pt_BR.
 
 - A árvore registrada mostra a estrutura (títulos, termos, links e listas), mas não o texto dos
   parágrafos: a ferramenta só associa nós de elemento, não nós de texto.
-- **Leitor de tela: não realizado.** Como na T048 da 003, falta a passagem humana; incluir a seção de
-  sugestões no roteiro de 10 minutos da 003 (navegar por títulos até "Sugestões para a sua sala" e
-  ouvir os termos da lista de definições).
+- **Leitor de tela: não realizado.** Exige uma pessoa com VoiceOver (macOS/iOS) ou NVDA (Windows);
+  não pode ser substituído pelas verificações automáticas. Roteiro único para as Features 003 e 004
+  (cerca de 15 minutos, site de demonstração, professor de demonstração, pt_BR e en), a registrar
+  nesta seção com o leitor, o navegador, a data e o resultado de cada passo:
+
+  | Passo | Ação | Esperado |
+  | --- | --- | --- |
+  | 1 | Abrir *Biologia celular*; ir ao bloco pelos marcos ou pelo atalho "Pular AVA Consciente" | O leitor anuncia o título do bloco e a frase de identidade |
+  | 2 | Ler o conteúdo do bloco | Rótulo, volume ("8,0 MB"), data e **a frase "Há uma sugestão sobre os arquivos da sua sala."**, sem número nem alerta |
+  | 3 | Ativar o link "Conheça melhor os arquivos da sua sala" | Abre a página na seção de sugestões; o foco ou a leitura começa ali ou o título "Sugestões para a sua sala" é alcançável pelo menu de títulos |
+  | 4 | Navegar por títulos (h2 → h3 → h4) | Ordem: "Sua sala em números", "Sugestões para a sua sala", "Materiais de grande porte", "Onde estão os arquivos", "Arquivos de grande porte", "Materiais por atividade", "Detalhes técnicos" |
+  | 5 | Ler o cartão da sugestão | A lista de definições é anunciada com os três termos ("O que observamos", "Por que pode merecer atenção", "O que você pode fazer, se quiser"), cada um seguido do seu conteúdo |
+  | 6 | Percorrer os links da sugestão | Cada link tem o nome completo da atividade; sair e voltar pela lista de links do leitor mostra nomes compreensíveis fora de contexto |
+  | 7 | Percorrer com Tab a partir de "Voltar à sala" | Os links da sugestão vêm antes dos da distribuição e das atividades, na ordem visual |
+  | 8 | Abrir uma sala sem sugestão (*Química geral*) | O bloco não anuncia sugestão; na página, a frase neutra é lida sob o título da seção |
+  | 9 | Itens da 003 (T048) | Estado recolhido/expandido de "Mostrar todas" e "Detalhes técnicos" anunciado; proporções lidas em texto; volta à sala |
 - **Pendente para fechar T028:** aprovação das capturas pelo proprietário do produto e o teste com
   leitor de tela.
 
@@ -149,8 +208,13 @@ Qualquer commit de código posterior precisa de um novo run registrado aqui.
 
 ## Avaliação com professores (T031)
 
-Junto da avaliação da Feature 003 (tarefas T11 e T12 do protocolo). Pendente; não bloqueia a
-implementação nem o teste local.
+Uma única avaliação para as Features 003 e 004, com o protocolo consolidado em
+[`specs/003-teacher-experience/evaluation/protocol.md`](../../003-teacher-experience/evaluation/protocol.md):
+compreensão dos indicadores e das recomendações, utilidade (T12), ausência de leitura fiscalizatória
+(T13), clareza sobre ações opcionais (T9) e navegação (T2, T14). Ambiente pronto: site de demonstração
+na 0.4.0, com as salas do roteiro e os tours do Moodle concluídos para o professor de demonstração.
+**Não realizada**; nenhum participante ou resultado registrado. Falta recrutar cinco professores,
+agendar e conduzir as sessões. Não bloqueia a implementação nem o teste local.
 
 ## Constitution Check reavaliado (T032)
 
