@@ -16,7 +16,10 @@ Posição: depois da abertura (`overview_summary`) e antes da grade de distribui
 | Com resultado e S1 | `h3` `suggestions:heading`; `suggestions:basedon` com a data (FR-007); cartão de S1 |
 | Com resultado e sem S1 (inclui G e E/F sem arquivos) | `h3` `suggestions:heading`; `suggestions:none` (sem data: a abertura já a mostra) |
 
-**Cartão de S1** (cartão discreto, sem cor ou ícone de alerta):
+**Cartão de S1** (cartão discreto, sem cor ou ícone de alerta; refinado em 2026-10-18: a `dl` agrupa
+os fatos num painel tingido e o motivo e as possibilidades noutro bloco, lado a lado a partir de 768 px
+e empilhados abaixo disso; quantidade e volume em `strong`; cada lugar com o seu tamanho; o exemplo da
+primeira possibilidade, `suggestion:large:option1_example`, numa linha menor abaixo dela):
 
 1. `h4` `suggestion:large:title`.
 2. `dl` com três pares:
@@ -56,7 +59,8 @@ Nenhum número, selo ou ícone novo no bloco.
 | `suggestion:large:more` | and {$a} more places, listed under Large files. | e mais {$a} lugares, listados em Arquivos de grande porte. |
 | `suggestion:large:why` | Large files can take longer to open, especially on slow connections or on a phone. Size alone says nothing about the quality or the importance of a material. | Arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. |
 | `suggestion:large:todo` | When you review the activity, consider whether any of these options suits your material. Not all of them apply to every case: | Ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material. Nem todas se aplicam a todos os casos: |
-| `suggestion:large:option1` | an optimised version of the file that stays readable and accessible, such as a PDF with images at a resolution suited to the screen, or a video at the resolution it needs; | uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária; |
+| `suggestion:large:option1` | an optimised version of the file that stays readable and accessible; | uma versão otimizada do arquivo, que continue legível e acessível; |
+| `suggestion:large:option1_example` | for example, a PDF with images at a resolution suited to the screen, or a video at the resolution it needs. | por exemplo, um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária. |
 | `suggestion:large:option2` | splitting long content into shorter parts; | dividir um conteúdo longo em partes menores; |
 | `suggestion:large:option3` | a link to where the content is already published. | um link para onde o conteúdo já está publicado. |
 

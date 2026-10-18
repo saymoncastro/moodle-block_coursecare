@@ -15,17 +15,17 @@ Ambiente local dos testes: Moodle 4.5.15, PHP 8.1, PostgreSQL 17 (stack de desen
 | CT-05 | `course_overview_test::test_suggestion_states`; `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | CT-06 | `course_overview_test::test_suggestion_large_materials` (truncado); `large_materials_test::test_truncated` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | CT-07 | `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-08 | `course_overview_test::test_suggestion_privacy` (en e pt_br); revisão de tom (T027) | | | | pendente (aprovação) |
+| CT-08 | `course_overview_test::test_suggestion_privacy` (en e pt_br); revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
 | CT-09 | `block_coursecare_test::test_render_reads_no_files` (+1 leitura por índice só com resultado e arquivos) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | CT-10 | Behat `@accessibility` (desktop e celular); verificações de T028 (axe, teclado, zoom, 320 px) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)); leitor de tela pendente |
 | CT-11 | Capturas de T028 | | | | pendente (aprovação) |
-| CT-12 | `course_overview_test::test_suggestion_large_materials`; revisão de tom (T027) | | | | pendente (aprovação) |
+| CT-12 | `course_overview_test::test_suggestion_large_materials`; revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
 | CT-13 | Avaliação com professores, junto da 003 (T031) | | | | pendente |
 | SC-001 | `test_suggestion_states`, `test_block_suggestion`, Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-002 | `large_materials_test`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-003 | `test_suggestion_privacy`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| SC-004 | Revisão de tom (T027) | | | | pendente (aprovação) |
-| SC-005 | Medições (T026) e investigação | 2026-10-18 | 4.5.15 | PostgreSQL 17 | bloco atendido (+0,06 ms); página: aberturas normais atendidas (mediana 0,69 s); primeira abertura após limpar caches > 2 s também na 0.3.0 e no core (classificação C/B, sem regressão) — leitura do critério com o proprietário do produto |
+| SC-004 | Revisão de tom (T027) | 2026-10-18 | — | — | atendido: aprovada pelo proprietário do produto |
+| SC-005 | Medições (T026) e investigação | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido em condições normais de operação (decisão do proprietário do produto de 2026-10-18): bloco +0,06 ms; página com mediana de 0,69 s. A primeira abertura após limpar todos os caches (> 2 s, também na 0.3.0 e no core) não está aprovada: limitação documentada |
 | SC-006 | Behat `@accessibility`; verificações de T028 | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
 | SC-007 | Capturas de T028 | | | | pendente (aprovação) |
 | SC-008 | CI da branch (T030) | 2026-10-18 | 4.5 | PostgreSQL e MariaDB | atendido: `moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package` verdes ([run](#runs-de-ci-t030)) |
@@ -108,19 +108,28 @@ em `logs/t026/`.
 5. As medições anteriores de 2,27–2,73 s foram feitas no site de demonstração, com mais containers ativos
    na mesma máquina.
 
-**Classificação: C (inicialização geral do Moodle após a limpeza de caches), agravada por B (sobrecarga
-do ambiente de desenvolvimento).** Não é regressão da Feature 004 (A).
+**Classificação: não foi demonstrada regressão da Feature 004 (A).** Os indícios apontam para C
+(inicialização geral do Moodle após a limpeza de caches), agravada por B (sobrecarga do ambiente de
+desenvolvimento); a causa exata não foi comprovada.
 
-**Menor ação recomendada:** nenhuma mudança de código ou de consultas, porque não há gargalo do plugin.
-O critério SC-005 não foi alterado. Cabe ao proprietário do produto decidir como lê-lo:
-- como na Feature 003, pelas aberturas normais (atendido: mediana de 0,69 s), registrando a primeira
-  abertura após `purge_caches` como informação;
-- ou manter a primeira abertura como critério e repetir a medição num ambiente de referência sem
-  volume montado (por exemplo, um servidor Linux), onde a parte B desaparece.
+**Menor ação recomendada:** nenhuma mudança de código ou de consultas, porque não há gargalo do plugin
+em condições normais.
+
+**Decisão do proprietário do produto (2026-10-18):** nesta entrega, o limite de 2 segundos de SC-005
+é avaliado pelas aberturas em condições normais de operação (atendido: mediana de 0,69 s no A/B e de
+0,73–0,88 s no site de demonstração; máximo das aberturas normais 1,32 s). A primeira abertura após a
+limpeza integral dos caches **não está aprovada**: fica registrada como limitação na spec, com a
+causa exata não comprovada. Nenhuma otimização sem evidência de gargalo em condições normais.
 
 ## Revisão de tom (T027)
 
-**Preparada em 2026-10-18; aguardando a aprovação do proprietário do produto.** As 19 strings novas,
+**Aprovada pelo proprietário do produto em 2026-10-18.** Ajustes editoriais pequenos continuam
+permitidos, desde que preservem os princípios aprovados (sugestões opcionais, linguagem educativa,
+nenhum julgamento, nenhuma promessa de economia, arquivos grandes não tratados como problema, fatos
+separados das possibilidades). Ajuste editorial posterior à aprovação, no refinamento do cartão
+(2026-10-18): o exemplo da primeira possibilidade virou uma frase própria
+(`suggestion:large:option1_example`), exibida abaixo dela, sem mudança de sentido; com isso são 20
+strings. As 19 strings novas,
 em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 
 - a ação é sempre opcional ("se quiser", "avalie se alguma destas opções faz sentido", "nem todas se
@@ -143,7 +152,8 @@ em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 | `suggestion:large:observed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in: | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, em: |
 | `suggestion:large:observed_unnamed` | {$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in activities listed under Large files. | {$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em atividades listadas em Arquivos de grande porte. |
 | `suggestion:large:observed_unnamed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in an activity listed under Large files. | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, numa atividade listada em Arquivos de grande porte. |
-| `suggestion:large:option1` | an optimised version of the file that stays readable and accessible, such as a PDF with images at a resolution suited to the screen, or a video at the resolution it needs; | uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária; |
+| `suggestion:large:option1` | an optimised version of the file that stays readable and accessible; | uma versão otimizada do arquivo, que continue legível e acessível; |
+| `suggestion:large:option1_example` | for example, a PDF with images at a resolution suited to the screen, or a video at the resolution it needs. | por exemplo, um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária. |
 | `suggestion:large:option2` | splitting long content into shorter parts; | dividir um conteúdo longo em partes menores; |
 | `suggestion:large:option3` | a link to where the content is already published. | um link para onde o conteúdo já está publicado. |
 | `suggestion:large:title` | Large materials | Materiais de grande porte |
@@ -158,7 +168,17 @@ em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 
 ## Validação visual (T028)
 
-**Capturas e verificações feitas em 2026-10-18; aguardando a aprovação do proprietário do produto.**
+**Direção visual aprovada pelo proprietário do produto em 2026-10-18**, com um refinamento pontual do
+cartão de sugestão, feito no mesmo dia e com capturas finais **aguardando a confirmação dele**:
+
+- as três partes mantidas; em telas largas, os fatos ("O que observamos") num painel tingido à
+  esquerda e o motivo e as possibilidades à direita; em telas pequenas, empilhados, fatos primeiro;
+- a quantidade e o volume em destaque (negrito); os lugares numa lista com o tamanho de cada um à
+  direita (os mesmos valores da lista "Materiais de grande porte por atividade");
+- as possibilidades com espaçamento, e o exemplo da primeira numa linha menor abaixo dela;
+- sem funcionalidade, indicador, alerta ou dado novo.
+
+Capturas e verificações refeitas depois do refinamento (as de abaixo):
 Site de demonstração atualizado para a 0.4.0 (Moodle 4.5.15, PHP 8.1, PostgreSQL 17), professor de
 demonstração, temas Boost e Classic, en e pt_BR.
 

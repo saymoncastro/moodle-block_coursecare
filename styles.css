@@ -225,7 +225,8 @@
     font-size: 0.9375rem;
 }
 
-/* Suggestions (Feature 004): a discreet card, the facts and the options told apart by their labels. */
+/* Suggestions (Feature 004): a discreet card; the facts in a tinted panel, the reason and the options beside them on
+   wide screens and below them on small screens. */
 .block_coursecare-overview .block_coursecare-overview-suggestions {
     margin-bottom: 1.5rem;
 }
@@ -238,30 +239,72 @@
 }
 
 .block_coursecare-overview .block_coursecare-overview-suggestiontitle {
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.0625rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestionparts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .block_coursecare-overview .block_coursecare-overview-suggestionparts {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        gap: 1.5rem 2rem;
+        align-items: start;
+    }
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestionfacts {
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: var(--block-coursecare-hero);
 }
 
 .block_coursecare-overview .block_coursecare-overview-suggestion dt {
-    margin-top: 0.75rem;
+    margin: 0 0 0.375rem;
     font-weight: 600;
 }
 
-.block_coursecare-overview .block_coursecare-overview-suggestion dt:first-child {
-    margin-top: 0;
+.block_coursecare-overview .block_coursecare-overview-suggestionadvice dd + dt {
+    margin-top: 1rem;
 }
 
 .block_coursecare-overview .block_coursecare-overview-suggestion dd {
-    margin: 0.25rem 0 0;
-}
-
-.block_coursecare-overview .block_coursecare-overview-suggestion ul {
-    padding-left: 1.25rem;
+    margin: 0;
 }
 
 .block_coursecare-overview .block_coursecare-overview-places {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-places li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 1rem;
+    padding: 0.375rem 0;
+    border-top: 1px solid var(--block-coursecare-border);
     overflow-wrap: anywhere;
+}
+
+.block_coursecare-overview .block_coursecare-overview-placesize {
+    white-space: nowrap;
+}
+
+.block_coursecare-overview .block_coursecare-overview-options {
+    padding-left: 1.25rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-options li + li {
+    margin-top: 0.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-optionexample {
+    display: block;
+    font-size: 0.875rem;
 }
 
 /* Stacked bar of the categories (decorative; the legend carries the numbers). */
@@ -378,6 +421,10 @@
     .block_coursecare-overview .block_coursecare-overview-large,
     .block_coursecare-overview .block_coursecare-overview-suggestion {
         padding: 1rem 1.125rem;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-suggestionfacts {
+        padding: 0.875rem 1rem;
     }
 
     .block_coursecare-overview .block_coursecare-overview-itemtext {

@@ -19,8 +19,10 @@
 
     "Suggestions for your course" section of the overview page (Feature 004, contracts/suggestions-ui.md): the
     suggestion about large course materials in three labelled parts (what was noticed, why it may deserve
-    attention, what the teacher can do if they wish), or one neutral sentence when no suggestion applies. Activity
-    names are already safe HTML (format_string()) and are printed as is.
+    attention, what the teacher can do if they wish), or one neutral sentence when no suggestion applies. On wide
+    screens the facts (a tinted panel) and the reason and options sit side by side; on small screens they stack,
+    facts first. Activity names (format_string()) and the observed sentence (numbers emphasised) are already safe
+    HTML and are printed as is.
 
     Classes required for JS:
     * none
@@ -30,8 +32,8 @@
 
     Context variables required for this template:
     * suggestions - object with heading, hassuggestion and none; with a suggestion also basedon, title,
-      observedlabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url), more, truncated, why,
-      todo and options (objects with "text")
+      observedlabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url, size), more,
+      truncated, why, todo and options (objects with "text" and "example")
 
     Example context (json):
     {
@@ -44,16 +46,17 @@
             "observedlabel": "What we noticed",
             "whylabel": "Why it may deserve attention",
             "todolabel": "What you can do, if you wish",
-            "observed": "2 course materials of 1.0 MB or more, 3.9 MB in total, in:",
+            "observed": "<strong>2</strong> course materials of 1.0 MB or more, <strong>3.9 MB</strong> in total, in:",
             "hasplaces": true,
             "places": [
-                {"name": "Lesson 1", "hasurl": true, "url": "https://example.com/mod/resource/view.php?id=7"}
+                {"name": "Lesson 1", "hasurl": true, "url": "https://example.com/mod/resource/view.php?id=7",
+                 "size": "2.3 MB"}
             ],
             "more": "",
             "truncated": "",
             "why": "Large files can take longer to open, especially on slow connections or on a phone.",
             "todo": "When you review the activity, consider whether any of these options suits your material.",
-            "options": [{"text": "splitting long content into shorter parts;"}]
+            "options": [{"text": "splitting long content into shorter parts;", "example": ""}]
         }
     }
 }}
@@ -64,35 +67,42 @@
     <p class="block_coursecare-overview-help">{{basedon}}</p>
     <div class="block_coursecare-overview-suggestion">
         <h4 class="block_coursecare-overview-suggestiontitle">{{title}}</h4>
-        <dl class="mb-0">
-            <dt>{{observedlabel}}</dt>
-            <dd>
-                <p class="mb-1">{{observed}}</p>
-                {{#hasplaces}}
-                <ul class="block_coursecare-overview-places">
-                    {{#places}}
-                    <li>{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</li>
-                    {{/places}}
-                </ul>
-                {{/hasplaces}}
-                {{#more}}
-                <p class="mb-1">{{more}}</p>
-                {{/more}}
-                {{#truncated}}
-                <p class="block_coursecare-overview-help mb-1">{{truncated}}</p>
-                {{/truncated}}
-            </dd>
-            <dt>{{whylabel}}</dt>
-            <dd><p class="mb-1">{{why}}</p></dd>
-            <dt>{{todolabel}}</dt>
-            <dd class="mb-0">
-                <p class="mb-1">{{todo}}</p>
-                <ul class="mb-0">
-                    {{#options}}
-                    <li>{{text}}</li>
-                    {{/options}}
-                </ul>
-            </dd>
+        <dl class="block_coursecare-overview-suggestionparts mb-0">
+            <div class="block_coursecare-overview-suggestionfacts">
+                <dt>{{observedlabel}}</dt>
+                <dd>
+                    <p class="mb-2">{{{observed}}}</p>
+                    {{#hasplaces}}
+                    <ul class="block_coursecare-overview-places list-unstyled">
+                        {{#places}}
+                        <li>
+                            <span class="block_coursecare-overview-placename">{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</span>
+                            <span class="block_coursecare-overview-placesize">{{size}}</span>
+                        </li>
+                        {{/places}}
+                    </ul>
+                    {{/hasplaces}}
+                    {{#more}}
+                    <p class="mb-0">{{more}}</p>
+                    {{/more}}
+                    {{#truncated}}
+                    <p class="block_coursecare-overview-help mt-1 mb-0">{{truncated}}</p>
+                    {{/truncated}}
+                </dd>
+            </div>
+            <div class="block_coursecare-overview-suggestionadvice">
+                <dt>{{whylabel}}</dt>
+                <dd><p class="mb-0">{{why}}</p></dd>
+                <dt>{{todolabel}}</dt>
+                <dd class="mb-0">
+                    <p class="mb-2">{{todo}}</p>
+                    <ul class="block_coursecare-overview-options mb-0">
+                        {{#options}}
+                        <li>{{text}}{{#example}}<span class="block_coursecare-overview-optionexample">{{example}}</span>{{/example}}</li>
+                        {{/options}}
+                    </ul>
+                </dd>
+            </div>
         </dl>
     </div>
     {{/hassuggestion}}

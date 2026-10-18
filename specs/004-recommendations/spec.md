@@ -97,6 +97,19 @@ para depois".
 - O reaproveitamento do limite de grande porte existente e a exclusão das orientações sem dados
   suficientes foram confirmados.
 
+### Session 2026-10-18 (validação)
+
+- Q: Como avaliar o limite de 2 segundos da página em SC-005? → A: Nesta entrega, pelas aberturas em
+  condições normais de operação. A primeira abertura logo após a limpeza integral dos caches fica
+  documentada como limitação; ela não é apresentada como aprovada, e a causa exata não é declarada
+  como comprovada. Nenhuma otimização sem evidência de gargalo em condições normais. (Decisão do
+  proprietário do produto, 2026-10-18; a investigação não demonstrou regressão relevante da 004.)
+- A revisão de tom das 19 strings foi aprovada (T027); ajustes editoriais pequenos continuam
+  permitidos, desde que preservem os princípios aprovados.
+- A direção visual foi aprovada (T028), com um refinamento pontual do cartão de sugestão para
+  melhorar a leitura e a hierarquia (números, atividades identificadas e alternativas), sem
+  funcionalidade nova.
+
 ## Definições
 
 - **Sugestão**: orientação opcional mostrada ao professor, com três partes: o que foi observado na
@@ -398,7 +411,9 @@ passa pela revisão de tom (SC-004).
 - **SC-004**: A revisão de tom não encontra obrigação, promessa de economia ou de benefício ambiental,
   termo de julgamento ou comparação, e o proprietário do produto aprova os textos.
 - **SC-005**: O bloco não acrescenta mais que 50 ms em relação à 0.3.0, e a página de uma sala com 200
-  atividades continua abrindo em até 2 segundos, no ambiente de referência da Feature 003.
+  atividades continua abrindo em até 2 segundos em condições normais de operação, no ambiente de
+  referência da Feature 003 (decisão de 2026-10-18; a primeira abertura após a limpeza integral dos
+  caches é uma limitação documentada, não coberta por este critério).
 - **SC-006**: A verificação automática de acessibilidade não encontra violações no bloco e na seção,
   e a sugestão e seus links são alcançados só com o teclado.
 - **SC-007**: As capturas de FR-051 são aprovadas pelo proprietário do produto.
@@ -414,6 +429,9 @@ passa pela revisão de tom (SC-004).
   limite baixo, muitas. O limite é uma escolha da administração do site, já documentada.
 - "Podem demorar mais para abrir" é uma explicação geral, não uma medição feita na sala.
 - As ligações a materiais grandes consideram no máximo os 1.000 maiores por sala.
+- **Primeira abertura após a limpeza integral dos caches**: no ambiente de desenvolvimento medido, a
+  página (como a página do curso do core) pode passar de 2 segundos logo depois de `purge_caches`. Não
+  foi demonstrada regressão da Feature 004; a causa exata não foi comprovada (ver evidências).
 
 ## Fora do escopo e features posteriores
 

@@ -411,6 +411,14 @@ final class course_overview_test extends \advanced_testcase {
         $this->resetAfterTest();
         $mb = 1048576;
         $str = fn(string $key, $a = null): string => s(get_string($key, 'block_coursecare', $a));
+        // The observed sentence is HTML, with the count and the total size emphasised.
+        $observed = fn(string $key, int $count, int $threshold, int $bytes): string => get_string(
+            $key,
+            'block_coursecare',
+            (object)['count' => '<strong>' . $count . '</strong>',
+            'threshold' => s(diagnostic_line::size($threshold)),
+            'size' => '<strong>' . s(diagnostic_line::size($bytes)) . '</strong>']
+        );
 
         // Two activities with large materials, and a large submission counted only in the course summary.
         [$course, $cms] = $this->course_with_large_links(
@@ -426,15 +434,17 @@ final class course_overview_test extends \advanced_testcase {
         foreach (['suggestion:observed', 'suggestion:why', 'suggestion:todo'] as $label) {
             $this->assertStringContainsString('<dt>' . $str($label) . '</dt>', $section, $label);
         }
-        $this->assertStringContainsString($str('suggestion:large:observed', (object)['count' => 2,
-            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(5 * $mb)]), $section);
+        $this->assertStringContainsString($observed('suggestion:large:observed', 2, $mb, 5 * $mb), $section);
+        // Each place with its size, as in the large materials by activity.
+        $this->assertMatchesRegularExpression('/>Lab video<\/a><\/span>\s*<span class="block_coursecare-overview-placesize">'
+            . preg_quote(s(diagnostic_line::size(3 * $mb)), '/') . '</', $section);
         foreach (['Lab video', 'Slides'] as $name) {
             $url = s((new \moodle_url('/mod/resource/view.php', ['id' => $cms[$name]->cmid]))->out(false));
             $this->assertStringContainsString('<a href="' . $url . '">' . $name . '</a>', $section, $name);
         }
         foreach (
-            ['suggestion:large:why', 'suggestion:large:todo', 'suggestion:large:option1', 'suggestion:large:option2',
-                'suggestion:large:option3'] as $key
+            ['suggestion:large:why', 'suggestion:large:todo', 'suggestion:large:option1',
+                'suggestion:large:option1_example', 'suggestion:large:option2', 'suggestion:large:option3'] as $key
         ) {
             $this->assertStringContainsString($str($key), $section, $key);
         }
@@ -449,8 +459,7 @@ final class course_overview_test extends \advanced_testcase {
         // One large material: the singular sentence.
         [$course] = $this->course_with_large_links(['Lab video' => 3 * $mb]);
         $section = self::suggestions_section($this->render((int)$course->id));
-        $this->assertStringContainsString($str('suggestion:large:observed_one', (object)[
-            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(3 * $mb)]), $section);
+        $this->assertStringContainsString($observed('suggestion:large:observed_one', 1, $mb, 3 * $mb), $section);
 
         // Five places: three cited, the largest first, and two more.
         [$course] = $this->course_with_large_links(['A1' => 5 * $mb, 'A2' => 4 * $mb, 'A3' => 3 * $mb,
@@ -492,8 +501,7 @@ final class course_overview_test extends \advanced_testcase {
         // "and N more"; in the singular with one material.
         [$course] = $this->course_with_large_links(['removed' => 4 * $mb]);
         $section = self::suggestions_section($this->render((int)$course->id));
-        $this->assertStringContainsString($str('suggestion:large:observed_unnamed_one', (object)[
-            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(4 * $mb)]), $section);
+        $this->assertStringContainsString($observed('suggestion:large:observed_unnamed_one', 1, $mb, 4 * $mb), $section);
         $this->assertStringNotContainsString('block_coursecare-overview-places', $section);
         $this->assertStringNotContainsString($str('suggestion:large:more_one'), $section);
         [$course, $cms] = $this->course_with_large_links(['Secret plan' => 3 * $mb, 'removed' => 4 * $mb]);
@@ -507,8 +515,7 @@ final class course_overview_test extends \advanced_testcase {
         set_coursemodule_visible($cms['Secret plan']->cmid, 0);
         rebuild_course_cache((int)$course->id, true);
         $section = self::suggestions_section($this->render((int)$course->id));
-        $this->assertStringContainsString($str('suggestion:large:observed_unnamed', (object)['count' => 2,
-            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(7 * $mb)]), $section);
+        $this->assertStringContainsString($observed('suggestion:large:observed_unnamed', 2, $mb, 7 * $mb), $section);
         $this->assertStringNotContainsString('block_coursecare-overview-places', $section);
         $this->assertStringNotContainsString($str('suggestion:large:more', 2), $section);
         $this->assertStringNotContainsString('Secret plan', $section);
@@ -551,7 +558,7 @@ final class course_overview_test extends \advanced_testcase {
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'suggestion')
             || $key === 'block:suggestion', ARRAY_FILTER_USE_KEY);
-        $this->assertCount(19, $new);
+        $this->assertCount(20, $new);
         $this->assertDoesNotMatchRegularExpression(
             '/\b(deve|desperdício|excluir|economia|economizar)\b/iu',
             implode(' ', $new)

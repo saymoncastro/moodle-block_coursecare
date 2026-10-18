@@ -108,6 +108,7 @@ class course_overview implements \renderable, \templatable {
     /**
      * What was noticed by the suggestion S1, as one complete sentence: before the list of places when there is one,
      * otherwise pointing to the list under Large files (all the large materials are in activities without a name).
+     * The count and the total size are emphasised, so that the facts are read at once; the sentence is HTML.
      *
      * @param int $count Large course materials.
      * @param string $threshold Formatted large-file threshold.
@@ -117,7 +118,8 @@ class course_overview implements \renderable, \templatable {
      */
     private function observed_sentence(int $count, string $threshold, string $size, bool $hasplaces): string {
         $key = 'suggestion:large:observed' . ($hasplaces ? '' : '_unnamed') . ($count === 1 ? '_one' : '');
-        $a = (object)['count' => $count, 'threshold' => $threshold, 'size' => $size];
+        $a = (object)['count' => \html_writer::tag('strong', $count), 'threshold' => s($threshold),
+            'size' => \html_writer::tag('strong', s($size))];
         return get_string($key, 'block_coursecare', $a);
     }
 
@@ -140,9 +142,10 @@ class course_overview implements \renderable, \templatable {
         }
         $places = [];
         foreach ($suggestion['places'] as $place) {
-            $places[] = $place['kind'] === 'courselevel'
+            $places[] = ($place['kind'] === 'courselevel'
                 ? ['name' => $str('overview:courselevel'), 'url' => $this->courseurl->out(false), 'hasurl' => true]
-                : ['name' => $place['name'], 'url' => $place['url'], 'hasurl' => $place['url'] !== null];
+                : ['name' => $place['name'], 'url' => $place['url'], 'hasurl' => $place['url'] !== null])
+                + ['size' => diagnostic_line::size($place['bytes'])];
         }
         $threshold = diagnostic_line::size($suggestion['threshold']);
         $size = diagnostic_line::size($suggestion['bytes']);
@@ -168,9 +171,9 @@ class course_overview implements \renderable, \templatable {
             'why' => $str('suggestion:large:why'),
             'todo' => $str('suggestion:large:todo'),
             'options' => [
-                ['text' => $str('suggestion:large:option1')],
-                ['text' => $str('suggestion:large:option2')],
-                ['text' => $str('suggestion:large:option3')],
+                ['text' => $str('suggestion:large:option1'), 'example' => $str('suggestion:large:option1_example')],
+                ['text' => $str('suggestion:large:option2'), 'example' => ''],
+                ['text' => $str('suggestion:large:option3'), 'example' => ''],
             ],
         ] + $data;
     }

@@ -17,6 +17,8 @@
   "  term: O que observamos",
   "  definition",
   "    paragraph",
+  "      strong",
+  "      strong",
   "    list",
   "      listitem:  [level=1]",
   "        link: Aula 1 — A célula",
