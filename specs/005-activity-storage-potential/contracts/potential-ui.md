@@ -24,7 +24,7 @@ Estende o contrato da página da Feature 003 e mantém a direção visual aprova
      `potential:unlimited`, `potential:nobody`, `potential:nofiles` ou `potential:unknown`.
 4. `<details>` recolhido, `potential:how` (título), com a fórmula e as limitações
    (`potential:how_formula`, `potential:how_attempts`, `potential:limit_dates`, `potential:limit_ignore`,
-   `potential:limit_other`, `potential:limit_server`, `potential:limit_change`).
+   `potential:limit_other`, `potential:how_server`, `potential:limit_change`).
 
 Nenhuma cor de alerta, nenhum total, nenhuma ordenação por potencial, nenhum número de envios por tarefa.
 
@@ -68,7 +68,7 @@ Nenhuma cor de alerta, nenhum total, nenhuma ordenação por potencial, nenhum n
 | `potential:limit_dates` | Due dates and access restrictions are not considered. | Datas e restrições de acesso não são consideradas. |
 | `potential:limit_ignore` | People allowed to ignore file size limits (usually not students) have no ceiling. | Quem pode ignorar os limites de tamanho de arquivo (normalmente não estudantes) não tem teto. |
 | `potential:limit_other` | Files inserted in online text and feedback files are not included. | Arquivos inseridos no texto online e arquivos de feedback não entram. |
-| `potential:limit_server` | Server limits are the ones in force when this page was shown. | Os limites do servidor são os vigentes quando esta página foi mostrada. |
+| `potential:how_server` | Server limits are the ones in force when this page was shown. | Os limites do servidor são os vigentes quando esta página foi mostrada. |
 | `potential:limit_change` | Participants, groups and settings can change; the potential is valid for now. | Participantes, grupos e configurações podem mudar; o potencial vale para agora. |
 
 ## Acessibilidade
