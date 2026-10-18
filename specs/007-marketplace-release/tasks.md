@@ -27,8 +27,8 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 ## Phase 1: Setup
 
-- [ ] T001 Em `version.php`: `$plugin->version = 2026102000`, `$plugin->release = '0.7.0'`, `$plugin->maturity = MATURITY_BETA`; `supported` continua [405, 405] até T009.
-- [ ] T002 [P] Em `.gitattributes`, `/docs export-ignore`; criar `specs/007-marketplace-release/evidence/README.md` com as seções das matrizes (prontidão, conformidade, compatibilidade), auditorias, validações humanas, pacote, CI e recomendação.
+- [X] T001 Em `version.php`: `$plugin->version = 2026102000`, `$plugin->release = '0.7.0'`, `$plugin->maturity = MATURITY_BETA`; `supported` continua [405, 405] até T009.
+- [X] T002 [P] Em `.gitattributes`, `/docs export-ignore`; criar `specs/007-marketplace-release/evidence/README.md` com as seções das matrizes (prontidão, conformidade, compatibilidade), auditorias, validações humanas, pacote, CI e recomendação.
 
 ---
 
@@ -36,8 +36,8 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 **Purpose**: CI e pilha local de 5.3; bloqueiam a declaração de compatibilidade.
 
-- [ ] T003 Em `.github/workflows/ci.yml`, acrescentar à matriz `MOODLE_503_STABLE` × PHP 8.3 × PostgreSQL 17 e × PHP 8.4 × MariaDB 11.4 (serviço com a imagem correspondente), mantendo as duas combinações de 4.5.
-- [ ] T004 Em `tests/behat/block_coursecare_ui.feature`, no cenário do Classic, `Given the "theme_classic" plugin is installed` como primeiro passo (roda no 4.5, pulado no 5.3).
+- [X] T003 Em `.github/workflows/ci.yml`, acrescentar à matriz `MOODLE_503_STABLE` × PHP 8.3 × PostgreSQL 17 e × PHP 8.4 × MariaDB 11.4 (serviço com a imagem correspondente), mantendo as duas combinações de 4.5.
+- [X] T004 Em `tests/behat/block_coursecare_ui.feature`, no cenário do Classic, `Given the "theme_classic" plugin is installed` como primeiro passo (roda no 4.5, pulado no 5.3).
 - [ ] T005 Pilha local 5.3: `moodle-docker` (PHP 8.3, PostgreSQL 17) sobre `coursecare-devenv/moodle-503`, plugin montado em `public/blocks/coursecare`, instalação do site e do plugin, PHPUnit e Behat inicializados; registrar o ambiente em `evidence/`.
 - [ ] T006 Push da branch e execução do CI; corrigir as falhas de 5.3 (sem mudar comportamento; mudança arquitetural apresentada antes) até as quatro combinações e `i18n-package` verdes.
 

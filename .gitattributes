@@ -3,6 +3,7 @@
 /translations export-ignore
 /tools export-ignore
 /specs export-ignore
+/docs export-ignore
 /.specify export-ignore
 /.claude export-ignore
 /.github export-ignore
