@@ -270,8 +270,10 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 - **FR-021**: A seção MUST explicar, sem abrir detalhes, o que o potencial significa e o que não
   significa (não é espaço usado, previsão, volume que será enviado, economia ou desperdício; diferentes
   configurações atendem objetivos pedagógicos diferentes).
-- **FR-022**: As limitações reconhecidas (seção "Limitações reconhecidas") MUST estar nos detalhes
-  técnicos da página, com linguagem simples.
+- **FR-022**: A forma de cálculo e as limitações reconhecidas (seção "Limitações reconhecidas") MUST
+  estar num trecho recolhido por padrão dentro da própria seção (nível 3 do Princípio II), com
+  linguagem simples. Fica na seção, e não nos "Detalhes técnicos" do diagnóstico, porque o potencial
+  aparece mesmo quando ainda não há resultado do diagnóstico.
 - **FR-023**: O bloco MUST NOT mostrar o potencial (mantém um indicador, Princípio II).
 - **FR-024**: A apresentação MUST seguir a direção visual aprovada (Features 003 e 004), sem cores ou
   ícones de alerta, sem ranking de tarefas por potencial como julgamento; a ordem MUST ser a da sala
