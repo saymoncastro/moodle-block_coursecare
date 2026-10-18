@@ -1,0 +1,22 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Your course in numbers | DEMO-COMPLETE | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad4bcfe267616ad4bcfe217fb59",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  }
+ ],
+ "passes": 30,
+ "violations": []
+}

@@ -1,0 +1,8 @@
+{
+    "courseid": 2,
+    "measured": "block",
+    "iterations": 1000,
+    "meanms": 0.82,
+    "stdevms": 1.761,
+    "readspercall": 4.01
+}

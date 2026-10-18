@@ -86,6 +86,20 @@ Sucesso: são números de uma data anterior e podem estar desatualizados.
 Sucesso: a atualização mais recente não foi concluída; os números mostrados são do cálculo anterior.
 Erro crítico se não entender o estado do diagnóstico em T8 ou T9.
 
+### D7. Sugestão sobre os arquivos (Feature 004)
+
+Antes de T10, ainda na página de *Biologia celular*, na seção "Sugestões para a sua sala":
+
+**T11.** "O que esta sugestão diz que foi observado na sua sala?"
+Sucesso: cita os materiais de grande porte (2 materiais, 3,9 MB) e as atividades *Aula 1 — A célula* e
+*Vídeo de laboratório*, como fatos medidos.
+
+**T12.** "Do que está escrito aí, o que você é obrigado a fazer?"
+Sucesso: nada; as opções são possibilidades que podem não se aplicar. Erro crítico se a sugestão for
+lida como ordem de excluir ou de corrigir o material, ou como avaliação do professor.
+
+Pergunta aberta: "Essa sugestão seria útil para você? Por quê?" (registrar a resposta).
+
 ### D6. Facilidade geral de uso
 
 **T10.** "De 1 (muito difícil) a 7 (muito fácil), quão fácil foi entender as informações sobre os
@@ -96,8 +110,7 @@ Perguntas abertas, ao final:
 1. O que foi mais fácil de entender? E o mais difícil?
 2. Algum termo pareceu técnico demais ou confuso?
 3. Você mudaria algo no que aparece no quadro da sala?
-4. Ao ver esses números, o que você pensou em fazer? (Só registrar; nenhuma recomendação faz parte
-   desta versão.)
+4. Ao ver esses números e a sugestão, o que você pensou em fazer? (Só registrar.)
 
 ## Classificação dos problemas (FR-071a)
 
@@ -139,6 +152,8 @@ Um arquivo por participante em `specs/003-teacher-experience/evidence/evaluation
 | T7 | D4 | | | |
 | T8 | D5 | | | |
 | T9 | D5 | | | |
+| T11 | D7 | | | |
+| T12 | D7 | | | |
 | T10 | D6 | nota 1–7 | | |
 
 ## Respostas abertas

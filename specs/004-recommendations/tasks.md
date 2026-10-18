@@ -139,11 +139,11 @@ bloco igual ao da 003.
 
 ## Phase 6: Polish, validação e evidências
 
-- [ ] T022 [P] Atualizar `README.md` (seção sobre sugestões: S1, condição, o que não significa, o que fica para depois, frase do bloco) e `CHANGES.md` (0.4.0).
-- [ ] T023 [P] Em `specs/003-teacher-experience/evaluation/protocol.md`, acrescentar as tarefas sobre a sugestão (FR-052 da 004): na página de *Biologia celular*, "o que a sugestão diz que foi observado?" (sucesso: fatos medidos) e "o que dela é obrigatório?" (sucesso: nada; são possibilidades); pergunta aberta sobre a utilidade; erro crítico se a sugestão for lida como ordem de excluir ou de corrigir.
-- [ ] T024 Criar `specs/004-recommendations/evidence/README.md` com a tabela de CT-01 a CT-13 e SC-001 a SC-009 (status "pendente" até haver evidência) e as seções de medições, tom, validação visual, avaliação e CI.
-- [ ] T025 Rodar PHPUnit (`--testsuite block_coursecare_testsuite`), Behat (`--tags=@block_coursecare`, com `--no-interaction`), phpcs (Moodle), `tools/i18n/check.php`; corrigir até tudo verde.
-- [ ] T026 [MANUAL] Medir SC-005 com `tools/dev/bench/render.php` na mesma sala com materiais grandes, 0.3.0 × 0.4.0 (bloco), e `--page` na sala de 200 atividades; registrar em `specs/004-recommendations/evidence/README.md` com as saídas em `evidence/logs/`.
+- [X] T022 [P] Atualizar `README.md` (seção sobre sugestões: S1, condição, o que não significa, o que fica para depois, frase do bloco) e `CHANGES.md` (0.4.0).
+- [X] T023 [P] Em `specs/003-teacher-experience/evaluation/protocol.md`, acrescentar as tarefas sobre a sugestão (FR-052 da 004): na página de *Biologia celular*, "o que a sugestão diz que foi observado?" (sucesso: fatos medidos) e "o que dela é obrigatório?" (sucesso: nada; são possibilidades); pergunta aberta sobre a utilidade; erro crítico se a sugestão for lida como ordem de excluir ou de corrigir.
+- [X] T024 Criar `specs/004-recommendations/evidence/README.md` com a tabela de CT-01 a CT-13 e SC-001 a SC-009 (status "pendente" até haver evidência) e as seções de medições, tom, validação visual, avaliação e CI.
+- [X] T025 Rodar PHPUnit (`--testsuite block_coursecare_testsuite`), Behat (`--tags=@block_coursecare`, com `--no-interaction`), phpcs (Moodle), `tools/i18n/check.php`; corrigir até tudo verde.
+- [X] T026 [MANUAL] Medir SC-005 com `tools/dev/bench/render.php` na mesma sala com materiais grandes, 0.3.0 × 0.4.0 (bloco), e `--page` na sala de 200 atividades; registrar em `specs/004-recommendations/evidence/README.md` com as saídas em `evidence/logs/`.
 - [ ] T027 [MANUAL] Revisão de tom de todas as strings novas en e pt_br (FR-050, SC-004) contra FR-005; registrar e obter a aprovação do proprietário do produto.
 - [ ] T028 [MANUAL] Validação visual (FR-051, SC-007): capturas com `tools/dev/demo/screenshots.py` e verificações com `tools/dev/demo/checks.py` do bloco e da página com e sem sugestão, en e pt_BR, Boost e Classic, desktop e celular; registrar e obter a aprovação do proprietário do produto.
 - [ ] T029 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.4.0.zip`.
