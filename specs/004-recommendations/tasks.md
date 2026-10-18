@@ -146,7 +146,7 @@ bloco igual ao da 003.
 - [X] T026 [MANUAL] Medir SC-005 com `tools/dev/bench/render.php` na mesma sala com materiais grandes, 0.3.0 × 0.4.0 (bloco), e `--page` na sala de 200 atividades; registrar em `specs/004-recommendations/evidence/README.md` com as saídas em `evidence/logs/`.
 - [ ] T027 [MANUAL] Revisão de tom de todas as strings novas en e pt_br (FR-050, SC-004) contra FR-005; registrar e obter a aprovação do proprietário do produto.
 - [ ] T028 [MANUAL] Validação visual (FR-051, SC-007): capturas com `tools/dev/demo/screenshots.py` e verificações com `tools/dev/demo/checks.py` do bloco e da página com e sem sugestão, en e pt_BR, Boost e Classic, desktop e celular; registrar e obter a aprovação do proprietário do produto.
-- [ ] T029 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.4.0.zip`.
+- [X] T029 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.4.0.zip`.
 - [ ] T030 Publicar a branch, verificar o CI (`moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package`) e registrar o run em `specs/004-recommendations/evidence/README.md`.
 - [ ] T031 [MANUAL] Avaliação com cinco professores junto da 003 (FR-052, SC-009), conduzida pelo proprietário do produto; registro em `specs/003-teacher-experience/evidence/evaluation/`; pendente, não bloqueia a implementação nem o teste local.
 - [ ] T032 Reavaliar o Constitution Check do plan.md contra o código entregue e completar a tabela de `specs/004-recommendations/evidence/README.md` (nenhum item marcado sem evidência). Depende de T025 a T031.
