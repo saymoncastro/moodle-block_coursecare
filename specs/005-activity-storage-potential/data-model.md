@@ -9,8 +9,9 @@ exibição da página. Formatos detalhados em [contracts/potential-calculation.m
 | --- | --- |
 | Estrutura da sala (`get_fast_modinfo`) | cmid, tipo do módulo, instância, nome atual, link, visível para o professor, visível para estudantes, ordem |
 | `assign` | id, maxattempts, attemptreopenmethod, teamsubmission, teamsubmissiongroupingid, preventsubmissionnotingroup |
+| `grade_items` (`itemnumber = 0` da tarefa) | gradetype, gradepass, grademin (configuração do item, para "até passar") |
 | `assign_plugin_config` (plugin `file`, subtipo `assignsubmission`) | enabled, maxfilesubmissions, maxsubmissionsizebytes |
-| Configurações | `$CFG->maxbytes`, `course.maxbytes`, `assignsubmission_file/maxbytes`, limites do PHP da requisição |
+| Configurações | `$CFG->maxbytes`, `course.maxbytes`, `assignsubmission_file/maxbytes`, `assignsubmission_file/disabled`, limites do PHP da requisição |
 | Inscrições e capability | ids de quem pode enviar (inscrição ativa, `mod/assign:submit`) |
 | `role_capabilities`, `role_assignments` | contextos de tarefa com sobreposição de `mod/assign:submit` ou papel local |
 | `groups`, `groups_members`, `groupings_groups` | associações a grupos da sala e grupos dos agrupamentos usados |

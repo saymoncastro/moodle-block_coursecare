@@ -717,6 +717,8 @@ final class course_overview_test extends \advanced_testcase {
         $this->create_assign($course, 'Journal', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
         $this->create_assign($course, 'Online text', ['assignsubmission_file_enabled' => 0,
             'assignsubmission_onlinetext_enabled' => 1]);
+        // "Until pass" without a grade to pass never reopens: one attempt, whatever the maximum.
+        $this->create_assign($course, 'Until pass', ['maxattempts' => 3, 'attemptreopenmethod' => 'untilpass']);
         $this->setUser($teacher);
 
         $html = $this->render((int)$course->id);
@@ -769,6 +771,10 @@ final class course_overview_test extends \advanced_testcase {
             'size' => $size($mb)]);
         $this->assertStringContainsString($str('unlimited', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
             $item);
+
+        $item = self::potential_item($section, 'Until pass');
+        $this->assertStringContainsString($str('attempts_one'), $item);
+        $this->assertStringNotContainsString($str('attempts', 3), $item);
 
         // No total of the course: 9 + 9 + 6 MB is nowhere.
         $this->assertStringNotContainsString($size(24 * $mb), $section);
@@ -940,6 +946,17 @@ final class course_overview_test extends \advanced_testcase {
         $section = self::potential_section($this->render((int)$course->id));
         $this->assertStringContainsString($str('none'), $section);
         $this->assertStringNotContainsString('block_coursecare-overview-potentialitem', $section);
+
+        // The file submission plugin disabled on the site: Moodle offers no file submission, so nothing is listed.
+        $course = $generator->create_course();
+        $this->setAdminUser();
+        $this->create_assign($course, 'Lab report');
+        set_config('disabled', 1, 'assignsubmission_file');
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+        $section = self::potential_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('none'), $section);
+        $this->assertSame('', self::potential_item($section, 'Lab report'));
+        set_config('disabled', 0, 'assignsubmission_file');
 
         // No assignment at all: no section.
         $course = $generator->create_course();

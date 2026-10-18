@@ -79,8 +79,8 @@ Feature: CourseCare potential of the assignments of a course
       | user     | course | role    |
       | student1 | C1     | student |
     And the following "activities" exist:
-      | activity | course | name       | assignsubmission_file_enabled | assignsubmission_file_maxfiles | assignsubmission_file_maxsizebytes | assignsubmission_onlinetext_enabled | maxattempts |
-      | assign   | C1     | Lab report | 1                             | 3                              | 1048576                            | 0                                   | -1          |
+      | activity | course | name       | assignsubmission_file_enabled | assignsubmission_file_maxfiles | assignsubmission_file_maxsizebytes | assignsubmission_onlinetext_enabled | maxattempts | attemptreopenmethod |
+      | assign   | C1     | Lab report | 1                             | 3                              | 1048576                            | 0                                   | -1          | manual              |
     And I change viewport size to "<size>"
     When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
     And I click on "How the potential is calculated, and its limits" "text" in the "#block_coursecare-potential" "css_element"

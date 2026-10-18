@@ -31,11 +31,18 @@ class storage_potential {
     /** Levels of the limit per file, in the order that wins a tie. */
     private const LIMIT_ORDER = ['course', 'site', 'server'];
 
+    /** Grade type with points (GRADE_TYPE_VALUE); with a scale, the activity is also gradable. */
+    private const GRADE_VALUE = 1;
+
+    /** Scale grade type (GRADE_TYPE_SCALE). */
+    private const GRADE_SCALE = 2;
+
     /**
      * Potential of one assignment.
      *
      * @param array $settings Settings of the assignment: maxfiles (?int), activitybytes, maxattempts, reopenmethod,
-     *     teamsubmission, groupingid, preventnogroup and participants (user ids who can submit).
+     *     gradetype, gradepass and grademin of its grade item (null without one), teamsubmission, groupingid,
+     *     preventnogroup and participants (user ids who can submit).
      * @param array $course Settings of the course: limits (server, site, course, default), memberships (userid =>
      *     group ids) and groupings (grouping id => group ids).
      * @return array status (potential, unlimited, nofiles, nobody or unknown), unit (participant or group), units,
@@ -65,14 +72,18 @@ class storage_potential {
         [$result['limitsource'], $result['filebytes']] = self::limit((int)($settings['activitybytes'] ?? 0),
             $course['limits'] ?? []);
 
-        // One attempt when Moodle never reopens (maximum 1 or reopening "none"); -1 is unlimited.
+        // One attempt when Moodle never opens another: maximum of one, reopening "none" (before Moodle 4.4), or "until
+        // pass" without a pass criterion, as assign::reopen_submission_if_required() and grade_grade::is_passed()
+        // decide. Otherwise the maximum; -1 is unlimited.
         $maxattempts = (int)($settings['maxattempts'] ?? 1);
-        $knownattempts = $maxattempts >= 1 || $maxattempts === -1;
-        if ($maxattempts === 1 || ($settings['reopenmethod'] ?? '') === 'none') {
+        $reopenmethod = (string)($settings['reopenmethod'] ?? '');
+        $reopens = $reopenmethod !== 'none' && ($reopenmethod !== 'untilpass' || self::has_pass_criterion($settings));
+        if ($maxattempts === 1 || !$reopens) {
             $result['attempts'] = 1;
         } else if ($maxattempts > 1) {
             $result['attempts'] = $maxattempts;
         }
+        $knownattempts = $result['attempts'] !== null || $maxattempts === -1;
 
         $participants = array_map('intval', $settings['participants'] ?? []);
         $result['units'] = $result['unit'] === 'participant' ? count($participants)
@@ -93,6 +104,25 @@ class storage_potential {
             $result['potential'] = $result['perattempt'] * $result['attempts'];
         }
         return $result;
+    }
+
+    /**
+     * Whether "until pass" can reopen: the assignment is graded with points or a scale and its grade item has a grade
+     * to pass (not empty, not the minimum grade, not zero on a scale).
+     *
+     * @param array $settings gradetype, gradepass and grademin of the grade item (null without one).
+     * @return bool
+     */
+    private static function has_pass_criterion(array $settings): bool {
+        $type = $settings['gradetype'] ?? null;
+        $pass = $settings['gradepass'] ?? null;
+        if (!in_array($type, [self::GRADE_VALUE, self::GRADE_SCALE], true) || $pass === null) {
+            return false;
+        }
+        if ((float)$pass === (float)($settings['grademin'] ?? 0)) {
+            return false;
+        }
+        return !($type === self::GRADE_SCALE && abs((float)$pass) < 0.00001);
     }
 
     /**

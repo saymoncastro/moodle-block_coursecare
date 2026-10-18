@@ -152,12 +152,29 @@ Pontos para a decisão do proprietário do produto:
 4. **Leitor de tela**: não realizado (exige uma pessoa); a spec 005 não o exige, mas o roteiro da
    003/004 pode incluir a seção.
 
+## Revisão de código (2026-10-18)
+
+Duas divergências com o comportamento do Moodle 4.5, ambas no número mostrado, corrigidas:
+
+| Achado | Comportamento do Moodle | Correção |
+| --- | --- | --- |
+| Reabertura "até passar" multiplicava pelo máximo de tentativas | `assign::reopen_submission_if_required()` só reabre se `grade_grade::is_passed()` não for nulo: a tarefa precisa de nota por pontos ou escala e de nota para aprovação (não vazia, diferente da mínima e, na escala, diferente de zero); o pedido manual de nova tentativa só existe na reabertura manual. "Até passar" é o padrão do Moodle 4.5 | O coletor lê do item de nota (`grade_items`, `itemnumber = 0`) o tipo, a nota para aprovação e a mínima; a regra dá 1 tentativa sem critério. Metodologia item 3, FR-013, R5 e contrato atualizados |
+| Plugin de envio de arquivos desativado no site ainda listava tarefas | O Moodle só usa um plugin de envio habilitado na tarefa **e** visível no site (`assignsubmission_file \| disabled`) | `enabled` falso com o plugin desativado; nenhuma tarefa na lista. Metodologia item 6, R6 e contrato atualizados |
+
+Testes novos: 12 casos de tentativas em `storage_potential_test` (manual, automática, até passar com e sem
+critério, escala, sem nota, ilimitado), leitura do item de nota e plugin desativado em
+`assign_settings_test`, e na página (`test_potential_section`, `test_potential_states`). O cenário
+`@accessibility` do Behat passou a declarar reabertura manual (o padrão "até passar" sem critério daria 1
+tentativa). As tarefas de demonstração não usam "até passar" com mais de uma tentativa: os resultados
+renderizados depois da correção são idênticos aos da conferência à mão e das capturas.
+
 ## Testes e CI
 
 Sobre o código de `9fbb6ca` mais os arquivos de Polish (sem mudança de código de produção depois dos testes):
 
-- PHPUnit `--testsuite block_coursecare_testsuite`: **234 testes, 2398 asserções, OK** (PHP 8.1, PostgreSQL 17).
-- Behat `--tags=@block_coursecare`: **61 cenários, 686 passos, todos verdes** (inclui os 8 da 005, com axe em
+- PHPUnit `--testsuite block_coursecare_testsuite`: **234 testes, 2398 asserções, OK** (PHP 8.1, PostgreSQL 17);
+  depois da revisão de código, **244 testes, 2429 asserções, OK**.
+- Behat `--tags=@block_coursecare`: **61 cenários, 686 passos, todos verdes** (antes e depois da revisão de código) (inclui os 8 da 005, com axe em
   desktop e celular).
 - `tools/i18n/check.php`: 0 erros (6 avisos de strings iguais ao inglês: as unidades de tamanho e
   `potential:formula`, por natureza).

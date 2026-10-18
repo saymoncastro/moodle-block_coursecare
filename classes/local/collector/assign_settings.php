@@ -20,9 +20,10 @@ namespace block_coursecare\local\collector;
  * Current settings of the file submissions of the assignments of a course (Feature 005,
  * contracts/potential-calculation.md).
  *
- * Reads settings and who can submit, never submissions, grades or file records. The participants are counted once in
- * the course; an assignment gets its own count only when its context has an override of the submit capability or a
- * role assigned in it, because otherwise the capability in the assignment is the one of the course (research R2).
+ * Reads settings and who can submit, never submissions, grades or file records (of the grade item, only its type and
+ * the grade to pass, which decide whether "until pass" reopens). The participants are counted once in the course; an
+ * assignment gets its own count only when its context has an override of the submit capability or a role assigned
+ * in it, because otherwise the capability in the assignment is the one of the course (research R2).
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -37,9 +38,11 @@ class assign_settings {
      *
      * @param int $courseid Course id.
      * @param int[] $cmids Course module ids of assignments of the course.
-     * @return array assigns (cmid => enabled, maxfiles, activitybytes, maxattempts, reopenmethod, teamsubmission,
-     *     groupingid, preventnogroup, participants), limits (server, site, course, default), memberships (userid =>
-     *     group ids, only when an assignment has group submission) and groupings (grouping id => group ids).
+     * @return array assigns (cmid => enabled, maxfiles, activitybytes, maxattempts, reopenmethod, gradetype,
+     *     gradepass, grademin, teamsubmission, groupingid, preventnogroup, participants), limits (server, site, course,
+     *     default), memberships (userid => group ids, only when an assignment has group submission) and groupings
+     *     (grouping id => group ids). enabled is false when the file submission plugin is disabled on the site, as
+     *     Moodle then offers no file submission; gradetype, gradepass and grademin are null without a grade item.
      */
     public function for_course(int $courseid, array $cmids): array {
         global $CFG, $DB;
@@ -66,18 +69,24 @@ class assign_settings {
         $assigns = $DB->get_records_list('assign', 'id', array_keys($instances), '',
             'id, maxattempts, attemptreopenmethod, teamsubmission, teamsubmissiongroupingid, preventsubmissionnotingroup');
         $config = $this->file_config(array_keys($instances));
+        $sitedisabled = (bool)get_config('assignsubmission_file', 'disabled');
+        $gradeitems = $this->grade_items((int)$courseid, array_keys($instances));
         $participants = $this->participants(\context_course::instance($courseid));
         $own = $this->own_participants(array_values($instances));
 
         foreach ($assigns as $assign) {
             $cmid = $instances[(int)$assign->id];
             $values = $config[(int)$assign->id] ?? [];
+            $item = $gradeitems[(int)$assign->id] ?? null;
             $result['assigns'][$cmid] = [
-                'enabled' => (int)($values['enabled'] ?? 0) === 1,
+                'enabled' => !$sitedisabled && (int)($values['enabled'] ?? 0) === 1,
                 'maxfiles' => isset($values['maxfilesubmissions']) ? (int)$values['maxfilesubmissions'] : null,
                 'activitybytes' => (int)($values['maxsubmissionsizebytes'] ?? 0),
                 'maxattempts' => (int)$assign->maxattempts,
                 'reopenmethod' => (string)$assign->attemptreopenmethod,
+                'gradetype' => $item ? (int)$item->gradetype : null,
+                'gradepass' => $item && $item->gradepass !== null ? (float)$item->gradepass : null,
+                'grademin' => $item ? (float)$item->grademin : null,
                 'teamsubmission' => (bool)$assign->teamsubmission,
                 'groupingid' => (int)$assign->teamsubmissiongroupingid,
                 'preventnogroup' => (bool)$assign->preventsubmissionnotingroup,
@@ -119,6 +128,28 @@ class assign_settings {
             $config[(int)$row->assignment][$row->name] = $row->value;
         }
         return $config;
+    }
+
+    /**
+     * The grade item of each assignment: its type, grade to pass and minimum grade (settings, never a grade).
+     *
+     * @param int $courseid Course id.
+     * @param int[] $assignids Assignment instance ids.
+     * @return array assignment id => row with gradetype, gradepass and grademin
+     */
+    private function grade_items(int $courseid, array $assignids): array {
+        global $DB;
+        [$insql, $params] = $DB->get_in_or_equal($assignids, SQL_PARAMS_NAMED, 'assign');
+        $rows = $DB->get_records_select('grade_items',
+            "courseid = :courseid AND itemtype = :itemtype AND itemmodule = :itemmodule AND itemnumber = 0
+             AND iteminstance $insql",
+            $params + ['courseid' => $courseid, 'itemtype' => 'mod', 'itemmodule' => 'assign'], '',
+            'id, iteminstance, gradetype, gradepass, grademin');
+        $items = [];
+        foreach ($rows as $row) {
+            $items[(int)$row->iteminstance] = $row;
+        }
+        return $items;
     }
 
     /**

@@ -60,6 +60,18 @@ final class storage_potential_test extends \basic_testcase {
     }
 
     /**
+     * The grade item of an assignment.
+     *
+     * @param int $type Grade type (0 none, 1 value, 2 scale, 3 text).
+     * @param float|null $pass Grade to pass.
+     * @param float $min Minimum grade.
+     * @return array
+     */
+    private static function pass(int $type, ?float $pass, float $min): array {
+        return ['gradetype' => $type, 'gradepass' => $pass, 'grademin' => $min];
+    }
+
+    /**
      * Group submission for participants 1 to 12 in six groups of two.
      *
      * @return array userid => group ids
@@ -104,15 +116,37 @@ final class storage_potential_test extends \basic_testcase {
                 ['filebytes' => 100 * $mb, 'limitsource' => 'server']],
             'no limit known' => [self::settings(['activitybytes' => 0]), self::course(['server' => 0]),
                 ['status' => 'unknown', 'filebytes' => 0, 'limitsource' => null, 'potential' => null, 'perattempt' => 0]],
-            'three attempts' => [self::settings(['maxattempts' => 3]), self::course(),
-                ['attempts' => 3, 'perattempt' => 900 * $mb, 'potential' => 2700 * $mb]],
+            'three attempts, manual reopening' => [self::settings(['maxattempts' => 3, 'reopenmethod' => 'manual']),
+                self::course(), ['attempts' => 3, 'perattempt' => 900 * $mb, 'potential' => 2700 * $mb]],
+            'three attempts, automatic reopening' => [self::settings(['maxattempts' => 3, 'reopenmethod' => 'automatic']),
+                self::course(), ['attempts' => 3]],
+            'until pass with a grade to pass' => [self::settings(['maxattempts' => 3] + self::pass(1, 50.0, 0.0)),
+                self::course(), ['attempts' => 3]],
+            'until pass on a scale with a grade to pass' => [self::settings(['maxattempts' => 3] + self::pass(2, 2.0, 1.0)),
+                self::course(), ['attempts' => 3]],
+            'until pass without a grade item' => [self::settings(['maxattempts' => 3]), self::course(),
+                ['attempts' => 1, 'potential' => 900 * $mb]],
+            'until pass with the grade to pass at the minimum' => [
+                self::settings(['maxattempts' => 3] + self::pass(1, 0.0, 0.0)), self::course(), ['attempts' => 1]],
+            'until pass with an empty grade to pass' => [self::settings(['maxattempts' => 3] + self::pass(1, null, 0.0)),
+                self::course(), ['attempts' => 1]],
+            'until pass on a scale with a zero grade to pass' => [
+                self::settings(['maxattempts' => 3] + self::pass(2, 0.0, 1.0)), self::course(), ['attempts' => 1]],
+            'until pass without grading' => [self::settings(['maxattempts' => 3] + self::pass(0, 50.0, 0.0)),
+                self::course(), ['attempts' => 1]],
+            'until pass with unlimited attempts and no grade to pass' => [self::settings(['maxattempts' => -1]),
+                self::course(), ['status' => 'potential', 'attempts' => 1, 'potential' => 900 * $mb]],
+            'until pass with unlimited attempts and a grade to pass' => [
+                self::settings(['maxattempts' => -1] + self::pass(1, 50.0, 0.0)), self::course(),
+                ['status' => 'unlimited', 'attempts' => null]],
             'unlimited attempts' => [self::settings(['maxattempts' => -1, 'reopenmethod' => 'manual']), self::course(),
                 ['status' => 'unlimited', 'attempts' => null, 'perattempt' => 900 * $mb, 'potential' => null]],
             'reopening none with a maximum of five' => [self::settings(['maxattempts' => 5, 'reopenmethod' => 'none']),
                 self::course(), ['attempts' => 1, 'potential' => 900 * $mb]],
             'maximum of one with manual reopening' => [self::settings(['maxattempts' => 1, 'reopenmethod' => 'manual']),
                 self::course(), ['attempts' => 1, 'potential' => 900 * $mb]],
-            'attempts not determined' => [self::settings(['maxattempts' => 0, 'participants' => []]), self::course(),
+            'attempts not determined' => [self::settings(['maxattempts' => 0, 'reopenmethod' => 'manual',
+                'participants' => []]), self::course(),
                 ['status' => 'unknown', 'potential' => null]],
             'no file allowed' => [self::settings(['maxfiles' => 0]), self::course(),
                 ['status' => 'nofiles', 'files' => 0, 'filebytes' => 0, 'limitsource' => null, 'potential' => null]],
@@ -146,6 +180,7 @@ final class storage_potential_test extends \basic_testcase {
                 self::course([], ['memberships' => self::six_groups()]), ['status' => 'nobody', 'units' => 0]],
             'large values' => [
                 self::settings(['participants' => range(1, 500), 'maxfiles' => 10, 'maxattempts' => 20,
+                    'reopenmethod' => 'manual',
                     'activitybytes' => 2048 * $mb]),
                 self::course(['server' => 4096 * $mb]),
                 ['units' => 500, 'potential' => 500 * 20 * 10 * 2048 * $mb]],
@@ -174,7 +209,8 @@ final class storage_potential_test extends \basic_testcase {
      */
     public function test_large_values_are_exact(): void {
         $result = storage_potential::evaluate(self::settings(['participants' => range(1, 500), 'maxfiles' => 10,
-            'maxattempts' => 20, 'activitybytes' => 2048 * self::MB]), self::course(['server' => 4096 * self::MB]));
+            'maxattempts' => 20, 'reopenmethod' => 'manual', 'activitybytes' => 2048 * self::MB]),
+            self::course(['server' => 4096 * self::MB]));
         $this->assertIsInt($result['potential']);
         $this->assertSame(214748364800000, $result['potential']);
     }

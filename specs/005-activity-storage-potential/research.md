@@ -83,13 +83,18 @@ com site, sala e o limite da tarefa); separar leitura e decisão mantém a regra
 
 ## R5. Tentativas
 
-**Decisão**: `maxattempts = 1` ou método de reabertura `none` → 1; `maxattempts = -1` → ilimitado (sem
-teto; potencial por tentativa); outro valor → esse número.
+**Decisão**: `maxattempts = 1`, método de reabertura `none` ou `untilpass` sem critério de aprovação → 1;
+`maxattempts = -1` → ilimitado (sem teto; potencial por tentativa); outro valor → esse número. O
+critério de aprovação vem do item de nota da tarefa (`grade_items`, `itemnumber = 0`): tipo por pontos ou
+escala e nota para aprovação não vazia, diferente da mínima e, na escala, diferente de zero, como em
+`grade_grade::is_passed()`. É uma configuração do item, não uma nota de estudante. (Revisão de código de
+2026-10-18: a primeira versão ignorava o critério.)
 
 ## R6. Configurações ausentes
 
 **Decisão** (comportamento do Moodle, Metodologia, item 6): sem registro `enabled` = 1 → envio de
-arquivos desativado, tarefa fora da lista; `maxfilesubmissions` ausente ou ≤ 0 → "nenhum arquivo pode
+arquivos desativado, tarefa fora da lista; `assignsubmission_file | disabled` no site → nenhuma tarefa com
+envio de arquivos (o Moodle exige o plugin habilitado na tarefa e visível no site); `maxfilesubmissions` ausente ou ≤ 0 → "nenhum arquivo pode
 ser enviado com a configuração atual", sem potencial; `maxsubmissionsizebytes` ausente → 0 (padrão do
 plugin).
 

@@ -201,11 +201,14 @@ The rule follows what Moodle 4.5 applies:
 - the size limit per file is the smallest of the server upload limits, the site and course limits
   (when set) and the size of the assignment (or, when it is "site default", the default of the file
   submission plugin);
-- one attempt when the assignment never reopens (maximum of one attempt, or reopening "never");
-  with unlimited attempts there is no ceiling, and the section shows what one attempt can hold;
+- one attempt when the assignment never opens another (maximum of one attempt, or reopening "until
+  pass" without a grade to pass in its grade item); with unlimited attempts there is no ceiling, and
+  the section shows what one attempt can hold;
 - participants are the users with an active enrolment who can submit in the assignment (overrides in
   the assignment count); with group submission, the groups as the assignment counts them (only those
   of the grouping, when set), plus the default group when someone without a single group may submit;
+- assignments are listed only when Moodle offers file submissions in them (enabled in the assignment
+  and the file submission plugin not disabled on the site);
 - with no file allowed, nobody who can submit, or a factor that cannot be determined, there is no
   number and the section says why.
 

@@ -91,8 +91,8 @@ final class assign_settings_test extends \advanced_testcase {
         $this->assertSame([], $settings['groupings']);
         $this->assertSame([
             'enabled' => true, 'maxfiles' => 3, 'activitybytes' => 10485760, 'maxattempts' => 3,
-            'reopenmethod' => 'manual', 'teamsubmission' => false, 'groupingid' => 0, 'preventnogroup' => false,
-            'participants' => [(int)$student->id],
+            'reopenmethod' => 'manual', 'gradetype' => 1, 'gradepass' => 0.0, 'grademin' => 0.0, 'teamsubmission' => false,
+            'groupingid' => 0, 'preventnogroup' => false, 'participants' => [(int)$student->id],
         ], $settings['assigns'][$files->cmid]);
         $this->assertFalse($settings['assigns'][$text->cmid]['enabled']);
         $this->assertNull($settings['assigns'][$missing->cmid]['maxfiles']);
@@ -102,6 +102,20 @@ final class assign_settings_test extends \advanced_testcase {
             $settings['assigns'][$local->cmid]['participants']);
         $this->assertNotContains((int)$suspended->id, $settings['assigns'][$files->cmid]['participants']);
         $this->assertNotContains((int)$teacher->id, $settings['assigns'][$files->cmid]['participants']);
+
+        // The grade to pass of the grade item, which decides whether "until pass" reopens.
+        $DB->set_field('grade_items', 'gradepass', 50, ['itemtype' => 'mod', 'itemmodule' => 'assign',
+            'iteminstance' => $files->id, 'itemnumber' => 0]);
+        $nograde = $this->assign($course, ['grade' => 0]);
+        $graded = (new assign_settings())->for_course((int)$course->id, [$files->cmid, $nograde->cmid]);
+        $this->assertSame(50.0, $graded['assigns'][$files->cmid]['gradepass']);
+        $this->assertNotContains($graded['assigns'][$nograde->cmid]['gradetype'], [1, 2]);
+
+        // With the file submission plugin disabled on the site, Moodle offers no file submission.
+        set_config('disabled', 1, 'assignsubmission_file');
+        $disabled = (new assign_settings())->for_course((int)$course->id, [$files->cmid]);
+        $this->assertFalse($disabled['assigns'][$files->cmid]['enabled']);
+        set_config('disabled', 0, 'assignsubmission_file');
 
         foreach ($cmids as $cmid) {
             $this->assertCount(count_enrolled_users(\context_module::instance($cmid), 'mod/assign:submit', 0, true),

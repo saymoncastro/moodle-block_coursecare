@@ -52,7 +52,7 @@ estes os fatos que a feature MUST respeitar:
 | Limites superiores | Site (tamanho máximo de upload), sala (tamanho máximo de upload) e servidor (limites de upload e de envio do PHP) | O limite efetivo por arquivo é o menor entre a tarefa (ou o padrão) e os limites maiores que zero da sala e do site e os do servidor |
 | Ignorar limites de tamanho | Capability de quem envia | Usuários com ela não têm limite de tamanho; normalmente não estudantes |
 | Envio em grupo | Tarefa | Um envio por grupo (opcionalmente só os grupos de um agrupamento); estudantes sem grupo enviam num grupo padrão, a menos que isso esteja impedido |
-| Tentativas | Tarefa: reabertura (nenhuma, manual, automática, até passar) e número máximo de tentativas (−1 = ilimitado) | Cada nova tentativa copia os arquivos da anterior e pode recebê-los até o limite de novo; as tentativas anteriores continuam guardadas |
+| Tentativas | Tarefa: reabertura (manual, automática, até passar; "nenhuma" só antes do Moodle 4.4) e número máximo de tentativas (−1 = ilimitado); "até passar" depende da nota para aprovação do item de nota | Cada nova tentativa copia os arquivos da anterior e pode recebê-los até o limite de novo; as tentativas anteriores continuam guardadas |
 | Quem pode enviar | Capability de envio na tarefa, inscrição ativa, grupos | Define quantos participantes (ou grupos) enviam |
 | Datas e restrições de acesso | Tarefa | Podem impedir envios por um período; não mudam o limite configurado |
 
@@ -92,7 +92,13 @@ funções de limite de upload do core), item a item:
    o que as configurações permitem, não o que ficará guardado.
 3. **Tentativas ilimitadas.** Com número máximo de tentativas ilimitado (−1), não há teto: a tarefa
    mostra "sem teto definido" e o potencial de uma tentativa, com a explicação. Com máximo 1, só uma
-   tentativa (o Moodle não abre outra). Um método de reabertura "nenhum" também significa uma tentativa.
+   tentativa (o Moodle não abre outra). Um método de reabertura "nenhum" (removido no Moodle 4.4, que
+   converte essas tarefas para máximo 1) também significa uma tentativa. Com reabertura "até passar", o
+   Moodle só abre outra tentativa quando a tarefa tem nota (por pontos ou escala) e o item de nota tem uma
+   nota para aprovação (não vazia, diferente da nota mínima e, na escala, diferente de zero); sem esse
+   critério, só uma tentativa, qualquer que seja o máximo (`assign::reopen_submission_if_required()` e
+   `grade_grade::is_passed()`; o pedido manual de nova tentativa só existe na reabertura manual).
+   *(Corrigido na revisão de código de 2026-10-18: a primeira versão multiplicava pelo máximo.)*
 4. **Participantes, grupos e agrupamentos.** Seguir as regras da própria tarefa no Moodle: participantes
    são os usuários com inscrição ativa e a capability de enviar no contexto da tarefa (sobreposições de
    papel na atividade valem). No envio em grupo, a unidade é o grupo: com agrupamento definido, os grupos
@@ -107,7 +113,9 @@ funções de limite de upload do core), item a item:
    certeza numa requisição web; por isso o cálculo usa os valores da requisição em que a página é
    mostrada.
 6. **Configurações desconhecidas ou que impedem uma estimativa.** Seguir o comportamento do Moodle: envio
-   de arquivos sem registro de ativação é envio desativado (a tarefa não entra na lista); número máximo de
+   de arquivos sem registro de ativação é envio desativado (a tarefa não entra na lista); com o plugin de
+   envio de arquivos desativado no site pela administração, o Moodle não oferece envio de arquivos em
+   nenhuma tarefa, e nenhuma entra na lista (corrigido na revisão de código de 2026-10-18); número máximo de
    arquivos zero ou ausente faz o Moodle não oferecer o envio de arquivos (a tarefa diz que nenhum arquivo
    pode ser enviado com a configuração atual); tamanho ausente vale zero (padrão). Agrupamento definido
    que não existe mais: só o grupo padrão, se permitido. Quando, mesmo assim, um fator não puder ser
@@ -209,8 +217,8 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 
 ### Edge Cases
 
-- **Tentativas**: reabertura "nenhuma" ou máximo 1 → 1 tentativa; máximo N → N; ilimitado → sem teto
-  (FR-013).
+- **Tentativas**: máximo 1, reabertura "nenhuma" ou "até passar" sem nota para aprovação → 1 tentativa;
+  máximo N → N; ilimitado → sem teto (FR-013).
 - **Envio em grupo com agrupamento**: só os grupos do agrupamento contam.
 - **Envio em grupo sem grupos**: todos enviam no grupo padrão → 1 unidade, a menos que envios fora de
   grupo estejam impedidos (então 0 unidades: ninguém pode enviar).
@@ -247,7 +255,8 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
   do site e o da sala quando maiores que zero, e o tamanho máximo da tarefa (ou, se zero, o padrão do
   plugin no site, quando maior que zero), como em "Metodologia validada", item 5. A explicação MUST dizer
   qual limite determinou o valor (tarefa, padrão do site para tarefas, sala, site ou servidor).
-- **FR-013**: Tentativas = 1 quando a reabertura é "nenhuma" ou o máximo é 1; o máximo configurado
+- **FR-013**: Tentativas = 1 quando o máximo é 1, a reabertura é "nenhuma" ou a reabertura é "até passar"
+  sem nota para aprovação (Metodologia, item 3); o máximo configurado
   quando finito; quando ilimitado, a tarefa MUST mostrar "sem teto definido", o potencial por tentativa
   e a explicação. A explicação MUST dizer que cada tentativa guarda os seus arquivos e que cópias de
   conteúdo idêntico não ocupam espaço físico de novo (Metodologia, itens 1 e 2).
