@@ -85,7 +85,7 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 ## Phase 9: Polish
 
 - [ ] T026 README público revisado (o que é, para quem, funcionalidades, compatibilidade verificada, instalação, documentação, limitações, privacidade, suporte, licença) e CHANGES 0.7.0.
-- [ ] T027 Suítes locais (PHPUnit e Behat em 4.5 e 5.3), i18n, pacote; CI verde; matriz de compatibilidade final com os runs.
+- [ ] T027 Suítes locais (PHPUnit e Behat em 4.5 e 5.3), i18n, pacote; CI verde; matriz de compatibilidade final com os runs; verificação de desempenho por amostragem no 5.3 (`tools/dev/bench/render.php --page` e bloco, comparados com a 0.6.0 em 4.5); leitura guiada da documentação (SC-008: instalar e configurar seguindo só `docs/`, e cada indicador da página encontrado no guia do professor).
 - [ ] T028 Matriz de prontidão final, bloqueios formais e recomendação READY / NOT READY em `evidence/README.md`.
 - [ ] T029 Constitution Check do plan.md contra a entrega.
 
