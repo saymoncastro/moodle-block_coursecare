@@ -6,7 +6,7 @@ change starts from a specification and must pass the quality gates below.
 
 ## Development environment
 
-Use the reproducible Moodle 4.5 environment described in
+Use the reproducible Moodle environment described in
 [`specs/001-plugin-foundation/quickstart.md`](specs/001-plugin-foundation/quickstart.md)
 (moodle-docker with fictitious demo data). Never use real student data.
 
@@ -51,6 +51,27 @@ on production sites to obtain the CourseCare translation.
 
 ### Public distribution
 
-The package contains only English. After publication in the Moodle Plugins directory (Marketplace),
-the Brazilian Portuguese translation is contributed to AMOS and reaches sites through the official
-`pt_br` language pack.
+The package contains only English. After approval in the Moodle Marketplace, the Brazilian Portuguese
+translation is contributed to AMOS and reaches sites through the official `pt_br` language pack.
+
+## Supported versions and compatibility policy
+
+- Each release declares the Moodle versions it was tested on in `version.php` (`supported`) and in the
+  README. Version 0.7.0 declares Moodle 4.5 LTS and 5.3 LTS.
+- The project follows Moodle LTS releases: a new LTS is added after it passes the full CI matrix and an
+  installation and upgrade check; an LTS leaves the list when Moodle ends its security support.
+- CI runs every supported version with PostgreSQL and MariaDB.
+
+## Versions
+
+Semantic versioning (`MAJOR.MINOR.PATCH`) with Moodle's `maturity`: 0.x releases are pre-1.0 (alpha,
+beta); 1.0.0 will be the first stable release. Every release has an entry in `CHANGES.md`.
+
+## Issues and pull requests
+
+- Report bugs and ideas in GitHub Issues (one problem per issue, with Moodle version, PHP, database and
+  steps to reproduce). Never include personal data or screenshots of real courses.
+- Security problems: do **not** open a public issue; see [SECURITY.md](SECURITY.md).
+- Pull requests: one topic each, with tests for every rule change, green CI, English strings in
+  `lang/en` and the Brazilian Portuguese counterpart in `translations/pt_br`, and no new feature without
+  a specification discussed in an issue first.
