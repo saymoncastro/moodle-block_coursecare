@@ -33,7 +33,7 @@ validações humanas pendentes ficam como pendentes.
 | SC-004 | T029 | ✅ |
 | SC-005 | Behat `@accessibility`; T032 | ✅ (automático) |
 | SC-006 | T031, T032 (aprovadas em 2026-10-19) | ✅ |
-| SC-007 | CI run 39159055662 (`515eaa6`) | ✅ |
+| SC-007 | CI runs 39159055662 (`515eaa6`) e 39167838668 (`15e2fbe`) | ✅ |
 
 ## Desempenho (T029)
 
@@ -187,4 +187,7 @@ Resultado: **passa**, sem violações. Pendência humana não exigida pela spec 
 | --- | --- | --- | --- | --- |
 | `515eaa6` (US1–US3, Polish, correções da revisão de código) | [39159055662](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39159055662) | 2026-10-19 | `moodle-plugin-ci` completo (phpcs, Mustache lint, PHPUnit e Behat) em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | **verde** |
 
-O código vigente é o de `515eaa6`; os commits seguintes, se houver, só mudam documentação.
+| `15e2fbe` (ajustes do proprietário do produto: linguagem, gráfico de até 90 dias; T031, T032, T035) | [39167838668](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39167838668) | 2026-10-19 | os mesmos | **verde** |
+
+O código vigente é o de `15e2fbe` (último commit de código: `24eb995`); os commits seguintes, se houver, só
+mudam documentação. Convergência (`/speckit-converge`, 2026-10-19): sem divergências.
