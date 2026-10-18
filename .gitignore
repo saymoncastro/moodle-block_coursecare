@@ -9,3 +9,6 @@
 
 # Pacotes gerados localmente (tools/package/build.sh)
 build/
+
+# Gerados pelo PHPUnit do Moodle (admin/tool/phpunit/cli/util.php --buildcomponentconfigs)
+phpunit.xml
