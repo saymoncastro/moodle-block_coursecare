@@ -19,6 +19,8 @@ namespace block_coursecare\output;
 use block_coursecare\local\analysis\diagnostic_state;
 use block_coursecare\local\analysis\overview_builder;
 use block_coursecare\local\analysis\state_resolver;
+use block_coursecare\local\analysis\storage_potential;
+use block_coursecare\local\collector\assign_settings;
 use block_coursecare\local\collector\course_structure;
 use block_coursecare\local\collector\diagnostic_store;
 use block_coursecare\local\recommendation\large_materials;
@@ -41,15 +43,22 @@ class course_overview implements \renderable, \templatable {
     /** @var \moodle_url Course page, for the way back. */
     private \moodle_url $courseurl;
 
+    /** @var array|null Potential of the assignments with file submissions (Feature 005); null without assignments. */
+    private ?array $potential;
+
     /**
      * Constructor.
      *
      * @param array $view Course view.
      * @param \moodle_url $courseurl Course page.
+     * @param array|null $potential Assignments with file submissions, in the order of the course: name (formatted),
+     *     url, visible (to students) and result (storage_potential::evaluate()); null when the course has no
+     *     assignment the user can see.
      */
-    public function __construct(array $view, \moodle_url $courseurl) {
+    public function __construct(array $view, \moodle_url $courseurl, ?array $potential = null) {
         $this->view = $view;
         $this->courseurl = $courseurl;
+        $this->potential = $potential;
     }
 
     /**
@@ -68,15 +77,41 @@ class course_overview implements \renderable, \templatable {
         $categories = [];
         $activities = [];
         $large = [];
-        $structure = [];
+        $structure = (new course_structure())->get_activities($courseid);
         if ($record !== null && $state->hasresult) {
             $categories = $store->get_categories((int)$record->id);
             $activities = $store->get_activities((int)$record->id);
             $large = $store->get_large_materials_by_activity((int)$record->id);
-            $structure = (new course_structure())->get_activities($courseid);
         }
-        $view = (new overview_builder())->build($state, $record, $categories, $activities, $large, $structure);
-        return new self($view, new \moodle_url('/course/view.php', ['id' => $courseid]));
+        $view = (new overview_builder())->build($state, $record, $categories, $activities, $large,
+            $state->hasresult ? $structure : []);
+        return new self($view, new \moodle_url('/course/view.php', ['id' => $courseid]),
+            self::potential_for($courseid, $structure));
+    }
+
+    /**
+     * Potential of the assignments of the course that the user can see and that accept files, calculated now from
+     * their current settings (Feature 005, research R1). Nothing is stored.
+     *
+     * @param int $courseid Course id.
+     * @param array $structure Activities from course_structure::get_activities().
+     * @return array|null As the constructor expects.
+     */
+    private static function potential_for(int $courseid, array $structure): ?array {
+        $assigns = array_filter($structure, fn(\stdClass $cm): bool => $cm->modname === 'assign' && $cm->uservisible);
+        if (!$assigns) {
+            return null;
+        }
+        $settings = (new assign_settings())->for_course($courseid, array_keys($assigns));
+        $potential = [];
+        foreach ($assigns as $cmid => $cm) {
+            $assign = $settings['assigns'][$cmid] ?? null;
+            if ($assign !== null && $assign['enabled']) {
+                $potential[] = ['name' => $cm->name, 'url' => $cm->url, 'visible' => $cm->visible,
+                    'result' => storage_potential::evaluate($assign, $settings)];
+            }
+        }
+        return $potential;
     }
 
     /**
@@ -100,6 +135,8 @@ class course_overview implements \renderable, \templatable {
             'activities' => $this->activities_data(),
             'haslarge' => $this->view['large'] !== null,
             'large' => $this->large_data(),
+            'haspotential' => $this->potential !== null,
+            'potential' => $this->potential_data(),
             'hastechnical' => $this->view['technical'] !== null,
             'technical' => $this->technical_data(),
         ];
@@ -176,6 +213,94 @@ class course_overview implements \renderable, \templatable {
                 ['text' => $str('suggestion:large:option3'), 'example' => ''],
             ],
         ] + $data;
+    }
+
+    /**
+     * The "Potential of assignments" section (Feature 005, contracts/potential-ui.md): what the settings of each
+     * assignment allow, in the order of the course, with what the potential means and its limits. No total, no
+     * ranking and no submission per assignment; the recorded storage only as the total of the course.
+     *
+     * @return array heading, intro, meaning, scope, recorded, hasitems, items, none and how.
+     */
+    private function potential_data(): array {
+        if ($this->potential === null) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string('potential:' . $key, 'block_coursecare', $a);
+        $recorded = '';
+        if ($this->view['hasresult']) {
+            foreach ($this->view['categories'] ?? [] as $category) {
+                if ($category['key'] === 'submission' && $category['bytes'] > 0) {
+                    $recorded = $str('recorded', (object)['size' => diagnostic_line::size($category['bytes']),
+                        'date' => userdate($this->view['timecompleted'],
+                            get_string('strftimedatetimeshort', 'langconfig'))]);
+                }
+            }
+        }
+        $items = array_map(fn(array $item): array => $this->potential_item($item), $this->potential);
+        $how = ['how_formula', 'how_attempts', 'limit_dates', 'limit_ignore', 'limit_other', 'how_server',
+            'limit_change'];
+        return [
+            'heading' => $str('heading'),
+            'intro' => $str('intro'),
+            'meaning' => $str('meaning'),
+            'scope' => $str('scope'),
+            'recorded' => $recorded,
+            'hasitems' => $items !== [],
+            'items' => $items,
+            'none' => $items === [] ? $str('none') : '',
+            'howtitle' => $str('how'),
+            'how' => array_map(fn(string $key): array => ['text' => $str($key)], $how),
+        ];
+    }
+
+    /**
+     * One assignment of the potential section: its name, one sentence per factor and the result. A factor that is
+     * not known, or that does not apply to the status, is left out.
+     *
+     * @param array $item name, url, visible and result.
+     * @return array name, url, hasurl, hidden, factors and result.
+     */
+    private function potential_item(array $item): array {
+        $str = fn(string $key, $a = null): string => get_string('potential:' . $key, 'block_coursecare', $a);
+        $result = $item['result'];
+        $status = $result['status'];
+        $group = $result['unit'] === 'group';
+        $filesize = diagnostic_line::size($result['filebytes']);
+        $factors = [];
+        if (in_array($status, ['potential', 'unlimited', 'nobody'], true)) {
+            $key = 'files_' . ($group ? 'group' : 'participant') . ($result['files'] === 1 ? '_one' : '');
+            $factors[] = $str($key, (object)['files' => $result['files'], 'size' => $filesize]);
+            $factors[] = $str('limit_' . $result['limitsource']);
+            // With nobody, an unknown number of attempts never reaches here: no attempts means unlimited.
+            $factors[] = match ($result['attempts']) {
+                null => $str('attempts_unlimited'),
+                1 => $str('attempts_one'),
+                default => $str('attempts', $result['attempts']),
+            };
+        }
+        if ($status === 'potential' || $status === 'unlimited') {
+            $key = 'units_' . ($group ? 'groups' : 'participants') . ($result['units'] === 1 ? '_one' : '');
+            $factors[] = $str($key, $result['units']);
+            $formula = (object)['units' => $result['units'], 'files' => $result['files'], 'size' => $filesize,
+                'attempts' => $result['attempts']];
+            $perattempt = $str('formula', $formula);
+        }
+        $text = match ($status) {
+            'potential' => $str('value', (object)['size' => diagnostic_line::size($result['potential']),
+                'formula' => $result['attempts'] > 1 ? $str('formula_attempts', $formula) : $perattempt]),
+            'unlimited' => $str('unlimited', (object)['size' => diagnostic_line::size($result['perattempt']),
+                'formula' => $perattempt]),
+            default => $str($status),
+        };
+        return [
+            'name' => $item['name'],
+            'url' => $item['url'],
+            'hasurl' => $item['url'] !== null,
+            'hidden' => $item['visible'] ? '' : $str('hidden'),
+            'factors' => array_map(fn(string $factor): array => ['text' => $factor], $factors),
+            'result' => $text,
+        ];
     }
 
     /**

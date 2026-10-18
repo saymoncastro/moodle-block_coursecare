@@ -627,4 +627,323 @@ final class course_overview_test extends \advanced_testcase {
             $this->assertStringContainsString($str($note), $html, $name);
         }
     }
+
+    /**
+     * The potential section of a rendered page, or null when there is none (Feature 005).
+     *
+     * @param string $html Page HTML.
+     * @return string|null
+     */
+    private static function potential_section(string $html): ?string {
+        if (!preg_match('/<section id="block_coursecare-potential".*?<\/section>/s', $html, $match)) {
+            return null;
+        }
+        return $match[0];
+    }
+
+    /**
+     * The item of one assignment in the potential section, or '' when it is not listed.
+     *
+     * @param string $section Potential section HTML.
+     * @param string $name Name of the assignment.
+     * @return string
+     */
+    private static function potential_item(string $section, string $name): string {
+        preg_match_all('/<li class="block_coursecare-overview-potentialitem">.*?<\/li>/s', $section, $matches);
+        foreach ($matches[0] as $item) {
+            if (str_contains($item, '>' . $name . '<')) {
+                return $item;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * An assignment with file submissions: 3 files of 1 MB, 1 attempt (below any upload limit of a server).
+     *
+     * @param \stdClass $course Course.
+     * @param string $name Name.
+     * @param array $values Overrides of the module record.
+     * @return \stdClass Module record.
+     */
+    private function create_assign(\stdClass $course, string $name, array $values = []): \stdClass {
+        return $this->getDataGenerator()->create_module('assign', $values + ['course' => $course->id, 'name' => $name,
+            'assignsubmission_file_enabled' => 1, 'assignsubmission_file_maxfiles' => 3,
+            'assignsubmission_file_maxsizebytes' => 1048576, 'assignsubmission_onlinetext_enabled' => 0,
+            'maxattempts' => 1]);
+    }
+
+    /**
+     * The potential section of a page built from given results, without a diagnostic.
+     *
+     * @param array $potential As course_overview expects.
+     * @return string Section HTML ('' when there is none).
+     */
+    private function render_potential(array $potential): string {
+        global $PAGE;
+        $PAGE->set_url('/blocks/coursecare/overview.php');
+        $output = $PAGE->get_renderer('core');
+        $view = (new \block_coursecare\local\analysis\overview_builder())->build(
+            \block_coursecare\local\analysis\state_resolver::resolve(null, time(), DAYSECS), null, [], [], [], []);
+        $page = new course_overview($view, new \moodle_url('/course/view.php', ['id' => SITEID]), $potential);
+        return (string)self::potential_section($output->render_from_template('block_coursecare/overview',
+            $page->export_for_template($output)));
+    }
+
+    /**
+     * The section lists the assignments with file submissions in the order of the course, each with its settings, the
+     * level of its limit, attempts, who can submit and the theoretical potential; no total and no assignment without
+     * file submissions (Feature 005, T009; CT-01 to CT-06, CT-08).
+     */
+    public function test_potential_section(): void {
+        $this->resetAfterTest();
+        $mb = 1048576;
+        $str = fn(string $key, $a = null): string => s(get_string('potential:' . $key, 'block_coursecare', $a));
+        $size = fn(int $bytes): string => diagnostic_line::size($bytes);
+        [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000]);
+        $teacher = \core_user::get_user($GLOBALS['USER']->id);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $groups = [];
+        foreach (range(1, 3) as $i) {
+            $student = $generator->create_and_enrol($course, 'student');
+            $groups[$i] = $generator->create_group(['courseid' => $course->id]);
+            $generator->create_group_member(['groupid' => $groups[$i]->id, 'userid' => $student->id]);
+        }
+        $this->create_assign($course, 'Lab report');
+        $this->create_assign($course, 'Essay', ['assignsubmission_file_maxfiles' => 1, 'maxattempts' => 3,
+            'attemptreopenmethod' => 'manual']);
+        $this->create_assign($course, 'Group project', ['assignsubmission_file_maxfiles' => 2, 'teamsubmission' => 1]);
+        $this->create_assign($course, 'Journal', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $this->create_assign($course, 'Online text', ['assignsubmission_file_enabled' => 0,
+            'assignsubmission_onlinetext_enabled' => 1]);
+        $this->setUser($teacher);
+
+        $html = $this->render((int)$course->id);
+        $section = self::potential_section($html);
+        $this->assertNotNull($section);
+        $this->assertStringContainsString($str('heading'), $section);
+        $activities = strpos($html, 'block_coursecare-overview-activities');
+        $this->assertNotFalse($activities);
+        $this->assertGreaterThan($activities, strpos($html, 'id="block_coursecare-potential"'));
+        $this->assertGreaterThan(strpos($html, 'id="block_coursecare-potential"'),
+            strpos($html, 'block_coursecare-overview-technicalsection'));
+
+        $positions = [];
+        foreach (['Lab report', 'Essay', 'Group project', 'Journal'] as $name) {
+            $positions[] = strpos($section, '>' . $name . '<');
+        }
+        $this->assertNotContains(false, $positions);
+        $this->assertSame($positions, array_values(array_unique($positions)));
+        $sorted = $positions;
+        sort($sorted);
+        $this->assertSame($sorted, $positions, 'Order of the course');
+        $this->assertSame('', self::potential_item($section, 'Online text'));
+
+        $item = self::potential_item($section, 'Lab report');
+        $this->assertStringContainsString('/mod/assign/view.php?id=', $item);
+        $this->assertStringContainsString($str('files_participant', (object)['files' => 3, 'size' => $size($mb)]), $item);
+        $this->assertStringContainsString($str('limit_activity'), $item);
+        $this->assertStringContainsString($str('attempts_one'), $item);
+        $this->assertStringContainsString($str('units_participants', 3), $item);
+        $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 3, 'files' => 3,
+            'size' => $size($mb)]);
+        $this->assertStringContainsString($str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
+            $item);
+
+        $item = self::potential_item($section, 'Essay');
+        $this->assertStringContainsString($str('files_participant_one', (object)['size' => $size($mb)]), $item);
+        $this->assertStringContainsString($str('attempts', 3), $item);
+        $formula = get_string('potential:formula_attempts', 'block_coursecare', (object)['units' => 3, 'attempts' => 3,
+            'files' => 1, 'size' => $size($mb)]);
+        $this->assertStringContainsString($str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
+            $item);
+
+        $item = self::potential_item($section, 'Group project');
+        $this->assertStringContainsString($str('files_group', (object)['files' => 2, 'size' => $size($mb)]), $item);
+        $this->assertStringContainsString($str('units_groups', 3), $item);
+
+        $item = self::potential_item($section, 'Journal');
+        $this->assertStringContainsString($str('attempts_unlimited'), $item);
+        $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 3, 'files' => 3,
+            'size' => $size($mb)]);
+        $this->assertStringContainsString($str('unlimited', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
+            $item);
+
+        // No total of the course: 9 + 9 + 6 MB is nowhere.
+        $this->assertStringNotContainsString($size(24 * $mb), $section);
+
+        // The limit of the course, when smaller than the one of the assignment.
+        $small = $generator->create_course(['maxbytes' => 524288]);
+        $generator->create_and_enrol($small, 'student');
+        $this->setAdminUser();
+        $this->create_assign($small, 'Poster');
+        $this->setUser($generator->create_and_enrol($small, 'editingteacher'));
+        $item = self::potential_item((string)self::potential_section($this->render((int)$small->id)), 'Poster');
+        $this->assertStringContainsString($str('limit_course'), $item);
+        $this->assertStringContainsString($str('units_participants_one'), $item);
+        $this->assertStringContainsString($str('files_participant', (object)['files' => 3, 'size' => $size(524288)]),
+            $item);
+
+        // The example of the specification: 30 participants, 3 files of 10 MB, 1 attempt → 900 MB.
+        $settings = ['maxfiles' => 3, 'activitybytes' => 10 * $mb, 'maxattempts' => 1, 'reopenmethod' => 'untilpass',
+            'teamsubmission' => false, 'groupingid' => 0, 'preventnogroup' => false, 'participants' => range(1, 30)];
+        $result = \block_coursecare\local\analysis\storage_potential::evaluate($settings, ['limits' => ['server' => 0,
+            'site' => 0, 'course' => 0, 'default' => 0]]);
+        $section = $this->render_potential([['name' => 'Final work', 'url' => null, 'visible' => true,
+            'result' => $result]]);
+        $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 30, 'files' => 3,
+            'size' => $size(10 * $mb)]);
+        $this->assertStringContainsString($str('value', (object)['size' => $size(900 * $mb), 'formula' => $formula]),
+            $section);
+        $this->assertStringContainsString('900.0', $section);
+        $this->assertStringContainsString('30 × 3 × 10.0', $section);
+    }
+
+    /**
+     * What the potential means and does not mean is always shown; the recorded storage only as the total of the course,
+     * once, and only with a result; the calculation and its limits in a collapsed part (Feature 005, T015).
+     */
+    public function test_potential_meaning_and_recorded(): void {
+        $this->resetAfterTest();
+        $mb = 1048576;
+        $str = fn(string $key, $a = null): string => s(get_string('potential:' . $key, 'block_coursecare', $a));
+        $recordedstart = strstr($str('recorded', (object)['size' => 'SIZE', 'date' => 'DATE']), 'SIZE', true);
+        [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000, 'submission' => 5 * $mb]);
+        $teacher = \core_user::get_user($GLOBALS['USER']->id);
+        $this->setAdminUser();
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->create_assign($course, 'Lab report');
+        $this->setUser($teacher);
+
+        $section = self::potential_section($this->render((int)$course->id));
+        foreach (['intro', 'meaning', 'scope'] as $key) {
+            $this->assertStringContainsString($str($key), $section);
+        }
+        $this->assertSame(1, substr_count($section, $recordedstart));
+        $this->assertSame(1, substr_count($section, diagnostic_line::size(5 * $mb)));
+        $this->assertStringContainsString(diagnostic_line::size(6 * $mb), self::potential_item($section, 'Lab report'));
+        $this->assertStringNotContainsString(diagnostic_line::size(5 * $mb), self::potential_item($section, 'Lab report'));
+        $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-potentialhow">\s*<summary>' .
+            preg_quote($str('how'), '/') . '<\/summary>/', $section);
+        foreach (['how_formula', 'how_attempts', 'limit_dates', 'limit_ignore', 'limit_other', 'how_server',
+                'limit_change'] as $key) {
+            $this->assertStringContainsString($str($key), $section);
+        }
+
+        // Without a result, the section is there, without the recorded storage.
+        $course = $this->getDataGenerator()->create_course();
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->create_assign($course, 'Lab report');
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $section = self::potential_section($this->render((int)$course->id));
+        $this->assertNotNull($section);
+        $this->assertStringContainsString($str('meaning'), $section);
+        $this->assertStringNotContainsString($recordedstart, $section);
+    }
+
+    /**
+     * No name of a student, group or file in the section, and no word of judgement, forecast or saving in the new
+     * strings (Feature 005, T016; FR-040, SC-002, SC-004).
+     */
+    public function test_potential_privacy_and_tone(): void {
+        global $CFG;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_and_enrol($course, 'student', ['firstname' => 'Zelda', 'lastname' => 'Quixote']);
+        $group = $generator->create_group(['courseid' => $course->id, 'name' => 'Team Rocket']);
+        $generator->create_group_member(['groupid' => $group->id, 'userid' => $student->id]);
+        $assign = $this->create_assign($course, 'Group project', ['teamsubmission' => 1]);
+        get_file_storage()->create_file_from_string(['contextid' => \context_module::instance($assign->cmid)->id,
+            'component' => 'assignsubmission_file', 'filearea' => 'submission_files', 'itemid' => 1, 'filepath' => '/',
+            'filename' => 'secret-notes.pdf', 'userid' => $student->id], 'x');
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+
+        $section = self::potential_section($this->render((int)$course->id));
+        $this->assertNotNull($section);
+        foreach (['Zelda', 'Quixote', 'Team Rocket', 'secret-notes'] as $private) {
+            $this->assertStringNotContainsString($private, $section);
+        }
+        $this->assertDoesNotMatchRegularExpression('/\b(must|should|waste|save|saving|too much|adequate|inadequate)\b/i',
+            strip_tags($section));
+
+        $string = [];
+        include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
+        $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'potential:'), ARRAY_FILTER_USE_KEY);
+        $this->assertCount(38, $new);
+        $this->assertDoesNotMatchRegularExpression('/\b(deve|desperdício|economia|economizar|excesso|adequad\w*)\b/iu',
+            implode(' ', $new));
+    }
+
+    /**
+     * Instead of a number, the sentence of each case: nobody can submit, no file, cannot be calculated; hidden
+     * assignments are flagged; a course without assignments with files says so (Feature 005, T019; CT-09, CT-10).
+     */
+    public function test_potential_states(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $str = fn(string $key, $a = null): string => s(get_string('potential:' . $key, 'block_coursecare', $a));
+        $valuestart = strstr($str('value', (object)['size' => 'SIZE', 'formula' => 'F']), 'SIZE', true);
+        $filesstart = strstr($str('files_participant', (object)['files' => 'N', 'size' => 'S']), 'N', true);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $generator->create_and_enrol($course, 'student');
+        $this->create_assign($course, 'Zero files', ['assignsubmission_file_maxfiles' => 0]);
+        $missing = $this->create_assign($course, 'Missing setting');
+        $DB->delete_records('assign_plugin_config', ['assignment' => $missing->id, 'plugin' => 'file',
+            'subtype' => 'assignsubmission', 'name' => 'maxfilesubmissions']);
+        $prohibited = $this->create_assign($course, 'Nobody');
+        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'student']),
+            \context_module::instance($prohibited->cmid), 'mod/assign:submit', CAP_PROHIBIT);
+        $this->create_assign($course, 'No groups', ['teamsubmission' => 1, 'preventsubmissionnotingroup' => 1]);
+        $this->create_assign($course, 'Hidden', ['visible' => 0]);
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+        $section = self::potential_section($this->render((int)$course->id));
+
+        foreach (['Zero files', 'Missing setting'] as $name) {
+            $item = self::potential_item($section, $name);
+            $this->assertStringContainsString($str('nofiles'), $item, $name);
+            $this->assertStringNotContainsString($valuestart, $item, $name);
+            $this->assertStringNotContainsString($filesstart, $item, $name);
+        }
+        foreach (['Nobody', 'No groups'] as $name) {
+            $item = self::potential_item($section, $name);
+            $this->assertStringContainsString($str('nobody'), $item, $name);
+            $this->assertStringNotContainsString($valuestart, $item, $name);
+            $this->assertStringNotContainsString('0 bytes', $item, $name);
+        }
+        $item = self::potential_item($section, 'Hidden');
+        $this->assertStringContainsString($str('hidden'), $item);
+        $this->assertStringContainsString($valuestart, $item);
+        $this->assertStringNotContainsString($str('hidden'), self::potential_item($section, 'Nobody'));
+
+        // A factor that cannot be determined: no number, no limit sentence.
+        $result = \block_coursecare\local\analysis\storage_potential::evaluate(['maxfiles' => 3, 'activitybytes' => 0,
+            'maxattempts' => 1, 'participants' => [1]], ['limits' => ['server' => 0, 'site' => 0, 'course' => 0,
+            'default' => 0]]);
+        $section = $this->render_potential([['name' => 'Imported', 'url' => null, 'visible' => true,
+            'result' => $result]]);
+        $this->assertStringContainsString($str('unknown'), $section);
+        $this->assertStringNotContainsString($valuestart, $section);
+        $this->assertStringNotContainsString($str('limit_server'), $section);
+
+        // Only assignments without file submissions: the neutral sentence and no item.
+        $course = $generator->create_course();
+        $this->setAdminUser();
+        $this->create_assign($course, 'Online text', ['assignsubmission_file_enabled' => 0,
+            'assignsubmission_onlinetext_enabled' => 1]);
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+        $section = self::potential_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('none'), $section);
+        $this->assertStringNotContainsString('block_coursecare-overview-potentialitem', $section);
+
+        // No assignment at all: no section.
+        $course = $generator->create_course();
+        $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
+        $this->assertNull(self::potential_section($this->render((int)$course->id)));
+    }
 }
