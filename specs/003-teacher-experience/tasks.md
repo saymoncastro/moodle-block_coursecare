@@ -376,3 +376,9 @@ Polish:       T043 [P]  T045 [P]  T049 [P]
 | SC-009 | T048 |
 | SC-010 | T053, T054 |
 | SC-011 | T050, T051 |
+
+## Phase 10: Convergence
+
+- [X] T056 Make the overview page treat a result without files as state G in every state, as the block already does: in `classes/output/course_overview.php` (`hero_data()`) and `classes/local/analysis/overview_builder.php` (`build()`), keep the real file count so the opening shows `diagnostic:nofiles` with the date and the E/F note, and omit sections 2 to 4 (only the technical details) for out-of-date and failed results without files; cover E and F without files in `tests/analysis/overview_builder_test.php`, `tests/output/course_overview_test.php` and `tests/behat/block_coursecare_overview.feature` per FR-020, FR-022, SC-001 (partial)
+- [ ] T057 Record the size formatting decision (`diagnostic_line::size()`: the `display_size()` rule, `format_float()` decimal separator, `size:kb|mb|gb|tb` strings) in `contracts/overview-data.md`, `contracts/overview-page.md` (text and strings table) and `research.md`, replacing "tamanhos por `display_size()`", and register the product owner's confirmation in `evidence/README.md` per plan: contracts overview-data.md and overview-page.md (unrequested)
+- [X] T058 Add a Behat keyboard journey to `tests/behat/block_coursecare_overview.feature` using `I press the tab key` and `I press the enter key` only: block link → overview page → "Show all activities" → technical details → "Back to the course", without `I set the focus on` per T034, SC-007 (partial)

@@ -150,3 +150,32 @@ a uma página vazia em A, B e C).
 **Alternatives considered**: reaproveitar o gerador de benchmark (cria dados sem conteúdo real,
 inadequados a uma avaliação com pessoas); capturas sobre maquetes estáticas (não valem como
 evidência, FR-070).
+
+## R9. Tamanhos para o professor (decimal e unidades)
+
+**Decisão**: o bloco e a página formatam os tamanhos com `diagnostic_line::size()`. A função segue a
+regra de `display_size()`: potências de 1024, uma casa decimal e bytes inteiros abaixo de 1 KB (esses
+continuam com `display_size()`). Ela difere em dois pontos:
+
+- o número é formatado com `format_float()`, que usa o separador decimal do idioma (`langconfig`,
+  `decsep`);
+- a unidade vem das strings do plugin `size:kb`, `size:mb`, `size:gb` e `size:tb` (KB, MB, GB e TB
+  em en e pt_br).
+
+Em inglês o resultado é idêntico ao de `display_size()`, verificado por teste. A CLI e as
+configurações do administrador continuam com `display_size()`.
+
+**Motivo**: no Moodle 4.5, `display_size()` formata com `sprintf('%.1f')` (sempre ponto decimal). O
+pacote oficial pt_br define `sizekb`, `sizemb` e `sizegb` como "Kb", "Mb" e "Gb" (mas "TB" e "PB").
+Isso dava "8.0 Mb" no pt_BR: ambíguo (bit × byte) e com o separador de outra localidade. Pedido do
+proprietário do produto nos ajustes finais após a aprovação visual (2026-10-17): investigar as
+unidades e propor solução compatível com i18n e as APIs do Moodle, sem tocar no core.
+
+**Alternativas consideradas**:
+
+- `display_size()` sem mudança: mantém a ambiguidade e o separador errado.
+- Sobrescrever as strings do core por `tool_customlang` no site: corrige só as unidades, depende de
+  cada administrador e não corrige o separador.
+- Corrigir `sizekb`, `sizemb` e `sizegb` do pt_br no AMOS: correção desejável e complementar, fora do
+  controle do plugin.
+

@@ -45,7 +45,7 @@ Regras (cada uma com teste PHPUnit):
 
 - `course_overview` (renderable e templatable) recebe a visão e exporta o contexto dos templates com
   todas as frases já resolvidas por `get_string()` (frases completas, parâmetros únicos ou objetos
-  `{$a->...}`), tamanhos por `display_size()` e datas por `userdate()`.
+  `{$a->...}`), tamanhos por `diagnostic_line::size()` (R9) e datas por `userdate()`.
 - `diagnostic_line` (Feature 002) recebe a URL da página quando há resultado e a exporta para
   `content.mustache`.
 - Templates escapam toda saída (`{{ }}`); nenhum texto fixo; exemplos de contexto cobrindo os estados

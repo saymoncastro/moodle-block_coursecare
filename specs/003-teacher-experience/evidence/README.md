@@ -206,6 +206,9 @@ exibidos nem o escopo: só os templates, os textos de interface, a folha de esti
    "8,0 MB". O bloco e a página usam a função; a CLI e as configurações do administrador continuam com
    `display_size()`, como o resto do Moodle. Complemento sugerido, fora do plugin: corrigir `sizekb`,
    `sizemb` e `sizegb` do pt_br no AMOS. Até lá, um site pode ajustá-las com `tool_customlang`.
+
+   Decisão registrada em `research.md` (R9) e nos contratos (T057). **Aguardando a confirmação do
+   proprietário do produto**: o pedido era investigar e propor uma solução.
 4. **Barras.** As barras empilhadas não desenham mais segmentos de 0%. Antes, o separador de 2 px
    desses segmentos deixava uma fresta no fim da barra.
 

@@ -273,7 +273,7 @@ class course_overview implements \renderable, \templatable {
             $view['partial'],
             $view['total'],
             $view['timecompleted'],
-            $view['hasresult'] ? ($view['state'] === diagnostic_state::NO_FILES ? 0 : 1) : null
+            $view['filecount']
         );
         $hero = diagnostic_line::parts($state) + ['coverage' => ''];
         if ($view['partial'] && $view['technical'] !== null && $view['technical']['coverage']['bytes'] > 0) {

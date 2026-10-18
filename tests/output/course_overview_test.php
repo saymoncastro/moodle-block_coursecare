@@ -170,6 +170,27 @@ final class course_overview_test extends \advanced_testcase {
             $this->assertSame($hassections, str_contains($html, $categories), $name);
         }
 
+        // E and F of a result without files: the sentence of G with the date and the note of the state, no volume
+        // and no section but the technical details, as in the block (T056).
+        $nofiles = ['logicalbytes' => 0, 'filecount' => 0, 'categories' => [], 'activities' => []];
+        $cases = [
+            'E without files' => [['timecompletedago' => 4 * DAYSECS], 'diagnostic:mayoutdated'],
+            'F without files' => [['lastattemptfailed' => 1], 'diagnostic:updatefailed'],
+        ];
+        foreach ($cases as $name => [$values, $note]) {
+            [$course] = $this->course_with_diagnostic([], [], $values + $nofiles);
+            $html = $this->render((int)$course->id);
+            $this->assertStringContainsString(s(get_string('diagnostic:nofiles', 'block_coursecare')), $html, $name);
+            $this->assertStringContainsString(s(get_string($note, 'block_coursecare')), $html, $name);
+            $calculated = substr(get_string('diagnostic:calculatedon', 'block_coursecare', ''), 0, 10);
+            $this->assertStringContainsString($calculated, $html, $name);
+            $this->assertStringNotContainsString(s(get_string('overview:files', 'block_coursecare')), $html, $name);
+            $this->assertStringNotContainsString($categories, $html, $name);
+            $this->assertStringNotContainsString(s(get_string('overview:activities', 'block_coursecare')), $html, $name);
+            $this->assertStringNotContainsString(s(get_string('overview:large', 'block_coursecare')), $html, $name);
+            $this->assertStringContainsString($technical, $html, $name);
+        }
+
         // B: a request is queued and there is no result yet.
         $course = $this->getDataGenerator()->create_course();
         /** @var \block_coursecare_generator $plugin */

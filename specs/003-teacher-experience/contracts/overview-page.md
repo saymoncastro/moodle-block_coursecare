@@ -97,9 +97,14 @@ Com resultado e nova análise pendente: mostra o resultado vigente (FR-021). Nen
 | `overview:coverage` | Files that could not be classified: {$a->count} ({$a->size}, {$a->share}) | Arquivos que não puderam ser classificados: {$a->count} ({$a->size}, {$a->share}) |
 | `overview:threshold` | Large-file threshold used: {$a} | Limite de grande porte usado: {$a} |
 | `overview:notmeaning` | These numbers show the files Moodle records for this course. They are not the disk space used only by this course and do not show how much space deleting files would free. | Estes números mostram os arquivos que o Moodle registra para esta sala. Eles não são o espaço em disco ocupado só por ela e não indicam quanto espaço seria liberado ao apagar arquivos. |
+| `size:kb` | KB | KB |
+| `size:mb` | MB | MB |
+| `size:gb` | GB | GB |
+| `size:tb` | TB | TB |
 
 Reaproveitadas da Feature 002: `diagnostic:notavailable`, `preparing`, `nofiles`, `calculatedon`,
-`mayoutdated`, `updatefailed`. Tamanhos com `display_size()`, datas com `userdate()`.
+`mayoutdated`, `updatefailed`. Tamanhos com `diagnostic_line::size()` ([research R9](../research.md)),
+datas com `userdate()`.
 
 ## Acessibilidade e responsividade (FR-050)
 

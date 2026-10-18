@@ -293,6 +293,19 @@ final class overview_builder_test extends \basic_testcase {
         $this->assertNull($view['activities']);
         $this->assertNull($view['large']);
         $this->assertNotNull($view['technical']);
+        $this->assertSame(0, $view['filecount']);
+
+        // E and F of a result without files: the sections of G, with the note of the state (T056).
+        foreach ([diagnostic_state::OUTDATED, diagnostic_state::FAILED] as $name) {
+            $view = $build(self::state($name, 0), ['logicalbytes' => 0, 'filecount' => 0]);
+            $this->assertSame(0, $view['filecount'], $name);
+            $this->assertNull($view['categories'], $name);
+            $this->assertNull($view['activities'], $name);
+            $this->assertNull($view['large'], $name);
+            $this->assertNotNull($view['technical'], $name);
+            $this->assertSame($name === diagnostic_state::OUTDATED, $view['outdated'], $name);
+            $this->assertSame($name === diagnostic_state::FAILED, $view['failed'], $name);
+        }
 
         // H: the partial marker and the share of what could not be classified.
         $view = $build(self::state(diagnostic_state::COMPLETE, 1000, true), ['partial' => 1, 'unclassifiedcount' => 2,

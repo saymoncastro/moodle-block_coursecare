@@ -66,8 +66,8 @@ class overview_builder {
      * @param array $activities Activity rows keyed by cmid (diagnostic_store::get_activities()).
      * @param array $largebyactivity Large-material links by cmid (diagnostic_store::get_large_materials_by_activity()).
      * @param array $structure Current activities by cmid (course_structure::get_activities()).
-     * @return array The view: state, hasresult, outdated, failed, partial, timecompleted, total, categories, activities,
-     *     large and technical (null when not shown).
+     * @return array The view: state, hasresult, outdated, failed, partial, timecompleted, total, filecount, categories,
+     *     activities, large and technical (null when not shown).
      */
     public function build(
         diagnostic_state $state,
@@ -85,6 +85,7 @@ class overview_builder {
             'partial' => $state->partial,
             'timecompleted' => $state->hasresult ? $state->timecompleted : null,
             'total' => $state->hasresult ? $state->logicalbytes : null,
+            'filecount' => $state->hasresult ? $state->filecount : null,
             'categories' => null,
             'activities' => null,
             'large' => null,
@@ -94,7 +95,9 @@ class overview_builder {
             return $view;
         }
         $view['technical'] = $this->technical($record, $categories, (int)$view['total']);
-        if ($state->state === diagnostic_state::NO_FILES) {
+        // A result without files shows the sections of G in every state, also when it is out of date or the last
+        // update failed (the state resolver gives E and F precedence over G).
+        if ($state->filecount === 0) {
             return $view;
         }
         $view['categories'] = $this->categories($categories, (int)$view['total']);
