@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 (unreleased)
+
+- First suggestion, "Large materials": on the "Your course in numbers" page, a section of
+  suggestions with what was noticed (course materials at or above the large-file threshold, never
+  submissions), why it may deserve attention and options the teacher may consider; a neutral
+  sentence when no suggestion applies.
+- The block announces a suggestion with one sentence, without any number, and links to it.
+- No new setting, data, analysis or capability; the plugin never acts on files.
+
 ## 0.3.0 (unreleased)
 
 - Teacher experience: the block links to a new page, "Your course in numbers", with the logical

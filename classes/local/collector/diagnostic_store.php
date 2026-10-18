@@ -105,6 +105,19 @@ class diagnostic_store {
     }
 
     /**
+     * Whether a diagnostic has at least one link to a large course material (Feature 004, block line of the
+     * suggestion): one read by the index of the diagid foreign key.
+     *
+     * @param int $diagid Diagnostic id.
+     * @return bool
+     */
+    public function has_large_materials(int $diagid): bool {
+        global $DB;
+
+        return $DB->record_exists('block_coursecare_large', ['diagid' => $diagid]);
+    }
+
+    /**
      * Large-material links of a diagnostic grouped by activity (Feature 003 overview page).
      *
      * The links exist only for course materials (D10), so these totals never include a submission.

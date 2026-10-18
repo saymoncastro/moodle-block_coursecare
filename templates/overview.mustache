@@ -19,8 +19,9 @@
 
     The "Your course in numbers" page of the CourseCare block (Feature 003, contracts/overview-page.md).
     Every sentence comes already translated from the course_overview renderable; this template only lays
-    them out: the way back, the opening with the volume of the course, then where the files are and the
-    large files side by side on wide screens, the materials by activity and the technical details.
+    them out: the way back, the opening with the volume of the course, the suggestions (Feature 004), then where
+    the files are and the large files side by side on wide screens, the materials by activity and the technical
+    details.
     Sections without data are left out (states A, B, C and G).
 
     Classes required for JS:
@@ -32,6 +33,7 @@
     Context variables required for this template:
     * title, intro, backurl, backtext - page title, introduction and the way back to the course
     * hero - the opening, see block_coursecare/overview_summary
+    * hassuggestionsection, suggestions - see block_coursecare/overview_suggestions
     * hascategories, categories - see block_coursecare/overview_categories
     * hasactivities, activities - see block_coursecare/overview_activities
     * haslarge, large - see block_coursecare/overview_large
@@ -52,6 +54,7 @@
             "notes": [],
             "coverage": ""
         },
+        "hassuggestionsection": false,
         "hascategories": false,
         "hasactivities": false,
         "haslarge": false,
@@ -61,6 +64,9 @@
 <div class="block_coursecare-overview">
     <p class="block_coursecare-overview-back"><a href="{{backurl}}">{{backtext}}</a></p>
     {{> block_coursecare/overview_summary }}
+    {{#hassuggestionsection}}
+    {{> block_coursecare/overview_suggestions }}
+    {{/hassuggestionsection}}
     {{#hascategories}}
     <div class="block_coursecare-overview-grid">
         {{> block_coursecare/overview_categories }}

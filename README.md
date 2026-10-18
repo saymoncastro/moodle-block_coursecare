@@ -7,8 +7,9 @@ supports teachers; it never monitors, blocks or changes their courses.
 Version 0.2.0 (alpha) added a **course storage diagnostic**: a background analysis of the file
 records of each course that has the block. Version 0.3.0 (alpha) adds the **teacher experience**:
 the block shows the logical volume of the course files with the date of the calculation and links
-to a page, "Your course in numbers", where the teacher sees where the files are. Nothing is
-changed, deleted, downloaded or synchronised.
+to a page, "Your course in numbers", where the teacher sees where the files are. Version 0.4.0
+(alpha) adds the first **suggestion**, about large course materials, with practical options the
+teacher may consider. Nothing is changed, deleted, downloaded or synchronised.
 
 ## Compatibility
 
@@ -111,8 +112,13 @@ Below the welcome message, the block shows the state of the diagnostic:
 | Last update failed | The previous result, plus: The latest update could not be completed. |
 
 When a new analysis is pending, the block keeps showing the previous result. The block never
-reads the `files` table while rendering; it reads one row of the plugin's own table. Without a
-result there is no link and no number.
+reads the `files` table while rendering; it reads one row of the plugin's own table, and, when the
+result has files, whether a large course material exists (one indexed read of the plugin's own
+table). Without a result there is no link and no number.
+
+When the suggestion described below applies, the block adds one sentence, "There is a suggestion
+about the files of your course.", without any number or alert, and its link opens the page at the
+suggestions section.
 
 ### The page "Your course in numbers"
 
@@ -149,6 +155,29 @@ Recognised limitations of the page:
   1,000 largest per course; the totals always include every large file.
 - Activity names and visibility are read from the course as it is now, which may have changed since
   the analysis.
+
+### Suggestions
+
+Right after its opening, the page has a section "Suggestions for your course". This version has one
+suggestion, **Large materials**. It is shown only when the latest result has at least one course
+material at or above the site's large-file threshold (the setting described below; no other setting
+is involved). It has three labelled parts:
+
+- **What we noticed**: how many course materials of the threshold or more there are and their total
+  size (submissions are never counted here), the three places with most of them, with links, and how
+  many other places exist;
+- **Why it may deserve attention**: large files can take longer to open, especially on slow
+  connections or on a phone; size alone says nothing about the quality or the importance of a
+  material;
+- **What you can do, if you wish**: options to consider when reviewing the activity, which may not
+  apply to every material: an optimised version that stays readable and accessible, splitting long
+  content, or a link to where the content is already published.
+
+The suggestion is optional and can be ignored; there is nothing to dismiss and nothing is recorded.
+The plugin never acts on files: the links lead to Moodle's own activity and course pages. With a
+result and no suggestion, the section says so in one neutral sentence; without a result there is no
+section. Other ideas (backups, recycle bin, repeated content, submission limits, file types) are left
+for later because the diagnostic does not yet have the data to support them.
 
 ### When courses are analysed
 

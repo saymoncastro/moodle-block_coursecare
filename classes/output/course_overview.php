@@ -21,6 +21,7 @@ use block_coursecare\local\analysis\overview_builder;
 use block_coursecare\local\analysis\state_resolver;
 use block_coursecare\local\collector\course_structure;
 use block_coursecare\local\collector\diagnostic_store;
+use block_coursecare\local\recommendation\large_materials;
 
 /**
  * The "Your course in numbers" page (contracts/overview-page.md).
@@ -91,6 +92,8 @@ class course_overview implements \renderable, \templatable {
             'backurl' => $this->courseurl->out(false),
             'backtext' => get_string('overview:back', 'block_coursecare'),
             'hero' => $this->hero_data(),
+            'hassuggestionsection' => (bool)$this->view['hasresult'],
+            'suggestions' => $this->suggestions_data(),
             'hascategories' => $this->view['categories'] !== null,
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
@@ -100,6 +103,79 @@ class course_overview implements \renderable, \templatable {
             'hastechnical' => $this->view['technical'] !== null,
             'technical' => $this->technical_data(),
         ];
+    }
+
+    /**
+     * What was noticed by the suggestion S1, as one complete sentence: before the list of places when there is one,
+     * otherwise pointing to the list under Large files (all the large materials are in activities without a name).
+     * The count and the total size are emphasised, so that the facts are read at once; the sentence is HTML.
+     *
+     * @param int $count Large course materials.
+     * @param string $threshold Formatted large-file threshold.
+     * @param string $size Formatted total size.
+     * @param bool $hasplaces Whether named places follow.
+     * @return string
+     */
+    private function observed_sentence(int $count, string $threshold, string $size, bool $hasplaces): string {
+        $key = 'suggestion:large:observed' . ($hasplaces ? '' : '_unnamed') . ($count === 1 ? '_one' : '');
+        $a = (object)['count' => \html_writer::tag('strong', $count), 'threshold' => s($threshold),
+            'size' => \html_writer::tag('strong', s($size))];
+        return get_string($key, 'block_coursecare', $a);
+    }
+
+    /**
+     * The suggestions section (Feature 004): suggestion S1 when it applies, otherwise one neutral sentence. Only with
+     * a result; without one the section is not shown.
+     *
+     * @return array heading, and either the suggestion (basedon, title, labels, observed, places, more, truncated,
+     *     why, todo, options) or none.
+     */
+    private function suggestions_data(): array {
+        if (!$this->view['hasresult']) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
+        $data = ['heading' => $str('suggestions:heading'), 'hassuggestion' => false, 'none' => $str('suggestions:none')];
+        $suggestion = large_materials::evaluate($this->view['large']);
+        if ($suggestion === null) {
+            return $data;
+        }
+        $places = [];
+        foreach ($suggestion['places'] as $place) {
+            $places[] = ($place['kind'] === 'courselevel'
+                ? ['name' => $str('overview:courselevel'), 'url' => $this->courseurl->out(false), 'hasurl' => true]
+                : ['name' => $place['name'], 'url' => $place['url'], 'hasurl' => $place['url'] !== null])
+                + ['size' => diagnostic_line::size($place['bytes'])];
+        }
+        $threshold = diagnostic_line::size($suggestion['threshold']);
+        $size = diagnostic_line::size($suggestion['bytes']);
+        $date = userdate($this->view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
+        return [
+            'hassuggestion' => true,
+            'none' => '',
+            'basedon' => $str('suggestions:basedon', $date),
+            'title' => $str('suggestion:large:title'),
+            'observedlabel' => $str('suggestion:observed'),
+            'whylabel' => $str('suggestion:why'),
+            'todolabel' => $str('suggestion:todo'),
+            'observed' => $this->observed_sentence($suggestion['count'], $threshold, $size, $places !== []),
+            'hasplaces' => $places !== [],
+            'places' => $places,
+            // Without a named place, the sentence itself points to the list under Large files.
+            'more' => match ($places === [] ? 0 : $suggestion['more']) {
+                0 => '',
+                1 => $str('suggestion:large:more_one'),
+                default => $str('suggestion:large:more', $suggestion['more']),
+            },
+            'truncated' => $suggestion['truncated'] ? $str('overview:large_truncated') : '',
+            'why' => $str('suggestion:large:why'),
+            'todo' => $str('suggestion:large:todo'),
+            'options' => [
+                ['text' => $str('suggestion:large:option1'), 'example' => $str('suggestion:large:option1_example')],
+                ['text' => $str('suggestion:large:option2'), 'example' => ''],
+                ['text' => $str('suggestion:large:option3'), 'example' => ''],
+            ],
+        ] + $data;
     }
 
     /**

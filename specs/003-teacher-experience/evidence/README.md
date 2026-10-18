@@ -269,8 +269,10 @@ o tour aberto prende o foco e cobre a gaveta de blocos.
 **Não realizada.** Nenhum resultado foi registrado ou presumido.
 
 - **Pronto:**
-  - roteiro em [`evaluation/protocol.md`](../evaluation/protocol.md) (T049): perfil anônimo, dez
-    tarefas com critério objetivo para as seis dimensões de FR-071, inclusive a leitura do resumo sem
+  - roteiro em [`evaluation/protocol.md`](../evaluation/protocol.md) (T049), consolidado em
+    2026-10-18 para as Features 003 e 004 (uma única avaliação): perfil anônimo, 14 tarefas com
+    critério objetivo para as seis dimensões de FR-071 e para as sugestões da 004 (compreensão,
+    utilidade, ausência de leitura fiscalizatória, ações opcionais), inclusive a leitura do resumo sem
     abrir os detalhes técnicos (FR-019), perguntas abertas, critério de problema crítico e menor
     (FR-071a) e o formulário de registro por participante;
   - site de demonstração com a interface aprovada e as salas usadas no roteiro.

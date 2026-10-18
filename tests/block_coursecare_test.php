@@ -353,8 +353,10 @@ final class block_coursecare_test extends \advanced_testcase {
         $link = s(get_string('overview:link', 'block_coursecare'));
         $url = s((new \moodle_url('/blocks/coursecare/overview.php', ['id' => $instance->id]))->out(false));
 
-        // One rendering first, so that string, configuration and template caches are warm in every measured state.
+        // One rendering first, so that string, configuration and template caches are warm in every measured state,
+        // and one first query to the table of large-material links, so that its metadata is cached too.
         $this->get_block($course, 'course-view-topics', $instance)->get_content();
+        (new \block_coursecare\local\collector\diagnostic_store())->has_large_materials(0);
         $reads = [];
         foreach ($states as $name => [$values, $expected]) {
             $DB->delete_records('block_coursecare_diag', ['courseid' => $course->id]);
@@ -382,8 +384,52 @@ final class block_coursecare_test extends \advanced_testcase {
             $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries, $name);
             $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries, $name);
         }
-        // The same light reads in every state: the state never adds a query.
-        $this->assertCount(1, array_unique($reads), json_encode($reads));
+        // The same light reads in every state, plus one indexed read (is there a large course material?) when a
+        // result with files exists (Feature 004).
+        $withfiles = ['D complete', 'E outdated', 'F failed with result', 'H partial'];
+        $base = $reads['A not analysed'];
+        foreach ($reads as $name => $count) {
+            $this->assertSame($base + (in_array($name, $withfiles, true) ? 1 : 0), $count, json_encode($reads));
+        }
+    }
+
+    /**
+     * The sentence of the suggestion in the block, and the link to the suggestions section, only when a large
+     * course material exists in the result (Feature 004, FR-010).
+     */
+    public function test_block_suggestion(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $instance = $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+        /** @var \block_coursecare_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $sentence = s(get_string('block:suggestion', 'block_coursecare'));
+        $url = (new \moodle_url('/blocks/coursecare/overview.php', ['id' => $instance->id]))->out(false);
+
+        // With a result and a large course material.
+        $diag = $generator->create_diagnostic(['courseid' => $course->id, 'timecompletedago' => 600,
+            'logicalbytes' => 3145728, 'filecount' => 1, 'largelinks' => [['cmid' => 0, 'filesize' => 3145728]]]);
+        $html = $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
+        $this->assertStringContainsString($sentence, $html);
+        $this->assertStringContainsString('href="' . s($url . '#block_coursecare-suggestions') . '"', $html);
+
+        // With a result and no large course material: as in Feature 003.
+        $DB->delete_records('block_coursecare_large', ['diagid' => $diag->id]);
+        $html = $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
+        $this->assertStringNotContainsString($sentence, $html);
+        $this->assertStringContainsString('href="' . s($url) . '"', $html);
+        $this->assertStringNotContainsString('#block_coursecare-suggestions', $html);
+
+        // Without a result: no sentence and no link.
+        $DB->delete_records('block_coursecare_diag', ['courseid' => $course->id]);
+        $html = $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
+        $this->assertStringNotContainsString($sentence, $html);
+        $this->assertStringNotContainsString('overview.php', $html);
     }
 
     /**

@@ -1,0 +1,83 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Your course in numbers | DEMO-COMPLETE | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Back to the course"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Aula 1 — A célula"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Vídeo de laboratório"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Aula 1 — A célula"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Vídeo de laboratório"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Aula 1 — A célula"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Vídeo de laboratório"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Leituras complementares"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Guia da disciplina"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Glossário ilustrado"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Relatório de laboratório"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Technical details",
+   "openafterenter": true
+  }
+ ],
+ "count": 12,
+ "allindicated": true,
+ "summariesopen": true
+}

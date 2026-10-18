@@ -1,0 +1,8 @@
+{
+    "courseid": 9,
+    "measured": "overview page",
+    "iterations": 100,
+    "meanms": 5.946,
+    "stdevms": 1.653,
+    "readspercall": 4.05
+}

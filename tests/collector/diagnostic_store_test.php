@@ -213,4 +213,27 @@ final class diagnostic_store_test extends \advanced_testcase {
         $this->assertSame(['count' => 1, 'bytes' => 30], (array)$rows[0]);
         $this->assertSame([], $store->get_large_materials_by_activity((int)$empty->id));
     }
+
+    /**
+     * Whether a diagnostic has a link to a large course material: one indexed read, for that diagnostic only
+     * (Feature 004, block line of the suggestion).
+     */
+    public function test_has_large_materials(): void {
+        global $DB;
+        $this->resetAfterTest();
+        /** @var \block_coursecare_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $with = $generator->create_diagnostic(['courseid' => $this->getDataGenerator()->create_course()->id,
+            'timecompletedago' => 60, 'largelinks' => [['cmid' => 11, 'filesize' => 100]]]);
+        $without = $generator->create_diagnostic(['courseid' => $this->getDataGenerator()->create_course()->id,
+            'timecompletedago' => 60]);
+
+        $store = new diagnostic_store();
+        $this->assertTrue($store->has_large_materials((int)$with->id));
+        $this->assertFalse($store->has_large_materials((int)$without->id));
+        $this->assertFalse($store->has_large_materials(987654));
+        $reads = $DB->perf_get_reads();
+        $store->has_large_materials((int)$with->id);
+        $this->assertSame(1, $DB->perf_get_reads() - $reads);
+    }
 }
