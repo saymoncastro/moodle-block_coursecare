@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,8 @@
 
 ## Notes
 
-- Três marcadores abertos para o proprietário do produto: Q1 (versão e maturidade da primeira
-  publicação), Q2 (versões declaradas), Q3 (titularidade).
+- Decisões do proprietário do produto de 2026-10-19 integradas: Q1 A (0.7.0 BETA), Q2 A (4.5 e 5.3 LTS),
+  Q3 titularidade pendente de esclarecimento documental (bloqueia a publicação, não a engenharia).
 - A auditoria inicial e os riscos de compatibilidade citam elementos técnicos (`public/`, Classic,
   Bootstrap, PHP) porque descrevem o ambiente que o produto precisa suportar, não a implementação.
 - Decisões que ficam para momentos próprios, por FR-102 e FR-120: autorização de tag, release e submissão;

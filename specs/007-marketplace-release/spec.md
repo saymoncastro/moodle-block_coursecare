@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-19
 
-**Status**: Draft (perguntas abertas Q1–Q3 para o proprietário do produto)
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-19: Q1 A — 0.7.0 BETA; Q2 A — Moodle 4.5 LTS e 5.3 LTS; Q3 — titularidade pendente de esclarecimento documental)
 
 **Input**: User description: "Feature 007 — International Marketplace Release: consolidar as features
 001–006 num plugin publicável e distribuível internacionalmente pelo Moodle Marketplace; auditoria de
@@ -69,12 +69,35 @@ CI verde não é publicação. Nenhum estado é declarado sem evidência.
 | Internacionalização | Atendido, com verificação final | en e pt_br em paridade (162 chaves); pt_br fora do ZIP |
 | Documentação | Parcial | README, CHANGES, CONTRIBUTING; faltam manual do professor, guia do administrador, solução de problemas, política de segurança, suporte |
 | Instalação e atualização | Parcial | Instalação limpa e atualização 0.1→0.2 validadas na 002; atualização até 0.6 e desinstalação não revalidadas juntas |
-| Licenciamento | **Bloqueante até confirmação** | LICENSE GPL v3; cabeçalhos "2026 Saymon Castro" em 70 arquivos; um único autor no Git; ícone declarado original; titularidade não documentada (Q3) |
+| Licenciamento | **Bloqueante para publicação** | LICENSE GPL v3; cabeçalhos "2026 Saymon Castro" em 70 arquivos; um único autor no Git; ícone declarado original; titularidade pendente de esclarecimento documental (Q3) |
 | Publicação | **Pendente** | Diretrizes oficiais do Marketplace exigem login; conta de provedor não verificada; versão ALPHA |
 
 ## Clarifications
 
-_(a preencher com as respostas a Q1–Q3)_
+### Session 2026-10-19
+
+- Q: Versão e maturidade da primeira publicação? → A: **0.7.0 BETA** como versão candidata; 1.0.0 estável
+  só depois das validações de aceitação. A versão não autoriza publicação, tag, GitHub Release nem
+  submissão, que dependem de aprovação expressa depois da auditoria final (FR-101, FR-102).
+- Q: Versões declaradas? → A: **Moodle 4.5 LTS e 5.3 LTS**, preservando o suporte a 4.5; incompatibilidades
+  com 5.3 investigadas e corrigidas (CLI e `config.php`, estrutura `public/`, Bootstrap, ausência do tema
+  Classic, instalação e atualização, diagnóstico, sugestões, potencial, histórico, i18n, acessibilidade);
+  testes adaptados a cada versão, mantendo os testes do Classic em 4.5; nada declarado sem teste;
+  mudança arquitetural relevante apresentada antes (FR-010–FR-012).
+- Q: Titularidade? → A: **TITULARIDADE PENDENTE DE ESCLARECIMENTO.** Nenhuma das opções é escolhida
+  antecipadamente; cabeçalhos de copyright não são prova; nenhum cabeçalho é alterado automaticamente; a
+  GPL não resolve, por si só, a titularidade. A feature produz um relatório documental objetivo (origem
+  do repositório e dos arquivos, terceiros, código institucional, condições de desenvolvimento, relação
+  com atividades funcionais, recursos institucionais, licenças, elementos visuais, direitos para
+  distribuição sob GPL) para encaminhar consultas formais (por exemplo, NIT/Agifes e assessoria
+  jurídica). Bloqueia a autorização de publicação, não a engenharia, a documentação e os testes (FR-090).
+- Marketplace: usar a documentação pública oficial vigente; o Plugins Directory serve como referência
+  técnica quando não estiver obsoleto; requisitos que dependem de acesso autenticado ficam registrados
+  como conferência humana pendente, sem serem declarados verificados (FR-002).
+- Validações anteriores: as 13 tarefas abertas são consolidadas em: A. verificações que o agente pode
+  executar (executadas agora); B. aprovações do proprietário do produto; C. avaliações com professores;
+  D. testes humanos de acessibilidade; E. bloqueios formais para publicação. Nenhuma avaliação humana é
+  marcada sem evidência; as implementações de 001–006 não são reabertas sem necessidade (FR-120).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -213,9 +236,8 @@ reais, a versão candidata e a lista de bloqueios abertos.
 
 **Compatibilidade**
 
-- **FR-010**: A compatibilidade declarada (`supported` e documentação) MUST incluir só versões verificadas
-  por testes automatizados e instalação real (decisão Q2). [NEEDS CLARIFICATION: Q2 — quais versões
-  declarar: 4.5 e 5.3 LTS; 4.5 a 5.3 (incluindo 5.0–5.2); ou só 4.5 na primeira publicação?]
+- **FR-010**: A compatibilidade declarada (`supported` e documentação) MUST ser Moodle 4.5 LTS e 5.3 LTS
+  (decisão Q2), e só depois de verificada por testes automatizados e instalação real em cada uma.
 - **FR-011**: Para cada versão declarada: instalação limpa, PHPUnit, Behat, verificações de código e
   verificações de acessibilidade MUST passar, com uma matriz Moodle × PHP × banco × resultado.
 - **FR-012**: Defeitos de compatibilidade MUST ser corrigidos sem mudar o comportamento aprovado; mudança
@@ -272,18 +294,18 @@ reais, a versão candidata e a lista de bloqueios abertos.
 
 **Licenciamento e titularidade**
 
-- **FR-090**: A revisão de licenciamento MUST cobrir licença, cabeçalhos, titularidade (decisão Q3),
-  terceiros e ativos (ícone, fontes, imagens), registrar bloqueios e diligências, sem parecer jurídico.
-  [NEEDS CLARIFICATION: Q3 — quem é o titular do código e dos ativos: autoria pessoal de Saymon Castro,
-  instituição (por exemplo, o Ifes), ou titularidade conjunta?]
+- **FR-090**: A feature MUST produzir um relatório documental de titularidade e licenciamento (origem do
+  repositório e dos arquivos, terceiros, código institucional, condições de desenvolvimento, recursos
+  institucionais, licenças, ativos visuais, direitos para distribuição sob GPL), com as perguntas a
+  encaminhar às instâncias competentes, sem parecer jurídico e sem alterar cabeçalhos. A titularidade
+  fica **pendente de esclarecimento** e bloqueia a autorização de publicação (decisão Q3).
 
 **Pacote, versão e lançamento**
 
 - **FR-100**: O pacote MUST conter só os arquivos necessários (sem ferramentas, credenciais, logs, dados
   de demonstração, capturas, especificações), com metadados corretos.
-- **FR-101**: A versão de lançamento e a maturidade MUST seguir a decisão Q1; versão e changelog
-  coerentes. [NEEDS CLARIFICATION: Q1 — primeira publicação como 1.0.0 estável, 1.0.0 RC antes da estável,
-  ou 0.7.0 beta?]
+- **FR-101**: A versão candidata MUST ser 0.7.0 com maturidade BETA (decisão Q1); versão e changelog
+  coerentes; 1.0.0 estável só depois das validações de aceitação.
 - **FR-102**: Tag, GitHub Release e submissão MUST acontecer só com autorização expressa do proprietário
   do produto.
 
@@ -364,7 +386,7 @@ submissão, publicação, tag ou release sem autorização; suporte a versões n
 
 - **Compatibilidade com 5.3**: diretório `public/` (scripts com caminho relativo ao `config.php`), tema
   Classic removido (cenários e capturas do Classic), Bootstrap 5 (classes de utilidade), PHP 8.3/8.4.
-- **Titularidade não documentada**: bloqueia a publicação até a confirmação (Q3).
+- **Titularidade pendente de esclarecimento**: bloqueia a autorização de publicação até a apuração documental e as consultas formais (Q3); não bloqueia a engenharia.
 - **Validações humanas pendentes**: bloqueiam READY FOR SUBMISSION até conclusão ou adiamento formal.
 - **Requisitos do Marketplace mudando**: fontes datadas; confirmação humana antes da submissão.
 
