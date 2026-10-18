@@ -16,8 +16,8 @@ Posição: depois da abertura (`overview_summary`) e antes da grade de distribui
 | Com resultado e S1 | `h3` `suggestions:heading`; `suggestions:basedon` com a data (FR-007); cartão de S1 |
 | Com resultado e sem S1 (inclui G e E/F sem arquivos) | `h3` `suggestions:heading`; `suggestions:none` (sem data: a abertura já a mostra) |
 
-**Cartão de S1** (cartão discreto, sem cor ou ícone de alerta; refinado em 2026-10-18: a `dl` agrupa
-os fatos num painel tingido e o motivo e as possibilidades noutro bloco, lado a lado a partir de 768 px
+**Cartão de S1** (cartão discreto, sem cor ou ícone de alerta; refinado em 2026-10-18: duas `dl`, uma com
+os fatos num painel tingido e outra com o motivo e as possibilidades, lado a lado a partir de 768 px
 e empilhados abaixo disso; quantidade e volume em `strong`; cada lugar com o seu tamanho; o exemplo da
 primeira possibilidade, `suggestion:large:option1_example`, numa linha menor abaixo dela):
 

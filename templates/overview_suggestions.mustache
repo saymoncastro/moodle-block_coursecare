@@ -67,8 +67,8 @@
     <p class="block_coursecare-overview-help">{{basedon}}</p>
     <div class="block_coursecare-overview-suggestion">
         <h4 class="block_coursecare-overview-suggestiontitle">{{title}}</h4>
-        <dl class="block_coursecare-overview-suggestionparts mb-0">
-            <div class="block_coursecare-overview-suggestionfacts">
+        <div class="block_coursecare-overview-suggestionparts">
+            <dl class="block_coursecare-overview-suggestionfacts mb-0">
                 <dt>{{observedlabel}}</dt>
                 <dd>
                     <p class="mb-2">{{{observed}}}</p>
@@ -89,8 +89,8 @@
                     <p class="block_coursecare-overview-help mt-1 mb-0">{{truncated}}</p>
                     {{/truncated}}
                 </dd>
-            </div>
-            <div class="block_coursecare-overview-suggestionadvice">
+            </dl>
+            <dl class="block_coursecare-overview-suggestionadvice mb-0">
                 <dt>{{whylabel}}</dt>
                 <dd><p class="mb-0">{{why}}</p></dd>
                 <dt>{{todolabel}}</dt>
@@ -102,8 +102,8 @@
                         {{/options}}
                     </ul>
                 </dd>
-            </div>
-        </dl>
+            </dl>
+        </div>
     </div>
     {{/hassuggestion}}
     {{^hassuggestion}}
