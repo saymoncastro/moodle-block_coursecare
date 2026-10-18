@@ -155,7 +155,7 @@ grupos com envio fora de grupo impedido, oculta; sala sem tarefas com arquivos �
 - [ ] T029 [MANUAL] Revisão de tom das strings novas en e pt_br (FR-052, SC-002) contra FR-021 e FR-031; registrar e obter a aprovação do proprietário do produto.
 - [ ] T030 [MANUAL] Validação visual (FR-052, SC-005, SC-006): `tools/dev/demo/checks.py` e capturas com `tools/dev/demo/screenshots.py` da página com a seção (com e sem resultado do diagnóstico, trecho recolhido aberto e fechado), en e pt_BR, Boost e Classic, desktop e celular; registrar e obter a aprovação do proprietário do produto.
 - [X] T031 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.5.0.zip`.
-- [ ] T032 Publicar a branch (só com autorização do proprietário do produto), verificar o CI (`moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package`, SC-007) e registrar o run em `evidence/README.md`.
+- [X] T032 Publicar a branch (só com autorização do proprietário do produto), verificar o CI (`moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package`, SC-007) e registrar o run em `evidence/README.md`.
 - [ ] T033 Reavaliar o Constitution Check do plan.md contra o código entregue e completar a tabela de `evidence/README.md` (nenhum item marcado sem evidência). Depende de T026 a T032.
 
 ---

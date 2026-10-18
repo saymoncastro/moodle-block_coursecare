@@ -27,7 +27,7 @@ Nenhum item é marcado sem evidência. Validações humanas pendentes ficam como
 | SC-004 | CT-11 | ✅ |
 | SC-005 | Behat `@accessibility`, T030 | ✅ (verificação automática); leitor de tela não exigido pela spec 005, mas pendente para 003/004 |
 | SC-006 | capturas T030 | ⏳ aprovação |
-| SC-007 | CI | ⏳ push depende de autorização |
+| SC-007 | CI run 39144160327 (`964d960`), PHP 8.1/PostgreSQL e 8.3/MariaDB | ✅ |
 
 ## Conferência à mão (T027)
 
@@ -178,10 +178,21 @@ Sobre o código de `9fbb6ca` mais os arquivos de Polish (sem mudança de código
   desktop e celular).
 - `tools/i18n/check.php`: 0 erros (6 avisos de strings iguais ao inglês: as unidades de tamanho e
   `potential:formula`, por natureza).
-- phpcs e Mustache lint: **não rodados localmente** (sem `moodle-plugin-ci`/`phpcs` no ambiente); conferidos à
-  mão linha ≤ 132, espaços e sintaxe. Rodam no CI.
+- phpcs e Mustache lint: não rodados localmente (sem `moodle-plugin-ci`/`phpcs` no ambiente); rodados no CI
+  (T032): verdes em `964d960`.
 - Pacote (T031): `tools/package/build.sh` e `tools/package/check.php build/block_coursecare-0.5.0.zip`:
   **0 erros, 78 arquivos** (a primeira tentativa acusou `phpunit.xml` gerado pelo PHPUnit e versionado por
   engano em `21178d6`; removido e ignorado no commit seguinte).
-- CI (T032): **pendente** — a branch não foi publicada; o push depende da autorização do proprietário do
-  produto.
+- CI (T032): runs abaixo.
+
+## Runs de CI (T032)
+
+| Commit | Run | Data | Jobs | Resultado |
+| --- | --- | --- | --- | --- |
+| `c8f3b72` (US1–US3, Polish, correções da revisão de código) | [39143470439](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39143470439) | 2026-10-18 | `moodle-plugin-ci` completo, PHPUnit e Behat em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | **falhou** no Moodle Code Checker (phpcs): 41 erros de formatação de chamadas em várias linhas e 1 aviso de comentário, no código novo; `i18n-package` verde |
+| `964d960` (formatação no estilo do Moodle) | [39144160327](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39144160327) | 2026-10-18 | os mesmos | **verde** |
+
+O código vigente é o de `964d960`; os commits seguintes só mudam documentação (`git diff 964d960 -- . ':!specs'`
+vazio). As capturas e verificações de T030 foram feitas antes da revisão de código; os resultados
+renderizados das tarefas de demonstração foram conferidos depois das correções e são idênticos (seção
+"Revisão de código"); a formatação de `964d960` não muda comportamento.
