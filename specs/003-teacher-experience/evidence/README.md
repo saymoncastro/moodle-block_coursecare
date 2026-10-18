@@ -286,6 +286,7 @@ o tour aberto prende o foco e cobre a gaveta de blocos.
 | Commit | Run | Data | Jobs | Resultado |
 | --- | --- | --- | --- | --- |
 | `f19d663` (ajustes finais, T044, T053) | [39076096522](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39076096522) | 2026-10-17 | `moodle-plugin-ci` completo, PHPUnit e Behat em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | verde |
+| `b0e2236` (convergência, T056–T058) | [39089481384](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39089481384) | 2026-10-18 | os mesmos | verde |
 
 Runs anteriores da branch, todos verdes: US3 (`c83a620`), US4 (`8f3a2c9`) e US5/US6 (`a8aca8d`).
 Qualquer commit posterior (por exemplo, correções vindas da avaliação com professores) precisa de um
