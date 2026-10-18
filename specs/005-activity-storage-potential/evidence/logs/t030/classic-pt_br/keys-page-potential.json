@@ -1,0 +1,84 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=21",
+ "title": "Sua sala em números | DEMO-POTENTIAL | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Voltar à sala"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Trabalho final"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Relatório parcial"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Pôster do projeto"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Exercícios"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Diário de bordo"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo (agrupamento)"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Entrega sem arquivos"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Rascunho"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como o potencial é calculado e seus limites",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Detalhes técnicos",
+   "openafterenter": true
+  }
+ ],
+ "count": 12,
+ "allindicated": true,
+ "summariesopen": true
+}

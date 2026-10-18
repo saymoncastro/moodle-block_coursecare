@@ -1,0 +1,15 @@
+{
+ "check": "zoom",
+ "path": "/blocks/coursecare/overview.php?id=21",
+ "title": "Your course in numbers | DEMO-POTENTIAL | ccdemo",
+ "pagescroll": false,
+ "pagescrollwidth": 640,
+ "regions": [
+  {
+   "clientwidth": 608,
+   "region": "block_coursecare-overview",
+   "scrollwidth": 608
+  }
+ ],
+ "viewport": 640
+}

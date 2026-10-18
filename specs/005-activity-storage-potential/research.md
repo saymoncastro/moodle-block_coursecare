@@ -43,6 +43,14 @@ SC-003 inclui o caso típico e o pior caso (todas as 50 tarefas com sobreposiç�
 passar de 2 s, a forma de limitar o custo é decisão do proprietário do produto (interpretação do
 indicador), registrada antes da entrega.
 
+**Medição na implementação (T028, 2026-10-18)**: com `tools/dev/bench/potential.php` (200 atividades, 50
+tarefas, 500 estudantes) e `render.php --page`, a página levou 17 ms sem sobreposições, 19 ms com 5 e
+62 ms com as 50 (média de 20; 89 ms e 120 ms na primeira abertura depois de limpar os caches). A
+contagem exata por contexto custou cerca de 1 ms, muito menos que os 146 ms da medição de viabilidade,
+que chamava `count_enrolled_users()` dentro do PHPUnit logo depois de criar cada tarefa (caches de
+permissão frios a cada chamada). A causa exata da diferença não foi isolada; a decisão de R2 continua
+válida e o pior caso fica dentro de SC-003 sem decisão adicional.
+
 **Alternativas consideradas**: contar tarefa a tarefa (7,3 s); usar a contagem da sala para todas
 (errado com sobreposições na atividade, Metodologia, item 4).
 
