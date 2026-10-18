@@ -54,6 +54,68 @@ Feature: CourseCare suggestions about the files of a course
     Then I should see "There are no suggestions for this course at the moment." in the "#block_coursecare-suggestions" "css_element"
     And I should not see "Large materials" in the "#block_coursecare-suggestions" "css_element"
 
+  Scenario: Without a result there is no suggestions section
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | requeststatus |
+      | C1     | 1             |
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
+    Then I should see "The file overview for this course is being prepared."
+    And I should not see "Suggestions for your course"
+
+  Scenario Outline: An old or failed result with large course materials keeps the suggestion, with the note
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | lastattemptfailed | largethreshold |
+      | C1     | 3145728      | 1         | <ago>            | <failed>          | 1048576        |
+    And the following "block_coursecare > diagnostic categories" exist:
+      | course | category | filecount | logicalbytes |
+      | C1     | material | 1         | 3145728      |
+    And the following "block_coursecare > diagnostic large links" exist:
+      | course | activity | filesize |
+      | C1     | lab      | 3145728  |
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
+    Then I should see "Large materials" in the "#block_coursecare-suggestions" "css_element"
+    And I should see "<note>"
+
+    Examples:
+      | ago    | failed | note                                      |
+      | 400000 | 0      | This information may be out of date.      |
+      | 600    | 1      | The latest update could not be completed. |
+
+  Scenario: An old result without large course materials shows the neutral sentence
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | largethreshold |
+      | C1     | 3145728      | 1         | 400000           | 1048576        |
+    And the following "block_coursecare > diagnostic categories" exist:
+      | course | category | filecount | logicalbytes |
+      | C1     | material | 1         | 3145728      |
+    When I am on the "C1" "block_coursecare > overview" page logged in as "teacher1"
+    Then I should see "There are no suggestions for this course at the moment." in the "#block_coursecare-suggestions" "css_element"
+    And I should see "This information may be out of date."
+
+  Scenario: The block announces the suggestion and its link opens the suggestions section
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | largethreshold |
+      | C1     | 3145728      | 1         | 600              | 1048576        |
+    And the following "block_coursecare > diagnostic categories" exist:
+      | course | category | filecount | logicalbytes |
+      | C1     | material | 1         | 3145728      |
+    And the following "block_coursecare > diagnostic large links" exist:
+      | course | activity | filesize |
+      | C1     | lab      | 3145728  |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    Then I should see "There is a suggestion about the files of your course." in the "CourseCare" "block"
+    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    And I should see "Suggestions for your course"
+    And I should see "Large materials" in the "#block_coursecare-suggestions" "css_element"
+
+  Scenario: Without a large course material the block does not announce any suggestion
+    Given the following "block_coursecare > diagnostics" exist:
+      | course | logicalbytes | filecount | timecompletedago | largethreshold |
+      | C1     | 2048         | 1         | 600              | 1048576        |
+    When I am on the "C1" "Course" page logged in as "teacher1"
+    Then I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should not see "There is a suggestion about the files of your course." in the "CourseCare" "block"
+
   @javascript @accessibility
   Scenario Outline: The suggestion meets the accessibility standards on desktop and mobile
     Given the following "block_coursecare > diagnostics" exist:

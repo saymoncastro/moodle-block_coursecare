@@ -154,14 +154,15 @@ class block_coursecare extends block_base {
         if ($courseid === null) {
             return null;
         }
+        $store = new diagnostic_store();
+        $record = $store->get_summary($courseid);
         $staleness = (int)get_config('block_coursecare', 'stalenessthreshold');
-        $state = state_resolver::resolve(
-            (new diagnostic_store())->get_summary($courseid),
-            time(),
-            $staleness > 0 ? $staleness : 3 * DAYSECS
-        );
+        $state = state_resolver::resolve($record, time(), $staleness > 0 ? $staleness : 3 * DAYSECS);
+        // Feature 004: the suggestion about large course materials applies when the result has at least one of them.
+        $hassuggestion = $state->hasresult && $state->filecount > 0 && $store->has_large_materials((int)$record->id);
         $overviewurl = new moodle_url('/blocks/coursecare/overview.php', ['id' => $this->instance->id]);
-        return (new diagnostic_line($state, $overviewurl))->export_for_template($this->page->get_renderer('core'));
+        return (new diagnostic_line($state, $overviewurl, $hassuggestion))
+            ->export_for_template($this->page->get_renderer('core'));
     }
 
     /**

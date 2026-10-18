@@ -101,12 +101,12 @@ envios grandes, sem o cartão.
 
 ### Tests for User Story 3
 
-- [ ] T012 [P] [US3] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_states`: A e B (sem resultado) → sem `block_coursecare-suggestions`; D e H sem ligações → `suggestions:none`; G e E/F de um resultado sem arquivos → `suggestions:none`; E e F com ligações → cartão de S1 com `suggestions:basedon`, além de `diagnostic:mayoutdated`/`diagnostic:updatefailed` na abertura; nenhuma palavra de avaliação positiva ou negativa na frase neutra.
-- [ ] T013 [US3] Em `tests/behat/block_coursecare_suggestions.feature`, acrescentar um Scenario Outline de estados (sem resultado: não ver "Suggestions for your course"; com resultado sem ligações: ver "There are no suggestions for this course at the moment."; resultado antigo com ligações: ver "Large materials" e "This information may be out of date.").
+- [X] T012 [P] [US3] Em `tests/output/course_overview_test.php`, acrescentar `test_suggestion_states`: A e B (sem resultado) → sem `block_coursecare-suggestions`; D e H sem ligações → `suggestions:none`; G e E/F de um resultado sem arquivos → `suggestions:none`; E e F com ligações → cartão de S1 com `suggestions:basedon`, além de `diagnostic:mayoutdated`/`diagnostic:updatefailed` na abertura; nenhuma palavra de avaliação positiva ou negativa na frase neutra.
+- [X] T013 [US3] Em `tests/behat/block_coursecare_suggestions.feature`, acrescentar um Scenario Outline de estados (sem resultado: não ver "Suggestions for your course"; com resultado sem ligações: ver "There are no suggestions for this course at the moment."; resultado antigo com ligações: ver "Large materials" e "This information may be out of date.").
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Fazer T012 e T013 passarem em `classes/output/course_overview.php` e `templates/overview_suggestions.mustache`: `hassuggestionsection` só com `view['hasresult']`; frase neutra (`suggestions:none`, sem data) quando `large_materials::evaluate()` devolve `null`, inclusive com `view['large']` nulo (G e E/F sem arquivos).
+- [X] T014 [US3] Fazer T012 e T013 passarem em `classes/output/course_overview.php` e `templates/overview_suggestions.mustache`: `hassuggestionsection` só com `view['hasresult']`; frase neutra (`suggestions:none`, sem data) quando `large_materials::evaluate()` devolve `null`, inclusive com `view['large']` nulo (G e E/F sem arquivos).
 
 **Checkpoint**: US1 e US3 completas: a página atende à tabela de FR-020.
 
@@ -122,16 +122,16 @@ bloco igual ao da 003.
 
 ### Tests for User Story 2
 
-- [ ] T015 [P] [US2] Em `tests/collector/diagnostic_store_test.php`, acrescentar `test_has_large_materials`: `true` com uma ligação no diagnóstico; `false` sem ligação; `false` para ligações de outro diagnóstico.
-- [ ] T016 [P] [US2] Em `tests/block_coursecare_test.php`, acrescentar `test_block_suggestion`: com resultado e ligação a material grande → `block:suggestion` e `overview.php?id=<instância>#block_coursecare-suggestions`; com resultado sem ligação → sem `block:suggestion` e link sem âncora; sem resultado → sem frase e sem link. Atualizar `test_render_reads_no_files`: continua sem consulta a `files`; as leituras são iguais nos estados sem resultado e em G, e têm exatamente 1 a mais nos estados com resultado e arquivos (D, E, F com resultado, H).
+- [X] T015 [P] [US2] Em `tests/collector/diagnostic_store_test.php`, acrescentar `test_has_large_materials`: `true` com uma ligação no diagnóstico; `false` sem ligação; `false` para ligações de outro diagnóstico.
+- [X] T016 [P] [US2] Em `tests/block_coursecare_test.php`, acrescentar `test_block_suggestion`: com resultado e ligação a material grande → `block:suggestion` e `overview.php?id=<instância>#block_coursecare-suggestions`; com resultado sem ligação → sem `block:suggestion` e link sem âncora; sem resultado → sem frase e sem link. Atualizar `test_render_reads_no_files`: continua sem consulta a `files`; as leituras são iguais nos estados sem resultado e em G, e têm exatamente 1 a mais nos estados com resultado e arquivos (D, E, F com resultado, H).
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Em `classes/local/collector/diagnostic_store.php`, acrescentar `public function has_large_materials(int $diagid): bool` com `$DB->record_exists('block_coursecare_large', ['diagid' => $diagid])` (índice da chave estrangeira `diagid`); PHPDoc.
-- [ ] T018 [US2] Em `classes/output/diagnostic_line.php`, aceitar `bool $hassuggestion = false` no construtor; em `link()`, com resultado e sugestão, `overviewurl` com a âncora `block_coursecare-suggestions` (`moodle_url::set_anchor()` numa cópia) e `suggestion` = `block:suggestion`; caso contrário, `suggestion` = ''.
-- [ ] T019 [US2] Em `templates/content.mustache`, mostrar `{{#suggestion}}<p class="block_coursecare-suggestionline">{{suggestion}}</p>{{/suggestion}}` antes do link, sem ícone ou cor de alerta; atualizar documentação e contexto de exemplo; estilo mínimo em `styles.css` sob `.block_coursecare`.
-- [ ] T020 [US2] Em `block_coursecare.php`, guardar o registro lido por `get_summary()`; quando o estado tem resultado e `filecount > 0`, calcular `$hassuggestion = (new diagnostic_store())->has_large_materials((int)$record->id)` e passá-lo ao `diagnostic_line`; T015 e T016 verdes.
-- [ ] T021 [US2] Em `tests/behat/block_coursecare_suggestions.feature`, acrescentar: sala com ligação a material grande → ver "There is a suggestion about the files of your course." no bloco "CourseCare", clicar em "Learn more about the files in your course" e ver "Suggestions for your course"; sala sem ligação → não ver a frase no bloco.
+- [X] T017 [US2] Em `classes/local/collector/diagnostic_store.php`, acrescentar `public function has_large_materials(int $diagid): bool` com `$DB->record_exists('block_coursecare_large', ['diagid' => $diagid])` (índice da chave estrangeira `diagid`); PHPDoc.
+- [X] T018 [US2] Em `classes/output/diagnostic_line.php`, aceitar `bool $hassuggestion = false` no construtor; em `link()`, com resultado e sugestão, `overviewurl` com a âncora `block_coursecare-suggestions` (`moodle_url::set_anchor()` numa cópia) e `suggestion` = `block:suggestion`; caso contrário, `suggestion` = ''.
+- [X] T019 [US2] Em `templates/content.mustache`, mostrar `{{#suggestion}}<p class="block_coursecare-suggestionline">{{suggestion}}</p>{{/suggestion}}` antes do link, sem ícone ou cor de alerta; atualizar documentação e contexto de exemplo; estilo mínimo em `styles.css` sob `.block_coursecare`.
+- [X] T020 [US2] Em `block_coursecare.php`, guardar o registro lido por `get_summary()`; quando o estado tem resultado e `filecount > 0`, calcular `$hassuggestion = (new diagnostic_store())->has_large_materials((int)$record->id)` e passá-lo ao `diagnostic_line`; T015 e T016 verdes.
+- [X] T021 [US2] Em `tests/behat/block_coursecare_suggestions.feature`, acrescentar: sala com ligação a material grande → ver "There is a suggestion about the files of your course." no bloco "CourseCare", clicar em "Learn more about the files in your course" e ver "Suggestions for your course"; sala sem ligação → não ver a frase no bloco.
 
 **Checkpoint**: as três histórias funcionam juntas.
 

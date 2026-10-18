@@ -35,15 +35,20 @@ class diagnostic_line implements \renderable, \templatable {
     /** @var \moodle_url|null Overview page of the course (Feature 003), linked only when a result exists. */
     private ?\moodle_url $overviewurl;
 
+    /** @var bool Whether a suggestion applies to the result (Feature 004). */
+    private bool $hassuggestion;
+
     /**
      * Constructor.
      *
      * @param diagnostic_state $state Resolved state.
      * @param \moodle_url|null $overviewurl Overview page of the course.
+     * @param bool $hassuggestion Whether a suggestion applies to the result (Feature 004).
      */
-    public function __construct(diagnostic_state $state, ?\moodle_url $overviewurl = null) {
+    public function __construct(diagnostic_state $state, ?\moodle_url $overviewurl = null, bool $hassuggestion = false) {
         $this->state = $state;
         $this->overviewurl = $overviewurl;
+        $this->hassuggestion = $hassuggestion;
     }
 
     /**
@@ -118,17 +123,23 @@ class diagnostic_line implements \renderable, \templatable {
     }
 
     /**
-     * The way to the overview page, only when it has something to show.
+     * The way to the overview page, only when it has something to show. With a suggestion (Feature 004), one sentence
+     * announces it, without any number, and the link opens the page at the suggestions section.
      *
-     * @return array
+     * @return array overviewurl, overviewlink and suggestion (empty strings when not shown).
      */
     private function link(): array {
         if (!$this->state->hasresult || $this->overviewurl === null) {
-            return ['overviewurl' => '', 'overviewlink' => ''];
+            return ['overviewurl' => '', 'overviewlink' => '', 'suggestion' => ''];
+        }
+        $url = new \moodle_url($this->overviewurl);
+        if ($this->hassuggestion) {
+            $url->set_anchor('block_coursecare-suggestions');
         }
         return [
-            'overviewurl' => $this->overviewurl->out(false),
+            'overviewurl' => $url->out(false),
             'overviewlink' => get_string('overview:link', 'block_coursecare'),
+            'suggestion' => $this->hassuggestion ? get_string('block:suggestion', 'block_coursecare') : '',
         ];
     }
 }

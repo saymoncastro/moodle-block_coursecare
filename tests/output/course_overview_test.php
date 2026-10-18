@@ -532,4 +532,67 @@ final class course_overview_test extends \advanced_testcase {
             implode(' ', $new)
         );
     }
+
+    /**
+     * The suggestions section in each state (FR-020 of Feature 004): absent without a result; the neutral sentence
+     * with a result and no suggestion, also without files; the suggestion with its date in the out-of-date and failed
+     * states (T012).
+     */
+    public function test_suggestion_states(): void {
+        $this->resetAfterTest();
+        $mb = 1048576;
+        $str = fn(string $key, $a = null): string => s(get_string($key, 'block_coursecare', $a));
+        $none = $str('suggestions:none');
+        $title = $str('suggestion:large:title');
+
+        // A: never analysed; B: a request is queued and there is no result yet.
+        $course = $this->getDataGenerator()->create_course();
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $this->assertNull(self::suggestions_section($this->render((int)$course->id)), 'A');
+        $course = $this->getDataGenerator()->create_course();
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $plugin->create_diagnostic(['courseid' => $course->id, 'requeststatus' => 1, 'timerequested' => time()]);
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $this->assertNull(self::suggestions_section($this->render((int)$course->id)), 'B');
+
+        // With a result and no large course material, the neutral sentence, in every state.
+        $nofiles = ['logicalbytes' => 0, 'filecount' => 0, 'categories' => [], 'activities' => []];
+        $cases = [
+            'D' => [['Reading' => 880], ['material' => 880], []],
+            'H' => [['Reading' => 880], ['material' => 880, 'unclassified' => 120],
+                ['partial' => 1, 'unclassifiedcount' => 2, 'unclassifiedbytes' => 120]],
+            'G' => [[], [], $nofiles],
+            'E without files' => [[], [], ['timecompletedago' => 4 * DAYSECS] + $nofiles],
+            'F without files' => [[], [], ['lastattemptfailed' => 1] + $nofiles],
+        ];
+        foreach ($cases as $name => [$materials, $categories, $extra]) {
+            [$course] = $this->course_with_diagnostic($materials, $categories, $extra);
+            $section = self::suggestions_section($this->render((int)$course->id));
+            $this->assertNotNull($section, $name);
+            $this->assertStringContainsString($none, $section, $name);
+            $this->assertStringNotContainsString($title, $section, $name);
+            // Neither praise nor blame, and no date repeated in the neutral case.
+            $this->assertDoesNotMatchRegularExpression(
+                '/\b(good|great|well done|bad|problem|congratulations)\b/i',
+                strip_tags($section),
+                $name
+            );
+            $this->assertStringNotContainsString(substr($str('suggestions:basedon', ''), 0, 20), $section, $name);
+        }
+
+        // E and F with large course materials: the suggestion with its date, and the note of the opening.
+        $cases = [
+            'E' => [['timecompletedago' => 4 * DAYSECS], 'diagnostic:mayoutdated'],
+            'F' => [['lastattemptfailed' => 1], 'diagnostic:updatefailed'],
+        ];
+        foreach ($cases as $name => [$extra, $note]) {
+            [$course] = $this->course_with_large_links(['Lab video' => 3 * $mb], $extra);
+            $html = $this->render((int)$course->id);
+            $section = self::suggestions_section($html);
+            $this->assertStringContainsString($title, $section, $name);
+            $this->assertStringContainsString(substr($str('suggestions:basedon', ''), 0, 20), $section, $name);
+            $this->assertStringContainsString($str($note), $html, $name);
+        }
+    }
 }

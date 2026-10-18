@@ -60,6 +60,10 @@
     margin-top: 0.25rem;
 }
 
+.block_coursecare .block_coursecare-suggestionline {
+    margin-top: 0.5rem;
+}
+
 .block_coursecare .block_coursecare-overviewlink {
     margin-top: 0.5rem;
     font-weight: 600;
