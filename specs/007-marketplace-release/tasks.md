@@ -39,7 +39,7 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 - [X] T003 Em `.github/workflows/ci.yml`, acrescentar à matriz `MOODLE_503_STABLE` × PHP 8.3 × PostgreSQL 17 e × PHP 8.4 × MariaDB 11.4 (serviço com a imagem correspondente), mantendo as duas combinações de 4.5.
 - [X] T004 Em `tests/behat/block_coursecare_ui.feature`, no cenário do Classic, `Given the "theme_classic" plugin is installed` como primeiro passo (roda no 4.5, pulado no 5.3).
 - [X] T005 Pilha local 5.3: `moodle-docker` (PHP 8.3, PostgreSQL 17) sobre `coursecare-devenv/moodle-503`, plugin montado em `public/blocks/coursecare`, instalação do site e do plugin, PHPUnit e Behat inicializados; registrar o ambiente em `evidence/`.
-- [ ] T006 Push da branch e execução do CI; corrigir as falhas de 5.3 (sem mudar comportamento; mudança arquitetural apresentada antes) até as quatro combinações e `i18n-package` verdes.
+- [X] T006 Push da branch e execução do CI; corrigir as falhas de 5.3 (sem mudar comportamento; mudança arquitetural apresentada antes) até as quatro combinações e `i18n-package` verdes.
 
 ---
 
@@ -47,7 +47,7 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 - [X] T007 [US1] Instalação limpa pelo ZIP (`tools/package/build.sh`) em 4.5 e 5.3, com depuração de desenvolvedor: sem avisos; tabelas, configurações, tarefa agendada, capabilities e bloco disponíveis; instalação a partir do código (pasta) igual; registrar em `evidence/install.md`.
 - [X] T008 [US1] CLI e diagnóstico no 5.3: `cli/diagnostics.php --run` e `--show` numa sala de demonstração; bloco e página com resultado, sugestão, potencial e histórico; registrar.
-- [ ] T009 [US1] Com T006–T008 verdes: `supported` = [405, 503] em `version.php`; README "Compatibility" com a matriz verificada.
+- [X] T009 [US1] Com T006–T008 verdes: `supported` = [405, 503] em `version.php`; README "Compatibility" com a matriz verificada.
 
 ## Phase 4: User Story 2 - Mantenedor atualiza uma instalação (P1)
 
@@ -58,7 +58,7 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 ## Phase 5: User Story 3 - Professor usa o produto (P1)
 
 - [X] T013 [US3] Verificação de i18n: paridade, textos fixos (templates e PHP), placeholders, plurais, datas, separador decimal e unidades em en e pt_BR; registrar.
-- [ ] T014 [US3] Auditoria visual das jornadas (bloco, página, distribuição, materiais grandes, sugestões, potencial, histórico, sem resultado, desatualizado, falha), desktop e celular, 4.5 (Boost e Classic) e 5.3 (Boost), com `checks.py` (axe, teclado, zoom, 320 px); corrigir só defeitos reais; registrar em `evidence/visual-accessibility.md`.
+- [X] T014 [US3] Auditoria visual das jornadas (bloco, página, distribuição, materiais grandes, sugestões, potencial, histórico, sem resultado, desatualizado, falha), desktop e celular, 4.5 (Boost e Classic) e 5.3 (Boost), com `checks.py` (axe, teclado, zoom, 320 px); corrigir só defeitos reais; registrar em `evidence/visual-accessibility.md`.
 - [X] T015 [P] [US3] `docs/teacher-guide.md` (exemplos: números, lógico × único, materiais grandes, sugestões, potencial, histórico, crescimento não é problema, o que o plugin não mede) e `docs/indicators.md` (definições exatas conferidas no código); `docs/pt_br/guia-do-professor.md` (AVA Consciente).
 
 ## Phase 6: User Story 5 - Revisor avalia o pacote (P1)
@@ -77,8 +77,8 @@ majoritariamente de compatibilidade, instalação, auditoria e documentação, c
 
 - [X] T022 [US6] Relatório de titularidade e licenciamento (contracts/ownership-report.md) em `evidence/ownership-report.md`.
 - [X] T023 [US6] Consolidação das 13 tarefas abertas de 001, 003, 004 e 005 nos grupos A–E em `evidence/human-validations.md`; executar as do grupo A (Constitution Checks de 003, 004 e 005; registro da decisão de formatação de tamanhos da 003, T057) e registrá-las nas respectivas evidências.
-- [ ] T024 [US6] `docs/marketplace/listing.md` (nome, descrição curta e longa, tipo, versões verificadas, links, limitações, suporte) e capturas reais com dados fictícios em `docs/marketplace/screenshots/` (5.3 Boost e 4.5), sem dados pessoais; conferência das afirmações proibidas.
-- [ ] T025 [US6] Instruções exatas de submissão em `docs/marketplace/submission.md` (conta, campos, ZIP, verificações, chamado de revisão, correções, publicação manual, novas versões, contribuição pt_BR ao AMOS), com as etapas humanas e as conferências pendentes das diretrizes autenticadas.
+- [X] T024 [US6] `docs/marketplace/listing.md` (nome, descrição curta e longa, tipo, versões verificadas, links, limitações, suporte) e capturas reais com dados fictícios em `docs/marketplace/screenshots/` (5.3 Boost e 4.5), sem dados pessoais; conferência das afirmações proibidas.
+- [X] T025 [US6] Instruções exatas de submissão em `docs/marketplace/submission.md` (conta, campos, ZIP, verificações, chamado de revisão, correções, publicação manual, novas versões, contribuição pt_BR ao AMOS), com as etapas humanas e as conferências pendentes das diretrizes autenticadas.
 
 ---
 
