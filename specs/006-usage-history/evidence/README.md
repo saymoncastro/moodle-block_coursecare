@@ -103,9 +103,24 @@ Pontos para a decisão do proprietário do produto:
 3. **Leitor de tela**: não realizado (exige uma pessoa); o gráfico tem título, e a tabela recolhida tem os
    mesmos dados.
 
+## Revisão de código (2026-10-19)
+
+| Achado | Correção | Teste |
+| --- | --- | --- |
+| A legenda da tabela usava `visually-hidden`, classe que o Moodle 4.5 (Bootstrap 4) não tem: aparecia como um título cinza repetindo "Medições e categorias" (visível nas capturas) | `sr-only`, a classe do Moodle 4.5 | `test_history_section` (legenda `sr-only`); capturas refeitas |
+| Rótulos do gráfico sem ano (`strftimedateshort`); com retenção de até 5 anos, datas repetidas | Dia e mês dentro do mesmo ano; com o ano (`strftimedatefullshort`) quando o histórico atravessa anos | `test_history_states` (rótulos nos dois casos) |
+| Duas linhas em branco em `queue_analyses.php` | Removida | — |
+
+Verificados sem problema: ponto na mesma transação do resultado, lock por sala e índice único; remoção com
+a sala e com o último bloco; retenção igual na página e na limpeza; atualização sem duplicar ao rodar de
+novo; datas da tabela com o ano; acesso, privacidade e leituras.
+
+Capturas e verificações refeitas depois das correções (as desta seção de evidências).
+
 ## Testes e CI
 
-- PHPUnit `--testsuite block_coursecare_testsuite`: **255 testes, 2546 asserções, OK** (PHP 8.1, PostgreSQL 17).
+- PHPUnit `--testsuite block_coursecare_testsuite`: **255 testes, 2549 asserções, OK** (PHP 8.1, PostgreSQL 17),
+  depois da revisão de código.
 - Behat `--tags=@block_coursecare`: **69 cenários, 769 passos, todos verdes** (inclui os 8 da 006, com axe em
   desktop e celular).
 - `tools/i18n/check.php`: 0 erros.

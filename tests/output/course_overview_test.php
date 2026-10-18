@@ -1031,6 +1031,8 @@ final class course_overview_test extends \advanced_testcase {
             '<\/summary>/';
         $this->assertMatchesRegularExpression($pattern, $section);
         $this->assertSame(3, substr_count($section, '<th scope="row">'));
+        // The caption is for screen readers only (Moodle 4.5 uses Bootstrap 4: sr-only).
+        $this->assertStringContainsString('<caption class="sr-only">', $section);
         $this->assertLessThan(strpos($section, $date($points[0])), strpos($section, $date($points[2])));
 
         // An increase and no change.
@@ -1069,6 +1071,19 @@ final class course_overview_test extends \advanced_testcase {
         // The chart data goes to the page through its JavaScript requirements.
         $js = $PAGE->requires->get_end_code();
         $this->assertMatchesRegularExpression('/"values":\[[^\]]*null,null,null,null,null[^\]]*\]/', $js);
+
+        // Labels of the chart: day and month within a year; with the year when the history crosses years.
+        $PAGE->requires->get_end_code();
+        $course = $this->course_with_history([1 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $this->render((int)$course->id);
+        $today = userdate(time(), get_string('strftimedateshort', 'langconfig'));
+        $this->assertStringContainsString(json_encode($today), $PAGE->requires->get_end_code());
+        set_config('historyretention', 5 * 365 * DAYSECS, 'block_coursecare');
+        $course = $this->course_with_history([400 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $this->render((int)$course->id);
+        $today = userdate(time(), get_string('strftimedatefullshort', 'langconfig'));
+        $this->assertStringContainsString(json_encode($today), $PAGE->requires->get_end_code());
+        unset_config('historyretention', 'block_coursecare');
 
         // A failed analysis after points keeps the section (state F with the previous result).
         [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000], ['lastattemptfailed' => 1]);

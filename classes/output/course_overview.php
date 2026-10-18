@@ -318,11 +318,16 @@ class course_overview implements \renderable, \templatable {
         $power = min(count($units), max(1, (int)floor(log($max, 1024))));
         $divisor = 1024 ** $power;
         $first = (int)$view['points'][count($view['points']) - 1]['timeday'];
+        // Day and month while the history stays within one year; with the year when it crosses years, so that a
+        // label never repeats (the retention goes up to 5 years).
+        $last = (int)$view['points'][0]['timeday'];
+        $sameyear = userdate($first + 12 * HOURSECS, '%Y') === userdate($last + 12 * HOURSECS, '%Y');
+        $format = get_string($sameyear ? 'strftimedateshort' : 'strftimedatefullshort', 'langconfig');
         $labels = [];
         $values = [];
         foreach ($view['days'] as $offset => $bytes) {
             // Noon of the day, so that the label is the right date across a change of daylight saving time.
-            $labels[] = userdate($first + $offset * DAYSECS + 12 * HOURSECS, get_string('strftimedateshort', 'langconfig'));
+            $labels[] = userdate($first + $offset * DAYSECS + 12 * HOURSECS, $format);
             $values[] = $bytes === null ? null : round($bytes / $divisor, 2);
         }
         $chart = new \core\chart_bar();

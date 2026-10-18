@@ -49,7 +49,6 @@ class queue_analyses extends \core\task\scheduled_task {
     /** @var int Maximum history points removed by the retention in one run (Feature 006). */
     public const HISTORY_BATCH = 10000;
 
-
     /**
      * Task name.
      *
