@@ -12,7 +12,7 @@ Saída:
   'previous' => ponto anterior ou null,
   'change'   => 'first' | 'increased' | 'decreased' | 'unchanged' | 'methodchanged',
   'delta'    => int (|latest.logicalbytes − previous.logicalbytes|; 0 quando não se aplica),
-  'days'     => [timeday => logicalbytes|null]  // do primeiro ao último ponto, um por dia
+  'days'     => [i => logicalbytes|null]  // i = dias desde o primeiro ponto, até o último
   'points'   => pontos do mais recente ao mais antigo
 ]
 ```
@@ -21,7 +21,9 @@ Regras:
 1. Um ponto → `first`.
 2. Versões de método diferentes entre `latest` e `previous` → `methodchanged`, sem `delta`.
 3. Senão, compara `logicalbytes`: maior → `increased`; menor → `decreased`; igual → `unchanged`.
-4. `days`: cada dia entre o primeiro e o último ponto; `null` onde não há ponto (sem interpolação).
+4. `days`: cada dia entre o primeiro e o último ponto, pelo deslocamento `round((timeday − primeiro) / DAYSECS)`
+   (robusto a horário de verão); `null` onde não há ponto (sem interpolação). A saída rotula a posição `i`
+   com a data de `primeiro + i × DAYSECS + 12 h`.
 
 Casos de teste: 0, 1, 2 (aumento, redução, igual), mudança de método, lacuna de vários dias, pontos
 parciais, valores grandes sem estouro.
