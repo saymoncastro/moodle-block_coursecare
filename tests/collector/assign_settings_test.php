@@ -78,8 +78,8 @@ final class assign_settings_test extends \advanced_testcase {
         $norole = $generator->create_user();
         $generator->enrol_user($norole->id, $course->id, 0);
         $studentrole = $DB->get_field('role', 'id', ['shortname' => 'student']);
-        role_change_permission($studentrole, \context_module::instance($prohibited->cmid), 'mod/assign:submit',
-            CAP_PROHIBIT);
+        $prohibitedcontext = \context_module::instance($prohibited->cmid);
+        role_change_permission($studentrole, $prohibitedcontext, 'mod/assign:submit', CAP_PROHIBIT);
         role_assign($studentrole, $norole->id, \context_module::instance($local->cmid));
 
         $cmids = [$files->cmid, $text->cmid, $missing->cmid, $prohibited->cmid, $local->cmid];
@@ -98,8 +98,8 @@ final class assign_settings_test extends \advanced_testcase {
         $this->assertNull($settings['assigns'][$missing->cmid]['maxfiles']);
         $this->assertSame(0, $settings['assigns'][$missing->cmid]['activitybytes']);
         $this->assertSame([], $settings['assigns'][$prohibited->cmid]['participants']);
-        $this->assertEqualsCanonicalizing([(int)$student->id, (int)$norole->id],
-            $settings['assigns'][$local->cmid]['participants']);
+        $localparticipants = $settings['assigns'][$local->cmid]['participants'];
+        $this->assertEqualsCanonicalizing([(int)$student->id, (int)$norole->id], $localparticipants);
         $this->assertNotContains((int)$suspended->id, $settings['assigns'][$files->cmid]['participants']);
         $this->assertNotContains((int)$teacher->id, $settings['assigns'][$files->cmid]['participants']);
 
@@ -118,8 +118,8 @@ final class assign_settings_test extends \advanced_testcase {
         set_config('disabled', 0, 'assignsubmission_file');
 
         foreach ($cmids as $cmid) {
-            $this->assertCount(count_enrolled_users(\context_module::instance($cmid), 'mod/assign:submit', 0, true),
-                $settings['assigns'][$cmid]['participants'], "cmid $cmid");
+            $expected = count_enrolled_users(\context_module::instance($cmid), 'mod/assign:submit', 0, true);
+            $this->assertCount($expected, $settings['assigns'][$cmid]['participants'], "cmid $cmid");
         }
     }
 
@@ -201,8 +201,8 @@ final class assign_settings_test extends \advanced_testcase {
             $DB->set_debug(false);
             $reads[$count] = $DB->perf_get_reads() - $before;
             foreach (['files', 'assign_submission', 'assign_grades'] as $table) {
-                $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . $table . '\b/',
-                    $queries);
+                $pattern = '/\b' . preg_quote($CFG->prefix, '/') . $table . '\b/';
+                $this->assertDoesNotMatchRegularExpression($pattern, $queries);
             }
         }
         $this->assertSame($reads[5], $reads[20]);

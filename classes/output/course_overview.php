@@ -83,10 +83,19 @@ class course_overview implements \renderable, \templatable {
             $activities = $store->get_activities((int)$record->id);
             $large = $store->get_large_materials_by_activity((int)$record->id);
         }
-        $view = (new overview_builder())->build($state, $record, $categories, $activities, $large,
-            $state->hasresult ? $structure : []);
-        return new self($view, new \moodle_url('/course/view.php', ['id' => $courseid]),
-            self::potential_for($courseid, $structure));
+        $view = (new overview_builder())->build(
+            $state,
+            $record,
+            $categories,
+            $activities,
+            $large,
+            $state->hasresult ? $structure : []
+        );
+        return new self(
+            $view,
+            new \moodle_url('/course/view.php', ['id' => $courseid]),
+            self::potential_for($courseid, $structure)
+        );
     }
 
     /**
@@ -231,9 +240,9 @@ class course_overview implements \renderable, \templatable {
         if ($this->view['hasresult']) {
             foreach ($this->view['categories'] ?? [] as $category) {
                 if ($category['key'] === 'submission' && $category['bytes'] > 0) {
+                    $date = userdate($this->view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
                     $recorded = $str('recorded', (object)['size' => diagnostic_line::size($category['bytes']),
-                        'date' => userdate($this->view['timecompleted'],
-                            get_string('strftimedatetimeshort', 'langconfig'))]);
+                        'date' => $date]);
                 }
             }
         }

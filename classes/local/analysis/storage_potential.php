@@ -69,8 +69,10 @@ class storage_potential {
         }
         $result['files'] = (int)$maxfiles;
 
-        [$result['limitsource'], $result['filebytes']] = self::limit((int)($settings['activitybytes'] ?? 0),
-            $course['limits'] ?? []);
+        [$result['limitsource'], $result['filebytes']] = self::limit(
+            (int)($settings['activitybytes'] ?? 0),
+            $course['limits'] ?? []
+        );
 
         // One attempt when Moodle never opens another: maximum of one, reopening "none" (before Moodle 4.4), or "until
         // pass" without a pass criterion, as assign::reopen_submission_if_required() and grade_grade::is_passed()
@@ -86,9 +88,13 @@ class storage_potential {
         $knownattempts = $result['attempts'] !== null || $maxattempts === -1;
 
         $participants = array_map('intval', $settings['participants'] ?? []);
-        $result['units'] = $result['unit'] === 'participant' ? count($participants)
-            : self::groups($participants, (int)($settings['groupingid'] ?? 0), !empty($settings['preventnogroup']),
-                $course['memberships'] ?? [], $course['groupings'] ?? []);
+        $result['units'] = $result['unit'] === 'participant' ? count($participants) : self::groups(
+            $participants,
+            (int)($settings['groupingid'] ?? 0),
+            !empty($settings['preventnogroup']),
+            $course['memberships'] ?? [],
+            $course['groupings'] ?? []
+        );
 
         if ($result['filebytes'] === 0 || !$knownattempts) {
             return ['status' => 'unknown'] + $result;
@@ -163,8 +169,13 @@ class storage_potential {
      * @param array $groupings Grouping id => group ids.
      * @return int Number of groups.
      */
-    private static function groups(array $participants, int $groupingid, bool $preventnogroup, array $memberships,
-            array $groupings): int {
+    private static function groups(
+        array $participants,
+        int $groupingid,
+        bool $preventnogroup,
+        array $memberships,
+        array $groupings
+    ): int {
         $allowed = $groupingid ? array_flip(array_map('intval', $groupings[$groupingid] ?? [])) : null;
         $groups = [];
         $default = false;

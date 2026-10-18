@@ -683,11 +683,11 @@ final class course_overview_test extends \advanced_testcase {
         global $PAGE;
         $PAGE->set_url('/blocks/coursecare/overview.php');
         $output = $PAGE->get_renderer('core');
-        $view = (new \block_coursecare\local\analysis\overview_builder())->build(
-            \block_coursecare\local\analysis\state_resolver::resolve(null, time(), DAYSECS), null, [], [], [], []);
+        $state = \block_coursecare\local\analysis\state_resolver::resolve(null, time(), DAYSECS);
+        $view = (new \block_coursecare\local\analysis\overview_builder())->build($state, null, [], [], [], []);
         $page = new course_overview($view, new \moodle_url('/course/view.php', ['id' => SITEID]), $potential);
-        return (string)self::potential_section($output->render_from_template('block_coursecare/overview',
-            $page->export_for_template($output)));
+        $html = $output->render_from_template('block_coursecare/overview', $page->export_for_template($output));
+        return (string)self::potential_section($html);
     }
 
     /**
@@ -717,7 +717,7 @@ final class course_overview_test extends \advanced_testcase {
         $this->create_assign($course, 'Journal', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
         $this->create_assign($course, 'Online text', ['assignsubmission_file_enabled' => 0,
             'assignsubmission_onlinetext_enabled' => 1]);
-        // "Until pass" without a grade to pass never reopens: one attempt, whatever the maximum.
+        // Reopening "until pass" without a grade to pass never reopens: one attempt, whatever the maximum.
         $this->create_assign($course, 'Until pass', ['maxattempts' => 3, 'attemptreopenmethod' => 'untilpass']);
         $this->setUser($teacher);
 
@@ -728,8 +728,8 @@ final class course_overview_test extends \advanced_testcase {
         $activities = strpos($html, 'block_coursecare-overview-activities');
         $this->assertNotFalse($activities);
         $this->assertGreaterThan($activities, strpos($html, 'id="block_coursecare-potential"'));
-        $this->assertGreaterThan(strpos($html, 'id="block_coursecare-potential"'),
-            strpos($html, 'block_coursecare-overview-technicalsection'));
+        $technical = strpos($html, 'block_coursecare-overview-technicalsection');
+        $this->assertGreaterThan(strpos($html, 'id="block_coursecare-potential"'), $technical);
 
         $positions = [];
         foreach (['Lab report', 'Essay', 'Group project', 'Journal'] as $name) {
@@ -750,16 +750,16 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringContainsString($str('units_participants', 3), $item);
         $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 3, 'files' => 3,
             'size' => $size($mb)]);
-        $this->assertStringContainsString($str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
-            $item);
+        $expected = $str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]);
+        $this->assertStringContainsString($expected, $item);
 
         $item = self::potential_item($section, 'Essay');
         $this->assertStringContainsString($str('files_participant_one', (object)['size' => $size($mb)]), $item);
         $this->assertStringContainsString($str('attempts', 3), $item);
         $formula = get_string('potential:formula_attempts', 'block_coursecare', (object)['units' => 3, 'attempts' => 3,
             'files' => 1, 'size' => $size($mb)]);
-        $this->assertStringContainsString($str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
-            $item);
+        $expected = $str('value', (object)['size' => $size(9 * $mb), 'formula' => $formula]);
+        $this->assertStringContainsString($expected, $item);
 
         $item = self::potential_item($section, 'Group project');
         $this->assertStringContainsString($str('files_group', (object)['files' => 2, 'size' => $size($mb)]), $item);
@@ -769,8 +769,8 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringContainsString($str('attempts_unlimited'), $item);
         $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 3, 'files' => 3,
             'size' => $size($mb)]);
-        $this->assertStringContainsString($str('unlimited', (object)['size' => $size(9 * $mb), 'formula' => $formula]),
-            $item);
+        $expected = $str('unlimited', (object)['size' => $size(9 * $mb), 'formula' => $formula]);
+        $this->assertStringContainsString($expected, $item);
 
         $item = self::potential_item($section, 'Until pass');
         $this->assertStringContainsString($str('attempts_one'), $item);
@@ -788,8 +788,8 @@ final class course_overview_test extends \advanced_testcase {
         $item = self::potential_item((string)self::potential_section($this->render((int)$small->id)), 'Poster');
         $this->assertStringContainsString($str('limit_course'), $item);
         $this->assertStringContainsString($str('units_participants_one'), $item);
-        $this->assertStringContainsString($str('files_participant', (object)['files' => 3, 'size' => $size(524288)]),
-            $item);
+        $expected = $str('files_participant', (object)['files' => 3, 'size' => $size(524288)]);
+        $this->assertStringContainsString($expected, $item);
 
         // The example of the specification: 30 participants, 3 files of 10 MB, 1 attempt → 900 MB.
         $settings = ['maxfiles' => 3, 'activitybytes' => 10 * $mb, 'maxattempts' => 1, 'reopenmethod' => 'untilpass',
@@ -800,8 +800,8 @@ final class course_overview_test extends \advanced_testcase {
             'result' => $result]]);
         $formula = get_string('potential:formula', 'block_coursecare', (object)['units' => 30, 'files' => 3,
             'size' => $size(10 * $mb)]);
-        $this->assertStringContainsString($str('value', (object)['size' => $size(900 * $mb), 'formula' => $formula]),
-            $section);
+        $expected = $str('value', (object)['size' => $size(900 * $mb), 'formula' => $formula]);
+        $this->assertStringContainsString($expected, $section);
         $this->assertStringContainsString('900.0', $section);
         $this->assertStringContainsString('30 × 3 × 10.0', $section);
     }
@@ -831,10 +831,11 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertSame(1, substr_count($section, diagnostic_line::size(5 * $mb)));
         $this->assertStringContainsString(diagnostic_line::size(6 * $mb), self::potential_item($section, 'Lab report'));
         $this->assertStringNotContainsString(diagnostic_line::size(5 * $mb), self::potential_item($section, 'Lab report'));
-        $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-potentialhow">\s*<summary>' .
-            preg_quote($str('how'), '/') . '<\/summary>/', $section);
-        foreach (['how_formula', 'how_attempts', 'limit_dates', 'limit_ignore', 'limit_other', 'how_server',
-                'limit_change'] as $key) {
+        $pattern = '/<details class="block_coursecare-overview-potentialhow">\s*<summary>' .
+            preg_quote($str('how'), '/') . '<\/summary>/';
+        $this->assertMatchesRegularExpression($pattern, $section);
+        $how = ['how_formula', 'how_attempts', 'limit_dates', 'limit_ignore', 'limit_other', 'how_server', 'limit_change'];
+        foreach ($how as $key) {
             $this->assertStringContainsString($str($key), $section);
         }
 
@@ -873,15 +874,15 @@ final class course_overview_test extends \advanced_testcase {
         foreach (['Zelda', 'Quixote', 'Team Rocket', 'secret-notes'] as $private) {
             $this->assertStringNotContainsString($private, $section);
         }
-        $this->assertDoesNotMatchRegularExpression('/\b(must|should|waste|save|saving|too much|adequate|inadequate)\b/i',
-            strip_tags($section));
+        $judgement = '/\b(must|should|waste|save|saving|too much|adequate|inadequate)\b/i';
+        $this->assertDoesNotMatchRegularExpression($judgement, strip_tags($section));
 
         $string = [];
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'potential:'), ARRAY_FILTER_USE_KEY);
         $this->assertCount(38, $new);
-        $this->assertDoesNotMatchRegularExpression('/\b(deve|desperdício|economia|economizar|excesso|adequad\w*)\b/iu',
-            implode(' ', $new));
+        $judgement = '/\b(deve|desperdício|economia|economizar|excesso|adequad\w*)\b/iu';
+        $this->assertDoesNotMatchRegularExpression($judgement, implode(' ', $new));
     }
 
     /**
@@ -903,8 +904,9 @@ final class course_overview_test extends \advanced_testcase {
         $DB->delete_records('assign_plugin_config', ['assignment' => $missing->id, 'plugin' => 'file',
             'subtype' => 'assignsubmission', 'name' => 'maxfilesubmissions']);
         $prohibited = $this->create_assign($course, 'Nobody');
-        role_change_permission($DB->get_field('role', 'id', ['shortname' => 'student']),
-            \context_module::instance($prohibited->cmid), 'mod/assign:submit', CAP_PROHIBIT);
+        $studentrole = $DB->get_field('role', 'id', ['shortname' => 'student']);
+        $prohibitedcontext = \context_module::instance($prohibited->cmid);
+        role_change_permission($studentrole, $prohibitedcontext, 'mod/assign:submit', CAP_PROHIBIT);
         $this->create_assign($course, 'No groups', ['teamsubmission' => 1, 'preventsubmissionnotingroup' => 1]);
         $this->create_assign($course, 'Hidden', ['visible' => 0]);
         $this->setUser($generator->create_and_enrol($course, 'editingteacher'));

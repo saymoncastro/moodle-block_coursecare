@@ -66,8 +66,13 @@ class assign_settings {
             return $result;
         }
 
-        $assigns = $DB->get_records_list('assign', 'id', array_keys($instances), '',
-            'id, maxattempts, attemptreopenmethod, teamsubmission, teamsubmissiongroupingid, preventsubmissionnotingroup');
+        $assigns = $DB->get_records_list(
+            'assign',
+            'id',
+            array_keys($instances),
+            '',
+            'id, maxattempts, attemptreopenmethod, teamsubmission, teamsubmissiongroupingid, preventsubmissionnotingroup'
+        );
         $config = $this->file_config(array_keys($instances));
         $sitedisabled = (bool)get_config('assignsubmission_file', 'disabled');
         $gradeitems = $this->grade_items((int)$courseid, array_keys($instances));
@@ -99,8 +104,8 @@ class assign_settings {
             $result['memberships'] = $this->memberships($courseid);
             $groupingids = array_filter(array_unique(array_column($team, 'groupingid')));
             if ($groupingids) {
-                foreach ($DB->get_records_list('groupings_groups', 'groupingid', $groupingids, '',
-                        'id, groupingid, groupid') as $row) {
+                $rows = $DB->get_records_list('groupings_groups', 'groupingid', $groupingids, '', 'id, groupingid, groupid');
+                foreach ($rows as $row) {
                     $result['groupings'][(int)$row->groupingid][] = (int)$row->groupid;
                 }
             }
@@ -117,12 +122,18 @@ class assign_settings {
     private function file_config(array $assignids): array {
         global $DB;
         [$insql, $params] = $DB->get_in_or_equal($assignids, SQL_PARAMS_NAMED, 'assign');
-        [$namesql, $nameparams] = $DB->get_in_or_equal(['enabled', 'maxfilesubmissions', 'maxsubmissionsizebytes'],
-            SQL_PARAMS_NAMED, 'name');
-        $rows = $DB->get_records_select('assign_plugin_config',
+        [$namesql, $nameparams] = $DB->get_in_or_equal(
+            ['enabled', 'maxfilesubmissions', 'maxsubmissionsizebytes'],
+            SQL_PARAMS_NAMED,
+            'name'
+        );
+        $rows = $DB->get_records_select(
+            'assign_plugin_config',
             "assignment $insql AND plugin = :plugin AND subtype = :subtype AND name $namesql",
-            $params + $nameparams + ['plugin' => 'file', 'subtype' => 'assignsubmission'], '',
-            'id, assignment, name, value');
+            $params + $nameparams + ['plugin' => 'file', 'subtype' => 'assignsubmission'],
+            '',
+            'id, assignment, name, value'
+        );
         $config = [];
         foreach ($rows as $row) {
             $config[(int)$row->assignment][$row->name] = $row->value;
@@ -140,11 +151,14 @@ class assign_settings {
     private function grade_items(int $courseid, array $assignids): array {
         global $DB;
         [$insql, $params] = $DB->get_in_or_equal($assignids, SQL_PARAMS_NAMED, 'assign');
-        $rows = $DB->get_records_select('grade_items',
+        $rows = $DB->get_records_select(
+            'grade_items',
             "courseid = :courseid AND itemtype = :itemtype AND itemmodule = :itemmodule AND itemnumber = 0
              AND iteminstance $insql",
-            $params + ['courseid' => $courseid, 'itemtype' => 'mod', 'itemmodule' => 'assign'], '',
-            'id, iteminstance, gradetype, gradepass, grademin');
+            $params + ['courseid' => $courseid, 'itemtype' => 'mod', 'itemmodule' => 'assign'],
+            '',
+            'id, iteminstance, gradetype, gradepass, grademin'
+        );
         $items = [];
         foreach ($rows as $row) {
             $items[(int)$row->iteminstance] = $row;

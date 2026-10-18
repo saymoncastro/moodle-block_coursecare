@@ -208,9 +208,9 @@ final class storage_potential_test extends \basic_testcase {
      * Large values stay exact integers (no float, no rounding).
      */
     public function test_large_values_are_exact(): void {
-        $result = storage_potential::evaluate(self::settings(['participants' => range(1, 500), 'maxfiles' => 10,
-            'maxattempts' => 20, 'reopenmethod' => 'manual', 'activitybytes' => 2048 * self::MB]),
-            self::course(['server' => 4096 * self::MB]));
+        $settings = self::settings(['participants' => range(1, 500), 'maxfiles' => 10, 'maxattempts' => 20,
+            'reopenmethod' => 'manual', 'activitybytes' => 2048 * self::MB]);
+        $result = storage_potential::evaluate($settings, self::course(['server' => 4096 * self::MB]));
         $this->assertIsInt($result['potential']);
         $this->assertSame(214748364800000, $result['potential']);
     }
