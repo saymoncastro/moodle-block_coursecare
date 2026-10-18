@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,11 +31,10 @@
 
 ## Notes
 
-- Três marcadores abertos, para o proprietário do produto: Q1 (granularidade e várias análises no mesmo
-  dia), Q2 (retenção), Q3 (histórico ao remover o bloco). A spec usa as opções recomendadas como texto
-  provisório (um ponto por dia, 365 dias, apagar com o resultado atual).
+- Q1 A, Q2 A, Q3 A decididos pelo proprietário do produto em 2026-10-18 (seção Clarifications); FR-009
+  acrescentado para a retenção configurável (90 dias a 5 anos, padrão 365).
 - A descrição do funcionamento da 002 ("Como o diagnóstico funciona hoje") descreve comportamento, não
   implementação; os detalhes de gravação (transação, índice, gráfico do Moodle) ficam para o plano.
-- Decisões tomadas como padrão, para confirmação junto com Q1–Q3: indicadores guardados e exibidos
+- Padrões confirmados pelo proprietário do produto: indicadores guardados e exibidos
   (FR-010, FR-021, FR-022), primeiro ponto a partir do resultado atual na atualização (FR-006), período
   exibido igual à retenção (FR-026), posição da seção (FR-020), bloco inalterado (FR-027).

@@ -6,7 +6,7 @@ respectivos `tasks.md` e obrigatórias para o seu encerramento)
 
 **Created**: 2026-10-18
 
-**Status**: Draft (perguntas abertas Q1–Q3 para o proprietário do produto)
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-18: Q1 A, Q2 A, Q3 A; padrões listados confirmados)
 
 **Input**: User description: "Feature 006 — Usage History: permitir que o professor acompanhe a
 evolução do armazenamento registrado na sua sala, reaproveitando as análises da Feature 002, sem nova
@@ -24,6 +24,20 @@ histórico.
 
 **Dados (Princípio VII)**: só totais agregados da sala, já calculados pela análise da 002, com a data da
 análise. Nenhum dado por estudante, por arquivo ou por atividade; nenhum nome.
+
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: Granularidade e várias análises no mesmo dia? → A: um ponto por sala e por dia, com a última
+  análise bem-sucedida do dia (FR-002).
+- Q: Retenção? → A: 365 dias por padrão, ajustável pela administração do site entre 90 dias e 5 anos;
+  pontos mais antigos removidos em lotes (FR-007, FR-009).
+- Q: Histórico ao remover a última instância do bloco? → A: apagado junto com o resultado atual, pela
+  mesma regra de elegibilidade da Feature 002 (FR-008).
+- Padrões confirmados pelo proprietário do produto: indicadores guardados e exibidos (FR-010, FR-021,
+  FR-022); primeiro ponto a partir do resultado atual na atualização (FR-006); período exibido igual à
+  retenção (FR-026); posição da seção (FR-020); bloco inalterado (FR-027).
 
 ## Dependências e estado das features anteriores
 
@@ -138,7 +152,8 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
 - **Sala sem arquivos**: medições de 0 bytes são reais e entram no histórico.
 - **Dados desatualizados**: o último ponto mostra a sua data; a abertura da página continua avisando
   quando o resultado está desatualizado (003).
-- **Sala excluída / bloco removido**: o histórico segue a regra de limpeza da 002 (decisão Q3).
+- **Sala excluída / bloco removido**: o histórico é apagado junto com o resultado atual, pela regra de
+  limpeza da 002 (Q3); se o bloco voltar, o histórico recomeça do zero.
 - **Restauração e cópia**: uma sala restaurada como nova sala ou copiada começa sem histórico; nenhum
   histórico é transferido entre salas.
 - **Restauração sobre a mesma sala** ou **reinicialização**: a sala é a mesma; o histórico continua, e a
@@ -146,7 +161,8 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
 - **Desativação temporária do plugin ou do bloco no site**: sem análises, sem pontos; ao voltar, os
   pontos seguintes retomam, com a lacuna visível.
 - **Desinstalação**: todo o histórico é apagado com os demais dados do plugin.
-- **Retenção**: pontos mais antigos que o período de retenção são removidos pela tarefa periódica.
+- **Retenção**: pontos mais antigos que o período de retenção (365 dias por padrão) são removidos pela
+  tarefa periódica; reduzir a retenção remove os excedentes na limpeza seguinte.
 
 ## Requirements *(mandatory)*
 
@@ -159,8 +175,6 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
   resultado atual (os dois acontecem ou nenhum acontece).
 - **FR-002**: Por sala e por dia MUST existir no máximo um ponto; uma nova análise bem-sucedida no mesmo
   dia substitui o ponto do dia (decisão Q1). O "dia" é o do fuso horário padrão do site.
-  [NEEDS CLARIFICATION: Q1 — granularidade: um ponto por dia (última análise do dia), um ponto por
-  análise, ou um ponto por semana?]
 - **FR-003**: Uma análise que falha MUST NOT registrar nem alterar pontos.
 - **FR-004**: Reexecuções e análises concorrentes MUST NOT produzir pontos duplicados.
 - **FR-005**: O histórico MUST NOT ler arquivos, consultar o registro de arquivos nem refazer a análise:
@@ -168,12 +182,12 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
 - **FR-006**: Na atualização para a versão desta feature, o resultado atual de cada sala, quando existir,
   MUST virar o primeiro ponto, com a data real dessa análise. Nenhum outro ponto passado é criado.
 - **FR-007**: Pontos mais antigos que o período de retenção MUST ser removidos periodicamente, em lotes
-  limitados (decisão Q2). [NEEDS CLARIFICATION: Q2 — retenção: 365 dias com ajuste pela administração,
-  365 dias fixos, ou 2 anos com ajuste?]
+  limitados (decisão Q2).
+- **FR-009**: O período de retenção MUST ser uma configuração do site, com padrão de 365 dias e valores
+  entre 90 dias e 5 anos; reduzi-lo faz a limpeza seguinte remover os pontos que ficaram fora do período.
 - **FR-008**: O histórico de uma sala MUST ser apagado quando o resultado atual dela é apagado pela regra
   de elegibilidade da 002 (sala excluída ou sem o bloco) (decisão Q3), e MUST NOT ser transferido entre
-  salas. [NEEDS CLARIFICATION: Q3 — ao remover a última instância do bloco, o histórico é apagado junto
-  com o resultado atual, ou mantido até o fim da retenção para continuar se o bloco voltar?]
+  salas.
 
 **Indicadores do histórico**
 
