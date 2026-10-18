@@ -1,0 +1,31 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=23",
+ "title": "Your course in numbers | DEMO-HISTORY-5Y | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad527e97066a6ad527e96d3b160",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  },
+  {
+   "id": "color-contrast",
+   "reasons": [
+    "Element's background color could not be determined because it partially overlaps other elements"
+   ],
+   "targets": [
+    ".block_coursecare-overview-legenditem:nth-child(2) > .block_coursecare-overview-legendtext > .block_coursecare-overview-help.mb-0"
+   ]
+  }
+ ],
+ "passes": 29,
+ "violations": []
+}

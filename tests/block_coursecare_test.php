@@ -520,7 +520,11 @@ final class block_coursecare_test extends \advanced_testcase {
     public function test_block_added_again_starts_clean(): void {
         $this->resetAfterTest();
         [$course, $block] = $this->analysed_course_with_pending_task();
+        $store = new \block_coursecare\local\collector\diagnostic_store();
+        $this->assertNotEmpty($store->get_history((int)$course->id, 0));
         blocks_delete_instance($block->instance);
+        // The history goes with the diagnostic when the last block is removed (Feature 006, Q3).
+        $this->assertSame([], $store->get_history((int)$course->id, 0));
         $this->add_block_through_manager($course);
         $record = (new \block_coursecare\local\collector\diagnostic_store())->get_summary($course->id);
         $this->assertSame(\block_coursecare\local\collector\diagnostic_store::STATUS_QUEUED, (int)$record->requeststatus);
@@ -537,7 +541,8 @@ final class block_coursecare_test extends \advanced_testcase {
         $this->assertTrue($xmldb->loadXMLStructure());
         $names = array_map(fn($table) => $table->getName(), $xmldb->getStructure()->getTables());
         $this->assertSame(
-            ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'],
+            ['block_coursecare_diag', 'block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large',
+                'block_coursecare_hist'],
             $names
         );
     }

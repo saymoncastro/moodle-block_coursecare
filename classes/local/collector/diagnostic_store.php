@@ -16,6 +16,7 @@
 
 namespace block_coursecare\local\collector;
 
+use block_coursecare\local\analysis\classification_rules;
 use block_coursecare\local\analysis\diagnostic_result;
 use block_coursecare\local\analysis\diagnostic_state;
 
@@ -43,6 +44,16 @@ class diagnostic_store {
     public const TABLE = 'block_coursecare_diag';
     /** @var string Child tables, keyed by diagid. */
     public const CHILD_TABLES = ['block_coursecare_cat', 'block_coursecare_act', 'block_coursecare_large'];
+
+    /** @var string History table (Feature 006): at most one point per course and day. */
+    public const HISTORY_TABLE = 'block_coursecare_hist';
+    /** @var array<string, string> History column of each category (classification_rules). */
+    public const HISTORY_CATEGORIES = [
+        classification_rules::MATERIAL => 'materialbytes',
+        classification_rules::SUBMISSION => 'submissionbytes',
+        classification_rules::OTHER => 'otherbytes',
+        classification_rules::UNCLASSIFIED => 'unclassifiedbytes',
+    ];
 
     /** @var int Maximum length of failurereason. */
     public const REASON_LENGTH = 30;
@@ -221,6 +232,9 @@ class diagnostic_store {
     /**
      * Replace the current result of a course, atomically: until the transaction commits, the previous result stays.
      *
+     * In the same transaction, the history point of the day is written or replaced with the values of this result
+     * (Feature 006, research R1 and R2): the point and the current result never differ, and a failure writes nothing.
+     *
      * @param int $courseid Course id.
      * @param diagnostic_result $result New result.
      * @param int $now Current time.
@@ -266,6 +280,7 @@ class diagnostic_store {
                 'timemodified' => $now,
             ]);
             $DB->update_record(self::TABLE, $update);
+            $this->save_history_point($courseid, $result, $now);
             $transaction->allow_commit();
         } catch (\Throwable $e) {
             $transaction->rollback($e);
@@ -379,13 +394,109 @@ class diagnostic_store {
     }
 
     /**
-     * Delete the diagnostic of a course and its child rows (light: index reads only).
+     * Write the history point of the day of a result, or replace it when the course was already analysed that day.
+     *
+     * @param int $courseid Course id.
+     * @param diagnostic_result $result Result being saved.
+     * @param int $now Time of the analysis.
+     */
+    private function save_history_point(int $courseid, diagnostic_result $result, int $now): void {
+        global $DB;
+
+        $point = [
+            'courseid' => $courseid,
+            'timeday' => self::history_day($now),
+            'timecompleted' => $now,
+            'methodversion' => (int)$result->summary['methodversion'],
+            'partial' => (int)$result->summary['partial'],
+            'filecount' => (int)$result->summary['filecount'],
+            'logicalbytes' => (int)$result->summary['logicalbytes'],
+            'uniquecount' => (int)$result->summary['uniquecount'],
+            'uniquebytes' => (int)$result->summary['uniquebytes'],
+        ];
+        foreach (self::HISTORY_CATEGORIES as $category => $field) {
+            $point[$field] = (int)($result->categories[$category]['logicalbytes'] ?? 0);
+        }
+        $id = $DB->get_field(self::HISTORY_TABLE, 'id', ['courseid' => $courseid, 'timeday' => $point['timeday']]);
+        if ($id) {
+            $DB->update_record(self::HISTORY_TABLE, (object)(['id' => $id] + $point));
+        } else {
+            $DB->insert_record(self::HISTORY_TABLE, (object)$point);
+        }
+    }
+
+    /**
+     * Retention of the history points (setting historyretention; 365 days when empty).
+     *
+     * @return int Seconds.
+     */
+    public static function history_retention(): int {
+        $retention = (int)get_config('block_coursecare', 'historyretention');
+        return $retention > 0 ? $retention : 365 * DAYSECS;
+    }
+
+    /**
+     * The day of a history point: midnight of a time in the site default timezone.
+     *
+     * @param int $time Time.
+     * @return int
+     */
+    public static function history_day(int $time): int {
+        return usergetmidnight($time, \core_date::get_server_timezone());
+    }
+
+    /**
+     * History points of a course from a day on, oldest first (one indexed read; never the files table).
+     *
+     * @param int $courseid Course id.
+     * @param int $since First day included (a history_day() value or any earlier time).
+     * @return \stdClass[] Points with the fields of block_coursecare_hist.
+     */
+    public function get_history(int $courseid, int $since): array {
+        global $DB;
+
+        return array_values($DB->get_records_select(
+            self::HISTORY_TABLE,
+            'courseid = :courseid AND timeday >= :since',
+            ['courseid' => $courseid, 'since' => $since],
+            'timeday ASC'
+        ));
+    }
+
+    /**
+     * Remove history points older than a day, at most a given number per call (retention, Feature 006).
+     *
+     * @param int $before Points with a day before this time are removed.
+     * @param int $limit Maximum number of points removed.
+     * @return int Points removed.
+     */
+    public function purge_history(int $before, int $limit): int {
+        global $DB;
+
+        $ids = array_keys($DB->get_records_select(
+            self::HISTORY_TABLE,
+            'timeday < :before',
+            ['before' => $before],
+            'timeday ASC',
+            'id',
+            0,
+            $limit
+        ));
+        if ($ids) {
+            $DB->delete_records_list(self::HISTORY_TABLE, 'id', $ids);
+        }
+        return count($ids);
+    }
+
+    /**
+     * Delete the diagnostic of a course, its child rows and its history (light: index reads only).
      *
      * @param int $courseid Course id.
      */
     public function delete_for_course(int $courseid): void {
         global $DB;
 
+        $DB->delete_records(self::HISTORY_TABLE, ['courseid' => $courseid]);
         $record = $this->get_summary($courseid);
         if (!$record) {
             return;

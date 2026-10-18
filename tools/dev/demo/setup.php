@@ -36,6 +36,7 @@ require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/lib/phpunit/classes/util.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
+use block_coursecare\local\analysis\indicator_calculator;
 use block_coursecare\local\collector\diagnostic_store;
 use block_coursecare\local\course_analysis;
 
@@ -99,6 +100,31 @@ function demo_file(
         'filearea' => $filearea, 'itemid' => $itemid, 'filepath' => '/', 'filename' => $filename, 'userid' => $userid],
         demo_content($bytes, "{$contextid}-{$component}-{$filearea}-{$itemid}-{$filename}")
     );
+}
+
+/**
+ * Demonstration history points of a course on past days (Feature 006), for this demonstration site only.
+ *
+ * @param int $courseid Course.
+ * @param int[] $days Days ago with a point.
+ * @param callable $values Values of block_coursecare_hist for a number of days ago (missing categories are 0).
+ */
+function demo_history(int $courseid, array $days, callable $values): void {
+    global $DB;
+    foreach ($days as $daysago) {
+        $time = time() - $daysago * DAYSECS;
+        $day = diagnostic_store::history_day($time);
+        if ($DB->record_exists('block_coursecare_hist', ['courseid' => $courseid, 'timeday' => $day])) {
+            // A real measurement already exists for that day.
+            continue;
+        }
+        $point = $values($daysago) + ['materialbytes' => 0, 'submissionbytes' => 0, 'otherbytes' => 0,
+            'unclassifiedbytes' => 0, 'partial' => 0, 'methodversion' => indicator_calculator::METHOD_VERSION];
+        $logical = $point['materialbytes'] + $point['submissionbytes'] + $point['otherbytes'] + $point['unclassifiedbytes'];
+        $DB->insert_record('block_coursecare_hist', (object)($point + ['courseid' => $courseid,
+            'timeday' => $day, 'timecompleted' => $time, 'filecount' => 10,
+            'logicalbytes' => $logical, 'uniquecount' => 10, 'uniquebytes' => $logical]));
+    }
 }
 
 /**
@@ -245,6 +271,14 @@ foreach ([
 }
 $expected['DEMO-POTENTIAL'] = 'G (assignments with varied settings, no file)';
 
+// History over a year and over five years (Feature 006): the site keeps five years of history, so that the table
+// shows every measurement; the chart shows the last 90 days.
+set_config('historyretention', 5 * 365 * DAYSECS, 'block_coursecare');
+$course = demo_course('DEMO-HISTORY-YEAR', 'Estatística (demonstração)', $teacher->id);
+demo_resource($course, 'Apostila de estatística', 'apostila-estatistica.pdf', 820000, $teacher->id);
+$course = demo_course('DEMO-HISTORY-5Y', 'Línguas (demonstração)', $teacher->id);
+demo_resource($course, 'Gramática', 'gramatica.pdf', 640000, $teacher->id);
+
 // E, F with a result and F without a result start from a real analysis or a failure.
 $outdated = demo_course('DEMO-OUTDATED', 'Física (demonstração)', $teacher->id);
 demo_resource($outdated, 'Lista de exercícios', 'lista.pdf', 280000, $teacher->id);
@@ -270,6 +304,43 @@ foreach ($DB->get_records_select('course', $DB->sql_like('shortname', ':prefix')
         $analysis->run((int)$record->id, true);
     }
 }
+
+// History (Feature 006): demonstration points on past days, only on this demonstration site. Biologia celular gets
+// three months of daily points with a week without analysis and a recent decrease; História gets a change of method.
+// The point of today comes from the real analysis above.
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-COMPLETE']),
+    array_merge(range(90, 47), range(39, 1)),
+    fn(int $daysago): array => [
+        'materialbytes' => 3500000 + (90 - $daysago) * 45000 - ($daysago < 6 ? 900000 : 0),
+        'submissionbytes' => $daysago > 60 ? 0 : (60 - $daysago) * 25000,
+        'otherbytes' => 150000,
+    ]
+);
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-PARTIAL']),
+    range(10, 1),
+    fn(int $daysago): array => ['materialbytes' => 300000, 'unclassifiedbytes' => 70000, 'partial' => 1,
+        'methodversion' => $daysago > 4 ? 0 : indicator_calculator::METHOD_VERSION]
+);
+
+// A year of daily points with two weeks without analysis; five years with a cycle of terms and some gaps.
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-HISTORY-YEAR']),
+    array_merge(range(364, 200), range(185, 1)),
+    fn(int $daysago): array => [
+        'materialbytes' => 500000 + (364 - $daysago) * 900,
+        'submissionbytes' => (int)(200000 * (1 + sin($daysago / 30))),
+    ]
+);
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-HISTORY-5Y']),
+    array_filter(range(1825, 1), fn(int $daysago): bool => $daysago % 97 !== 0),
+    fn(int $daysago): array => [
+        'materialbytes' => 300000 + (1825 - $daysago) * 180,
+        'submissionbytes' => (int)(150000 * (1 + sin($daysago / 58))),
+    ]
+);
 
 // E: the result is older than the out-of-date limit.
 $staleness = (int)get_config('block_coursecare', 'stalenessthreshold') ?: 3 * DAYSECS;

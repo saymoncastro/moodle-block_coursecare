@@ -477,3 +477,46 @@
     margin-top: 0.5rem;
     padding-left: 1.25rem;
 }
+
+/* How the files of the course have changed (Feature 006): a discreet chart and, collapsed, the table of the
+   measurements, which scrolls in its own box on small screens. */
+.block_coursecare-overview .block_coursecare-overview-history {
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historychange {
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historychart {
+    max-width: 48rem;
+    margin-bottom: 1rem;
+}
+
+/* A discreet chart of fixed height, instead of the height the core gives charts from the window. */
+.block_coursecare-overview .block_coursecare-overview-historychart .chart-image {
+    position: relative;
+    width: 100%;
+    height: 16rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historydata {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background-color: var(--block-coursecare-neutral);
+    font-size: 0.9375rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historydata > summary {
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historytable {
+    margin-top: 0.5rem;
+    overflow-x: auto;
+}
+
+.block_coursecare-overview .block_coursecare-overview-historytable td {
+    white-space: nowrap;
+}

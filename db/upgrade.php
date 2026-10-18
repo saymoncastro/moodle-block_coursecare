@@ -162,5 +162,36 @@ function xmldb_block_coursecare_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2026101601, 'coursecare');
     }
 
+    if ($oldversion < 2026101900) {
+        // Feature 006: history of the storage diagnostic.
+        $table = new xmldb_table('block_coursecare_hist');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('timeday', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecompleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('methodversion', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('partial', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('filecount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('logicalbytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('uniquecount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('uniquebytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('materialbytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('submissionbytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('otherbytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unclassifiedbytes', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('courseid-timeday', XMLDB_INDEX_UNIQUE, ['courseid', 'timeday']);
+        $table->add_index('timeday', XMLDB_INDEX_NOTUNIQUE, ['timeday']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // The current result of each course, a real dated measurement, becomes its first point.
+        require_once(__DIR__ . '/upgradelib.php');
+        block_coursecare_seed_history();
+
+        upgrade_block_savepoint(true, 2026101900, 'coursecare');
+    }
+
     return true;
 }

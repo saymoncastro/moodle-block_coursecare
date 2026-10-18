@@ -965,4 +965,199 @@ final class course_overview_test extends \advanced_testcase {
         $this->setUser($generator->create_and_enrol($course, 'editingteacher'));
         $this->assertNull(self::potential_section($this->render((int)$course->id)));
     }
+
+    /**
+     * The history section of a rendered page, or null when there is none (Feature 006).
+     *
+     * @param string $html Page HTML.
+     * @return string|null
+     */
+    private static function history_section(string $html): ?string {
+        if (!preg_match('/<section id="block_coursecare-history".*?<\/section>/s', $html, $match)) {
+            return null;
+        }
+        return $match[0];
+    }
+
+    /**
+     * A course with a current result and history points: one per entry, days ago => values.
+     *
+     * @param array $points Days ago => values of block_coursecare_hist.
+     * @return \stdClass The course.
+     */
+    private function course_with_history(array $points): \stdClass {
+        [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000]);
+        /** @var \block_coursecare_generator $plugin */
+        $plugin = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        foreach ($points as $daysago => $values) {
+            $plugin->create_diagnostic_history(['courseid' => $course->id, 'daysago' => $daysago] + $values);
+        }
+        return $course;
+    }
+
+    /**
+     * The history section: placed between the files of the course and the materials by activity, with the latest
+     * measurement, the sentence of the change, the chart without its automatic table and, collapsed, one row per
+     * measurement (Feature 006, T013).
+     */
+    public function test_history_section(): void {
+        $this->resetAfterTest();
+        $this->setTimezone('America/Sao_Paulo');
+        $mb = 1048576;
+        $str = fn(string $key, $a = null): string => s(get_string('history:' . $key, 'block_coursecare', $a));
+        $size = fn(int $bytes): string => diagnostic_line::size($bytes);
+        $course = $this->course_with_history([2 => ['materialbytes' => 120 * $mb], 1 => ['materialbytes' => 150 * $mb],
+            0 => ['materialbytes' => 140 * $mb]]);
+
+        $html = $this->render((int)$course->id);
+        $section = self::history_section($html);
+        $this->assertNotNull($section);
+        $position = strpos($html, 'id="block_coursecare-history"');
+        $this->assertGreaterThan(strpos($html, 'block_coursecare-overview-grid'), $position);
+        $this->assertLessThan(strpos($html, 'block_coursecare-overview-activities'), $position);
+        foreach (['heading', 'intro', 'meaning'] as $key) {
+            $this->assertStringContainsString($str($key), $section);
+        }
+        $points = (new \block_coursecare\local\collector\diagnostic_store())->get_history((int)$course->id, 0);
+        $date = fn(\stdClass $point): string => userdate((int)$point->timecompleted, get_string('strftimedate', 'langconfig'));
+        $latest = userdate((int)$points[2]->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
+        $this->assertStringContainsString($str('latest', $latest), $section);
+        $expected = $str('decreased', (object)['delta' => $size(10 * $mb), 'date' => $date($points[1]),
+            'from' => $size(150 * $mb), 'to' => $size(140 * $mb)]);
+        $this->assertStringContainsString($expected, $section);
+        $this->assertStringContainsString('chart-area', $section);
+        $this->assertStringNotContainsString('chart-table', $section);
+        $pattern = '/<details class="block_coursecare-overview-historydata">\s*<summary>' . preg_quote($str('data'), '/') .
+            '<\/summary>/';
+        $this->assertMatchesRegularExpression($pattern, $section);
+        $this->assertSame(3, substr_count($section, '<th scope="row">'));
+        // The caption is for screen readers only (Moodle 4.5 uses Bootstrap 4: sr-only).
+        $this->assertStringContainsString('<caption class="sr-only">', $section);
+        $this->assertLessThan(strpos($section, $date($points[0])), strpos($section, $date($points[2])));
+
+        // An increase and no change.
+        $course = $this->course_with_history([1 => ['materialbytes' => 100], 0 => ['materialbytes' => 300]]);
+        $section = self::history_section($this->render((int)$course->id));
+        $increased = $str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F', 'to' => 'T']);
+        $this->assertStringContainsString(substr($increased, 0, 30), $section);
+        $course = $this->course_with_history([1 => ['materialbytes' => 100], 0 => ['materialbytes' => 100]]);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString(substr($str('unchanged', (object)['date' => 'D', 'to' => 'T']), 0, 30), $section);
+    }
+
+    /**
+     * A short or broken history: no section without points; one point without a chart; a gap without values; a
+     * partial point marked; a change of method not compared; no word of judgement (Feature 006, T019).
+     */
+    public function test_history_states(): void {
+        global $CFG, $PAGE;
+        $this->resetAfterTest();
+        $this->setTimezone('America/Sao_Paulo');
+        $str = fn(string $key, $a = null): string => s(get_string('history:' . $key, 'block_coursecare', $a));
+
+        [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000]);
+        $this->assertNull(self::history_section($this->render((int)$course->id)));
+
+        $course = $this->course_with_history([0 => ['materialbytes' => 100]]);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('first'), $section);
+        $this->assertStringNotContainsString('chart-area', $section);
+
+        // A gap of five days: no row for those days and no value in the chart data.
+        $course = $this->course_with_history([6 => ['materialbytes' => 100, 'partial' => 1], 0 => ['materialbytes' => 200]]);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertSame(2, substr_count($section, '<th scope="row">'));
+        $this->assertSame(1, substr_count($section, $str('partial')));
+        // The chart data goes to the page through its JavaScript requirements.
+        $js = $PAGE->requires->get_end_code();
+        $this->assertMatchesRegularExpression('/"values":\[[^\]]*null,null,null,null,null[^\]]*\]/', $js);
+
+        // Labels of the chart: day and month within a year; with the year when the chart crosses years.
+        $PAGE->requires->get_end_code();
+        $course = $this->course_with_history([60 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $this->render((int)$course->id);
+        $sameyear = userdate(time() - 60 * DAYSECS, '%Y') === userdate(time(), '%Y');
+        $today = userdate(time(), get_string($sameyear ? 'strftimedateshort' : 'strftimedatefullshort', 'langconfig'));
+        $this->assertStringContainsString(json_encode($today), $PAGE->requires->get_end_code());
+
+        // A history longer than 90 days: a chart of 90 days, the note that the table has every measurement, and
+        // every measurement in the table (product decision of 2026-10-19).
+        set_config('historyretention', 5 * 365 * DAYSECS, 'block_coursecare');
+        $points = [];
+        foreach ([400, 200, 120, 80, 40, 0] as $daysago) {
+            $points[$daysago] = ['materialbytes' => 1000 + $daysago];
+        }
+        $course = $this->course_with_history($points);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('chartperiod'), $section);
+        $this->assertSame(6, substr_count($section, '<th scope="row">'));
+        // The window starts on its first measured day, 80 days ago: 81 labels, none older.
+        $this->assertMatchesRegularExpression('/"labels":\[("[^"]*",){80}"[^"]*"\]/', $PAGE->requires->get_end_code());
+        unset_config('historyretention', 'block_coursecare');
+        $course = $this->course_with_history([1 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $this->assertStringNotContainsString($str('chartperiod'), self::history_section($this->render((int)$course->id)));
+
+        // A failed analysis after points keeps the section (state F with the previous result).
+        [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000], ['lastattemptfailed' => 1]);
+        $this->getDataGenerator()->get_plugin_generator('block_coursecare')->create_diagnostic_history(
+            ['courseid' => $course->id, 'daysago' => 1, 'materialbytes' => 1000]
+        );
+        $this->assertNotNull(self::history_section($this->render((int)$course->id)));
+
+        // A change of method: said, and no increase or decrease.
+        $course = $this->course_with_history([1 => ['materialbytes' => 100, 'methodversion' => 0],
+            0 => ['materialbytes' => 900]]);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString(substr($str('methodchanged', 'D'), 0, 20), $section);
+        $increased = $str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F', 'to' => 'T']);
+        $this->assertStringNotContainsString(substr($increased, 0, 30), $section);
+
+        // A change of method earlier in the period: said, while the two latest measurements are compared.
+        $course = $this->course_with_history([2 => ['materialbytes' => 100, 'methodversion' => 0],
+            1 => ['materialbytes' => 900], 0 => ['materialbytes' => 950]]);
+        $earlier = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString(substr($str('methodchanged', 'D'), 0, 20), $earlier);
+        $this->assertStringContainsString(substr($increased, 0, 30), $earlier);
+
+        // No judgement, cause or alarm, in English and in Brazilian Portuguese ("problem" and "improvement" appear
+        // only denied, in the sentence of what a change does not mean).
+        $judgement = '/\b(waste|should|must|reduce|alarm|warning)\b/i';
+        $this->assertDoesNotMatchRegularExpression($judgement, strip_tags($section));
+        $string = [];
+        include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
+        $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'history:'), ARRAY_FILTER_USE_KEY);
+        $this->assertCount(24, $new);
+        $judgement = '/\b(desperdício|deve|reduz\w*|economi\w*|alerta)\b/iu';
+        $this->assertDoesNotMatchRegularExpression($judgement, implode(' ', $new));
+    }
+
+    /**
+     * The table of the measurements: the four categories and the unique content of each point, submissions only as the
+     * total of the course, and no name of a student, file or activity (Feature 006, T022).
+     */
+    public function test_history_categories(): void {
+        $this->resetAfterTest();
+        $mb = 1048576;
+        $size = fn(int $bytes): string => diagnostic_line::size($bytes);
+        $course = $this->course_with_history([1 => ['materialbytes' => 10 * $mb, 'submissionbytes' => 2 * $mb],
+            0 => ['materialbytes' => 12 * $mb, 'submissionbytes' => 3 * $mb, 'otherbytes' => $mb, 'unclassifiedbytes' => 5,
+                'uniquebytes' => 9 * $mb]]);
+        $this->getDataGenerator()->create_and_enrol($course, 'student', ['firstname' => 'Zelda', 'lastname' => 'Quixote']);
+        $section = self::history_section($this->render((int)$course->id));
+
+        $headers = [get_string('history:col_date', 'block_coursecare'), get_string('history:col_total', 'block_coursecare')];
+        foreach (['material', 'submission', 'other', 'unclassified'] as $category) {
+            $headers[] = get_string('overview:category:' . $category, 'block_coursecare');
+        }
+        $headers[] = get_string('history:col_unique', 'block_coursecare');
+        preg_match_all('/<th scope="col">([^<]*)<\/th>/', $section, $matches);
+        $this->assertSame(array_map('s', $headers), $matches[1]);
+
+        preg_match('/<tbody>\s*<tr>(.*?)<\/tr>/s', $section, $row);
+        preg_match_all('/<td>([^<]*)<\/td>/', $row[1], $cells);
+        $expected = [$size(16 * $mb + 5), $size(12 * $mb), $size(3 * $mb), $size($mb), $size(5), $size(9 * $mb)];
+        $this->assertSame(array_map('s', $expected), $cells[1]);
+        $this->assertStringNotContainsString('Quixote', $section);
+        $this->assertStringNotContainsString('Reading', $section);
+    }
 }

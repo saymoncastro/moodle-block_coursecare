@@ -1,0 +1,37 @@
+# Contract: visão da evolução (regra pura)
+
+`\block_coursecare\local\analysis\history_view::build(array $points): ?array`
+
+Entrada: pontos de `get_history()` em ordem crescente. Sem pontos → `null` (a seção não aparece).
+
+Saída:
+
+```text
+[
+  'latest'   => ponto mais recente,
+  'previous' => ponto anterior ou null,
+  'change'   => 'first' | 'increased' | 'decreased' | 'unchanged' | 'methodchanged',
+  'delta'    => int (|latest.logicalbytes − previous.logicalbytes|; 0 quando não se aplica),
+  'methodchange' => ponto ou null  // primeiro ponto medido com o método atual depois da mudança mais recente
+  'chart'    => ['start' => int, 'days' => [...]]  // até 90 dias até a última medição, a partir do primeiro dia medido da janela
+  'chartcut' => bool  // há medições anteriores à janela do gráfico
+  'days'     => [i => logicalbytes|null]  // i = dias desde o primeiro ponto, até o último
+  'points'   => pontos do mais recente ao mais antigo
+]
+```
+
+Regras:
+1. Um ponto → `first`.
+2. Versões de método diferentes entre `latest` e `previous` → `methodchanged`, sem `delta`.
+3. Senão, compara `logicalbytes`: maior → `increased`; menor → `decreased`; igual → `unchanged`.
+4. `methodchange`: quando a versão do método muda em qualquer lugar da série, o primeiro ponto depois da
+   mudança mais recente; a interface diz a data da mudança mesmo que as duas medições mais recentes sejam
+   do mesmo método (US3, cenário 4).
+5. `chart` (decisão de 2026-10-19): a janela dos últimos `CHART_DAYS` = 90 dias de `days` até a última
+   medição, começando no primeiro dia medido dentro dela; `chartcut` quando ficam medições de fora.
+6. `days`: cada dia entre o primeiro e o último ponto, pelo deslocamento `round((timeday − primeiro) / DAYSECS)`
+   (robusto a horário de verão); `null` onde não há ponto (sem interpolação). A saída rotula a posição `i`
+   com a data de `primeiro + i × DAYSECS + 12 h`.
+
+Casos de teste: 0, 1, 2 (aumento, redução, igual), mudança de método, lacuna de vários dias, pontos
+parciais, valores grandes sem estouro.
