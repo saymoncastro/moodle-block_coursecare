@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,9 @@
 
 ## Notes
 
-- Three product decisions are open (Q1: recorded storage per assignment vs. the Feature 003 privacy
-  rule; Q2: a course total of the potential; Q3: a suggestion based on the potential in this delivery).
-  They change privacy, presentation and scope and are presented to the product owner.
+- Product decisions of 2026-10-18 recorded (Clarifications): Q1 A (recorded storage only for the whole
+  course), Q2 A (no course total of the potential), Q3 A (no new suggestion; future ideas recorded).
+- Methodology reviewed in the Moodle 4.5.15 code before planning (section "Metodologia validada"):
+  attempts, unlimited attempts, participants and groups, effective per-file limit, unknown settings.
 - The table "Como o Moodle 4.5 limita os envios" names product rules found in Moodle 4.5 (settings and
   their effect), not an implementation; capability and plugin names identify Moodle behaviour.

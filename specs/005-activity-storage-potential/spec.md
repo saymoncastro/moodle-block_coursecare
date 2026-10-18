@@ -6,7 +6,7 @@ integrada depois da 004)
 
 **Created**: 2026-10-18
 
-**Status**: Draft (para revisão do proprietário do produto)
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-18: Q1 A, Q2 A, Q3 A; metodologia revisada no código do Moodle 4.5)
 
 **Input**: User description: "Feature 005 — Activity Storage Potential: permitir que o professor
 compreenda o potencial teórico de armazenamento das atividades Moodle que recebem arquivos, começando
@@ -55,6 +55,67 @@ estes os fatos que a feature MUST respeitar:
 | Tentativas | Tarefa: reabertura (nenhuma, manual, automática, até passar) e número máximo de tentativas (−1 = ilimitado) | Cada nova tentativa copia os arquivos da anterior e pode recebê-los até o limite de novo; as tentativas anteriores continuam guardadas |
 | Quem pode enviar | Capability de envio na tarefa, inscrição ativa, grupos | Define quantos participantes (ou grupos) enviam |
 | Datas e restrições de acesso | Tarefa | Podem impedir envios por um período; não mudam o limite configurado |
+
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: O armazenamento registrado aparece por tarefa? → A: Não. A decisão de privacidade da Feature 003
+  é preservada: os arquivos enviados pelos estudantes continuam apenas no agregado da sala. Por tarefa,
+  só o potencial teórico calculado das configurações e dos demais fatores necessários. Nenhum volume
+  real de envios por tarefa nem informação que permita inferência sobre estudantes individualmente.
+- Q: A seção mostra um total do potencial da sala? → A: Não. Cada tarefa mostra o seu potencial,
+  sempre com os fatores usados e as limitações. O potencial não é armazenamento atual, previsão de uso,
+  crescimento esperado, espaço físico reservado nem economia possível. Sem teto definido ou sem dados
+  confiáveis, uma explicação em vez de um número artificial.
+- Q: Esta entrega traz uma sugestão baseada no potencial? → A: Não. A Feature 005 apresenta o potencial
+  de forma educativa; pequenas explicações sobre o significado dos indicadores e seus limites são
+  permitidas, mas nenhuma configuração é classificada como adequada ou inadequada. Possíveis
+  recomendações futuras ficam registradas com os dados e critérios necessários ("Recomendações
+  futuras").
+- A metodologia de cálculo foi revisada no código do Moodle 4.5 antes do plano ("Metodologia
+  validada"); a precisão metodológica tem prioridade sobre exibir um número.
+
+## Metodologia validada (Moodle 4.5.15)
+
+Revisão no código real (`mod/assign`, `assignsubmission_file`, `repository/repository_ajax.php`,
+funções de limite de upload do core), item a item:
+
+1. **Arquivos entre tentativas.** Cada tentativa é um envio próprio, com a sua área de arquivos. Ao
+   reabrir, o estudante começa vazio ou escolhe partir do envio anterior; nesse caso o Moodle copia os
+   arquivos para a nova tentativa (novos registros de arquivo, mesmo conteúdo). As tentativas anteriores
+   e os seus arquivos continuam guardados; o Moodle não os apaga ao abrir uma nova tentativa.
+2. **Multiplicar pelas tentativas.** Cada tentativa pode guardar até "arquivos por envio × limite por
+   arquivo", e as áreas das tentativas anteriores permanecem; logo, tentativas × esse valor é um teto
+   teórico justificável do armazenamento lógico. Cópias de conteúdo idêntico (item 1) contam no
+   armazenamento lógico, mas não ocupam espaço físico de novo; a página MUST dizer isso. O teto descreve
+   o que as configurações permitem, não o que ficará guardado.
+3. **Tentativas ilimitadas.** Com número máximo de tentativas ilimitado (−1), não há teto: a tarefa
+   mostra "sem teto definido" e o potencial de uma tentativa, com a explicação. Com máximo 1, só uma
+   tentativa (o Moodle não abre outra). Um método de reabertura "nenhum" também significa uma tentativa.
+4. **Participantes, grupos e agrupamentos.** Seguir as regras da própria tarefa no Moodle: participantes
+   são os usuários com inscrição ativa e a capability de enviar no contexto da tarefa (sobreposições de
+   papel na atividade valem). No envio em grupo, a unidade é o grupo: com agrupamento definido, os grupos
+   do agrupamento que têm participantes; sem agrupamento, os grupos dos participantes que estão em
+   exatamente um grupo; e mais um grupo padrão quando houver participante sem grupo (ou em vários grupos)
+   e o envio fora de grupo não estiver impedido.
+5. **Limite efetivo por arquivo.** O menor entre: os limites de upload do servidor web (tamanho máximo
+   de arquivo e de requisição), o limite do site e o limite da sala quando maiores que zero, e o tamanho
+   máximo da tarefa — ou, se ele for zero, o padrão do plugin no site, quando maior que zero. É o que o
+   Moodle aplica ao receber o arquivo. Usuários com a capability de ignorar limites não têm teto
+   (normalmente não estudantes; limitação documentada). Os limites do servidor só são conhecidos com
+   certeza numa requisição web; por isso o cálculo usa os valores da requisição em que a página é
+   mostrada.
+6. **Configurações desconhecidas ou que impedem uma estimativa.** Seguir o comportamento do Moodle: envio
+   de arquivos sem registro de ativação é envio desativado (a tarefa não entra na lista); número máximo de
+   arquivos zero ou ausente faz o Moodle não oferecer o envio de arquivos (a tarefa diz que nenhum arquivo
+   pode ser enviado com a configuração atual); tamanho ausente vale zero (padrão). Agrupamento definido
+   que não existe mais: só o grupo padrão, se permitido. Quando, mesmo assim, um fator não puder ser
+   determinado, nenhum número é mostrado e a razão aparece.
+7. **Apresentação.** Uma frase por fator, em linguagem simples ("até 3 arquivos por participante, de até
+   10 MB cada"; "1 tentativa"; "30 participantes podem enviar"), o potencial rotulado como "potencial
+   teórico" com a fórmula legível ("30 × 3 × 10 MB"), a origem do limite por arquivo e as limitações nos
+   detalhes técnicos.
 
 ## Definições
 
@@ -180,18 +241,23 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 - **FR-010**: Potencial teórico da tarefa = unidades de envio × tentativas × arquivos por envio ×
   limite efetivo por arquivo, quando todos os fatores forem conhecidos e finitos.
 - **FR-011**: Arquivos por envio = o número máximo configurado na tarefa.
-- **FR-012**: Limite efetivo por arquivo = o menor entre: o tamanho máximo da tarefa (ou, se zero, o
-  padrão do plugin no site), o limite da sala e o do site quando maiores que zero, e os limites de upload
-  do servidor. A explicação MUST dizer qual limite determinou o valor (tarefa, sala, site ou servidor).
+- **FR-012**: Limite efetivo por arquivo = o menor entre: os limites de upload do servidor web, o limite
+  do site e o da sala quando maiores que zero, e o tamanho máximo da tarefa (ou, se zero, o padrão do
+  plugin no site, quando maior que zero), como em "Metodologia validada", item 5. A explicação MUST dizer
+  qual limite determinou o valor (tarefa, padrão do site para tarefas, sala, site ou servidor).
 - **FR-013**: Tentativas = 1 quando a reabertura é "nenhuma" ou o máximo é 1; o máximo configurado
   quando finito; quando ilimitado, a tarefa MUST mostrar "sem teto definido", o potencial por tentativa
-  e a explicação.
-- **FR-014**: Unidades de envio = participantes com inscrição ativa que podem enviar na tarefa; no
-  envio em grupo, os grupos (do agrupamento, se definido) mais o grupo padrão quando estudantes sem
-  grupo podem enviar.
+  e a explicação. A explicação MUST dizer que cada tentativa guarda os seus arquivos e que cópias de
+  conteúdo idêntico não ocupam espaço físico de novo (Metodologia, itens 1 e 2).
+- **FR-014**: Unidades de envio = como em "Metodologia validada", item 4 (participantes com inscrição
+  ativa e capability de enviar no contexto da tarefa; no envio em grupo, os grupos com participantes, do
+  agrupamento quando definido, mais o grupo padrão quando permitido e houver participante sem grupo
+  único).
 - **FR-015**: Quando algum fator não puder ser determinado com confiança, o potencial MUST NOT ser
   mostrado; a tarefa mostra a razão em linguagem simples. Zero participantes MUST aparecer como frase
-  ("Ninguém pode enviar nesta tarefa no momento"), não como "0 bytes".
+  ("Ninguém pode enviar nesta tarefa no momento"), não como "0 bytes". Número máximo de arquivos zero ou
+  ausente MUST aparecer como "nenhum arquivo pode ser enviado com a configuração atual" (Metodologia,
+  item 6).
 - **FR-016**: Os cálculos MUST ser verificados por testes com valores conhecidos para cada combinação
   de FR-010 a FR-015.
 
@@ -210,17 +276,19 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 - **FR-024**: A apresentação MUST seguir a direção visual aprovada (Features 003 e 004), sem cores ou
   ícones de alerta, sem ranking de tarefas por potencial como julgamento; a ordem MUST ser a da sala
   (ordem das atividades na página do curso).
-- **FR-025**: O armazenamento registrado MUST aparecer [NEEDS CLARIFICATION: Q1 — por tarefa (volume de
-  envios já registrados na tarefa) ou só no agregado da sala, como decidido na Feature 003 (FR-030)?]
-- **FR-026**: A seção MUST [NEEDS CLARIFICATION: Q2 — mostrar ou não um total do potencial da sala
-  (soma das tarefas com potencial finito)?]
+- **FR-025**: O armazenamento registrado MUST aparecer só no agregado da sala (decisão Q1 = A; FR-030 da
+  Feature 003): a seção lembra, numa frase, o total de "Arquivos enviados em atividades" da sala e que
+  ele não se compara tarefa a tarefa com o potencial. Por tarefa, só o potencial teórico e os seus
+  fatores; nenhum volume real de envios por tarefa.
+- **FR-026**: A seção MUST NOT mostrar um total do potencial da sala (decisão Q2 = A); cada tarefa
+  mostra o seu potencial com os fatores e as limitações.
 
 **Integração com as sugestões (Feature 004)**
 
 - **FR-030**: A estrutura das sugestões da 004 (o que observamos; por que pode merecer atenção; o que
-  você pode fazer, se quiser) MUST ser a usada por qualquer orientação baseada no potencial. Nesta
-  entrega: [NEEDS CLARIFICATION: Q3 — nenhuma sugestão nova (só a seção informativa), ou uma sugestão
-  com critério objetivo a aprovar?]
+  você pode fazer, se quiser) MUST ser a usada por qualquer orientação futura baseada no potencial.
+  Nesta entrega não há sugestão nova (decisão Q3 = A): a seção é informativa e MUST NOT classificar
+  configurações como adequadas ou inadequadas.
 - **FR-031**: Nenhuma orientação MUST apresentar um limite de arquivos ou de tamanho como adequado para
   todas as tarefas.
 
@@ -300,6 +368,15 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 - **Tentativas copiam arquivos**: no Moodle, cada nova tentativa recebe uma cópia dos arquivos da
   anterior; o armazenamento lógico conta as cópias, e o físico pode não aumentar (conteúdo idêntico é
   guardado uma vez).
+
+## Recomendações futuras (registradas, não implementadas)
+
+| Ideia | Dados necessários | Critério a definir antes |
+| --- | --- | --- |
+| Tarefa com tentativas ilimitadas e envio de arquivos | Já disponíveis nesta feature | Quando é pedagogicamente pertinente sugerir rever as tentativas (não é sempre) |
+| Limite por arquivo determinado pelo padrão do site, sem escolha na tarefa | Já disponíveis | Se e como apresentar a escolha consciente do limite, sem sugerir valor |
+| Potencial muito acima do armazenamento registrado da sala | Agregado da sala e potencial por tarefa | Limiar configurável (Princípio III) e redação que não sugira reduzir limites como regra |
+| Avaliar os limites de envio de uma tarefa (como no protótipo do "Trabalho Final") | Fatores desta feature, objetivos da atividade | Critérios educativos aprovados; nunca presumir que reduzir limites é boa prática |
 
 ## Fora do escopo e features posteriores
 
