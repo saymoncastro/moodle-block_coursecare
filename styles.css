@@ -435,3 +435,45 @@
         white-space: normal;
     }
 }
+
+/* Potential of assignments (Feature 005): one plain item per assignment, in the order of the course, the result in
+   bold type and no alert colour. */
+.block_coursecare-overview .block_coursecare-overview-potential {
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentiallist {
+    margin: 0.75rem 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialitem {
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--block-coursecare-border);
+    overflow-wrap: anywhere;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialname {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialresult {
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialhow {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background-color: var(--block-coursecare-neutral);
+    font-size: 0.9375rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialhow > summary {
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-potentialhow ul {
+    margin-top: 0.5rem;
+    padding-left: 1.25rem;
+}

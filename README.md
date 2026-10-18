@@ -179,6 +179,45 @@ result and no suggestion, the section says so in one neutral sentence; without a
 section. Other ideas (backups, recycle bin, repeated content, submission limits, file types) are left
 for later because the diagnostic does not yet have the data to support them.
 
+### Potential of assignments
+
+Before the technical details, the page has a section "Potential of assignments". For each
+assignment of the course that accepts file submissions, in the order of the course, it says what the
+current settings allow: how many files per participant (or per group), of what size each, which level
+sets that size (the assignment, the site default for assignments, the course, the site or the
+server), how many attempts, and how many participants or groups can submit. From these it gives the
+**theoretical potential**: participants (or groups) × attempts × files per submission × size limit
+per file. It is calculated each time the page is shown, from the settings of that moment; nothing is
+stored and the background analysis does not change.
+
+The theoretical potential is a ceiling set by the settings. It is not the space used, a forecast, the
+amount that will be submitted, a saving or a waste, and different settings serve different teaching
+goals. It is never added up into a total of the course, never compared assignment by assignment with
+what is recorded, and assignments are not ranked. The files already submitted appear only as the
+total of the course ("Files submitted in activities", from the latest analysis).
+
+The rule follows what Moodle 4.5 applies:
+
+- the size limit per file is the smallest of the server upload limits, the site and course limits
+  (when set) and the size of the assignment (or, when it is "site default", the default of the file
+  submission plugin);
+- one attempt when the assignment never opens another (maximum of one attempt, or reopening "until
+  pass" without a grade to pass in its grade item); with unlimited attempts there is no ceiling, and
+  the section shows what one attempt can hold;
+- participants are the users with an active enrolment who can submit in the assignment (overrides in
+  the assignment count); with group submission, the groups as the assignment counts them (only those
+  of the grouping, when set), plus the default group when someone without a single group may submit;
+- assignments are listed only when Moodle offers file submissions in them (enabled in the assignment
+  and the file submission plugin not disabled on the site);
+- with no file allowed, nobody who can submit, or a factor that cannot be determined, there is no
+  number and the section says why.
+
+A collapsed part explains the calculation and its limits: due dates and access restrictions are not
+considered; people allowed to ignore file size limits have no ceiling; files in online text and
+feedback files are not included; the server limits are those of the request that showed the page;
+each attempt keeps its own files and copies of identical content are stored only once. Only
+assignments are covered; the section makes no suggestion and the block does not show it.
+
 ### When courses are analysed
 
 - Only courses that have the block are analysed. Removing the last block of a course, deleting the

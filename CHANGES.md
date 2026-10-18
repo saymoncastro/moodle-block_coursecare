@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (unreleased)
+
+- Potential of assignments: on the "Your course in numbers" page, for each assignment that accepts
+  files, what its current settings allow (files per submission, size limit per file and where it
+  comes from, attempts, participants or groups who can submit) and the theoretical potential, or why
+  there is no number. Calculated when the page is shown; nothing is stored.
+- No total of the course, no ranking, no suggestion, and no submission data per assignment; the block
+  is unchanged.
+
 ## 0.4.0 (unreleased)
 
 - First suggestion, "Large materials": on the "Your course in numbers" page, a section of

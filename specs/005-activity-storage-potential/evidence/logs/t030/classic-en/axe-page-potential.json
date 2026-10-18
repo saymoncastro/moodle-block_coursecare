@@ -1,0 +1,31 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=21",
+ "title": "Your course in numbers | DEMO-POTENTIAL | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad4e8b0b862c6ad4e8b0b57fb60",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  },
+  {
+   "id": "color-contrast",
+   "reasons": [
+    "Element's background color could not be determined because it partially overlaps other elements"
+   ],
+   "targets": [
+    "#random6ad4e8b0b57fb13_label_3_29"
+   ]
+  }
+ ],
+ "passes": 28,
+ "violations": []
+}

@@ -20,8 +20,8 @@
     The "Your course in numbers" page of the CourseCare block (Feature 003, contracts/overview-page.md).
     Every sentence comes already translated from the course_overview renderable; this template only lays
     them out: the way back, the opening with the volume of the course, the suggestions (Feature 004), then where
-    the files are and the large files side by side on wide screens, the materials by activity and the technical
-    details.
+    the files are and the large files side by side on wide screens, the materials by activity, the potential of the
+    assignments (Feature 005) and the technical details.
     Sections without data are left out (states A, B, C and G).
 
     Classes required for JS:
@@ -37,6 +37,7 @@
     * hascategories, categories - see block_coursecare/overview_categories
     * hasactivities, activities - see block_coursecare/overview_activities
     * haslarge, large - see block_coursecare/overview_large
+    * haspotential, potential - see block_coursecare/overview_potential
     * hastechnical, technical - see block_coursecare/overview_technical
 
     Example context (json):
@@ -58,6 +59,7 @@
         "hascategories": false,
         "hasactivities": false,
         "haslarge": false,
+        "haspotential": false,
         "hastechnical": false
     }
 }}
@@ -78,6 +80,9 @@
     {{#hasactivities}}
     {{> block_coursecare/overview_activities }}
     {{/hasactivities}}
+    {{#haspotential}}
+    {{> block_coursecare/overview_potential }}
+    {{/haspotential}}
     {{#hastechnical}}
     {{> block_coursecare/overview_technical }}
     {{/hastechnical}}

@@ -213,6 +213,38 @@ $glossary = $generator->create_module('glossary', ['course' => $course->id, 'nam
 demo_file(context_module::instance($glossary->cmid)->id, 'mod_glossary', 'attachment', 1, 'termo.png', 70000, $teacher->id);
 $expected['DEMO-PARTIAL'] = 'H (partial coverage)';
 
+// Potential of assignments (Feature 005): assignments with varied settings and no submission. The course limits
+// files to 20 MB, so the 50 MB poster is limited by the course; the default of the site applies when the size is 0.
+$course = demo_course('DEMO-POTENTIAL', 'Projeto integrador (demonstração)', $teacher->id);
+$DB->set_field('course', 'maxbytes', 20 * $mb, ['id' => $course->id]);
+foreach ($students as $student) {
+    $generator->enrol_user($student->id, $course->id, 'student');
+}
+$groupa = $generator->create_group(['courseid' => $course->id, 'name' => 'Grupo A']);
+$groupb = $generator->create_group(['courseid' => $course->id, 'name' => 'Grupo B']);
+$generator->create_group_member(['groupid' => $groupa->id, 'userid' => $students[0]->id]);
+$generator->create_group_member(['groupid' => $groupa->id, 'userid' => $students[1]->id]);
+$generator->create_group_member(['groupid' => $groupb->id, 'userid' => $students[2]->id]);
+$grouping = $generator->create_grouping(['courseid' => $course->id, 'name' => 'Projeto']);
+$generator->create_grouping_group(['groupingid' => $grouping->id, 'groupid' => $groupa->id]);
+$files = ['assignsubmission_file_enabled' => 1, 'assignsubmission_file_maxfiles' => 3,
+    'assignsubmission_file_maxsizebytes' => 10 * $mb, 'assignsubmission_onlinetext_enabled' => 0, 'maxattempts' => 1];
+foreach ([
+    ['name' => 'Trabalho final'],
+    ['name' => 'Relatório parcial', 'assignsubmission_file_maxsizebytes' => 0],
+    ['name' => 'Pôster do projeto', 'assignsubmission_file_maxfiles' => 1, 'assignsubmission_file_maxsizebytes' => 50 * $mb],
+    ['name' => 'Exercícios', 'maxattempts' => 3, 'attemptreopenmethod' => 'manual'],
+    ['name' => 'Diário de bordo', 'maxattempts' => -1, 'attemptreopenmethod' => 'manual'],
+    ['name' => 'Projeto em grupo', 'teamsubmission' => 1],
+    ['name' => 'Projeto em grupo (agrupamento)', 'teamsubmission' => 1, 'teamsubmissiongroupingid' => $grouping->id],
+    ['name' => 'Reflexão escrita', 'assignsubmission_file_enabled' => 0, 'assignsubmission_onlinetext_enabled' => 1],
+    ['name' => 'Entrega sem arquivos', 'assignsubmission_file_maxfiles' => 0],
+    ['name' => 'Rascunho', 'visible' => 0],
+] as $values) {
+    $generator->create_module('assign', $values + $files + ['course' => $course->id]);
+}
+$expected['DEMO-POTENTIAL'] = 'G (assignments with varied settings, no file)';
+
 // E, F with a result and F without a result start from a real analysis or a failure.
 $outdated = demo_course('DEMO-OUTDATED', 'Física (demonstração)', $teacher->id);
 demo_resource($outdated, 'Lista de exercícios', 'lista.pdf', 280000, $teacher->id);
