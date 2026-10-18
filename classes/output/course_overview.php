@@ -17,6 +17,7 @@
 namespace block_coursecare\output;
 
 use block_coursecare\local\analysis\diagnostic_state;
+use block_coursecare\local\analysis\history_view;
 use block_coursecare\local\analysis\overview_builder;
 use block_coursecare\local\analysis\state_resolver;
 use block_coursecare\local\analysis\storage_potential;
@@ -46,6 +47,9 @@ class course_overview implements \renderable, \templatable {
     /** @var array|null Potential of the assignments with file submissions (Feature 005); null without assignments. */
     private ?array $potential;
 
+    /** @var array History points of the course within the retention, oldest first (Feature 006). */
+    private array $history;
+
     /**
      * Constructor.
      *
@@ -54,11 +58,13 @@ class course_overview implements \renderable, \templatable {
      * @param array|null $potential Assignments with file submissions, in the order of the course: name (formatted),
      *     url, visible (to students) and result (storage_potential::evaluate()); null when the course has no
      *     assignment the user can see.
+     * @param array $history History points (diagnostic_store::get_history()), oldest first.
      */
-    public function __construct(array $view, \moodle_url $courseurl, ?array $potential = null) {
+    public function __construct(array $view, \moodle_url $courseurl, ?array $potential = null, array $history = []) {
         $this->view = $view;
         $this->courseurl = $courseurl;
         $this->potential = $potential;
+        $this->history = $history;
     }
 
     /**
@@ -91,10 +97,12 @@ class course_overview implements \renderable, \templatable {
             $large,
             $state->hasresult ? $structure : []
         );
+        $since = diagnostic_store::history_day(time()) - diagnostic_store::history_retention();
         return new self(
             $view,
             new \moodle_url('/course/view.php', ['id' => $courseid]),
-            self::potential_for($courseid, $structure)
+            self::potential_for($courseid, $structure),
+            $store->get_history($courseid, $since)
         );
     }
 
@@ -144,6 +152,8 @@ class course_overview implements \renderable, \templatable {
             'activities' => $this->activities_data(),
             'haslarge' => $this->view['large'] !== null,
             'large' => $this->large_data(),
+            'hashistory' => $this->history !== [],
+            'history' => $this->history_data($output),
             'haspotential' => $this->potential !== null,
             'potential' => $this->potential_data(),
             'hastechnical' => $this->view['technical'] !== null,
@@ -222,6 +232,101 @@ class course_overview implements \renderable, \templatable {
                 ['text' => $str('suggestion:large:option3'), 'example' => ''],
             ],
         ] + $data;
+    }
+
+    /**
+     * The "How the files of your course have changed" section (Feature 006, contracts/history-ui.md): the latest
+     * measurement, one neutral sentence about the change since the previous one, a chart of the recorded files by day
+     * (no value on days without a measurement) and, collapsed, every measurement with its categories and the limits.
+     *
+     * @param \renderer_base $output Renderer (for the chart).
+     * @return array heading, intro, meaning, latest, change, haschart, chart, datatitle, columns, rows, limitstitle,
+     *     limits; empty without points.
+     */
+    private function history_data(\renderer_base $output): array {
+        $view = history_view::build($this->history);
+        if ($view === null) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string('history:' . $key, 'block_coursecare', $a);
+        $date = fn(array $point): string => userdate((int)$point['timecompleted'], get_string('strftimedate', 'langconfig'));
+        $size = fn($bytes): string => diagnostic_line::size((int)$bytes);
+        $latest = $view['latest'];
+        $previous = $view['previous'];
+        $change = match ($view['change']) {
+            'first' => $str('first'),
+            'methodchanged' => $str('methodchanged', $date($latest)),
+            'unchanged' => $str('unchanged', (object)['date' => $date($previous), 'to' => $size($latest['logicalbytes'])]),
+            default => $str($view['change'], (object)['delta' => $size($view['delta']), 'date' => $date($previous),
+                'from' => $size($previous['logicalbytes']), 'to' => $size($latest['logicalbytes'])]),
+        };
+
+        $categories = array_keys(diagnostic_store::HISTORY_CATEGORIES);
+        $columns = array_merge(
+            [$str('col_date'), $str('col_total')],
+            array_map(fn(string $key): string => get_string('overview:category:' . $key, 'block_coursecare'), $categories),
+            [$str('col_unique')]
+        );
+        $rows = [];
+        foreach ($view['points'] as $point) {
+            $cells = [$size($point['logicalbytes'])];
+            foreach (diagnostic_store::HISTORY_CATEGORIES as $field) {
+                $cells[] = $size($point[$field] ?? 0);
+            }
+            $cells[] = $size($point['uniquebytes'] ?? 0);
+            $rows[] = ['date' => $date($point), 'partial' => empty($point['partial']) ? '' : $str('partial'),
+                'cells' => array_map(fn(string $cell): array => ['value' => $cell], $cells)];
+        }
+
+        $retention = format_time(diagnostic_store::history_retention());
+        $latestdate = userdate((int)$latest['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
+        return [
+            'heading' => $str('heading'),
+            'intro' => $str('intro'),
+            'meaning' => $str('meaning'),
+            'latest' => $str('latest', $latestdate),
+            'change' => $change,
+            'haschart' => count($view['points']) > 1,
+            'chart' => count($view['points']) > 1 ? $this->history_chart($output, $view) : '',
+            'datatitle' => $str('data'),
+            'columns' => array_map(fn(string $column): array => ['name' => $column], $columns),
+            'rows' => $rows,
+            'limitstitle' => $str('limits'),
+            'limits' => array_map(fn(string $text): array => ['text' => $text], [$str('limit_start'), $str('limit_gaps'),
+                $str('limit_day'), $str('limit_cause'), $str('limit_retention', $retention)]),
+        ];
+    }
+
+    /**
+     * The chart of the history: one series, the recorded files of each day from the first measurement to the latest,
+     * in the unit of the largest value; a day without a measurement has no value, so the line is broken there.
+     *
+     * @param \renderer_base $output Renderer.
+     * @param array $view history_view::build().
+     * @return string HTML of the core chart, without its automatic table (the section has its own).
+     */
+    private function history_chart(\renderer_base $output, array $view): string {
+        $max = max(1, max(array_map('intval', array_filter($view['days'], fn($bytes) => $bytes !== null))));
+        $units = ['kb', 'mb', 'gb', 'tb'];
+        $power = min(count($units), max(1, (int)floor(log($max, 1024))));
+        $divisor = 1024 ** $power;
+        $first = (int)$view['points'][count($view['points']) - 1]['timeday'];
+        $labels = [];
+        $values = [];
+        foreach ($view['days'] as $offset => $bytes) {
+            // Noon of the day, so that the label is the right date across a change of daylight saving time.
+            $labels[] = userdate($first + $offset * DAYSECS + 12 * HOURSECS, get_string('strftimedateshort', 'langconfig'));
+            $values[] = $bytes === null ? null : round($bytes / $divisor, 2);
+        }
+        $chart = new \core\chart_line();
+        $chart->set_title(get_string('history:chart', 'block_coursecare'));
+        $chart->add_series(new \core\chart_series(get_string('history:series', 'block_coursecare'), $values));
+        $chart->set_labels($labels);
+        $yaxis = $chart->get_yaxis(0, true);
+        $unit = get_string('size:' . $units[$power - 1], 'block_coursecare');
+        $yaxis->set_label(get_string('history:axis', 'block_coursecare', $unit));
+        $yaxis->set_min(0);
+        return $output->render_chart($chart, false);
     }
 
     /**

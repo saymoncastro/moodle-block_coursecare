@@ -49,8 +49,6 @@ class queue_analyses extends \core\task\scheduled_task {
     /** @var int Maximum history points removed by the retention in one run (Feature 006). */
     public const HISTORY_BATCH = 10000;
 
-    /** @var int Default retention of the history points, when the setting is empty. */
-    public const HISTORY_RETENTION = 365 * DAYSECS;
 
     /**
      * Task name.
@@ -95,9 +93,8 @@ class queue_analyses extends \core\task\scheduled_task {
         }
 
         // Retention of the history (Feature 006): points older than the setting, in a bounded batch.
-        $retention = (int)get_config('block_coursecare', 'historyretention');
-        $retention = $retention > 0 ? $retention : self::HISTORY_RETENTION;
-        $history = $store->purge_history(diagnostic_store::history_day($now) - $retention, $historybatch);
+        $before = diagnostic_store::history_day($now) - diagnostic_store::history_retention();
+        $history = $store->purge_history($before, $historybatch);
 
         $stuck = $store->recover_stuck($now, self::RUNNING_TIMEOUT, self::QUEUED_TIMEOUT, self::REASON_INTERRUPTED);
 

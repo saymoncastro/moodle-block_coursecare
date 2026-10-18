@@ -73,15 +73,15 @@ de interface). As tarefas de teste vêm antes da implementação de cada parte.
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Em `tests/output/course_overview_test.php`, `test_history_section`: com 3 pontos (via T012) e resultado atual igual ao último → `id="block_coursecare-history"` depois de `block_coursecare-overview-grid` e antes de `block_coursecare-overview-activities`; `history:heading`, `history:intro`, `history:meaning`, `history:latest` com a data; `history:decreased` com `delta`, `date`, `from`, `to` formatados; o gráfico (`chart-area`) presente e sem a tabela automática (`chart-table` ausente); `<details>` sem `open` com `history:data` e uma linha por ponto (mais recente primeiro) com data e total; variantes de aumento e igualdade.
-- [ ] T014 [P] [US1] Criar `tests/behat/block_coursecare_history.feature` (`@block @block_coursecare`): com resultado e 3 pontos → ver "How the files of your course have changed", a frase "decreased by" e, depois de abrir "Measurements and categories", as datas; `@javascript @accessibility` Scenario Outline em `large` e `mobile` com "the page should meet accessibility standards".
+- [X] T013 [P] [US1] Em `tests/output/course_overview_test.php`, `test_history_section`: com 3 pontos (via T012) e resultado atual igual ao último → `id="block_coursecare-history"` depois de `block_coursecare-overview-grid` e antes de `block_coursecare-overview-activities`; `history:heading`, `history:intro`, `history:meaning`, `history:latest` com a data; `history:decreased` com `delta`, `date`, `from`, `to` formatados; o gráfico (`chart-area`) presente e sem a tabela automática (`chart-table` ausente); `<details>` sem `open` com `history:data` e uma linha por ponto (mais recente primeiro) com data e total; variantes de aumento e igualdade.
+- [X] T014 [P] [US1] Criar `tests/behat/block_coursecare_history.feature` (`@block @block_coursecare`): com resultado e 3 pontos → ver "How the files of your course have changed", a frase "decreased by" e, depois de abrir "Measurements and categories", as datas; `@javascript @accessibility` Scenario Outline em `large` e `mobile` com "the page should meet accessibility standards".
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Em `classes/output/course_overview.php`: `for_course()` lê `get_history($courseid, limite da retenção)` e passa a lista ao construtor (novo parâmetro `array $history = []`); `history_data()` usa `history_view::build()` e monta `heading`, `intro`, `meaning`, `latest`, `change` (frase), `haschart` (2 pontos ou mais), `chart` (HTML de `$output->render_chart($chart, false)` com `core\chart_line`, uma série `history:series`, rótulos com a data curta de cada dia, valores na unidade do maior valor, `null` nos dias sem medição, título `history:chart`, eixo `history:axis`), `rows` (data, total) e `limits`; `export_for_template()` ganha `hashistory` e `history`; PHPDoc.
-- [ ] T016 [P] [US1] Criar `templates/overview_history.mustache` conforme contracts/history-ui.md (`<section id="block_coursecare-history" …>`, `h3`, frases, `{{{chart}}}`, `<details>` com tabela `<caption>` e `th scope`, lista de limitações), com documentação e contexto de exemplo para o lint.
-- [ ] T017 [US1] Em `templates/overview.mustache`, incluir `{{#hashistory}}{{> block_coursecare/overview_history }}{{/hashistory}}` depois da grade e antes de `hasactivities`; documentação e contexto de exemplo.
-- [ ] T018 [P] [US1] Em `styles.css`, estilos da seção (`.block_coursecare-overview-history`, gráfico com altura limitada, tabela com rolagem horizontal própria e foco por teclado a 320 px), sem cor de alerta; T013 e T014 verdes.
+- [X] T015 [US1] Em `classes/output/course_overview.php`: `for_course()` lê `get_history($courseid, limite da retenção)` e passa a lista ao construtor (novo parâmetro `array $history = []`); `history_data()` usa `history_view::build()` e monta `heading`, `intro`, `meaning`, `latest`, `change` (frase), `haschart` (2 pontos ou mais), `chart` (HTML de `$output->render_chart($chart, false)` com `core\chart_line`, uma série `history:series`, rótulos com a data curta de cada dia, valores na unidade do maior valor, `null` nos dias sem medição, título `history:chart`, eixo `history:axis`), `rows` (data, total) e `limits`; `export_for_template()` ganha `hashistory` e `history`; PHPDoc.
+- [X] T016 [P] [US1] Criar `templates/overview_history.mustache` conforme contracts/history-ui.md (`<section id="block_coursecare-history" …>`, `h3`, frases, `{{{chart}}}`, `<details>` com tabela `<caption>` e `th scope`, lista de limitações), com documentação e contexto de exemplo para o lint.
+- [X] T017 [US1] Em `templates/overview.mustache`, incluir `{{#hashistory}}{{> block_coursecare/overview_history }}{{/hashistory}}` depois da grade e antes de `hasactivities`; documentação e contexto de exemplo.
+- [X] T018 [P] [US1] Em `styles.css`, estilos da seção (`.block_coursecare-overview-history`, gráfico com altura limitada, tabela com rolagem horizontal própria e foco por teclado a 320 px), sem cor de alerta; T013 e T014 verdes.
 
 **Checkpoint**: US1 funcional e testada.
 
@@ -95,12 +95,12 @@ de interface). As tarefas de teste vêm antes da implementação de cada parte.
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Em `tests/output/course_overview_test.php`, `test_history_states`: sem pontos → sem `block_coursecare-history`; 1 ponto → `history:first`, sem gráfico; lacuna de 5 dias → os dias sem medição não aparecem na tabela e os dados do gráfico enviados à página (JSON do `core/chart`) têm `null` nesses dias; falha depois de pontos (estado F com resultado anterior) → seção presente com os pontos existentes; ponto parcial → `history:partial` na linha dele; mudança de método → `history:methodchanged` e nenhuma frase de aumento ou redução; nenhuma palavra de julgamento, causa ou alarme no HTML en da seção nem nas chaves `history:` do pt_br ("waste", "should", "must", "problem", "improve"; "desperdício", "deve", "problema", "melhor").
-- [ ] T020 [US3] Em `tests/behat/block_coursecare_history.feature`, Scenario Outline de estados: 1 ponto → "This is the first measurement kept for this course"; mudança de método → "The way of measuring changed on"; sem pontos → não ver "How the files of your course have changed".
+- [X] T019 [P] [US3] Em `tests/output/course_overview_test.php`, `test_history_states`: sem pontos → sem `block_coursecare-history`; 1 ponto → `history:first`, sem gráfico; lacuna de 5 dias → os dias sem medição não aparecem na tabela e os dados do gráfico enviados à página (JSON do `core/chart`) têm `null` nesses dias; falha depois de pontos (estado F com resultado anterior) → seção presente com os pontos existentes; ponto parcial → `history:partial` na linha dele; mudança de método → `history:methodchanged` e nenhuma frase de aumento ou redução; nenhuma palavra de julgamento, causa ou alarme no HTML en da seção nem nas chaves `history:` do pt_br ("waste", "should", "must", "problem", "improve"; "desperdício", "deve", "problema", "melhor").
+- [X] T020 [US3] Em `tests/behat/block_coursecare_history.feature`, Scenario Outline de estados: 1 ponto → "This is the first measurement kept for this course"; mudança de método → "The way of measuring changed on"; sem pontos → não ver "How the files of your course have changed".
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Fazer T019 e T020 passarem em `classes/output/course_overview.php` e `templates/overview_history.mustache` (frases `first` e `methodchanged`, `haschart` só com 2 pontos ou mais, marca de parcial na linha).
+- [X] T021 [US3] Fazer T019 e T020 passarem em `classes/output/course_overview.php` e `templates/overview_history.mustache` (frases `first` e `methodchanged`, `haschart` só com 2 pontos ou mais, marca de parcial na linha).
 
 **Checkpoint**: US1 e US3 completas.
 
@@ -114,11 +114,11 @@ de interface). As tarefas de teste vêm antes da implementação de cada parte.
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Em `tests/output/course_overview_test.php`, `test_history_categories`: a tabela tem os cabeçalhos `history:col_date`, `history:col_total`, os quatro `overview:category:*` e `history:col_unique`, e em cada linha os valores formatados do ponto; o conteúdo único nunca somado ao total; nenhum nome de estudante, arquivo ou atividade na seção.
+- [X] T022 [P] [US2] Em `tests/output/course_overview_test.php`, `test_history_categories`: a tabela tem os cabeçalhos `history:col_date`, `history:col_total`, os quatro `overview:category:*` e `history:col_unique`, e em cada linha os valores formatados do ponto; o conteúdo único nunca somado ao total; nenhum nome de estudante, arquivo ou atividade na seção.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Em `classes/output/course_overview.php` (`rows`) e `templates/overview_history.mustache`, as colunas das categorias e do conteúdo único; T022 verde.
+- [X] T023 [US2] Em `classes/output/course_overview.php` (`rows`) e `templates/overview_history.mustache`, as colunas das categorias e do conteúdo único; T022 verde.
 
 **Checkpoint**: as três histórias funcionam juntas.
 

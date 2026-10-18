@@ -426,6 +426,16 @@ class diagnostic_store {
     }
 
     /**
+     * Retention of the history points (setting historyretention; 365 days when empty).
+     *
+     * @return int Seconds.
+     */
+    public static function history_retention(): int {
+        $retention = (int)get_config('block_coursecare', 'historyretention');
+        return $retention > 0 ? $retention : 365 * DAYSECS;
+    }
+
+    /**
      * The day of a history point: midnight of a time in the site default timezone.
      *
      * @param int $time Time.
