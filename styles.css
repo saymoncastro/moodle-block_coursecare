@@ -1,7 +1,8 @@
 /*
  * CourseCare block and "Your course in numbers" page. Every selector is scoped to the block (.block_coursecare) or
  * to the page (.block_coursecare-overview); no theme colour or variable is redefined and text keeps the colour of
- * the theme. Visual direction approved for CourseCare / AVA Consciente (Feature 003 spec, "Diretrizes visuais
+ * the theme, except on the block's green panel, which fixes the Boost body text colour so the contrast does not depend
+ * on where the theme places the block (Moodle 5.3 greys the text of blocks in the drawer). Visual direction approved for CourseCare / AVA Consciente (Feature 003 spec, "Diretrizes visuais
  * aprovadas"): soft greens and neutrals, rounded corners, the sprout, discreet cards. Tones are provisional until
  * the visual approval (task T046).
  */
@@ -41,6 +42,7 @@
     padding: 0.75rem 0.875rem;
     border-radius: 0.75rem;
     background-color: var(--block-coursecare-surface);
+    color: #1d2125;
 }
 
 .block_coursecare .block_coursecare-volumelabel,
