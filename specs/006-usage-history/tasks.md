@@ -136,7 +136,7 @@ de interface). As tarefas de teste vêm antes da implementação de cada parte.
 - [ ] T031 [MANUAL] Revisão de tom das strings novas en e pt_br (FR-052) contra FR-024; obter a aprovação do proprietário do produto.
 - [ ] T032 [MANUAL] Validação visual: `checks.py` e `screenshots.py` da seção (com e sem gráfico, trecho aberto), en e pt_BR, Boost e Classic, desktop e celular; obter a aprovação do proprietário do produto.
 - [X] T033 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.6.0.zip`.
-- [ ] T034 Publicar a branch (só com autorização do proprietário do produto), verificar o CI (PostgreSQL e MariaDB) e registrar o run.
+- [X] T034 Publicar a branch (só com autorização do proprietário do produto), verificar o CI (PostgreSQL e MariaDB) e registrar o run.
 - [ ] T035 Reavaliar o Constitution Check do plan.md contra o código entregue e completar a evidência. Depende de T028 a T034.
 
 ---

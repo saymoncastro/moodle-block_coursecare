@@ -23,7 +23,7 @@ validações humanas pendentes ficam como pendentes.
 | CT-14 página com 0, 1, 2 e muitas medições | `course_overview_test::test_history_section`, `test_history_states`; Behat `block_coursecare_history.feature` | ✅ |
 | CT-15 acesso | página e capability inalteradas; testes de acesso da 003 na suíte | ✅ |
 | CT-16 privacidade | `test_history_categories` (nenhum nome de estudante ou atividade); tabela só com totais da sala | ✅ |
-| CT-17 bancos | CI (PostgreSQL e MariaDB) | ⏳ push depende de autorização |
+| CT-17 bancos | CI run 39159055662: PostgreSQL e MariaDB | ✅ |
 | CT-18 desempenho | T029 abaixo | ✅ |
 | CT-19 acessibilidade e visual | Behat `@accessibility`; T032 | ⏳ aprovação visual |
 | CT-20 textos | `test_history_states` (palavras proibidas en e pt_br); revisão de tom T031 | ⏳ aprovação de tom |
@@ -33,7 +33,7 @@ validações humanas pendentes ficam como pendentes.
 | SC-004 | T029 | ✅ |
 | SC-005 | Behat `@accessibility`; T032 | ✅ (automático) |
 | SC-006 | T031, T032 | ⏳ |
-| SC-007 | CI | ⏳ |
+| SC-007 | CI run 39159055662 (`515eaa6`) | ✅ |
 
 ## Desempenho (T029)
 
@@ -125,9 +125,16 @@ Capturas e verificações refeitas depois das correções (as desta seção de e
   desktop e celular).
 - `tools/i18n/check.php`: 0 erros.
 - Atualização do site de desenvolvimento e do site de demonstração para 0.6.0: sem erros.
-- phpcs e Mustache lint: rodam no CI (não disponíveis localmente); conferidos à mão comprimento de linha,
-  espaços e o estilo de chamadas em várias linhas exigido pelo CI da 005.
+- phpcs e Mustache lint: não rodados localmente; verdes no CI (T034).
 - Pacote (T033): `tools/package/build.sh` e `tools/package/check.php build/block_coursecare-0.6.0.zip`:
   **0 erros, 84 arquivos** (a primeira verificação recusou `db/upgradelib.php`, arquivo padrão do Moodle
   exigido pela atualização; acrescentado à lista de arquivos permitidos da ferramenta).
-- CI (T034): **pendente** — a branch não foi publicada; o push depende da autorização do proprietário do produto.
+- CI (T034): run abaixo.
+
+## Runs de CI (T034)
+
+| Commit | Run | Data | Jobs | Resultado |
+| --- | --- | --- | --- | --- |
+| `515eaa6` (US1–US3, Polish, correções da revisão de código) | [39159055662](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39159055662) | 2026-10-19 | `moodle-plugin-ci` completo (phpcs, Mustache lint, PHPUnit e Behat) em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | **verde** |
+
+O código vigente é o de `515eaa6`; os commits seguintes, se houver, só mudam documentação.
