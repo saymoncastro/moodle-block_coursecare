@@ -1,0 +1,31 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=22",
+ "title": "Sua sala em números | DEMO-HISTORY-YEAR | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad52819c3c0b6ad52819c087760",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  },
+  {
+   "id": "color-contrast",
+   "reasons": [
+    "Element's background color could not be determined because it partially overlaps other elements"
+   ],
+   "targets": [
+    ".block_coursecare-overview-legenditem:nth-child(2) > .block_coursecare-overview-legendtext > .block_coursecare-overview-help.mb-0"
+   ]
+  }
+ ],
+ "passes": 29,
+ "violations": []
+}

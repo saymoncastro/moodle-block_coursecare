@@ -28,6 +28,8 @@ namespace block_coursecare\local\analysis;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class history_view {
+    /** @var int Days of the chart, up to the latest measurement (product decision of 2026-10-19); the table has all. */
+    public const CHART_DAYS = 90;
     /**
      * The view of a course's history.
      *
@@ -35,7 +37,9 @@ class history_view {
      * @return array|null latest, previous (or null), change (first, increased, decreased, unchanged or
      *     methodchanged), delta (bytes, 0 when not compared), methodchange (the first point measured with the current
      *     method after a change within the points, or null), days (day offset from the first point => logical bytes
-     *     or null) and points (latest first); null without points.
+     *     or null), chart (start: offset of its first day; days: logical bytes or null, at most CHART_DAYS, from the
+     *     first measured day of the window), chartcut (whether older measurements are left out of the chart) and
+     *     points (latest first); null without points.
      */
     public static function build(array $points): ?array {
         $points = array_values(array_map(fn($point): array => (array)$point, $points));
@@ -78,6 +82,13 @@ class history_view {
             $series[$offset] = $bytes;
         }
 
+        // The chart covers at most the last CHART_DAYS days up to the latest measurement, and starts on the first
+        // measured day of that window (the latest day is always measured).
+        $start = max(0, count($series) - self::CHART_DAYS);
+        while ($series[$start] === null) {
+            $start++;
+        }
+
         return [
             'latest' => $latest,
             'previous' => $previous,
@@ -85,6 +96,8 @@ class history_view {
             'delta' => $delta,
             'methodchange' => $methodchange,
             'days' => $series,
+            'chart' => ['start' => $start, 'days' => array_slice($series, $start)],
+            'chartcut' => $start > 0,
             'points' => array_reverse($points),
         ];
     }

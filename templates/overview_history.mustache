@@ -28,8 +28,8 @@
     * none
 
     Context variables required for this template:
-    * history - object with heading, intro, meaning, latest, change, methodnote, haschart, chart (HTML of the core chart),
-      datatitle, columns (name), rows (date, partial, cells with value), limitstitle and limits (text)
+    * history - object with heading, intro, meaning, latest, change, methodnote, haschart, chart (HTML of the core
+      chart), chartperiod, datatitle, columns (name), rows (date, partial, cells with value), limitstitle and limits (text)
 
     Example context (json):
     {
@@ -42,6 +42,7 @@
             "methodnote": "",
             "haschart": false,
             "chart": "",
+            "chartperiod": "",
             "datatitle": "Measurements and categories",
             "columns": [{"name": "Date"}, {"name": "Files recorded"}],
             "rows": [
@@ -66,6 +67,9 @@
     <div class="block_coursecare-overview-historychart">
         {{{chart}}}
     </div>
+    {{#chartperiod}}
+    <p class="block_coursecare-overview-help">{{chartperiod}}</p>
+    {{/chartperiod}}
     {{/haschart}}
     <details class="block_coursecare-overview-historydata">
         <summary>{{datatitle}}</summary>

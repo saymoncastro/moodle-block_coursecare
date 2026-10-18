@@ -70,38 +70,65 @@ uma semana sem análise e uma redução recente) e *História* (mudança de mét
 A conferência mostrou uma divergência com a spec (US3, cenário 4: uma mudança de método anterior às
 duas últimas medições não era indicada), corrigida em `history_view` (`methodchange`) com testes.
 
-## Revisão de tom (T031) — pendente de aprovação
+## Avaliação do proprietário do produto (2026-10-19) e ajustes
 
-Strings em `contracts/history-ui.md` (25 chaves, en e pt_br).
+| Decisão | Ajuste | Verificação |
+| --- | --- | --- |
+| T031: "o volume dos arquivos registrados" nas frases de variação | `history:increased`, `history:decreased`, `history:unchanged` em en e pt_br | testes da página; capturas |
+| T031: início do histórico sem citar a versão | `history:limit_start`: "O histórico começa quando as medições desta sala passaram a ser guardadas; não há medições anteriores." (a versão 0.6.0 fica no README, CHANGES e na spec) | paridade en/pt_br |
+| T032: gráfico com até 90 dias, histórico completo na tabela | `history_view::CHART_DAYS` = 90: o gráfico vai do primeiro dia medido dos últimos 90 dias até a última medição; nova frase `history:chartperiod` quando há medições mais antigas; a tabela continua com todas | `history_view_test::test_chart_window`; `test_history_states` (81 rótulos para uma janela que começa há 80 dias; 6 linhas na tabela) |
+| SC-003: carregamento real no navegador | medido abaixo | — |
 
-## Validação visual (T032) — pendente de aprovação
+Strings: 26 chaves novas (`history:chartperiod` acrescentada); paridade en/pt_br: 162 chaves em cada
+catálogo, nenhuma faltando. Testes depois dos ajustes: PHPUnit 256 testes, 2563 asserções, OK; Behat 69
+cenários, 769 passos; `tools/i18n/check.php` com 0 erros.
+
+### SC-003 no navegador
+
+Chrome do contêiner Selenium do site de demonstração (mesma máquina, condições normais, cache do navegador
+ativo), 11 aberturas de cada página; saídas em `logs/sc003-browser/`.
+
+| Página | Primeira abertura | Mediana das 10 seguintes | Servidor (rodapé de desempenho) | HTML |
+| --- | --- | --- | --- | --- |
+| *Biologia celular* (cerca de 90 dias) | 2.816 ms (primeira depois de limpar os caches) | 878 ms | 0,13 s | 225 KB |
+| *Estatística* (1 ano, 351 medições) | 1.419 ms | 934 ms | 0,09 s | 319 KB |
+| *Línguas* (5 anos, 1.808 medições) | 1.777 ms | 997 ms | 0,19 s | 901 KB (57 KB comprimido) |
+| *Química geral* (1 medição, sem gráfico) | 1.034 ms | 592 ms | — | — |
+| *Artes* (sem resultado) | 622 ms | 575 ms | 0,07 s | 166 KB |
+
+Todas abaixo de 2 s em condições normais. A primeira abertura depois de limpar os caches (2,8 s) é a
+limitação já documentada na Feature 004 (carga a frio). Com 5 anos, a tabela de 1.808 linhas faz o HTML
+chegar a 901 KB (57 KB transferidos); o servidor leva 0,19 s. Sem regressão que justifique investigação.
+
+## Revisão de tom (T031) — ajustes aplicados, aguardando a aprovação final
+
+Strings em `contracts/history-ui.md` (26 chaves, en e pt_br), com os dois ajustes acima.
+
+## Validação visual (T032) — capturas finais aguardando aprovação
 
 Site de demonstração 0.6.0 (Moodle 4.5.15, PHP 8.1, PostgreSQL 17), professor de demonstração, Boost e
-Classic, en e pt_BR (`pt_br_local` atualizado com `translations/pt_br`).
+Classic, en e pt_BR. Retenção do site de demonstração: 5 anos (para mostrar o histórico completo na
+tabela). Os valores passados são dados fictícios do site de demonstração; o ponto de hoje vem da análise
+real (por isso, em *Línguas*, a última variação é uma redução).
 
-- **Capturas** em `screenshots/boost/` e `screenshots/classic/` (14 por tema):
-  - *Biologia celular*: seção com gráfico (3 meses, lacuna de uma semana, redução recente), fechada e com a
-    tabela aberta (`page-history-*`, `pageopen-history-*`), desktop e celular;
-  - *Química geral*: uma única medição, sem gráfico (`page-history-first-*`);
-  - *História*: mudança de método anterior às duas últimas medições (`page-history-method-*`);
-  - bloco de *Biologia celular* (`block-*`): inalterado.
-- **Verificações** (`checks.py`, resultados em `logs/t032/<tema>-<língua>/`), iguais nas quatro combinações:
-  axe-core sem violações nas três páginas; 16 paradas de teclado, todas com indicador, e o trecho recolhido
-  abre com Enter; sem rolagem horizontal a 200% e a 320 px (a tabela rola dentro do seu contêiner).
-- **Revisão do gráfico feita nas capturas** (research R9): a primeira versão, de linhas, começava o eixo
-  perto dos valores (o Moodle 4.5 envia o mínimo do eixo num formato que o Chart.js 4 ignora) e ficava alta
-  demais nas capturas (altura do core em função da janela). Agora: barras a partir de zero, uma por dia
-  medido, nenhuma nos dias sem análise, altura fixa e discreta, verde da página. Capturas e verificações
-  refeitas sobre essa versão.
+Capturas em `screenshots/boost/` e `screenshots/classic/` (18 por tema, en e pt_br):
 
-Pontos para a decisão do proprietário do produto:
+| Arquivo | Pedido |
+| --- | --- |
+| `01-90days-desktop-*` | desktop com cerca de 90 dias (*Biologia celular*, lacuna de uma semana) |
+| `02-90days-mobile-*`, `02b-90days-mobile-open-*` | celular com cerca de 90 dias, fechado e com a tabela aberta |
+| `03-365days-*` | histórico de 365 dias (*Estatística*; gráfico com os últimos 90 dias e a frase do período) |
+| `04-5years-*` | retenção de cinco anos (*Línguas*; gráfico com 90 dias) |
+| `05-one-measurement-*` | apenas uma medição (*Química geral*; sem gráfico) |
+| `06-method-change-*` | mudança de método (*História*) |
+| `07-table-open-*`, `08-table-open-5years-*` | tabela detalhada aberta (90 dias e 5 anos) |
 
-1. **Rótulos do eixo horizontal**: um por dia, inclinados; com muitos dias, o Chart.js mostra só parte
-   deles (as datas exatas estão na tabela).
-2. **Período exibido**: todo o histórico retido (até 5 anos, conforme a retenção); com a retenção padrão,
-   até 365 barras finas.
-3. **Leitor de tela**: não realizado (exige uma pessoa); o gráfico tem título, e a tabela recolhida tem os
-   mesmos dados.
+Verificações (`logs/t032/<tema>-<língua>/`), iguais nas quatro combinações: axe-core sem violações nas cinco
+páginas; 16 paradas de teclado, todas com indicador, e o trecho recolhido abre com Enter; sem rolagem
+horizontal a 200% (5 anos) e a 320 px (90 dias e 5 anos; a tabela rola dentro do seu contêiner).
+
+Leitor de tela: não realizado (exige uma pessoa); o gráfico tem título, e a tabela recolhida tem os mesmos
+dados.
 
 ## Revisão de código (2026-10-19)
 

@@ -6,8 +6,9 @@
   (files recorded, unique content, the four categories, partial coverage, method version), written
   together with the current result; failures write nothing; no file is read again.
 - The "Your course in numbers" page shows "How the files of your course have changed": the latest
-  measurement, a neutral sentence about the change, a chart with Moodle's own charts (no value on
-  days without an analysis) and, collapsed, the table of the measurements and the limits.
+  measurement, a neutral sentence about the change in volume, a chart of the last 90 days with
+  Moodle's own charts (no bar on days without an analysis) and, collapsed, the table of every
+  measurement kept and the limits.
 - New setting "History retention" (365 days by default, 90 days to 5 years); old points are removed
   by the hourly task; the history is removed with the diagnostic when a course stops being eligible.
 - The upgrade turns the current result of each course into its first point; nothing older is created.

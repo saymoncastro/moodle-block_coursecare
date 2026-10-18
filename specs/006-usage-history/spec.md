@@ -39,6 +39,17 @@ análise. Nenhum dado por estudante, por arquivo ou por atividade; nenhum nome.
   FR-022); primeiro ponto a partir do resultado atual na atualização (FR-006); período exibido igual à
   retenção (FR-026); posição da seção (FR-020); bloco inalterado (FR-027).
 
+### Session 2026-10-19 (avaliação do proprietário do produto)
+
+- Linguagem (T031): frases de variação com "o volume dos arquivos registrados" (preserva a diferença entre
+  quantidade de arquivos e volume de armazenamento); a limitação sobre o início do histórico se refere ao
+  início efetivo da coleta, não a uma versão do plugin (a versão 0.6.0 fica na documentação técnica).
+- Visualização (T032): o gráfico mostra no máximo os últimos 90 dias até a última medição; o histórico
+  completo retido continua na tabela; dias sem análise continuam como lacunas; sem filtros nem nova
+  biblioteca (FR-026).
+- Desempenho (SC-003): registrar uma verificação simples de carregamento real no navegador, em condições
+  normais e com histórico extenso.
+
 ## Dependências e estado das features anteriores
 
 | Feature | Situação | O que a 006 usa |
@@ -147,7 +158,8 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
   variação entre versões diferentes e diz que o modo de medir mudou.
 - **Mudança de configurações** (limiar de arquivos grandes, intervalo de análise): não afetam os
   indicadores do histórico (armazenamento lógico, categorias, conteúdo único).
-- **Atualização do plugin**: o histórico começa a ser registrado na versão 0.6.0; a medição atual de cada
+- **Atualização do plugin**: o histórico começa a ser registrado na versão 0.6.0 (informação técnica; ao
+  professor, a página fala do início efetivo da coleta); a medição atual de cada
   sala, já existente e datada, vira o primeiro ponto (é uma medição real, não uma reconstrução).
 - **Sala sem arquivos**: medições de 0 bytes são reais e entram no histórico.
 - **Dados desatualizados**: o último ponto mostra a sua data; a abertura da página continua avisando
@@ -219,8 +231,10 @@ cobertura parcial; com mudança de método: cada uma mostra a frase do caso e ne
   impacto ambiental.
 - **FR-025**: Com uma única medição, a seção MUST mostrar essa medição e dizer que a evolução aparece a
   partir da próxima análise; sem medição, a seção não aparece (a abertura da página já explica o estado).
-- **FR-026**: O período exibido MUST ser todo o histórico retido da sala (no máximo um ponto por dia do
-  período de retenção).
+- **FR-026**: A tabela MUST mostrar todo o histórico retido da sala (no máximo um ponto por dia do período
+  de retenção); o gráfico MUST mostrar no máximo os últimos 90 dias até a última medição, e a seção MUST dizer
+  que a tabela tem todas as medições quando houver medições anteriores a esse período (decisão do
+  proprietário do produto de 2026-10-19).
 - **FR-027**: O bloco MUST NOT mudar (Princípio II: um indicador).
 - **FR-028**: Envios de estudantes MUST aparecer só como total da sala por medição (como na 003).
 

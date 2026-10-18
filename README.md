@@ -193,9 +193,9 @@ whose upgrade turns the current result of each course into its first point, with
 On the "Your course in numbers" page, the section "How the files of your course have changed", after
 "Where the files are", shows the date of the latest measurement, one neutral sentence about the
 change since the previous measurement (or that this is the first one, or that the way of measuring
-changed), a chart of the recorded files by day (built with Moodle's own charts; days without an
-analysis have no value) and, collapsed, a table with every measurement and its categories, and the
-limits of the history. An increase or a decrease, on its own, does not mean a problem or an
+changed), a chart of the recorded files by day over the last 90 days (built with Moodle's own charts;
+days without an analysis have no bar) and, collapsed, a table with every measurement kept and its
+categories, and the limits of the history. An increase or a decrease, on its own, does not mean a problem or an
 improvement; the section names no cause, goal or comparison. The block does not change.
 
 Points older than the retention setting (365 days by default, from 90 days to 5 years) are removed by

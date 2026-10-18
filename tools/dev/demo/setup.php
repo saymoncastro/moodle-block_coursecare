@@ -271,6 +271,14 @@ foreach ([
 }
 $expected['DEMO-POTENTIAL'] = 'G (assignments with varied settings, no file)';
 
+// History over a year and over five years (Feature 006): the site keeps five years of history, so that the table
+// shows every measurement; the chart shows the last 90 days.
+set_config('historyretention', 5 * 365 * DAYSECS, 'block_coursecare');
+$course = demo_course('DEMO-HISTORY-YEAR', 'Estatística (demonstração)', $teacher->id);
+demo_resource($course, 'Apostila de estatística', 'apostila-estatistica.pdf', 820000, $teacher->id);
+$course = demo_course('DEMO-HISTORY-5Y', 'Línguas (demonstração)', $teacher->id);
+demo_resource($course, 'Gramática', 'gramatica.pdf', 640000, $teacher->id);
+
 // E, F with a result and F without a result start from a real analysis or a failure.
 $outdated = demo_course('DEMO-OUTDATED', 'Física (demonstração)', $teacher->id);
 demo_resource($outdated, 'Lista de exercícios', 'lista.pdf', 280000, $teacher->id);
@@ -314,6 +322,24 @@ demo_history(
     range(10, 1),
     fn(int $daysago): array => ['materialbytes' => 300000, 'unclassifiedbytes' => 70000, 'partial' => 1,
         'methodversion' => $daysago > 4 ? 0 : indicator_calculator::METHOD_VERSION]
+);
+
+// A year of daily points with two weeks without analysis; five years with a cycle of terms and some gaps.
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-HISTORY-YEAR']),
+    array_merge(range(364, 200), range(185, 1)),
+    fn(int $daysago): array => [
+        'materialbytes' => 500000 + (364 - $daysago) * 900,
+        'submissionbytes' => (int)(200000 * (1 + sin($daysago / 30))),
+    ]
+);
+demo_history(
+    (int)$DB->get_field('course', 'id', ['shortname' => 'DEMO-HISTORY-5Y']),
+    array_filter(range(1825, 1), fn(int $daysago): bool => $daysago % 97 !== 0),
+    fn(int $daysago): array => [
+        'materialbytes' => 300000 + (1825 - $daysago) * 180,
+        'submissionbytes' => (int)(150000 * (1 + sin($daysago / 58))),
+    ]
 );
 
 // E: the result is older than the out-of-date limit.

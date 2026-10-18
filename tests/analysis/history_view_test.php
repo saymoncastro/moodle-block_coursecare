@@ -99,6 +99,36 @@ final class history_view_test extends \advanced_testcase {
     }
 
     /**
+     * The chart covers at most the last 90 days up to the latest measurement, from the first measured day of that
+     * window; older measurements stay in the points (for the table).
+     */
+    public function test_chart_window(): void {
+        $base = make_timestamp(2026, 1, 1, 0, 0, 0, 'America/Sao_Paulo');
+        $point = fn(int $day, int $bytes): array => ['timeday' => $base + $day * DAYSECS, 'methodversion' => 1,
+            'logicalbytes' => $bytes];
+
+        // 120 daily points: the chart has the last 90, and says that older ones are left out.
+        $view = history_view::build(array_map(fn(int $day): array => $point($day, $day), range(0, 119)));
+        $this->assertCount(90, $view['chart']['days']);
+        $this->assertSame(30, $view['chart']['start']);
+        $this->assertSame(30, $view['chart']['days'][0]);
+        $this->assertSame(119, $view['chart']['days'][89]);
+        $this->assertTrue($view['chartcut']);
+        $this->assertCount(120, $view['points']);
+
+        // A gap at the start of the window: the chart starts on the first measured day inside it.
+        $view = history_view::build([$point(0, 1), $point(100, 2), $point(110, 3)]);
+        $this->assertSame(100, $view['chart']['start']);
+        $this->assertSame([2, null, null, null, null, null, null, null, null, null, 3], $view['chart']['days']);
+        $this->assertTrue($view['chartcut']);
+
+        // Within 90 days: the whole history, nothing left out.
+        $view = history_view::build([$point(0, 1), $point(5, 2)]);
+        $this->assertSame(0, $view['chart']['start']);
+        $this->assertFalse($view['chartcut']);
+    }
+
+    /**
      * Large values stay exact integers.
      */
     public function test_large_values(): void {

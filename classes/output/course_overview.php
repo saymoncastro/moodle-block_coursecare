@@ -240,8 +240,8 @@ class course_overview implements \renderable, \templatable {
      * (no value on days without a measurement) and, collapsed, every measurement with its categories and the limits.
      *
      * @param \renderer_base $output Renderer (for the chart).
-     * @return array heading, intro, meaning, latest, change, haschart, chart, datatitle, columns, rows, limitstitle,
-     *     limits; empty without points.
+     * @return array heading, intro, meaning, latest, change, methodnote, haschart, chart, chartperiod, datatitle,
+     *     columns, rows, limitstitle, limits; empty without points.
      */
     private function history_data(\renderer_base $output): array {
         $view = history_view::build($this->history);
@@ -283,6 +283,8 @@ class course_overview implements \renderable, \templatable {
         }
 
         $retention = format_time(diagnostic_store::history_retention());
+        // A chart needs two measured days within its window.
+        $haschart = count(array_filter($view['chart']['days'], fn($bytes): bool => $bytes !== null)) > 1;
         $latestdate = userdate((int)$latest['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
         return [
             'heading' => $str('heading'),
@@ -291,8 +293,9 @@ class course_overview implements \renderable, \templatable {
             'latest' => $str('latest', $latestdate),
             'change' => $change,
             'methodnote' => $methodnote,
-            'haschart' => count($view['points']) > 1,
-            'chart' => count($view['points']) > 1 ? $this->history_chart($output, $view) : '',
+            'haschart' => $haschart,
+            'chart' => $haschart ? $this->history_chart($output, $view) : '',
+            'chartperiod' => $haschart && $view['chartcut'] ? $str('chartperiod') : '',
             'datatitle' => $str('data'),
             'columns' => array_map(fn(string $column): array => ['name' => $column], $columns),
             'rows' => $rows,
@@ -303,21 +306,23 @@ class course_overview implements \renderable, \templatable {
     }
 
     /**
-     * The chart of the history: one series of bars, the recorded files of each day from the first measurement to the
-     * latest, in the unit of the largest value; a day without a measurement has no bar. Bars start at zero (the
-     * Chart.js of Moodle 4.5 ignores the minimum that core sends for a line chart, which would start the axis near
-     * the values and enlarge small changes).
+     * The chart of the history: one series of bars, the recorded files of each day of the last 90 days up to the latest
+     * measurement (history_view::CHART_DAYS), in the unit of the largest value; a day without a measurement has no
+     * bar. Bars start at zero (the Chart.js of Moodle 4.5 ignores the minimum that core sends for a line chart, which
+     * would start the axis near the values and enlarge small changes).
      *
      * @param \renderer_base $output Renderer.
      * @param array $view history_view::build().
      * @return string HTML of the core chart, without its automatic table (the section has its own).
      */
     private function history_chart(\renderer_base $output, array $view): string {
-        $max = max(1, max(array_map('intval', array_filter($view['days'], fn($bytes) => $bytes !== null))));
+        $days = $view['chart']['days'];
+        $max = max(1, max(array_map('intval', array_filter($days, fn($bytes) => $bytes !== null))));
         $units = ['kb', 'mb', 'gb', 'tb'];
         $power = min(count($units), max(1, (int)floor(log($max, 1024))));
         $divisor = 1024 ** $power;
-        $first = (int)$view['points'][count($view['points']) - 1]['timeday'];
+        // First day of the chart: the first point plus the offset where the chart window starts.
+        $first = (int)$view['points'][count($view['points']) - 1]['timeday'] + $view['chart']['start'] * DAYSECS;
         // Day and month while the history stays within one year; with the year when it crosses years, so that a
         // label never repeats (the retention goes up to 5 years).
         $last = (int)$view['points'][0]['timeday'];
@@ -325,7 +330,7 @@ class course_overview implements \renderable, \templatable {
         $format = get_string($sameyear ? 'strftimedateshort' : 'strftimedatefullshort', 'langconfig');
         $labels = [];
         $values = [];
-        foreach ($view['days'] as $offset => $bytes) {
+        foreach ($days as $offset => $bytes) {
             // Noon of the day, so that the label is the right date across a change of daylight saving time.
             $labels[] = userdate($first + $offset * DAYSECS + 12 * HOURSECS, $format);
             $values[] = $bytes === null ? null : round($bytes / $divisor, 2);

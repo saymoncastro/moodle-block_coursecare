@@ -1072,18 +1072,30 @@ final class course_overview_test extends \advanced_testcase {
         $js = $PAGE->requires->get_end_code();
         $this->assertMatchesRegularExpression('/"values":\[[^\]]*null,null,null,null,null[^\]]*\]/', $js);
 
-        // Labels of the chart: day and month within a year; with the year when the history crosses years.
+        // Labels of the chart: day and month within a year; with the year when the chart crosses years.
         $PAGE->requires->get_end_code();
-        $course = $this->course_with_history([1 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $course = $this->course_with_history([60 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
         $this->render((int)$course->id);
-        $today = userdate(time(), get_string('strftimedateshort', 'langconfig'));
+        $sameyear = userdate(time() - 60 * DAYSECS, '%Y') === userdate(time(), '%Y');
+        $today = userdate(time(), get_string($sameyear ? 'strftimedateshort' : 'strftimedatefullshort', 'langconfig'));
         $this->assertStringContainsString(json_encode($today), $PAGE->requires->get_end_code());
+
+        // A history longer than 90 days: a chart of 90 days, the note that the table has every measurement, and
+        // every measurement in the table (product decision of 2026-10-19).
         set_config('historyretention', 5 * 365 * DAYSECS, 'block_coursecare');
-        $course = $this->course_with_history([400 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
-        $this->render((int)$course->id);
-        $today = userdate(time(), get_string('strftimedatefullshort', 'langconfig'));
-        $this->assertStringContainsString(json_encode($today), $PAGE->requires->get_end_code());
+        $points = [];
+        foreach ([400, 200, 120, 80, 40, 0] as $daysago) {
+            $points[$daysago] = ['materialbytes' => 1000 + $daysago];
+        }
+        $course = $this->course_with_history($points);
+        $section = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('chartperiod'), $section);
+        $this->assertSame(6, substr_count($section, '<th scope="row">'));
+        // The window starts on its first measured day, 80 days ago: 81 labels, none older.
+        $this->assertMatchesRegularExpression('/"labels":\[("[^"]*",){80}"[^"]*"\]/', $PAGE->requires->get_end_code());
         unset_config('historyretention', 'block_coursecare');
+        $course = $this->course_with_history([1 => ['materialbytes' => 1], 0 => ['materialbytes' => 2]]);
+        $this->assertStringNotContainsString($str('chartperiod'), self::history_section($this->render((int)$course->id)));
 
         // A failed analysis after points keeps the section (state F with the previous result).
         [$course] = $this->course_with_diagnostic(['Reading' => 1000], ['material' => 1000], ['lastattemptfailed' => 1]);
@@ -1114,7 +1126,7 @@ final class course_overview_test extends \advanced_testcase {
         $string = [];
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'history:'), ARRAY_FILTER_USE_KEY);
-        $this->assertCount(23, $new);
+        $this->assertCount(24, $new);
         $judgement = '/\b(desperdício|deve|reduz\w*|economi\w*|alerta)\b/iu';
         $this->assertDoesNotMatchRegularExpression($judgement, implode(' ', $new));
     }

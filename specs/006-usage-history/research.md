@@ -104,6 +104,11 @@ por dia medido, nenhuma barra nos dias sem medição, eixo a partir de zero, pad
 4), na mesma escala diária de rótulos; altura fixa e discreta (16rem) em vez da altura que o core dá a
 partir da janela; cor verde dos materiais da página.
 
+**Decisão do proprietário do produto (2026-10-19)**: gráfico com no máximo 90 dias até a última medição
+(até 1.826 barras eram possíveis com 5 anos de retenção); a tabela continua com o histórico completo. Menor
+mudança: a regra pura escolhe a janela (`history_view::CHART_DAYS`), a saída só desenha essa janela e uma
+frase avisa que a tabela tem todas as medições.
+
 ## R10. Versão
 
 **Decisão**: `release` 0.6.0; uma tabela nova; um passo de atualização; uma configuração nova.
