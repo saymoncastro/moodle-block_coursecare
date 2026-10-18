@@ -163,5 +163,8 @@ Sobre o código de `9fbb6ca` mais os arquivos de Polish (sem mudança de código
   `potential:formula`, por natureza).
 - phpcs e Mustache lint: **não rodados localmente** (sem `moodle-plugin-ci`/`phpcs` no ambiente); conferidos à
   mão linha ≤ 132, espaços e sintaxe. Rodam no CI.
+- Pacote (T031): `tools/package/build.sh` e `tools/package/check.php build/block_coursecare-0.5.0.zip`:
+  **0 erros, 78 arquivos** (a primeira tentativa acusou `phpunit.xml` gerado pelo PHPUnit e versionado por
+  engano em `21178d6`; removido e ignorado no commit seguinte).
 - CI (T032): **pendente** — a branch não foi publicada; o push depende da autorização do proprietário do
   produto.
