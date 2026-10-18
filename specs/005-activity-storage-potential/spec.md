@@ -197,9 +197,11 @@ e envio em grupo sem grupos; conferir a frase de cada caso.
 
 1. **Given** uma tarefa sem ninguém que possa enviar no momento, **When** o professor abre a página,
    **Then** vê "Ninguém pode enviar nesta tarefa no momento" em vez de um potencial de zero.
-2. **Given** uma tarefa cuja configuração de envio não está registrada (por exemplo, criada por
-   importação incompleta), **When** o professor abre a página, **Then** vê que o potencial não pode ser
-   calculado e por quê.
+2. **Given** uma tarefa cujo número máximo de arquivos não está registrado (por exemplo, criada por
+   importação incompleta), **When** o professor abre a página, **Then** vê, em vez de um número, que
+   nenhum arquivo pode ser enviado com a configuração atual (o comportamento do Moodle, Metodologia,
+   item 6); e, quando algum outro fator não puder ser determinado, que o potencial não pode ser
+   calculado.
 3. **Given** uma sala sem tarefas que recebem arquivos, **When** o professor abre a página, **Then** a
    seção de potencial diz isso numa frase neutra.
 

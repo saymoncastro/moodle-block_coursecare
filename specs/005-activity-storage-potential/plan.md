@@ -49,7 +49,7 @@ de desempenho com `tools/dev/bench/render.php --page`. Validação visual e de t
 nenhuma classificação de configuração (Q3); nenhuma alteração de configuração ou arquivo.
 
 **Scale/Scope**: 1 coletor novo, 1 classe de análise nova, alterações no `course_structure` e no
-`course_overview`, 1 template novo, estilos, cerca de 30 strings novas.
+`course_overview`, 1 template novo, estilos, 38 strings novas.
 
 ## Constitution Check
 
@@ -126,7 +126,9 @@ grupos) → `storage_potential::evaluate()` por tarefa → `course_overview` mon
 
 ## Riscos
 
-- **Custo em salas muito grandes**: medido em SC-003; a contagem por tarefa só acontece com sobreposição.
+- **Custo em salas muito grandes**: medido em SC-003; a contagem por tarefa só acontece com sobreposição
+  ou papel local, e o custo cresce com o número desses contextos; o pior caso (todas as tarefas com
+  sobreposição) é medido, e um resultado acima de 2 s vai para decisão do proprietário do produto (R2).
 - **Diferença entre a nossa regra de grupos e a do Moodle**: testes que comparam com
   `assign::count_teams()` em cenários de grupo.
 - **Limites do servidor diferentes por requisição**: a página usa os da própria requisição e diz isso.

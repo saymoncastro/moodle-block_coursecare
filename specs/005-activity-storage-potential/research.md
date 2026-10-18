@@ -36,6 +36,13 @@ tarefa tem uma sobreposição da capability de envio ou uma atribuição de pape
 Resultado igual ao de contar tarefa a tarefa, porque a capability no contexto da tarefa herda do
 contexto da sala quando não há nada definido na própria tarefa. Testes cobrem os dois caminhos.
 
+**Custo no pior caso**: a contagem exata custa cerca de 146 ms por contexto com sobreposição ou papel
+local, então o custo cresce com o número desses contextos (no caso típico, nenhum ou poucos). A consulta
+de detecção usa os índices de `contextid` de `role_capabilities` e `role_assignments`. A medição de
+SC-003 inclui o caso típico e o pior caso (todas as 50 tarefas com sobreposição). Se o pior caso
+passar de 2 s, a forma de limitar o custo é decisão do proprietário do produto (interpretação do
+indicador), registrada antes da entrega.
+
 **Alternativas consideradas**: contar tarefa a tarefa (7,3 s); usar a contagem da sala para todas
 (errado com sobreposições na atividade, Metodologia, item 4).
 
