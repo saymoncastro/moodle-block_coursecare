@@ -133,11 +133,11 @@ de interface). As tarefas de teste vêm antes da implementação de cada parte.
 - [X] T028 Rodar PHPUnit, Behat (`--no-interaction`), `tools/i18n/check.php`; atualização do site de desenvolvimento para 0.6.0 sem erros; corrigir até tudo verde.
 - [X] T029 [MANUAL] Medir SC-003 e SC-004: `render.php --page` numa sala com 365 pontos e com 1.826 pontos (retenção máxima de 5 anos); tempo de `cli/diagnostics.php --run` de uma sala com e sem a gravação do ponto (0.5.0 × 0.6.0); `history.php` com 5.000 salas × 365 dias (tamanho da tabela, limpeza); tempo do passo de atualização (`block_coursecare_seed_history()`) com 5.000 salas com resultado; bloco 0.5.0 × 0.6.0; registrar em `evidence/logs/`.
 - [X] T030 [MANUAL] Conferir à mão, no site de demonstração, as frases e valores das salas de T024 contra os pontos (SC-001, SC-002).
-- [ ] T031 [MANUAL] (ajustes de 2026-10-19 aplicados; aguarda a aprovação final) Revisão de tom das strings novas en e pt_br (FR-052) contra FR-024; obter a aprovação do proprietário do produto.
-- [ ] T032 [MANUAL] (gráfico de até 90 dias aplicado; capturas finais aguardando aprovação) Validação visual: `checks.py` e `screenshots.py` da seção (com e sem gráfico, trecho aberto), en e pt_BR, Boost e Classic, desktop e celular; obter a aprovação do proprietário do produto.
+- [X] T031 [MANUAL] (ajustes de 2026-10-19 aplicados; aprovada pelo proprietário do produto em 2026-10-19) Revisão de tom das strings novas en e pt_br (FR-052) contra FR-024; obter a aprovação do proprietário do produto.
+- [X] T032 [MANUAL] (gráfico de até 90 dias aplicado; capturas finais aprovadas pelo proprietário do produto em 2026-10-19) Validação visual: `checks.py` e `screenshots.py` da seção (com e sem gráfico, trecho aberto), en e pt_BR, Boost e Classic, desktop e celular; obter a aprovação do proprietário do produto.
 - [X] T033 Gerar e verificar o pacote: `tools/package/build.sh` e `php tools/package/check.php build/block_coursecare-0.6.0.zip`.
 - [X] T034 Publicar a branch (só com autorização do proprietário do produto), verificar o CI (PostgreSQL e MariaDB) e registrar o run.
-- [ ] T035 Reavaliar o Constitution Check do plan.md contra o código entregue e completar a evidência. Depende de T028 a T034.
+- [X] T035 Reavaliar o Constitution Check do plan.md contra o código entregue e completar a evidência. Depende de T028 a T034.
 
 ---
 

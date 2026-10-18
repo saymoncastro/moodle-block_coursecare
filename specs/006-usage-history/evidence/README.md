@@ -25,14 +25,14 @@ validações humanas pendentes ficam como pendentes.
 | CT-16 privacidade | `test_history_categories` (nenhum nome de estudante ou atividade); tabela só com totais da sala | ✅ |
 | CT-17 bancos | CI run 39159055662: PostgreSQL e MariaDB | ✅ |
 | CT-18 desempenho | T029 abaixo | ✅ |
-| CT-19 acessibilidade e visual | Behat `@accessibility`; T032 | ⏳ aprovação visual |
-| CT-20 textos | `test_history_states` (palavras proibidas en e pt_br); revisão de tom T031 | ⏳ aprovação de tom |
+| CT-19 acessibilidade e visual | Behat `@accessibility`; T032 (capturas aprovadas em 2026-10-19) | ✅ |
+| CT-20 textos | `test_history_states` (palavras proibidas en e pt_br); revisão de tom T031 (aprovada em 2026-10-19) | ✅ |
 | SC-001 | CT-01 a CT-13 | ✅ |
 | SC-002 | `diagnostic_store_test`; T030 | ✅ |
 | SC-003 | T029 | ✅ |
 | SC-004 | T029 | ✅ |
 | SC-005 | Behat `@accessibility`; T032 | ✅ (automático) |
-| SC-006 | T031, T032 | ⏳ |
+| SC-006 | T031, T032 (aprovadas em 2026-10-19) | ✅ |
 | SC-007 | CI run 39159055662 (`515eaa6`) | ✅ |
 
 ## Desempenho (T029)
@@ -100,11 +100,12 @@ Todas abaixo de 2 s em condições normais. A primeira abertura depois de limpar
 limitação já documentada na Feature 004 (carga a frio). Com 5 anos, a tabela de 1.808 linhas faz o HTML
 chegar a 901 KB (57 KB transferidos); o servidor leva 0,19 s. Sem regressão que justifique investigação.
 
-## Revisão de tom (T031) — ajustes aplicados, aguardando a aprovação final
+## Revisão de tom (T031) — aprovada
 
-Strings em `contracts/history-ui.md` (26 chaves, en e pt_br), com os dois ajustes acima.
+Strings em `contracts/history-ui.md` (26 chaves, en e pt_br), com os dois ajustes acima. **Aprovadas pelo
+proprietário do produto em 2026-10-19.**
 
-## Validação visual (T032) — capturas finais aguardando aprovação
+## Validação visual (T032) — aprovada
 
 Site de demonstração 0.6.0 (Moodle 4.5.15, PHP 8.1, PostgreSQL 17), professor de demonstração, Boost e
 Classic, en e pt_BR. Retenção do site de demonstração: 5 anos (para mostrar o histórico completo na
@@ -130,6 +131,8 @@ horizontal a 200% (5 anos) e a 320 px (90 dias e 5 anos; a tabela rola dentro do
 Leitor de tela: não realizado (exige uma pessoa); o gráfico tem título, e a tabela recolhida tem os mesmos
 dados.
 
+**Capturas finais aprovadas pelo proprietário do produto em 2026-10-19.**
+
 ## Revisão de código (2026-10-19)
 
 | Achado | Correção | Teste |
@@ -143,6 +146,26 @@ a sala e com o último bloco; retenção igual na página e na limpeza; atualiza
 novo; datas da tabela com o ano; acesso, privacidade e leituras.
 
 Capturas e verificações refeitas depois das correções (as desta seção de evidências).
+
+## Constitution Check sobre o código entregue (T035, 2026-10-19)
+
+| Princípio | Verificação no código | Resultado |
+| --- | --- | --- |
+| I. Educação | Frases neutras com valores reais; frase do que a variação não significa sempre visível; testes de palavras proibidas en e pt_br; nenhuma meta, alerta, comparação ou ranking | ✅ |
+| II. Simplicidade | Bloco inalterado (`git diff origin/main` vazio em `block_coursecare.php`, `templates/content.mustache`, `diagnostic_line.php`); seção com frase, gráfico de uma série e tabela recolhida | ✅ |
+| III. Recomendações | `local/recommendation` e `overview_suggestions.mustache` inalterados; retenção configurável pela administração | ✅ |
+| IV. Honestidade | Só armazenamento lógico, categorias e conteúdo único, rotulados; datas de cada medição; nenhuma interpolação (dias sem análise sem barra); mudança de método indicada e não comparada; cobertura parcial marcada; nada da 005 no histórico | ✅ |
+| V. Integração nativa | DML/XMLDB, tarefa agendada existente, configuração do admin, `core\chart_bar` do Moodle; nenhum JS, AMD ou biblioteca nova no diff | ✅ |
+| VI. Desempenho | Ponto gravado na análise em segundo plano (0,18 ms); página com uma consulta indexada e limitada; limpeza em lotes; medido (T029, SC-003 no navegador) | ✅ |
+| VII. Segurança e privacidade | `overview.php`, `db/access.php` e `classes/privacy` inalterados; tabela só com totais da sala (colunas: courseid, dia, datas, versão, parcial, totais e categorias; nenhum id de usuário, arquivo ou atividade); `null_provider` continua verdadeiro | ✅ |
+| VIII. Internacionalização | 26 chaves novas en e pt_br; 162 chaves em cada catálogo, paridade completa; nenhum texto fixo no template; datas com `userdate`, tamanhos com `diagnostic_line::size()` | ✅ |
+| IX. Qualidade e camadas | `$DB` só em `local\collector` e `db/`; `history_view` pura (sem `$DB`, `$CFG` ou `get_string`); PHPUnit e Behat; CI verde | ✅ |
+| X. Experiência visual | Capturas aprovadas pelo proprietário do produto (2026-10-19) | ✅ |
+| XI. Evolução incremental | Nenhuma métrica, previsão, alerta, painel, exportação ou biblioteca nova | ✅ |
+| XII. Software livre | Cabeçalho GPL em todos os arquivos novos; README e CHANGES 0.6.0 | ✅ |
+
+Resultado: **passa**, sem violações. Pendência humana não exigida pela spec 006: teste com leitor de tela
+(roteiro único da 003/004).
 
 ## Testes e CI
 
