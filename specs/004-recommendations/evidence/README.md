@@ -8,25 +8,25 @@ Ambiente local dos testes: Moodle 4.5.15, PHP 8.1, PostgreSQL 17 (stack de desen
 
 | Item | Teste ou evidência | Data | Moodle | Banco | Status |
 | --- | --- | --- | --- | --- | --- |
-| CT-01 | `course_overview_test::test_suggestion_large_materials`; `large_materials_test` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-02 | `course_overview_test::test_suggestion_large_materials` (5 e 4 lugares) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-03 | `course_overview_test::test_suggestion_large_materials` (oculta ao professor, removida) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-04 | `large_materials_test::test_no_suggestion`; `course_overview_test::test_suggestion_privacy`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-05 | `course_overview_test::test_suggestion_states`; `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-06 | `course_overview_test::test_suggestion_large_materials` (truncado); `large_materials_test::test_truncated` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-07 | `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
+| CT-01 | `course_overview_test::test_suggestion_large_materials`; `large_materials_test` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-02 | `course_overview_test::test_suggestion_large_materials` (5 e 4 lugares) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-03 | `course_overview_test::test_suggestion_large_materials` (oculta ao professor, removida) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-04 | `large_materials_test::test_no_suggestion`; `course_overview_test::test_suggestion_privacy`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-05 | `course_overview_test::test_suggestion_states`; `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-06 | `course_overview_test::test_suggestion_large_materials` (truncado); `large_materials_test::test_truncated` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-07 | `block_coursecare_test::test_block_suggestion`; Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
 | CT-08 | `course_overview_test::test_suggestion_privacy` (en e pt_br); revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
-| CT-09 | `block_coursecare_test::test_render_reads_no_files` (+1 leitura por índice só com resultado e arquivos) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| CT-10 | Behat `@accessibility` (desktop e celular); verificações de T028 (axe, teclado, zoom, 320 px) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)); leitor de tela pendente |
+| CT-09 | `block_coursecare_test::test_render_reads_no_files` (+1 leitura por índice só com resultado e arquivos) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| CT-10 | Behat `@accessibility` (desktop e celular); verificações de T028 (axe, teclado, zoom, 320 px) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)); leitor de tela pendente |
 | CT-11 | Capturas de T028 | | | | pendente (aprovação) |
 | CT-12 | `course_overview_test::test_suggestion_large_materials`; revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
 | CT-13 | Avaliação com professores, junto da 003 (T031) | | | | pendente |
-| SC-001 | `test_suggestion_states`, `test_block_suggestion`, Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| SC-002 | `large_materials_test`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
-| SC-003 | `test_suggestion_privacy`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
+| SC-001 | `test_suggestion_states`, `test_block_suggestion`, Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| SC-002 | `large_materials_test`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
+| SC-003 | `test_suggestion_privacy`, `test_suggestion_large_materials` | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
 | SC-004 | Revisão de tom (T027) | 2026-10-18 | — | — | atendido: aprovada pelo proprietário do produto |
 | SC-005 | Medições (T026) e investigação | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido em condições normais de operação (decisão do proprietário do produto de 2026-10-18): bloco +0,06 ms; página com mediana de 0,69 s. A primeira abertura após limpar todos os caches (> 2 s, também na 0.3.0 e no core) não está aprovada: limitação documentada |
-| SC-006 | Behat `@accessibility`; verificações de T028 | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39130298683](#runs-de-ci-t030)) |
+| SC-006 | Behat `@accessibility`; verificações de T028 | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
 | SC-007 | Capturas de T028 | | | | pendente (aprovação) |
 | SC-008 | CI da branch (T030) | 2026-10-18 | 4.5 | PostgreSQL e MariaDB | atendido: `moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package` verdes ([run](#runs-de-ci-t030)) |
 | SC-009 | Avaliação com professores (T031) | | | | pendente |
@@ -224,7 +224,12 @@ demonstração, temas Boost e Classic, en e pt_BR.
 | --- | --- | --- | --- | --- |
 | `d35ddb7` (US1–US3, Phase 6, correção da revisão de código) | [39130298683](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39130298683) | 2026-10-18 | `moodle-plugin-ci` completo, PHPUnit e Behat em PHP 8.1/PostgreSQL e PHP 8.3/MariaDB; `i18n-package` | verde |
 
-Qualquer commit de código posterior precisa de um novo run registrado aqui.
+| `0cdaaf8` (refinamento do cartão) | [39135368047](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39135368047) | 2026-10-18 | os mesmos | **falhou** no Mustache Lint: `div` dentro de `dl` com dois pares termo/descrição |
+| `0771cde` (correção: duas `dl`) | [39136215602](https://github.com/saymoncastro/moodle-block_coursecare/actions/runs/39136215602) | 2026-10-18 | os mesmos | verde |
+
+O código vigente é o de `0771cde`; os commits seguintes, se houver, só mudam documentação
+(`git diff 0771cde -- . ':!specs'` vazio). As capturas e verificações de T028 foram refeitas sobre
+`0771cde`. Qualquer commit de código posterior precisa de um novo run registrado aqui.
 
 ## Avaliação com professores (T031)
 
