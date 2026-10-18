@@ -97,6 +97,13 @@ Série única (armazenamento lógico total); categorias só na tabela (evita gr�
 proporcional, lacunas invisíveis); categorias empilhadas no gráfico (mais leitura de cores, contra o
 Princípio II); biblioteca externa (desnecessária).
 
+**Revisão na implementação (2026-10-19)**: as capturas mostraram que o Moodle 4.5 envia o mínimo do eixo
+ao Chart.js 4.4.2 no formato antigo (`ticks.min`), que é ignorado: num gráfico de linhas o eixo começava
+perto dos valores e aumentava visualmente mudanças pequenas. Decisão revista: `core\chart_bar` (uma barra
+por dia medido, nenhuma barra nos dias sem medição, eixo a partir de zero, padrão das barras no Chart.js
+4), na mesma escala diária de rótulos; altura fixa e discreta (16rem) em vez da altura que o core dá a
+partir da janela; cor verde dos materiais da página.
+
 ## R10. Versão
 
 **Decisão**: `release` 0.6.0; uma tabela nova; um passo de atualização; uma configuração nova.

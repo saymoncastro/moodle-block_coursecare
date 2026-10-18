@@ -27,7 +27,7 @@ horária existente; o histórico é apagado com o resultado quando a sala deixa 
 
 **Language/Version**: PHP 8.1–8.3 (Moodle 4.5 LTS), Mustache, CSS. JavaScript só o do gráfico do core.
 
-**Primary Dependencies**: Moodle 4.5 core (DML, XMLDB, Task API, Admin settings, `core\chart_line` com o
+**Primary Dependencies**: Moodle 4.5 core (DML, XMLDB, Task API, Admin settings, `core\chart_bar` com o
 Chart.js do core, `usergetmidnight`, `core_date`, Output, String). Sem bibliotecas de terceiros.
 
 **Storage**: uma tabela nova `block_coursecare_hist` (data-model.md); um passo de atualização; uma
@@ -125,7 +125,7 @@ tools/dev/bench/                               # medição de volume e de tempo
 
 Análise (002) → `save_result()` (transação: resultado + ponto do dia) → página: `course_overview::for_course()`
 → `diagnostic_store::get_history($courseid, limite da retenção)` → `history_view::build()` →
-frases, gráfico (`core\chart_line`) e tabela → template. Tarefa horária: órfãos (resultado + histórico)
+frases, gráfico (`core\chart_bar`, revisão de R9) e tabela → template. Tarefa horária: órfãos (resultado + histórico)
 → limpeza da retenção.
 
 ## Riscos

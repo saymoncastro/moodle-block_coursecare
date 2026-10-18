@@ -179,6 +179,30 @@ result and no suggestion, the section says so in one neutral sentence; without a
 section. Other ideas (backups, recycle bin, repeated content, submission limits, file types) are left
 for later because the diagnostic does not yet have the data to support them.
 
+### How the files of your course have changed
+
+Each successful analysis also keeps one **history point** for the course: the files recorded
+(logical storage), the unique content, the four categories (materials, submissions as the course
+total, other, not classified), whether the coverage was partial and the version of the calculation,
+with the date of the analysis. The point is written together with the current result, so the two
+never differ, and an analysis that fails writes nothing. There is at most one point per course and
+day (the site's day): a second analysis on the same day replaces it. No file is read again for the
+history, and nothing else is estimated or reconstructed: the history starts with version 0.6.0,
+whose upgrade turns the current result of each course into its first point, with its real date.
+
+On the "Your course in numbers" page, the section "How the files of your course have changed", after
+"Where the files are", shows the date of the latest measurement, one neutral sentence about the
+change since the previous measurement (or that this is the first one, or that the way of measuring
+changed), a chart of the recorded files by day (built with Moodle's own charts; days without an
+analysis have no value) and, collapsed, a table with every measurement and its categories, and the
+limits of the history. An increase or a decrease, on its own, does not mean a problem or an
+improvement; the section names no cause, goal or comparison. The block does not change.
+
+Points older than the retention setting (365 days by default, from 90 days to 5 years) are removed by
+the hourly scheduled task, at most 10,000 per run. When a course stops being eligible (deleted, or its
+last CourseCare block removed), its history is removed with its current result; a course restored as
+a new course, or copied, starts without history.
+
 ### Potential of assignments
 
 Before the technical details, the page has a section "Potential of assignments". For each
@@ -241,6 +265,7 @@ Site administration > Plugins > Blocks > CourseCare:
 | Large-file threshold (MB) | 50 | Files of this size or larger are large files (1 MB = 1,048,576 bytes, so 50 MB = 52,428,800 bytes). It is a neutral screening value for the whole site, not a teaching limit. A result keeps the threshold it was calculated with; a new value applies from the next analysis. |
 | Reanalysis interval | 1 day | How often each course with the block is analysed again. Minimum 1 hour. |
 | Out-of-date limit | 3 days | When the last completed analysis is older than this, the block says the information may be out of date. Use a value longer than the reanalysis interval. |
+| History retention | 365 days | How long the history points of each course are kept, from 90 days to 5 years. At most one point per course and day, so 5,000 courses keep at most about 1.8 million points with the default. |
 
 ### Command line (administrators)
 
@@ -294,8 +319,8 @@ capacity at that scale.
 ## Privacy and external services
 
 The plugin stores no personal data (Privacy API null provider): its tables hold aggregated numbers
-per course, per category and per activity, and links to large course material files (file id,
-`cmid` and recorded size). It stores no user id, file name, path or content hash, reads no user
+per course, per category and per activity, links to large course material files (file id, `cmid`
+and recorded size) and, for the history, one row of course totals per course and day. It stores no user id, file name, path or content hash, reads no user
 data beyond file metadata and makes no network requests. It has no external dependencies.
 
 ## Languages

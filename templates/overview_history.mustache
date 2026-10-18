@@ -28,7 +28,7 @@
     * none
 
     Context variables required for this template:
-    * history - object with heading, intro, meaning, latest, change, haschart, chart (HTML of the core chart),
+    * history - object with heading, intro, meaning, latest, change, methodnote, haschart, chart (HTML of the core chart),
       datatitle, columns (name), rows (date, partial, cells with value), limitstitle and limits (text)
 
     Example context (json):
@@ -39,6 +39,7 @@
             "meaning": "An increase or a decrease, on its own, does not mean a problem or an improvement.",
             "latest": "Latest measurement: 18/10/26, 09:00.",
             "change": "The files recorded in this course decreased by 10.0 MB since the analysis of 17 October 2026.",
+            "methodnote": "",
             "haschart": false,
             "chart": "",
             "datatitle": "Measurements and categories",
@@ -58,6 +59,9 @@
     <p class="block_coursecare-overview-help">{{meaning}}</p>
     <p class="mb-1">{{latest}}</p>
     <p class="block_coursecare-overview-historychange">{{change}}</p>
+    {{#methodnote}}
+    <p class="block_coursecare-overview-help">{{methodnote}}</p>
+    {{/methodnote}}
     {{#haschart}}
     <div class="block_coursecare-overview-historychart">
         {{{chart}}}

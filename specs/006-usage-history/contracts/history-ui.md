@@ -15,7 +15,8 @@ Estende a página da Feature 003 e mantém a direção visual aprovada (003 a 00
 2. `history:latest` com a data da última medição.
 3. Frase da variação: `history:increased` | `history:decreased` | `history:unchanged` | `history:first` |
    `history:methodchanged`.
-4. Com dois pontos ou mais: o gráfico (`core\chart_line`, série `history:series`, sem tabela automática),
+4. Com dois pontos ou mais: o gráfico (`core\chart_bar`, uma barra por dia medido, eixo a partir de zero, série
+   `history:series`, sem tabela automática),
    título `history:chart`, eixo vertical `history:axis` com a unidade.
 5. `<details>` recolhido, `history:data` (título): tabela com uma linha por ponto (mais recente
    primeiro): data; arquivos registrados; as quatro categorias (nomes `overview:category:*`); conteúdo

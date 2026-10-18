@@ -1085,6 +1085,13 @@ final class course_overview_test extends \advanced_testcase {
         $increased = $str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F', 'to' => 'T']);
         $this->assertStringNotContainsString(substr($increased, 0, 30), $section);
 
+        // A change of method earlier in the period: said, while the two latest measurements are compared.
+        $course = $this->course_with_history([2 => ['materialbytes' => 100, 'methodversion' => 0],
+            1 => ['materialbytes' => 900], 0 => ['materialbytes' => 950]]);
+        $earlier = self::history_section($this->render((int)$course->id));
+        $this->assertStringContainsString(substr($str('methodchanged', 'D'), 0, 20), $earlier);
+        $this->assertStringContainsString(substr($increased, 0, 30), $earlier);
+
         // No judgement, cause or alarm, in English and in Brazilian Portuguese ("problem" and "improvement" appear
         // only denied, in the sentence of what a change does not mean).
         $judgement = '/\b(waste|should|must|reduce|alarm|warning)\b/i';

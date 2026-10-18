@@ -261,6 +261,10 @@ class course_overview implements \renderable, \templatable {
                 'from' => $size($previous['logicalbytes']), 'to' => $size($latest['logicalbytes'])]),
         };
 
+        // A change of method earlier in the period is also said, after the sentence of the latest change.
+        $methodnote = $view['methodchange'] !== null && $view['change'] !== 'methodchanged'
+            ? $str('methodchanged', $date($view['methodchange'])) : '';
+
         $categories = array_keys(diagnostic_store::HISTORY_CATEGORIES);
         $columns = array_merge(
             [$str('col_date'), $str('col_total')],
@@ -286,6 +290,7 @@ class course_overview implements \renderable, \templatable {
             'meaning' => $str('meaning'),
             'latest' => $str('latest', $latestdate),
             'change' => $change,
+            'methodnote' => $methodnote,
             'haschart' => count($view['points']) > 1,
             'chart' => count($view['points']) > 1 ? $this->history_chart($output, $view) : '',
             'datatitle' => $str('data'),
@@ -298,8 +303,10 @@ class course_overview implements \renderable, \templatable {
     }
 
     /**
-     * The chart of the history: one series, the recorded files of each day from the first measurement to the latest,
-     * in the unit of the largest value; a day without a measurement has no value, so the line is broken there.
+     * The chart of the history: one series of bars, the recorded files of each day from the first measurement to the
+     * latest, in the unit of the largest value; a day without a measurement has no bar. Bars start at zero (the
+     * Chart.js of Moodle 4.5 ignores the minimum that core sends for a line chart, which would start the axis near
+     * the values and enlarge small changes).
      *
      * @param \renderer_base $output Renderer.
      * @param array $view history_view::build().
@@ -318,9 +325,12 @@ class course_overview implements \renderable, \templatable {
             $labels[] = userdate($first + $offset * DAYSECS + 12 * HOURSECS, get_string('strftimedateshort', 'langconfig'));
             $values[] = $bytes === null ? null : round($bytes / $divisor, 2);
         }
-        $chart = new \core\chart_line();
+        $chart = new \core\chart_bar();
         $chart->set_title(get_string('history:chart', 'block_coursecare'));
-        $chart->add_series(new \core\chart_series(get_string('history:series', 'block_coursecare'), $values));
+        $series = new \core\chart_series(get_string('history:series', 'block_coursecare'), $values);
+        // The green of the course materials of the page (--block-coursecare-material).
+        $series->set_color('#3f7d52');
+        $chart->add_series($series);
         $chart->set_labels($labels);
         $yaxis = $chart->get_yaxis(0, true);
         $unit = get_string('size:' . $units[$power - 1], 'block_coursecare');

@@ -33,7 +33,8 @@ class history_view {
      *
      * @param array $points Points of block_coursecare_hist (objects or arrays), oldest first.
      * @return array|null latest, previous (or null), change (first, increased, decreased, unchanged or
-     *     methodchanged), delta (bytes, 0 when not compared), days (day offset from the first point => logical bytes
+     *     methodchanged), delta (bytes, 0 when not compared), methodchange (the first point measured with the current
+     *     method after a change within the points, or null), days (day offset from the first point => logical bytes
      *     or null) and points (latest first); null without points.
      */
     public static function build(array $points): ?array {
@@ -56,6 +57,15 @@ class history_view {
             }
         }
 
+        // The most recent change of method within the points: its first point, measured the new way.
+        $methodchange = null;
+        for ($i = count($points) - 1; $i > 0; $i--) {
+            if ((int)$points[$i]['methodversion'] !== (int)$points[$i - 1]['methodversion']) {
+                $methodchange = $points[$i];
+                break;
+            }
+        }
+
         // One position per day from the first point to the latest; rounding the offset keeps it right across a
         // change of daylight saving time (days of 23 or 25 hours).
         $first = (int)$points[0]['timeday'];
@@ -73,6 +83,7 @@ class history_view {
             'previous' => $previous,
             'change' => $change,
             'delta' => $delta,
+            'methodchange' => $methodchange,
             'days' => $series,
             'points' => array_reverse($points),
         ];

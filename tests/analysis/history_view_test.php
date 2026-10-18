@@ -70,6 +70,13 @@ final class history_view_test extends \advanced_testcase {
         $view = history_view::build([self::point(1, 100, 1), self::point(2, 900, 2)]);
         $this->assertSame('methodchanged', $view['change']);
         $this->assertSame(0, $view['delta']);
+        $this->assertSame(900, $view['methodchange']['logicalbytes']);
+
+        // An earlier change is still reported, while the two latest measurements are compared.
+        $view = history_view::build([self::point(1, 100, 1), self::point(2, 900, 2), self::point(3, 950, 2)]);
+        $this->assertSame('increased', $view['change']);
+        $this->assertSame(900, $view['methodchange']['logicalbytes']);
+        $this->assertNull(history_view::build([self::point(1, 100), self::point(2, 200)])['methodchange']);
     }
 
     /**
