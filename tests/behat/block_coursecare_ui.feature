@@ -22,7 +22,7 @@ Feature: CourseCare block initial experience
     When I am on the "C1" "Course" page logged in as "teacher1"
     Then I should see "CourseCare" in the "CourseCare" "block"
     And I should see "Small choices, a better learning space for everyone." in the "CourseCare" "block"
-    And I should see "Soon you will find guidance here on using your course resources more mindfully." in the "CourseCare" "block"
+    And I should not see "Soon you will find guidance" in the "CourseCare" "block"
     And "a" "css_element" should not exist in the ".block_coursecare-content" "css_element"
     And "button" "css_element" should not exist in the ".block_coursecare-content" "css_element"
     And "form" "css_element" should not exist in the ".block_coursecare-content" "css_element"

@@ -1,0 +1,73 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_coursecare/overview_categories
+
+    "Where the files are" section of the overview page: one stacked bar of the four categories of the
+    course (decorative) and a legend with each category, its explanation, size and share of all the
+    files of the course in text (FR-012, FR-016). Students' files appear only here, for the whole course.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * categories - object with "heading", "help" and "rows" (key, segment, name, help, size, share)
+
+    Example context (json):
+    {
+        "categories": {
+            "heading": "Where the files are",
+            "help": "How much of all the files of the course each kind of file represents.",
+            "rows": [
+                {"key": "material", "segment": 60, "name": "Course materials", "help": "Files you published.",
+                 "size": "4.0 MB", "share": "60%"},
+                {"key": "submission", "segment": 40, "name": "Files submitted in activities",
+                 "help": "Shown only for the whole course.", "size": "2.6 MB", "share": "40%"}
+            ]
+        }
+    }
+}}
+{{#categories}}
+<section class="block_coursecare-overview-section block_coursecare-overview-distribution">
+    <h3 class="block_coursecare-overview-sectiontitle">{{heading}}</h3>
+    <p class="block_coursecare-overview-help">{{help}}</p>
+    <div class="block_coursecare-overview-stack" aria-hidden="true">
+        {{#rows}}
+        {{#segment}}
+        <span class="block_coursecare-overview-segment block_coursecare-overview-{{key}}" style="width: {{segment}}%;"></span>
+        {{/segment}}
+        {{/rows}}
+    </div>
+    <ul class="block_coursecare-overview-legend list-unstyled mb-0">
+        {{#rows}}
+        <li class="block_coursecare-overview-legenditem">
+            <span class="block_coursecare-overview-swatch block_coursecare-overview-{{key}}" aria-hidden="true"></span>
+            <div class="block_coursecare-overview-legendtext">
+                <div class="block_coursecare-overview-itemtext">
+                    <span class="block_coursecare-overview-itemname">{{name}}</span>
+                    <span class="block_coursecare-overview-itemvalue">{{size}} · {{share}}</span>
+                </div>
+                <p class="block_coursecare-overview-help mb-0">{{help}}</p>
+            </div>
+        </li>
+        {{/rows}}
+    </ul>
+</section>
+{{/categories}}

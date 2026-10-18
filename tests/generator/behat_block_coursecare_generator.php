@@ -27,7 +27,13 @@ class behat_block_coursecare_generator extends behat_generator_base {
      * Entities that can be created in Behat with "the following "block_coursecare > diagnostics" exist".
      *
      * Columns: course (short name), logicalbytes, filecount, timecompletedago (seconds), lastattemptfailed,
-     * requeststatus.
+     * requeststatus and any other field of block_coursecare_diag.
+     *
+     * Child rows of an existing diagnostic:
+     * - "block_coursecare > diagnostic categories": course, category, filecount, logicalbytes, uniquecount, uniquebytes;
+     * - "block_coursecare > diagnostic activities": course, activity (idnumber; omit it for the course level) and fields
+     *   of block_coursecare_act such as materialbytes;
+     * - "block_coursecare > diagnostic large links": course, activity (idnumber; omit it for the course level), filesize.
      *
      * @return array
      */
@@ -38,6 +44,24 @@ class behat_block_coursecare_generator extends behat_generator_base {
                 'datagenerator' => 'diagnostic',
                 'required' => ['course'],
                 'switchids' => ['course' => 'courseid'],
+            ],
+            'diagnostic categories' => [
+                'singular' => 'diagnostic category',
+                'datagenerator' => 'diagnostic_category',
+                'required' => ['course', 'category'],
+                'switchids' => ['course' => 'courseid'],
+            ],
+            'diagnostic activities' => [
+                'singular' => 'diagnostic activity',
+                'datagenerator' => 'diagnostic_activity',
+                'required' => ['course'],
+                'switchids' => ['course' => 'courseid', 'activity' => 'cmid'],
+            ],
+            'diagnostic large links' => [
+                'singular' => 'diagnostic large link',
+                'datagenerator' => 'diagnostic_largelink',
+                'required' => ['course', 'filesize'],
+                'switchids' => ['course' => 'courseid', 'activity' => 'cmid'],
             ],
         ];
     }

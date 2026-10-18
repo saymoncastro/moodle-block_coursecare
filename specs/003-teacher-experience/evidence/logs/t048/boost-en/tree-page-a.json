@@ -1,0 +1,12 @@
+{
+ "check": "tree",
+ "path": "/blocks/coursecare/overview.php?id=14",
+ "title": "Your course in numbers | DEMO-NEW | ccdemo",
+ "tree": [
+  "paragraph",
+  "  link: Back to the course",
+  "heading: Your course in numbers [level=2]",
+  "paragraph",
+  "paragraph"
+ ]
+}

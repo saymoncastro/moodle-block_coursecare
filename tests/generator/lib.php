@@ -23,12 +23,18 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_coursecare_generator extends testing_block_generator {
+    /** @var int Large-material links created, for synthetic file ids. */
+    private int $largelinkcount = 0;
+
     /**
      * Create a diagnostic record directly, with controlled dates, request state, failure and result.
      *
-     * Not an analysis: it writes block_coursecare_diag only, so tests can reach every displayed state.
-     * Accepted keys: courseid (required), any field of the table, and timecompletedago / timeattemptedago, in
-     * seconds before now.
+     * Not an analysis: it writes the plugin's tables only, so tests can reach every displayed state.
+     * Accepted keys: courseid (required), any field of block_coursecare_diag, timecompletedago / timeattemptedago
+     * (seconds before now), and the child rows:
+     * - categories: category => [filecount, logicalbytes, uniquecount, uniquebytes] (block_coursecare_cat);
+     * - activities: cmid => fields of block_coursecare_act (cmid 0 = course level; missing fields are 0);
+     * - largelinks: list of [cmid, filesize] (block_coursecare_large, with a synthetic fileid).
      *
      * @param array|stdClass $record Values.
      * @return stdClass The stored record.
@@ -37,6 +43,11 @@ class block_coursecare_generator extends testing_block_generator {
         global $DB;
 
         $record = (array)$record;
+        $children = [];
+        foreach (['categories', 'activities', 'largelinks'] as $key) {
+            $children[$key] = $record[$key] ?? [];
+            unset($record[$key]);
+        }
         if (empty($record['courseid'])) {
             throw new coding_exception('courseid is required to create a CourseCare diagnostic');
         }
@@ -61,6 +72,89 @@ class block_coursecare_generator extends testing_block_generator {
         }
         $record = (object)($record + $defaults);
         $record->id = $DB->insert_record('block_coursecare_diag', $record);
+        foreach ($children['categories'] as $category => $values) {
+            $this->create_diagnostic_category(['courseid' => $record->courseid, 'category' => $category] + $values);
+        }
+        foreach ($children['activities'] as $cmid => $values) {
+            $this->create_diagnostic_activity(['courseid' => $record->courseid, 'cmid' => $cmid] + $values);
+        }
+        foreach ($children['largelinks'] as $link) {
+            $this->create_diagnostic_largelink(['courseid' => $record->courseid] + $link);
+        }
         return $DB->get_record('block_coursecare_diag', ['id' => $record->id]);
+    }
+
+    /**
+     * Id of the diagnostic of a course, created by create_diagnostic().
+     *
+     * @param array $record Values with courseid.
+     * @return int
+     */
+    private function diagnostic_id(array $record): int {
+        global $DB;
+
+        if (empty($record['courseid'])) {
+            throw new coding_exception('courseid is required');
+        }
+        return (int)$DB->get_field('block_coursecare_diag', 'id', ['courseid' => $record['courseid']], MUST_EXIST);
+    }
+
+    /**
+     * Add a category row to the diagnostic of a course.
+     *
+     * Keys: courseid, category, filecount, logicalbytes, uniquecount, uniquebytes (missing counts are 0).
+     *
+     * @param array|stdClass $record Values.
+     * @return stdClass
+     */
+    public function create_diagnostic_category($record): stdClass {
+        global $DB;
+
+        $record = (array)$record;
+        $row = ['diagid' => $this->diagnostic_id($record), 'category' => (string)$record['category']];
+        foreach (\block_coursecare\local\analysis\diagnostic_result::CATEGORY_FIELDS as $field) {
+            $row[$field] = (int)($record[$field] ?? 0);
+        }
+        $row['id'] = $DB->insert_record('block_coursecare_cat', (object)$row);
+        return (object)$row;
+    }
+
+    /**
+     * Add an activity row to the diagnostic of a course.
+     *
+     * Keys: courseid, cmid (0 = course level) and any field of block_coursecare_act (missing fields are 0).
+     *
+     * @param array|stdClass $record Values.
+     * @return stdClass
+     */
+    public function create_diagnostic_activity($record): stdClass {
+        global $DB;
+
+        $record = (array)$record;
+        $row = ['diagid' => $this->diagnostic_id($record), 'cmid' => (int)($record['cmid'] ?? 0)];
+        foreach (\block_coursecare\local\analysis\diagnostic_result::ACTIVITY_FIELDS as $field) {
+            $row[$field] = (int)($record[$field] ?? 0);
+        }
+        $row['id'] = $DB->insert_record('block_coursecare_act', (object)$row);
+        return (object)$row;
+    }
+
+    /**
+     * Add a large-material link to the diagnostic of a course, with a synthetic file id.
+     *
+     * Keys: courseid, cmid (0 = course level), filesize.
+     *
+     * @param array|stdClass $record Values.
+     * @return stdClass
+     */
+    public function create_diagnostic_largelink($record): stdClass {
+        global $DB;
+
+        $record = (array)$record;
+        $this->largelinkcount++;
+        $row = ['diagid' => $this->diagnostic_id($record), 'cmid' => (int)($record['cmid'] ?? 0),
+            'fileid' => 900000000 + $this->largelinkcount, 'filesize' => (int)$record['filesize']];
+        $row['id'] = $DB->insert_record('block_coursecare_large', (object)$row);
+        return (object)$row;
     }
 }

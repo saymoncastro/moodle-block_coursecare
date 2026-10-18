@@ -36,7 +36,7 @@ const COURSECARE_PACKAGE_REQUIRED = ['version.php', 'block_coursecare.php', 'db/
 
 /** Allowed files (fnmatch patterns relative to the root; "tests/**" allows anything under tests/). */
 const COURSECARE_PACKAGE_ALLOWED = [
-    'version.php', 'block_coursecare.php', 'settings.php', 'cli/diagnostics.php', 'db/access.php',
+    'version.php', 'block_coursecare.php', 'overview.php', 'settings.php', 'cli/diagnostics.php', 'db/access.php',
     'db/install.xml', 'db/upgrade.php', 'db/tasks.php', 'classes/**', 'lang/en/block_coursecare.php',
     'templates/*.mustache', 'pix/*.svg', 'styles.css', 'tests/**', 'README.md', 'CHANGES.md', 'LICENSE',
 ];

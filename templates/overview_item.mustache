@@ -1,0 +1,55 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_coursecare/overview_item
+
+    One measured row of the overview page: a name (with a link when there is one), the size, the share
+    in text and a decorative bar of the same share. The parent template puts it inside a list item.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * name, hasurl, url - what is measured; name is already safe HTML (format_string() for activity names, the
+      string catalogue otherwise) and is printed as is, so that it is not escaped twice
+    * size, share - size and share as text
+    * width - share in percent for the decorative bar
+    * help - optional explanation sentence
+
+    Example context (json):
+    {
+        "name": "Reading 1",
+        "hasurl": true,
+        "url": "https://example.com/mod/resource/view.php?id=7",
+        "size": "2.0 MB",
+        "share": "38%",
+        "width": 38
+    }
+}}
+<div class="block_coursecare-overview-item">
+    <div class="block_coursecare-overview-itemtext">
+        <span class="block_coursecare-overview-itemname">{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</span>
+        <span class="block_coursecare-overview-itemvalue">{{size}} · {{share}}</span>
+    </div>
+    {{#help}}
+    <p class="block_coursecare-overview-help mb-0">{{help}}</p>
+    {{/help}}
+    <div class="block_coursecare-overview-bar" aria-hidden="true"><span style="width: {{width}}%;"></span></div>
+</div>

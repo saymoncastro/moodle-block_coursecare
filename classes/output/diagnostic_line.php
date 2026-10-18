@@ -32,55 +32,103 @@ class diagnostic_line implements \renderable, \templatable {
     /** @var diagnostic_state State to describe. */
     private diagnostic_state $state;
 
+    /** @var \moodle_url|null Overview page of the course (Feature 003), linked only when a result exists. */
+    private ?\moodle_url $overviewurl;
+
     /**
      * Constructor.
      *
      * @param diagnostic_state $state Resolved state.
+     * @param \moodle_url|null $overviewurl Overview page of the course.
      */
-    public function __construct(diagnostic_state $state) {
+    public function __construct(diagnostic_state $state, ?\moodle_url $overviewurl = null) {
         $this->state = $state;
+        $this->overviewurl = $overviewurl;
     }
 
     /**
-     * Data for the template: the sentences of the line.
+     * Data for the template: the parts of the line (see parts()) and the link to the overview page.
      *
      * @param \renderer_base $output Renderer.
-     * @return array{sentences: array<int, array{text: string}>}
+     * @return array
      */
     public function export_for_template(\renderer_base $output): array {
-        $sentences = [];
-        switch ($this->state->state) {
+        return self::parts($this->state) + $this->link();
+    }
+
+    /**
+     * A size for teachers: the same rule as display_size() (powers of 1024, one decimal, whole bytes below 1 KB),
+     * with the decimal separator of the language (format_float) and unambiguous unit symbols from this plugin.
+     *
+     * @param int $bytes Size in bytes.
+     * @return string Size with a non-breaking space between the number and the unit.
+     */
+    public static function size(int $bytes): string {
+        if ($bytes < 1024) {
+            return display_size($bytes);
+        }
+        $units = ['kb', 'mb', 'gb', 'tb'];
+        $magnitude = min(count($units), (int)floor(log($bytes, 1024)));
+        return format_float($bytes / 1024 ** $magnitude, 1) . "\u{a0}" .
+            get_string('size:' . $units[$magnitude - 1], 'block_coursecare');
+    }
+
+    /**
+     * The parts of the file overview line, shared by the block and the opening of the overview page (Feature 003).
+     *
+     * With a result and files, the volume is apart from its label so that it can be seen at once; the label is a
+     * complete phrase of its own, never a sentence built from pieces. Without a result, or without files, the line
+     * is one sentence. The date and the notes of states E and F follow.
+     *
+     * @param diagnostic_state $state Resolved state.
+     * @return array{hasvolume: bool, volumelabel: string, volume: string, sentences: array, date: string, notes: array}
+     */
+    public static function parts(diagnostic_state $state): array {
+        $parts = ['hasvolume' => false, 'volumelabel' => '', 'volume' => '', 'sentences' => [], 'date' => '',
+            'notes' => []];
+        $sentence = fn(string $key): array => ['text' => get_string($key, 'block_coursecare')];
+        switch ($state->state) {
             case diagnostic_state::QUEUED:
             case diagnostic_state::RUNNING:
-                $sentences[] = get_string('diagnostic:preparing', 'block_coursecare');
-                break;
+                $parts['sentences'][] = $sentence('diagnostic:preparing');
+                return $parts;
             case diagnostic_state::NO_FILES:
             case diagnostic_state::COMPLETE:
             case diagnostic_state::OUTDATED:
             case diagnostic_state::FAILED:
-                $sentences[] = $this->state->filecount === 0
-                    ? get_string('diagnostic:nofiles', 'block_coursecare')
-                    : get_string('diagnostic:volume', 'block_coursecare', display_size($this->state->logicalbytes));
-                $sentences[] = $this->calculated_on();
-                if ($this->state->state === diagnostic_state::OUTDATED) {
-                    $sentences[] = get_string('diagnostic:mayoutdated', 'block_coursecare');
-                } else if ($this->state->state === diagnostic_state::FAILED) {
-                    $sentences[] = get_string('diagnostic:updatefailed', 'block_coursecare');
+                if ($state->filecount === 0) {
+                    $parts['sentences'][] = $sentence('diagnostic:nofiles');
+                } else {
+                    $parts['hasvolume'] = true;
+                    $parts['volumelabel'] = get_string('overview:files', 'block_coursecare');
+                    $parts['volume'] = self::size($state->logicalbytes);
                 }
-                break;
+                $date = userdate($state->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
+                $parts['date'] = get_string('diagnostic:calculatedon', 'block_coursecare', $date);
+                if ($state->state === diagnostic_state::OUTDATED) {
+                    $parts['notes'][] = $sentence('diagnostic:mayoutdated');
+                } else if ($state->state === diagnostic_state::FAILED) {
+                    $parts['notes'][] = $sentence('diagnostic:updatefailed');
+                }
+                return $parts;
             default:
-                $sentences[] = get_string('diagnostic:notavailable', 'block_coursecare');
+                $parts['sentences'][] = $sentence('diagnostic:notavailable');
+                return $parts;
         }
-        return ['sentences' => array_map(fn(string $text): array => ['text' => $text], $sentences)];
     }
 
     /**
-     * Sentence with the date of the analysis, in the user's time zone.
+     * The way to the overview page, only when it has something to show.
      *
-     * @return string
+     * @return array
      */
-    private function calculated_on(): string {
-        $date = userdate($this->state->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
-        return get_string('diagnostic:calculatedon', 'block_coursecare', $date);
+    private function link(): array {
+        if (!$this->state->hasresult || $this->overviewurl === null) {
+            return ['overviewurl' => '', 'overviewlink' => ''];
+        }
+        return [
+            'overviewurl' => $this->overviewurl->out(false),
+            'overviewlink' => get_string('overview:link', 'block_coursecare'),
+        ];
     }
 }

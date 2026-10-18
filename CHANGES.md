@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 (unreleased)
+
+- Teacher experience: the block links to a new page, "Your course in numbers", with the logical
+  storage of the course, its categories, the materials of each activity, the large files and the
+  technical details (collapsed), for every state of the diagnostic.
+- Student submissions appear only in the total of the course; per activity, only the materials of
+  the course are shown.
+- The block no longer announces upcoming guidance.
+- The block shows the volume of the course in large type, with its label, the date and the link.
+- Sizes on the block and the page use the decimal separator of the user's language and the unit
+  symbols KB, MB, GB and TB in every language (the core `pt_br` pack writes "Kb" and "Mb").
+- Approved visual direction (soft greens and neutrals, rounded corners, the sprout), scoped to the
+  block and the page; keyboard access, headings in order and every number in text.
+
 ## 0.2.0 (unreleased)
 
 - Course storage diagnostic: background analysis of the file records of each course that has the

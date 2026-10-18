@@ -1,0 +1,15 @@
+{
+ "check": "tree",
+ "path": "/course/view.php?id=2",
+ "title": "Course: Biologia celular (demonstração) | ccdemo",
+ "tree": [
+  "region: CourseCare",
+  "  heading: CourseCare [level=3]",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "    link: Learn more about the files in your course"
+ ]
+}

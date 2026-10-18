@@ -1,0 +1,8 @@
+{
+ "check": "axe",
+ "path": "/course/view.php?id=10",
+ "title": "Curso: Artes (demonstração) | ccdemo",
+ "incomplete": [],
+ "passes": 10,
+ "violations": []
+}

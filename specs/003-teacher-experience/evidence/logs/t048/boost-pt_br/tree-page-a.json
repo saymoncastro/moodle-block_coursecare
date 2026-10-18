@@ -1,0 +1,12 @@
+{
+ "check": "tree",
+ "path": "/blocks/coursecare/overview.php?id=14",
+ "title": "Sua sala em números | DEMO-NEW | ccdemo",
+ "tree": [
+  "paragraph",
+  "  link: Voltar à sala",
+  "heading: Sua sala em números [level=2]",
+  "paragraph",
+  "paragraph"
+ ]
+}

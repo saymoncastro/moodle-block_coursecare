@@ -185,4 +185,32 @@ final class diagnostic_store_test extends \advanced_testcase {
         $store->get_summary(42);
         $this->assertSame(1, $DB->perf_get_reads() - $reads);
     }
+    /**
+     * Large-material links grouped by activity: count and recorded size per cmid, for one diagnostic only.
+     */
+    public function test_get_large_materials_by_activity(): void {
+        $this->resetAfterTest();
+        /** @var \block_coursecare_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $course = $this->getDataGenerator()->create_course();
+        $other = $this->getDataGenerator()->create_course();
+        $diag = $generator->create_diagnostic(['courseid' => $course->id, 'timecompletedago' => 60, 'largelinks' => [
+            ['cmid' => 11, 'filesize' => 100], ['cmid' => 11, 'filesize' => 50], ['cmid' => 12, 'filesize' => 70],
+            ['cmid' => 13, 'filesize' => 9], ['cmid' => 0, 'filesize' => 30],
+        ]]);
+        $generator->create_diagnostic(['courseid' => $other->id, 'timecompletedago' => 60, 'largelinks' => [
+            ['cmid' => 11, 'filesize' => 999],
+        ]]);
+        $empty = $generator->create_diagnostic(['courseid' => $this->getDataGenerator()->create_course()->id,
+            'timecompletedago' => 60]);
+
+        $store = new diagnostic_store();
+        $rows = $store->get_large_materials_by_activity((int)$diag->id);
+        ksort($rows);
+        $this->assertSame([0, 11, 12, 13], array_keys($rows));
+        $this->assertSame(['count' => 2, 'bytes' => 150], (array)$rows[11]);
+        $this->assertSame(['count' => 1, 'bytes' => 70], (array)$rows[12]);
+        $this->assertSame(['count' => 1, 'bytes' => 30], (array)$rows[0]);
+        $this->assertSame([], $store->get_large_materials_by_activity((int)$empty->id));
+    }
 }

@@ -38,7 +38,8 @@ Feature: CourseCare file overview line
     And I am on the "C1" "Course" page
     # display_size() separates the number and the unit with a non-breaking space (U+00A0), which the steps below
     # write literally, so that the whole sentence is checked and "6 bytes" cannot match "60 bytes".
-    And I should see "Files in this course, as recorded by Moodle: 6 bytes." in the "CourseCare" "block"
+    And I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should see "6 bytes" in the "CourseCare" "block"
     And I should see "Calculated on" in the "CourseCare" "block"
 
   @javascript
@@ -59,7 +60,8 @@ Feature: CourseCare file overview line
     And I run all adhoc tasks
     And I turn editing mode off
     When I am on the "C1" "Course" page
-    Then I should see "Files in this course, as recorded by Moodle: 6 bytes." in the "CourseCare" "block"
+    Then I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should see "6 bytes" in the "CourseCare" "block"
     And the "CourseCare" "block" should meet accessibility standards
 
   @javascript
@@ -84,7 +86,8 @@ Feature: CourseCare file overview line
     And I add the "CourseCare" block
     And I run all adhoc tasks
     When I am on the "C1" "Course" page
-    Then I should see "Files in this course, as recorded by Moodle: 12 bytes." in the "CourseCare" "block"
+    Then I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should see "12 bytes" in the "CourseCare" "block"
     And I should not see "Hidden reading" in the "CourseCare" "block"
     And I should not see "Reading" in the "CourseCare" "block"
     And I log out
@@ -108,7 +111,8 @@ Feature: CourseCare file overview line
       | course | logicalbytes | filecount | timecompletedago |
       | C1     | 2048         | 2         | 7200             |
     When I am on the "C1" "Course" page logged in as "teacher1"
-    Then I should see "Files in this course, as recorded by Moodle: 2.0 KB." in the "CourseCare" "block"
+    Then I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should see "2.0 KB" in the "CourseCare" "block"
     And I should see "Calculated on" in the "CourseCare" "block"
     And I should see "This information may be out of date." in the "CourseCare" "block"
 
@@ -120,6 +124,7 @@ Feature: CourseCare file overview line
       | course | logicalbytes | filecount | timecompletedago | lastattemptfailed |
       | C1     | 2048         | 2         | 600              | 1                 |
     When I am on the "C1" "Course" page logged in as "teacher1"
-    Then I should see "Files in this course, as recorded by Moodle: 2.0 KB." in the "CourseCare" "block"
+    Then I should see "Course files recorded in Moodle" in the "CourseCare" "block"
+    And I should see "2.0 KB" in the "CourseCare" "block"
     And I should see "The latest update could not be completed." in the "CourseCare" "block"
     And I should not see "This information may be out of date." in the "CourseCare" "block"

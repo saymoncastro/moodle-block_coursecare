@@ -4,11 +4,11 @@ CourseCare is an educational assistant for Moodle that promotes the conscious us
 resources in courses. In Brazilian Portuguese it is called **AVA Consciente**. It guides and
 supports teachers; it never monitors, blocks or changes their courses.
 
-Version 0.2.0 (alpha) adds a **course storage diagnostic**: a background analysis of the file
-records of each course that has the block. The block shows one sentence with the logical volume of
-the course files and the date of the calculation. The other indicators are kept for
-administrators (command line) and for later features. Nothing is changed, deleted, downloaded or
-synchronised.
+Version 0.2.0 (alpha) added a **course storage diagnostic**: a background analysis of the file
+records of each course that has the block. Version 0.3.0 (alpha) adds the **teacher experience**:
+the block shows the logical volume of the course files with the date of the calculation and links
+to a page, "Your course in numbers", where the teacher sees where the files are. Nothing is
+changed, deleted, downloaded or synchronised.
 
 ## Compatibility
 
@@ -99,19 +99,56 @@ coverage.
 
 ### What the block shows
 
-Below the welcome message, one sentence describes the state of the diagnostic:
+Below the welcome message, the block shows the state of the diagnostic:
 
-| State | Sentence |
+| State | The block shows |
 | --- | --- |
 | Never analysed (or failed without a result) | The file overview for this course is not available yet. |
 | Queued or running, without a previous result | The file overview for this course is being prepared. |
-| Complete | Files in this course, as recorded by Moodle: *size*. Calculated on *date*. |
-| No files | No files were found in this course's materials and activities. Calculated on *date*. |
-| Older than the out-of-date limit | The complete sentence, plus: This information may be out of date. |
+| Complete | "Course files recorded in Moodle", the size in large type, "Calculated on *date*." and a link "Learn more about the files in your course". |
+| No files | No files were found in this course's materials and activities. Calculated on *date*. And the link. |
+| Older than the out-of-date limit | As complete, plus: This information may be out of date. |
 | Last update failed | The previous result, plus: The latest update could not be completed. |
 
 When a new analysis is pending, the block keeps showing the previous result. The block never
-reads the `files` table while rendering; it reads one row of the plugin's own table.
+reads the `files` table while rendering; it reads one row of the plugin's own table. Without a
+result there is no link and no number.
+
+### The page "Your course in numbers"
+
+The link of the block opens `blocks/coursecare/overview.php?id=<block instance>`. The page always
+shows the course of that block, and only to users who have `block/coursecare:view` on the block
+(by default editing teachers and managers of the course). Everyone else gets the standard Moodle
+error page, with no data of the diagnostic. The page only reads; it has no actions.
+
+| Section | What it shows |
+| --- | --- |
+| Opening | The logical volume of the course ("Course files recorded in Moodle") with the date of the calculation, a note when the result may be out of date or the last update failed, and the share of files that could not be classified (partial coverage). |
+| Where the files are | The four categories of the course (course materials, files submitted in activities, other associated files, not classified): size and share of the course total, with a short explanation of each. |
+| Large files | How many files of the site threshold or more the course has and their size, and the course materials of that size in each activity. The threshold is a screening value set by the site, not a teaching rule. |
+| Materials by activity | The ten activities with the most material (name, size and share of all the course materials), then the rest under "Show all activities", plus the course page, sections and blocks. |
+| Technical details (collapsed) | Unique content, links to files kept elsewhere, backups and recycle bin recorded in Moodle, files that could not be classified, the threshold used, and what the numbers do not mean. |
+
+Per activity only **course materials** appear, never the files students submitted: submissions
+appear only in the total of the course, so the page does not expose how much a group of students
+sent in a given activity. Without a result the page shows only the state sentence; a course
+without files shows the opening and the technical details.
+
+The numbers are the files Moodle records for the course (logical storage). They are not the disk
+space used only by this course (the same file can be shared with other courses) and do not show how
+much space deleting files would free. The page makes no recommendation.
+
+Sizes use the rule of Moodle's `display_size()` (powers of 1024, one decimal), with the decimal
+separator of the user's language and the unit symbols KB, MB, GB and TB in every language.
+
+Recognised limitations of the page:
+
+- Per activity only the size of the materials is shown, without the number of files: the
+  diagnostic does not keep file counts per activity and category.
+- Large materials per activity come from the links to large course material files, limited to the
+  1,000 largest per course; the totals always include every large file.
+- Activity names and visibility are read from the course as it is now, which may have changed since
+  the analysis.
 
 ### When courses are analysed
 

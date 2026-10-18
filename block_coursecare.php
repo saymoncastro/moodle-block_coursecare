@@ -160,7 +160,8 @@ class block_coursecare extends block_base {
             time(),
             $staleness > 0 ? $staleness : 3 * DAYSECS
         );
-        return (new diagnostic_line($state))->export_for_template($this->page->get_renderer('core'));
+        $overviewurl = new moodle_url('/blocks/coursecare/overview.php', ['id' => $this->instance->id]);
+        return (new diagnostic_line($state, $overviewurl))->export_for_template($this->page->get_renderer('core'));
     }
 
     /**

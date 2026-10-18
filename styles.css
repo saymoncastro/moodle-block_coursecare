@@ -1,10 +1,20 @@
-/* CourseCare block. Every selector is scoped to the block (Feature 001, contracts/block-ui.md). */
+/*
+ * CourseCare block and "Your course in numbers" page. Every selector is scoped to the block (.block_coursecare) or
+ * to the page (.block_coursecare-overview); no theme colour or variable is redefined and text keeps the colour of
+ * the theme. Visual direction approved for CourseCare / AVA Consciente (Feature 003 spec, "Diretrizes visuais
+ * aprovadas"): soft greens and neutrals, rounded corners, the sprout, discreet cards. Tones are provisional until
+ * the visual approval (task T046).
+ */
 
-.block_coursecare .block_coursecare-content {
+/* Block: identity, then the file overview with the volume seen at once. */
+.block_coursecare {
+    --block-coursecare-surface: #eef6ef;
+}
+
+.block_coursecare .block_coursecare-identity {
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 0.5rem 0.75rem;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .block_coursecare .block_coursecare-illustration {
@@ -22,17 +32,315 @@
     font-size: 40px;
 }
 
-.block_coursecare .block_coursecare-text {
-    flex: 1 1 10rem;
-    min-width: 0;
-}
-
 .block_coursecare .block_coursecare-tagline {
-    margin-bottom: 0.5rem;
     font-weight: 600;
 }
 
-/* Feature 002: the line about the course file overview, plain text after the message. */
-.block_coursecare .block_coursecare-diagnostic {
+.block_coursecare .block_coursecare-overviewbox {
+    margin-top: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.75rem;
+    background-color: var(--block-coursecare-surface);
+}
+
+.block_coursecare .block_coursecare-volumelabel,
+.block_coursecare .block_coursecare-date,
+.block_coursecare .block_coursecare-note {
+    font-size: 0.8125rem;
+}
+
+.block_coursecare .block_coursecare-volume {
+    margin: 0.125rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.block_coursecare .block_coursecare-note {
+    margin-top: 0.25rem;
+}
+
+.block_coursecare .block_coursecare-overviewlink {
     margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+/* Page. */
+.block_coursecare-overview {
+    --block-coursecare-hero: #eaf4ec;
+    --block-coursecare-panel: #fff;
+    --block-coursecare-border: #d6e6da;
+    --block-coursecare-neutral: #f5f6f3;
+    --block-coursecare-material: #3f7d52;
+    --block-coursecare-submission: #4c8784;
+    --block-coursecare-other: #7f8045;
+    --block-coursecare-unclassified: #767b74;
+    --block-coursecare-track: #e4ece5;
+    max-width: 72rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-back {
+    margin-bottom: 1rem;
+}
+
+/* Opening: title and introduction, and the volume beside them on wide screens. */
+.block_coursecare-overview .block_coursecare-overview-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem 2rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    background-color: var(--block-coursecare-hero);
+}
+
+@media (min-width: 768px) {
+    .block_coursecare-overview .block_coursecare-overview-hero-result {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+.block_coursecare-overview .block_coursecare-overview-note,
+.block_coursecare-overview .block_coursecare-overview-coverage {
+    grid-column: 1 / -1;
+}
+
+.block_coursecare-overview .block_coursecare-overview-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-title {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* Core themes cap .icon at 24px; the decorative sprout of the page is slightly larger, inside this page only. */
+.block_coursecare-overview .block_coursecare-overview-illustration .icon {
+    width: 32px;
+    height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    margin: 0;
+    font-size: 32px;
+}
+
+.block_coursecare-overview .block_coursecare-overview-intro {
+    margin: 0.5rem 0 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-status {
+    margin-top: 0.75rem;
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-figure {
+    min-width: 16rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: var(--block-coursecare-panel);
+}
+
+.block_coursecare-overview .block_coursecare-overview-volumelabel,
+.block_coursecare-overview .block_coursecare-overview-date {
+    font-size: 0.875rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-volume {
+    margin: 0.125rem 0 0.25rem;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.block_coursecare-overview .block_coursecare-overview-note {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border-left: 4px solid var(--block-coursecare-submission);
+    border-radius: 0.25rem;
+    background-color: var(--block-coursecare-panel);
+}
+
+.block_coursecare-overview .block_coursecare-overview-coverage {
+    font-size: 0.875rem;
+}
+
+/* Sections. */
+.block_coursecare-overview .block_coursecare-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    .block_coursecare-overview .block_coursecare-overview-grid {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        align-items: start;
+    }
+}
+
+.block_coursecare-overview .block_coursecare-overview-sectiontitle,
+.block_coursecare-overview .block_coursecare-overview-summaryheading {
+    margin-bottom: 0.25rem;
+    font-size: 1.125rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-subtitle {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-help {
+    font-size: 0.875rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-distribution {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--block-coursecare-border);
+    border-radius: 1rem;
+    background-color: var(--block-coursecare-panel);
+}
+
+.block_coursecare-overview .block_coursecare-overview-large {
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    background-color: var(--block-coursecare-neutral);
+}
+
+.block_coursecare-overview .block_coursecare-overview-activities {
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-technicalsection {
+    padding: 1rem 0.25rem 0;
+    border-top: 1px solid var(--block-coursecare-border);
+    font-size: 0.9375rem;
+}
+
+/* Stacked bar of the categories (decorative; the legend carries the numbers). */
+.block_coursecare-overview .block_coursecare-overview-stack {
+    display: flex;
+    height: 0.75rem;
+    margin: 0.75rem 0 1rem;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    background-color: var(--block-coursecare-track);
+}
+
+.block_coursecare-overview .block_coursecare-overview-segment {
+    display: block;
+    height: 100%;
+}
+
+/* Every segment colour has at least 3:1 against the panel and the track; a thin gap separates neighbours. */
+.block_coursecare-overview .block_coursecare-overview-segment + .block_coursecare-overview-segment {
+    border-left: 2px solid var(--block-coursecare-panel);
+}
+
+.block_coursecare-overview .block_coursecare-overview-legenditem {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-legendtext {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-swatch {
+    flex: 0 0 auto;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: 0.35rem;
+    border-radius: 0.2rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-material {
+    background-color: var(--block-coursecare-material);
+}
+
+.block_coursecare-overview .block_coursecare-overview-submission {
+    background-color: var(--block-coursecare-submission);
+}
+
+.block_coursecare-overview .block_coursecare-overview-other {
+    background-color: var(--block-coursecare-other);
+}
+
+.block_coursecare-overview .block_coursecare-overview-unclassified {
+    background-color: var(--block-coursecare-unclassified);
+}
+
+/* Rows of activities and large materials. */
+.block_coursecare-overview .block_coursecare-overview-item {
+    margin-bottom: 0.625rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-itemtext {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 1rem;
+    overflow-wrap: anywhere;
+}
+
+.block_coursecare-overview .block_coursecare-overview-itemvalue {
+    white-space: nowrap;
+}
+
+.block_coursecare-overview .block_coursecare-overview-bar {
+    height: 0.375rem;
+    margin-top: 0.25rem;
+    border-radius: 0.2rem;
+    background-color: var(--block-coursecare-track);
+}
+
+.block_coursecare-overview .block_coursecare-overview-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 0.2rem;
+    background-color: var(--block-coursecare-material);
+}
+
+.block_coursecare-overview details > summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* The heading stays on the line of the disclosure marker. */
+.block_coursecare-overview details > summary .block_coursecare-overview-summaryheading {
+    display: inline;
+}
+
+/* Small screens: one column, values under the names, no horizontal scrolling. */
+@media (max-width: 575.98px) {
+    .block_coursecare-overview .block_coursecare-overview-hero {
+        padding: 1rem 1.125rem;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-figure {
+        min-width: 0;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-volume {
+        font-size: 1.875rem;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-distribution,
+    .block_coursecare-overview .block_coursecare-overview-large {
+        padding: 1rem 1.125rem;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-itemtext {
+        flex-direction: column;
+    }
+
+    .block_coursecare-overview .block_coursecare-overview-itemvalue {
+        white-space: normal;
+    }
 }

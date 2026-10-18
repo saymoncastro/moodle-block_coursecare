@@ -105,6 +105,31 @@ class diagnostic_store {
     }
 
     /**
+     * Large-material links of a diagnostic grouped by activity (Feature 003 overview page).
+     *
+     * The links exist only for course materials (D10), so these totals never include a submission.
+     *
+     * @param int $diagid Diagnostic id.
+     * @return array<int, \stdClass> Rows with count and bytes, keyed by cmid (0 = course level).
+     */
+    public function get_large_materials_by_activity(int $diagid): array {
+        global $DB;
+
+        $records = $DB->get_records_sql(
+            "SELECT cmid, COUNT(1) AS linkcount, SUM(filesize) AS bytes
+               FROM {block_coursecare_large}
+              WHERE diagid = :diagid
+           GROUP BY cmid",
+            ['diagid' => $diagid]
+        );
+        $rows = [];
+        foreach ($records as $record) {
+            $rows[(int)$record->cmid] = (object)['count' => (int)$record->linkcount, 'bytes' => (int)$record->bytes];
+        }
+        return $rows;
+    }
+
+    /**
      * Run a callback in one delegated transaction, so that the other layers never open one themselves.
      *
      * @param callable $callback Work to run; an exception rolls everything back and is thrown again.

@@ -213,11 +213,11 @@ final class block_coursecare_test extends \advanced_testcase {
 
         $html = $this->get_block($course, 'course-view-topics')->get_content()->text;
 
+        // Feature 003: the identity sentence stays; the message announcing upcoming guidance is gone.
         $tagline = get_string('tagline', 'block_coursecare');
-        $intro = get_string('intro', 'block_coursecare');
         $this->assertNotFalse(strpos($html, $tagline));
-        $this->assertNotFalse(strpos($html, $intro));
-        $this->assertLessThan(strpos($html, $intro), strpos($html, $tagline));
+        $this->assertFalse(get_string_manager()->string_exists('intro', 'block_coursecare'));
+        $this->assertStringNotContainsString('Soon you will find guidance', $html);
 
         // No numbers, indicators, links or actions in the visible text.
         $this->assertDoesNotMatchRegularExpression('/\d/', strip_tags($html));
@@ -295,7 +295,8 @@ final class block_coursecare_test extends \advanced_testcase {
         ob_end_clean();
 
         $html = $this->get_block($course, 'course-view-topics', $block->instance)->get_content()->text;
-        $this->assertStringContainsString(get_string('diagnostic:volume', 'block_coursecare', display_size(2048)), $html);
+        $this->assertStringContainsString(get_string('overview:files', 'block_coursecare'), $html);
+        $this->assertStringContainsString(\block_coursecare\output\diagnostic_line::size(2048), $html);
         $this->assertStringContainsString(substr(get_string('diagnostic:calculatedon', 'block_coursecare', ''), 0, 10), $html);
     }
 
@@ -330,7 +331,7 @@ final class block_coursecare_test extends \advanced_testcase {
         $result = ['timecompleted' => $now - HOURSECS, 'timeattempted' => $now - HOURSECS, 'methodversion' => 1,
             'filecount' => 3, 'logicalbytes' => 6291456, 'partial' => 0];
         $failure = ['lastattemptfailed' => 1, 'failurecount' => 1, 'failurereason' => 'dml_read_exception'];
-        $volume = get_string('diagnostic:volume', 'block_coursecare', display_size(6291456));
+        $volume = \block_coursecare\output\diagnostic_line::size(6291456);
         $states = [
             'A not analysed' => [null, get_string('diagnostic:notavailable', 'block_coursecare')],
             'B queued' => [['requeststatus' => 1, 'timerequested' => $now],
@@ -346,6 +347,11 @@ final class block_coursecare_test extends \advanced_testcase {
                 get_string('diagnostic:nofiles', 'block_coursecare')],
             'H partial' => [['partial' => 1] + $result, $volume],
         ];
+
+        // Feature 003: the link to the overview page appears only when a result exists.
+        $withlink = ['D complete', 'E outdated', 'F failed with result', 'G no files', 'H partial'];
+        $link = s(get_string('overview:link', 'block_coursecare'));
+        $url = s((new \moodle_url('/blocks/coursecare/overview.php', ['id' => $instance->id]))->out(false));
 
         // One rendering first, so that string, configuration and template caches are warm in every measured state.
         $this->get_block($course, 'course-view-topics', $instance)->get_content();
@@ -366,6 +372,13 @@ final class block_coursecare_test extends \advanced_testcase {
             $reads[$name] = $DB->perf_get_reads() - $before;
 
             $this->assertStringContainsString(s($expected), $html, $name);
+            if (in_array($name, $withlink, true)) {
+                $this->assertStringContainsString($link, $html, $name);
+                $this->assertStringContainsString('href="' . $url . '"', $html, $name);
+            } else {
+                $this->assertStringNotContainsString($link, $html, $name);
+                $this->assertStringNotContainsString('overview.php', $html, $name);
+            }
             $this->assertStringContainsString($CFG->prefix . 'block_coursecare_diag', $queries, $name);
             $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries, $name);
         }
