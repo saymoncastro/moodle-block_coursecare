@@ -23,7 +23,8 @@ Posição: depois da abertura (`overview_summary`) e antes da grade de distribui
    - `dt` `suggestion:observed` → `dd`: `suggestion:large:observed` (count, threshold, size); `ul` dos
      lugares (atividade: nome com link; nível da sala: `overview:courselevel` com link para a sala);
      `suggestion:large:more` ({$a} = more) quando `more > 0`; `overview:large_truncated` quando
-     `truncated`.
+     `truncated`. Sem lugar com nome: `suggestion:large:observed_unnamed` (ou `_one`), sem `ul` e sem
+     `more`.
    - `dt` `suggestion:why` → `dd`: `suggestion:large:why`.
    - `dt` `suggestion:todo` → `dd`: `suggestion:large:todo`; `ul` com `suggestion:large:option1`,
      `option2`, `option3`.
@@ -66,6 +67,15 @@ Há duas variantes completas, escolhidas pela quantidade, não por concatenaçã
 | --- | --- | --- |
 | `suggestion:large:observed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in: | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, em: |
 | `suggestion:large:more_one` | and 1 more place, listed under Large files. | e mais 1 lugar, listado em Arquivos de grande porte. |
+
+Sem lugar com nome (todos os materiais grandes estão em atividades que o professor não pode ver ou que
+foram removidas): uma frase completa que remete à lista da seção de grandes, sem a lista de lugares e
+sem "e mais N lugares" (correção da revisão de código de 2026-10-18):
+
+| Chave | en | pt_br |
+| --- | --- | --- |
+| `suggestion:large:observed_unnamed` | {$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in activities listed under Large files. | {$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em atividades listadas em Arquivos de grande porte. |
+| `suggestion:large:observed_unnamed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in an activity listed under Large files. | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, numa atividade listada em Arquivos de grande porte. |
 
 Reaproveitadas: `overview:courselevel`, `overview:large_truncated`, tamanhos por
 `diagnostic_line::size()`, data por `userdate()` com `strftimedatetimeshort`.

@@ -23,7 +23,7 @@ materiais de grande porte**, com boas práticas curtas vinculadas a ela:
 - A página não lê nada novo: a regra usa a visão de grandes que a Feature 003 já monta.
 - O bloco faz uma leitura a mais, por índice, só quando há resultado com arquivos: se existe alguma
   ligação a material de grande porte.
-- Um template novo (`overview_suggestions`), 17 strings novas, sem JavaScript, sem tabela,
+- Um template novo (`overview_suggestions`), 19 strings novas, sem JavaScript, sem tabela,
   sem configuração, sem capability.
 
 ## Technical Context
@@ -60,7 +60,7 @@ Revisão de tom, validação visual e avaliação com professores (junto da 003)
 **Scale/Scope**:
 - 1 classe nova de regra, 1 método novo no coletor, alterações em 2 renderables e no bloco.
 - 1 template novo, 2 templates alterados, estilos da seção.
-- 17 strings novas em en e pt_br (15 frases e 2 variantes no singular).
+- 19 strings novas em en e pt_br (15 frases, 2 variantes no singular e 2 para quando não há lugar com nome).
 
 ## Constitution Check
 

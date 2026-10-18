@@ -30,8 +30,8 @@
 
     Context variables required for this template:
     * suggestions - object with heading, hassuggestion and none; with a suggestion also basedon, title,
-      observedlabel, whylabel, todolabel, observed, places (name, hasurl, url), more, truncated, why, todo and
-      options (objects with "text")
+      observedlabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url), more, truncated, why,
+      todo and options (objects with "text")
 
     Example context (json):
     {
@@ -45,6 +45,7 @@
             "whylabel": "Why it may deserve attention",
             "todolabel": "What you can do, if you wish",
             "observed": "2 course materials of 1.0 MB or more, 3.9 MB in total, in:",
+            "hasplaces": true,
             "places": [
                 {"name": "Lesson 1", "hasurl": true, "url": "https://example.com/mod/resource/view.php?id=7"}
             ],
@@ -67,11 +68,13 @@
             <dt>{{observedlabel}}</dt>
             <dd>
                 <p class="mb-1">{{observed}}</p>
+                {{#hasplaces}}
                 <ul class="block_coursecare-overview-places">
                     {{#places}}
                     <li>{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</li>
                     {{/places}}
                 </ul>
+                {{/hasplaces}}
                 {{#more}}
                 <p class="mb-1">{{more}}</p>
                 {{/more}}

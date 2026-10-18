@@ -74,7 +74,7 @@ em `logs/t026/`.
 
 ## Revisão de tom (T027)
 
-**Preparada em 2026-10-18; aguardando a aprovação do proprietário do produto.** As 17 strings novas,
+**Preparada em 2026-10-18; aguardando a aprovação do proprietário do produto.** As 19 strings novas,
 em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 
 - a ação é sempre opcional ("se quiser", "avalie se alguma destas opções faz sentido", "nem todas se
@@ -95,6 +95,8 @@ em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 | `suggestion:large:more_one` | and 1 more place, listed under Large files. | e mais 1 lugar, listado em Arquivos de grande porte. |
 | `suggestion:large:observed` | {$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in: | {$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em: |
 | `suggestion:large:observed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in: | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, em: |
+| `suggestion:large:observed_unnamed` | {$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in activities listed under Large files. | {$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em atividades listadas em Arquivos de grande porte. |
+| `suggestion:large:observed_unnamed_one` | 1 course material of {$a->threshold} or more, {$a->size}, in an activity listed under Large files. | 1 material da sala de {$a->threshold} ou mais, com {$a->size}, numa atividade listada em Arquivos de grande porte. |
 | `suggestion:large:option1` | an optimised version of the file that stays readable and accessible, such as a PDF with images at a resolution suited to the screen, or a video at the resolution it needs; | uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária; |
 | `suggestion:large:option2` | splitting long content into shorter parts; | dividir um conteúdo longo em partes menores; |
 | `suggestion:large:option3` | a link to where the content is already published. | um link para onde o conteúdo já está publicado. |

@@ -488,6 +488,31 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringNotContainsString('Secret plan', $section);
         $this->assertStringContainsString($str('suggestion:large:more', 2), $section);
 
+        // Large materials only in removed activities: no named place, so a sentence without the list and without
+        // "and N more"; in the singular with one material.
+        [$course] = $this->course_with_large_links(['removed' => 4 * $mb]);
+        $section = self::suggestions_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('suggestion:large:observed_unnamed_one', (object)[
+            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(4 * $mb)]), $section);
+        $this->assertStringNotContainsString('block_coursecare-overview-places', $section);
+        $this->assertStringNotContainsString($str('suggestion:large:more_one'), $section);
+        [$course, $cms] = $this->course_with_large_links(['Secret plan' => 3 * $mb, 'removed' => 4 * $mb]);
+        $roleid = (int)$DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        assign_capability(
+            'moodle/course:viewhiddenactivities',
+            CAP_PROHIBIT,
+            $roleid,
+            \context_course::instance($course->id)->id
+        );
+        set_coursemodule_visible($cms['Secret plan']->cmid, 0);
+        rebuild_course_cache((int)$course->id, true);
+        $section = self::suggestions_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('suggestion:large:observed_unnamed', (object)['count' => 2,
+            'threshold' => diagnostic_line::size($mb), 'size' => diagnostic_line::size(7 * $mb)]), $section);
+        $this->assertStringNotContainsString('block_coursecare-overview-places', $section);
+        $this->assertStringNotContainsString($str('suggestion:large:more', 2), $section);
+        $this->assertStringNotContainsString('Secret plan', $section);
+
         // Truncated links: the notice inside the suggestion.
         [$course] = $this->course_with_large_links(['Lab video' => 3 * $mb], ['largelinkstruncated' => 1]);
         $section = self::suggestions_section($this->render((int)$course->id));
@@ -526,7 +551,7 @@ final class course_overview_test extends \advanced_testcase {
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'suggestion')
             || $key === 'block:suggestion', ARRAY_FILTER_USE_KEY);
-        $this->assertCount(17, $new);
+        $this->assertCount(19, $new);
         $this->assertDoesNotMatchRegularExpression(
             '/\b(deve|desperdício|excluir|economia|economizar)\b/iu',
             implode(' ', $new)

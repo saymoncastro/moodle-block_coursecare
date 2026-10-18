@@ -106,6 +106,22 @@ class course_overview implements \renderable, \templatable {
     }
 
     /**
+     * What was noticed by the suggestion S1, as one complete sentence: before the list of places when there is one,
+     * otherwise pointing to the list under Large files (all the large materials are in activities without a name).
+     *
+     * @param int $count Large course materials.
+     * @param string $threshold Formatted large-file threshold.
+     * @param string $size Formatted total size.
+     * @param bool $hasplaces Whether named places follow.
+     * @return string
+     */
+    private function observed_sentence(int $count, string $threshold, string $size, bool $hasplaces): string {
+        $key = 'suggestion:large:observed' . ($hasplaces ? '' : '_unnamed') . ($count === 1 ? '_one' : '');
+        $a = (object)['count' => $count, 'threshold' => $threshold, 'size' => $size];
+        return get_string($key, 'block_coursecare', $a);
+    }
+
+    /**
      * The suggestions section (Feature 004): suggestion S1 when it applies, otherwise one neutral sentence. Only with
      * a result; without one the section is not shown.
      *
@@ -139,12 +155,11 @@ class course_overview implements \renderable, \templatable {
             'observedlabel' => $str('suggestion:observed'),
             'whylabel' => $str('suggestion:why'),
             'todolabel' => $str('suggestion:todo'),
-            'observed' => $suggestion['count'] === 1
-                ? $str('suggestion:large:observed_one', (object)['threshold' => $threshold, 'size' => $size])
-                : $str('suggestion:large:observed', (object)['count' => $suggestion['count'], 'threshold' => $threshold,
-                    'size' => $size]),
+            'observed' => $this->observed_sentence($suggestion['count'], $threshold, $size, $places !== []),
+            'hasplaces' => $places !== [],
             'places' => $places,
-            'more' => match ($suggestion['more']) {
+            // Without a named place, the sentence itself points to the list under Large files.
+            'more' => match ($places === [] ? 0 : $suggestion['more']) {
                 0 => '',
                 1 => $str('suggestion:large:more_one'),
                 default => $str('suggestion:large:more', $suggestion['more']),
