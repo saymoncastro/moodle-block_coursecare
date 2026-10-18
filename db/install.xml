@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/coursecare/db" VERSION="20261016" COMMENT="XMLDB file for Moodle blocks/coursecare"
+<XMLDB PATH="blocks/coursecare/db" VERSION="20261019" COMMENT="XMLDB file for Moodle blocks/coursecare"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -103,6 +103,31 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="diagid" TYPE="foreign" FIELDS="diagid" REFTABLE="block_coursecare_diag" REFFIELDS="id"/>
       </KEYS>
+    </TABLE>
+    <TABLE NAME="block_coursecare_hist" COMMENT="History of the storage diagnostic of a course: at most one point per course and day (Feature 006). Course totals only, no personal data.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timeday" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Midnight of the analysis day in the site default timezone"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time of the analysis"/>
+        <FIELD NAME="methodversion" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Calculation method version of the analysis"/>
+        <FIELD NAME="partial" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 when the analysis had partial coverage"/>
+        <FIELD NAME="filecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Files recorded (logical storage)"/>
+        <FIELD NAME="logicalbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Logical storage"/>
+        <FIELD NAME="uniquecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Unique contents"/>
+        <FIELD NAME="uniquebytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Unique content"/>
+        <FIELD NAME="materialbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course materials category"/>
+        <FIELD NAME="submissionbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Submissions category (course total)"/>
+        <FIELD NAME="otherbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Other files category"/>
+        <FIELD NAME="unclassifiedbytes" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Unclassified category"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid-timeday" UNIQUE="true" FIELDS="courseid, timeday"/>
+        <INDEX NAME="timeday" UNIQUE="false" FIELDS="timeday"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

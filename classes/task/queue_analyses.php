@@ -46,6 +46,12 @@ class queue_analyses extends \core\task\scheduled_task {
     /** @var string Failure code of an interrupted analysis. */
     public const REASON_INTERRUPTED = 'interrupted';
 
+    /** @var int Maximum history points removed by the retention in one run (Feature 006). */
+    public const HISTORY_BATCH = 10000;
+
+    /** @var int Default retention of the history points, when the setting is empty. */
+    public const HISTORY_RETENTION = 365 * DAYSECS;
+
     /**
      * Task name.
      *
@@ -61,8 +67,10 @@ class queue_analyses extends \core\task\scheduled_task {
     public function execute() {
         $stats = $this->run(time());
         mtrace(sprintf(
-            'block_coursecare: %d orphan diagnostic(s) removed, %d interrupted, %d released, %d queued',
+            'block_coursecare: %d orphan diagnostic(s) removed, %d old history point(s) removed, %d interrupted, ' .
+                '%d released, %d queued',
             $stats['orphans'],
+            $stats['history'],
             $stats['interrupted'],
             $stats['released'],
             $stats['queued']
@@ -74,9 +82,10 @@ class queue_analyses extends \core\task\scheduled_task {
      *
      * @param int $now Current time.
      * @param int $batch Maximum courses queued and orphans removed in this run.
-     * @return array{orphans: int, interrupted: int, released: int, queued: int}
+     * @param int $historybatch Maximum history points removed by the retention in this run.
+     * @return array{orphans: int, history: int, interrupted: int, released: int, queued: int}
      */
-    public function run(int $now, int $batch = self::BATCH): array {
+    public function run(int $now, int $batch = self::BATCH, int $historybatch = self::HISTORY_BATCH): array {
         $store = new diagnostic_store();
         $eligibility = new eligibility();
 
@@ -84,6 +93,11 @@ class queue_analyses extends \core\task\scheduled_task {
         foreach ($orphans as $courseid) {
             $store->delete_for_course($courseid);
         }
+
+        // Retention of the history (Feature 006): points older than the setting, in a bounded batch.
+        $retention = (int)get_config('block_coursecare', 'historyretention');
+        $retention = $retention > 0 ? $retention : self::HISTORY_RETENTION;
+        $history = $store->purge_history(diagnostic_store::history_day($now) - $retention, $historybatch);
 
         $stuck = $store->recover_stuck($now, self::RUNNING_TIMEOUT, self::QUEUED_TIMEOUT, self::REASON_INTERRUPTED);
 
@@ -100,6 +114,6 @@ class queue_analyses extends \core\task\scheduled_task {
             }
         }
 
-        return ['orphans' => count($orphans)] + $stuck + ['queued' => $queued];
+        return ['orphans' => count($orphans), 'history' => $history] + $stuck + ['queued' => $queued];
     }
 }

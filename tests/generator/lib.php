@@ -157,4 +157,37 @@ class block_coursecare_generator extends testing_block_generator {
         $row['id'] = $DB->insert_record('block_coursecare_large', (object)$row);
         return (object)$row;
     }
+
+    /**
+     * Add a history point to a course (Feature 006), on the day a given number of days ago in the site timezone.
+     *
+     * Keys: courseid, daysago (0 = today), and any field of block_coursecare_hist (missing values are 0; the method
+     * version is the current one). logicalbytes defaults to the sum of the four categories.
+     *
+     * @param array|stdClass $record Values.
+     * @return stdClass
+     */
+    public function create_diagnostic_history($record): stdClass {
+        global $DB;
+
+        $record = (array)$record;
+        if (empty($record['courseid'])) {
+            throw new coding_exception('courseid is required to create a CourseCare history point');
+        }
+        $time = time() - (int)($record['daysago'] ?? 0) * DAYSECS;
+        unset($record['daysago']);
+        $categories = ['materialbytes', 'submissionbytes', 'otherbytes', 'unclassifiedbytes'];
+        $row = $record + array_fill_keys($categories, 0) + [
+            'timeday' => \block_coursecare\local\collector\diagnostic_store::history_day($time),
+            'timecompleted' => $time,
+            'methodversion' => \block_coursecare\local\analysis\indicator_calculator::METHOD_VERSION,
+            'partial' => 0,
+            'filecount' => 1,
+            'uniquecount' => 1,
+            'uniquebytes' => 0,
+        ];
+        $row['logicalbytes'] = $row['logicalbytes'] ?? array_sum(array_intersect_key($row, array_flip($categories)));
+        $row['id'] = $DB->insert_record('block_coursecare_hist', (object)$row);
+        return (object)$row;
+    }
 }

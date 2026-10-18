@@ -63,6 +63,23 @@ final class queue_analyses_test extends \advanced_testcase {
     }
 
     /**
+     * Write a history point directly, a given number of days before NOW.
+     *
+     * @param int $courseid Course.
+     * @param int $daysago Days before NOW.
+     */
+    private function set_point(int $courseid, int $daysago): void {
+        global $DB;
+        $time = self::NOW - $daysago * DAYSECS;
+        $DB->insert_record('block_coursecare_hist', (object)[
+            'courseid' => $courseid, 'timeday' => diagnostic_store::history_day($time), 'timecompleted' => $time,
+            'methodversion' => indicator_calculator::METHOD_VERSION, 'partial' => 0, 'filecount' => 1, 'logicalbytes' => 1,
+            'uniquecount' => 1, 'uniquebytes' => 1, 'materialbytes' => 1, 'submissionbytes' => 0, 'otherbytes' => 0,
+            'unclassifiedbytes' => 0,
+        ]);
+    }
+
+    /**
      * Number of queued analysis tasks.
      *
      * @return int
@@ -159,10 +176,13 @@ final class queue_analyses_test extends \advanced_testcase {
         $course = $this->course_with_block();
         $this->set_record($course->id, ['timecompleted' => self::NOW, 'timeattempted' => self::NOW]);
         $this->set_record(987654, ['timecompleted' => self::NOW, 'timeattempted' => self::NOW]);
+        $this->set_point($course->id, 1);
+        $this->set_point(987654, 1);
         $DB->delete_records('block_instances', ['blockname' => 'coursecare']);
 
         $this->assertSame(2, (new queue_analyses())->run(self::NOW)['orphans']);
         $this->assertSame(0, $DB->count_records('block_coursecare_diag'));
+        $this->assertSame(0, $DB->count_records('block_coursecare_hist'));
     }
 
     /**
@@ -237,5 +257,38 @@ final class queue_analyses_test extends \advanced_testcase {
         $this->assertNull($store->get_summary($newcourseid));
         (new queue_analyses())->run(time());
         $this->assertSame(diagnostic_store::STATUS_QUEUED, (int)$store->get_summary($newcourseid)->requeststatus);
+    }
+
+    /**
+     * Retention of the history (Feature 006): points older than the setting are removed, at most the batch per run.
+     */
+    public function test_history_retention(): void {
+        global $DB;
+        $this->resetAfterTest();
+        set_config('historyretention', 90 * DAYSECS, 'block_coursecare');
+        $course = $this->course_with_block();
+        $this->set_record($course->id, ['timecompleted' => self::NOW, 'timeattempted' => self::NOW]);
+        foreach ([100, 89, 0] as $daysago) {
+            $this->set_point($course->id, $daysago);
+        }
+
+        $this->assertSame(1, (new queue_analyses())->run(self::NOW)['history']);
+        $this->assertSame(2, $DB->count_records('block_coursecare_hist'));
+        $this->assertSame(0, (new queue_analyses())->run(self::NOW)['history']);
+
+        // More old points than the batch: at most the batch per run.
+        foreach ([200, 201, 202] as $daysago) {
+            $this->set_point($course->id, $daysago);
+        }
+        $this->assertSame(2, (new queue_analyses())->run(self::NOW, queue_analyses::BATCH, 2)['history']);
+        $this->assertSame(1, (new queue_analyses())->run(self::NOW, queue_analyses::BATCH, 2)['history']);
+        $this->assertSame(2, $DB->count_records('block_coursecare_hist'));
+
+        // Without the setting, the default of 365 days.
+        unset_config('historyretention', 'block_coursecare');
+        $this->set_point($course->id, 300);
+        $this->set_point($course->id, 400);
+        $this->assertSame(1, (new queue_analyses())->run(self::NOW)['history']);
+        $this->assertSame(3, $DB->count_records('block_coursecare_hist'));
     }
 }

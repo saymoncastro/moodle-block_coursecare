@@ -54,4 +54,16 @@ if ($ADMIN->fulltree) {
     );
     $setting->set_min_duration(HOURSECS);
     $settings->add($setting);
+
+    // How long the history points are kept (Feature 006): from 90 days to 5 years.
+    $setting = new admin_setting_configduration(
+        'block_coursecare/historyretention',
+        new lang_string('settings:historyretention', 'block_coursecare'),
+        new lang_string('settings:historyretention_desc', 'block_coursecare'),
+        365 * DAYSECS,
+        DAYSECS
+    );
+    $setting->set_min_duration(90 * DAYSECS);
+    $setting->set_max_duration(5 * 365 * DAYSECS);
+    $settings->add($setting);
 }

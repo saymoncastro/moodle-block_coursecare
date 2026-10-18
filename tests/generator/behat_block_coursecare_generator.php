@@ -35,6 +35,9 @@ class behat_block_coursecare_generator extends behat_generator_base {
      *   of block_coursecare_act such as materialbytes;
      * - "block_coursecare > diagnostic large links": course, activity (idnumber; omit it for the course level), filesize.
      *
+     * History points (Feature 006): "block_coursecare > diagnostic history points": course, daysago and fields of
+     * block_coursecare_hist such as logicalbytes, materialbytes, submissionbytes, methodversion or partial.
+     *
      * @return array
      */
     protected function get_creatable_entities(): array {
@@ -56,6 +59,12 @@ class behat_block_coursecare_generator extends behat_generator_base {
                 'datagenerator' => 'diagnostic_activity',
                 'required' => ['course'],
                 'switchids' => ['course' => 'courseid', 'activity' => 'cmid'],
+            ],
+            'diagnostic history points' => [
+                'singular' => 'diagnostic history point',
+                'datagenerator' => 'diagnostic_history',
+                'required' => ['course'],
+                'switchids' => ['course' => 'courseid'],
             ],
             'diagnostic large links' => [
                 'singular' => 'diagnostic large link',

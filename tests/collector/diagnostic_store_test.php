@@ -236,4 +236,106 @@ final class diagnostic_store_test extends \advanced_testcase {
         $store->has_large_materials((int)$with->id);
         $this->assertSame(1, $DB->perf_get_reads() - $reads);
     }
+
+    /**
+     * A result with categories and unique content, for the history (Feature 006).
+     *
+     * @param int $material Material bytes.
+     * @param int $submission Submission bytes.
+     * @param int $partial Partial coverage flag.
+     * @return diagnostic_result
+     */
+    private static function history_result(int $material, int $submission, int $partial = 0): diagnostic_result {
+        $summary = array_fill_keys(diagnostic_result::SUMMARY_FIELDS, null);
+        $summary = ['methodversion' => 1, 'largethreshold' => 100, 'filecount' => 3, 'logicalbytes' => $material + $submission,
+            'uniquecount' => 2, 'uniquebytes' => $material, 'partial' => $partial] + $summary;
+        $row = fn(int $bytes): array => ['filecount' => 1, 'logicalbytes' => $bytes, 'uniquecount' => 1, 'uniquebytes' => $bytes];
+        return new diagnostic_result($summary, ['material' => $row($material), 'submission' => $row($submission)], [], []);
+    }
+
+    /**
+     * Each successful analysis writes the point of its day, a second analysis on the same day replaces it, a failure
+     * writes nothing, and the points are read, purged and removed with the course (Feature 006, T004).
+     */
+    public function test_history_point_saved_with_result(): void {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+        $this->setTimezone('America/Sao_Paulo');
+        $store = new diagnostic_store();
+        $noon = make_timestamp(2026, 10, 10, 12, 0, 0, \core_date::get_server_timezone());
+        $day = diagnostic_store::history_day($noon);
+
+        $DB->set_debug(true);
+        ob_start();
+        $store->save_result(42, self::history_result(1000, 500), $noon);
+        $points = $store->get_history(42, 0);
+        $queries = ob_get_clean();
+        $DB->set_debug(false);
+        $this->assertDoesNotMatchRegularExpression('/\b' . preg_quote($CFG->prefix, '/') . 'files\b/', $queries);
+
+        $this->assertCount(1, $points);
+        $point = $points[0];
+        $this->assertSame($day, (int)$point->timeday);
+        $this->assertSame($noon, (int)$point->timecompleted);
+        $this->assertSame(1500, (int)$point->logicalbytes);
+        $this->assertSame(3, (int)$point->filecount);
+        $this->assertSame(2, (int)$point->uniquecount);
+        $this->assertSame(1000, (int)$point->uniquebytes);
+        $this->assertSame(1000, (int)$point->materialbytes);
+        $this->assertSame(500, (int)$point->submissionbytes);
+        $this->assertSame(0, (int)$point->otherbytes);
+        $this->assertSame(0, (int)$point->unclassifiedbytes);
+        $this->assertSame(1, (int)$point->methodversion);
+        $this->assertSame(0, (int)$point->partial);
+
+        // A second analysis the same day replaces the point; the next day adds one; a failure changes nothing.
+        $store->save_result(42, self::history_result(1200, 500, 1), $noon + 3 * HOURSECS);
+        $this->assertCount(1, $store->get_history(42, 0));
+        $this->assertSame(1700, (int)$store->get_history(42, 0)[0]->logicalbytes);
+        $this->assertSame(1, (int)$store->get_history(42, 0)[0]->partial);
+        $store->save_result(42, self::history_result(0, 0), $noon + DAYSECS);
+        $store->save_failure(42, 'dml_read_exception', $noon + 2 * DAYSECS);
+        $points = $store->get_history(42, 0);
+        $this->assertCount(2, $points);
+        $this->assertSame([1700, 0], array_map(fn($p) => (int)$p->logicalbytes, $points));
+        $this->assertSame((int)$store->get_summary(42)->logicalbytes, (int)end($points)->logicalbytes);
+
+        // Only the points of the course from the given day on.
+        $store->save_result(43, self::history_result(10, 0), $noon);
+        $this->assertCount(1, $store->get_history(42, $day + 1));
+        $this->assertCount(1, $store->get_history(43, 0));
+
+        // Purge: older than a day, at most the limit, any course.
+        $this->assertSame(1, $store->purge_history($day + 1, 1));
+        $this->assertSame(1, $store->purge_history($day + 1, 10));
+        $this->assertSame(0, $store->purge_history($day + 1, 10));
+        $this->assertCount(1, $store->get_history(42, 0));
+
+        // Removal of the course removes its history.
+        $store->delete_for_course(42);
+        $this->assertSame([], $store->get_history(42, 0));
+        $this->assertCount(0, $store->get_history(43, 0));
+    }
+
+    /**
+     * An error inside the transaction of the result changes neither the result nor the history point.
+     */
+    public function test_history_point_is_atomic(): void {
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+        $store = new diagnostic_store();
+        $now = 1790000000;
+        $store->save_result(42, self::history_result(1000, 0), $now);
+        $summary = self::history_result(5000, 0)->summary;
+        $bad = new diagnostic_result($summary, [str_repeat('x', 40) => array_fill_keys(diagnostic_result::CATEGORY_FIELDS, 1)]);
+        try {
+            $store->save_result(42, $bad, $now + 60);
+            $this->fail('An exception was expected');
+        } catch (\dml_exception $e) {
+            $this->assertInstanceOf(\dml_exception::class, $e);
+        }
+        $points = $store->get_history(42, 0);
+        $this->assertCount(1, $points);
+        $this->assertSame(1000, (int)$points[0]->logicalbytes);
+    }
 }
