@@ -108,7 +108,8 @@ tipo do módulo, o id da instância e a visibilidade para estudantes.
 
 **Decisão**: quando há resultado do diagnóstico, a seção diz, numa frase, o total de "Arquivos enviados
 em atividades" da sala, com a data da análise, e que ele não se compara tarefa a tarefa com o potencial.
-Sem resultado, a frase não aparece; o potencial independe do diagnóstico.
+Sem resultado, ou com resultado sem envios registrados (categoria com 0 bytes), a frase não aparece: uma
+soma de "0 bytes" não acrescenta ao entendimento do potencial. O potencial independe do diagnóstico.
 
 ## R9. Seção independente do diagnóstico
 

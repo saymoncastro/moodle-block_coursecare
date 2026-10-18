@@ -12,8 +12,9 @@ Estende o contrato da página da Feature 003 e mantém a direção visual aprova
 
 1. `h3` `potential:heading`; `potential:intro` (o que é, calculado agora); `potential:meaning` (o que
    não é); `potential:scope` (só tarefas).
-2. Com resultado do diagnóstico: `potential:recorded` (total de "Arquivos enviados em atividades" da sala
-   e a data da análise; não se compara tarefa a tarefa).
+2. Com resultado do diagnóstico e "Arquivos enviados em atividades" maior que zero: `potential:recorded`
+   (total da categoria na sala e a data da análise; não se compara tarefa a tarefa). Sem envios
+   registrados (0 bytes) ou sem resultado, a frase não aparece.
 3. Lista (`ul`) na ordem da sala; por tarefa (`li`):
    - nome atual com link (já formatado, sem escape duplo); `potential:hidden` quando oculta para estudantes;
    - frase das configurações: `potential:files_participant[_one]` ou `potential:files_group[_one]`;
