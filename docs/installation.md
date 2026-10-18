@@ -2,12 +2,13 @@
 
 ## Requirements
 
-| Moodle | PHP | Databases tested |
+| Moodle | PHP tested | Databases tested |
 | --- | --- | --- |
-| 4.5 LTS | 8.1 to 8.3 | PostgreSQL 17, MariaDB 11.4 |
-| 5.3 LTS | 8.3 to 8.4 | PostgreSQL 17, MariaDB 11.4 |
+| 4.5 LTS | 8.1, 8.3 | PostgreSQL 17, MariaDB 11.4 |
+| 5.3 LTS | 8.3, 8.4 | PostgreSQL 17, MariaDB 11.4 |
 
-Any database supported by your Moodle version should work; the plugin uses only Moodle's database API.
+Other PHP versions and databases supported by your Moodle version are expected to work (the plugin uses
+only Moodle's database API) but were not tested.
 The site needs a working **cron** (scheduled and ad hoc tasks): without it no course is analysed and the
 block keeps saying the overview is being prepared. No other software, service or library is needed.
 
