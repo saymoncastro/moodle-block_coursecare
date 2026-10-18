@@ -294,6 +294,23 @@ Runs anteriores da branch, todos verdes: US3 (`c83a620`), US4 (`8f3a2c9`) e US5/
 Qualquer commit posterior (por exemplo, correções vindas da avaliação com professores) precisa de um
 novo run registrado aqui.
 
-## Constitution Check reavaliado (T055)
+## Constitution Check reavaliado (T055) — reavaliação técnica, aguardando os itens humanos
 
-Pendente.
+Verificação técnica sobre o código de `main` em `91f1aa0` (2026-10-19, Feature 007, grupo A): `$DB` só em `local\collector`, nas tarefas, no CLI e em `db/`; `local\analysis` e `local\recommendation` sem `$DB`, `$CFG` ou `get_string`; nenhuma consulta à tabela `files` em `classes/output`, `block_coursecare.php` ou `overview.php` (testes de leitura das features); acesso por `require_login` + `require_capability('block/coursecare:view')` em `overview_access`; `null_provider`; en e pt_br com 162 chaves cada; CI verde em 4.5.
+
+| Princípio | Verificação | Situação |
+| --- | --- | --- |
+| I. Educação | Textos sem avaliação, ranking ou cobrança; testes de palavras proibidas | ✅ |
+| II. Simplicidade | Bloco com uma mensagem; página em níveis; detalhes recolhidos | ✅ |
+| III. Recomendações | Nenhuma na 003 | ✅ N/A |
+| IV. Honestidade | Lógico e único rotulados e não somados; datas; estados A–H | ✅ |
+| V. Integração nativa | Block, Output, String APIs; `get_fast_modinfo` | ✅ |
+| VI. Desempenho | Página só com tabelas próprias; medições T044 | ✅ |
+| VII. Segurança e privacidade | Acesso verificado; envios só no total da sala | ✅ |
+| VIII. Internacionalização | Paridade; formatação de tamanhos pela localidade | ✅ |
+| IX. Qualidade e camadas | Camadas conferidas; PHPUnit e Behat | ✅ |
+| X. Experiência visual | Direção aprovada; aprovação final das capturas (T048) e teste com leitor de tela pendentes | ⏳ |
+| XI. Evolução incremental | Sem abstrações novas | ✅ |
+| XII. Software livre | GPL v3+, cabeçalhos; titularidade em apuração (Feature 007, Q3) | ⏳ |
+
+**Pendente para fechar a tarefa**: T047 e T048 (aprovações), T050–T052 (avaliação com professores, correções críticas, quickstart com leitor de tela).

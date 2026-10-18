@@ -244,6 +244,23 @@ na 0.4.0, com as salas do roteiro e os tours do Moodle concluídos para o profes
 **Não realizada**; nenhum participante ou resultado registrado. Falta recrutar cinco professores,
 agendar e conduzir as sessões. Não bloqueia a implementação nem o teste local.
 
-## Constitution Check reavaliado (T032)
+## Constitution Check reavaliado (T032) — reavaliação técnica, aguardando a avaliação com professores
 
-Pendente.
+Verificação técnica sobre o código de `main` em `91f1aa0` (2026-10-19, Feature 007, grupo A): `$DB` só em `local\collector`, nas tarefas, no CLI e em `db/`; `local\analysis` e `local\recommendation` sem `$DB`, `$CFG` ou `get_string`; nenhuma consulta à tabela `files` em `classes/output`, `block_coursecare.php` ou `overview.php` (testes de leitura das features); acesso por `require_login` + `require_capability('block/coursecare:view')` em `overview_access`; `null_provider`; en e pt_br com 162 chaves cada; CI verde em 4.5.
+
+| Princípio | Verificação | Situação |
+| --- | --- | --- |
+| I. Educação | Sugestão opcional, sem obrigação; testes de palavras proibidas | ✅ |
+| II. Simplicidade | Uma frase no bloco; cartão de três partes | ✅ |
+| III. Recomendações | S1 com fatos, motivo e possibilidades; critério documentado e configurável (limiar) | ✅ |
+| IV. Honestidade | S1 só com materiais (nunca envios) | ✅ |
+| V. Integração nativa | Links para páginas nativas | ✅ |
+| VI. Desempenho | Uma leitura indexada a mais no bloco (T026) | ✅ |
+| VII. Segurança e privacidade | Mesmo acesso da 003 | ✅ |
+| VIII. Internacionalização | Paridade; tom aprovado (T027) | ✅ |
+| IX. Qualidade e camadas | `local\recommendation` pura | ✅ |
+| X. Experiência visual | Capturas aprovadas (T028); teste com leitor de tela pendente | ⏳ |
+| XI. Evolução incremental | Uma regra, sem registro de regras | ✅ |
+| XII. Software livre | GPL v3+, cabeçalhos; titularidade em apuração (Feature 007, Q3) | ⏳ |
+
+**Pendente para fechar a tarefa**: T031 (avaliação com cinco professores, junto da 003) e o teste com leitor de tela.
