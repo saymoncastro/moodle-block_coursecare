@@ -112,4 +112,7 @@ Pontos para a decisão do proprietário do produto:
 - Atualização do site de desenvolvimento e do site de demonstração para 0.6.0: sem erros.
 - phpcs e Mustache lint: rodam no CI (não disponíveis localmente); conferidos à mão comprimento de linha,
   espaços e o estilo de chamadas em várias linhas exigido pelo CI da 005.
+- Pacote (T033): `tools/package/build.sh` e `tools/package/check.php build/block_coursecare-0.6.0.zip`:
+  **0 erros, 84 arquivos** (a primeira verificação recusou `db/upgradelib.php`, arquivo padrão do Moodle
+  exigido pela atualização; acrescentado à lista de arquivos permitidos da ferramenta).
 - CI (T034): **pendente** — a branch não foi publicada; o push depende da autorização do proprietário do produto.
