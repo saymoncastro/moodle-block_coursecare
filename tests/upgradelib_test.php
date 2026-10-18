@@ -66,8 +66,8 @@ final class upgradelib_test extends \advanced_testcase {
         $diag = $DB->get_record('block_coursecare_diag', ['courseid' => $full->id]);
         $point = $DB->get_record('block_coursecare_hist', ['courseid' => $full->id], '*', MUST_EXIST);
         $this->assertSame((int)$diag->timecompleted, (int)$point->timecompleted);
-        $this->assertSame(usergetmidnight((int)$diag->timecompleted, \core_date::get_server_timezone()),
-            (int)$point->timeday);
+        $day = usergetmidnight((int)$diag->timecompleted, \core_date::get_server_timezone());
+        $this->assertSame($day, (int)$point->timeday);
         $this->assertSame(1500, (int)$point->logicalbytes);
         $this->assertSame(1200, (int)$point->uniquebytes);
         $this->assertSame(1000, (int)$point->materialbytes);

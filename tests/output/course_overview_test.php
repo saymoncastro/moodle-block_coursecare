@@ -1027,16 +1027,17 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringContainsString($expected, $section);
         $this->assertStringContainsString('chart-area', $section);
         $this->assertStringNotContainsString('chart-table', $section);
-        $this->assertMatchesRegularExpression('/<details class="block_coursecare-overview-historydata">\s*<summary>' .
-            preg_quote($str('data'), '/') . '<\/summary>/', $section);
+        $pattern = '/<details class="block_coursecare-overview-historydata">\s*<summary>' . preg_quote($str('data'), '/') .
+            '<\/summary>/';
+        $this->assertMatchesRegularExpression($pattern, $section);
         $this->assertSame(3, substr_count($section, '<th scope="row">'));
         $this->assertLessThan(strpos($section, $date($points[0])), strpos($section, $date($points[2])));
 
         // An increase and no change.
         $course = $this->course_with_history([1 => ['materialbytes' => 100], 0 => ['materialbytes' => 300]]);
         $section = self::history_section($this->render((int)$course->id));
-        $this->assertStringContainsString(substr($str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F',
-            'to' => 'T']), 0, 30), $section);
+        $increased = $str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F', 'to' => 'T']);
+        $this->assertStringContainsString(substr($increased, 0, 30), $section);
         $course = $this->course_with_history([1 => ['materialbytes' => 100], 0 => ['materialbytes' => 100]]);
         $section = self::history_section($this->render((int)$course->id));
         $this->assertStringContainsString(substr($str('unchanged', (object)['date' => 'D', 'to' => 'T']), 0, 30), $section);
@@ -1081,19 +1082,19 @@ final class course_overview_test extends \advanced_testcase {
             0 => ['materialbytes' => 900]]);
         $section = self::history_section($this->render((int)$course->id));
         $this->assertStringContainsString(substr($str('methodchanged', 'D'), 0, 20), $section);
-        $this->assertStringNotContainsString(substr($str('increased', (object)['delta' => 'X', 'date' => 'D',
-            'from' => 'F', 'to' => 'T']), 0, 30), $section);
+        $increased = $str('increased', (object)['delta' => 'X', 'date' => 'D', 'from' => 'F', 'to' => 'T']);
+        $this->assertStringNotContainsString(substr($increased, 0, 30), $section);
 
         // No judgement, cause or alarm, in English and in Brazilian Portuguese ("problem" and "improvement" appear
         // only denied, in the sentence of what a change does not mean).
-        $this->assertDoesNotMatchRegularExpression('/\b(waste|should|must|reduce|alarm|warning)\b/i',
-            strip_tags($section));
+        $judgement = '/\b(waste|should|must|reduce|alarm|warning)\b/i';
+        $this->assertDoesNotMatchRegularExpression($judgement, strip_tags($section));
         $string = [];
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'history:'), ARRAY_FILTER_USE_KEY);
         $this->assertCount(23, $new);
-        $this->assertDoesNotMatchRegularExpression('/\b(desperdício|deve|reduz\w*|economi\w*|alerta)\b/iu',
-            implode(' ', $new));
+        $judgement = '/\b(desperdício|deve|reduz\w*|economi\w*|alerta)\b/iu';
+        $this->assertDoesNotMatchRegularExpression($judgement, implode(' ', $new));
     }
 
     /**
