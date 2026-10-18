@@ -66,4 +66,29 @@ final class course_structure_test extends \advanced_testcase {
         $this->assertFalse($activities[$hidden->cmid]->uservisible);
         $this->assertTrue($activities[$page->cmid]->uservisible);
     }
+
+    /**
+     * Each activity carries its module type, its instance id and whether students can see it (Feature 005, R7),
+     * in the order of the course.
+     */
+    public function test_activity_type_and_visibility(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $assign = $generator->create_module('assign', ['course' => $course->id]);
+        $hidden = $generator->create_module('assign', ['course' => $course->id, 'visible' => 0]);
+        $page = $generator->create_module('page', ['course' => $course->id]);
+
+        $activities = (new course_structure())->get_activities((int)$course->id);
+
+        $this->assertSame(array_keys(get_fast_modinfo($course->id)->get_cms()), array_keys($activities));
+        $this->assertSame('assign', $activities[$assign->cmid]->modname);
+        $this->assertSame((int)$assign->id, $activities[$assign->cmid]->instance);
+        $this->assertTrue($activities[$assign->cmid]->visible);
+        $this->assertFalse($activities[$hidden->cmid]->visible);
+        $this->assertSame('page', $activities[$page->cmid]->modname);
+        $this->assertSame((int)$page->id, $activities[$page->cmid]->instance);
+        $this->assertTrue($activities[$page->cmid]->visible);
+    }
 }

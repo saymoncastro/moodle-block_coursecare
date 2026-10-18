@@ -31,8 +31,9 @@ class course_structure {
      * Activities of the course, keyed by course module id.
      *
      * @param int $courseid Course id.
-     * @return array<int, \stdClass> Rows with name (formatted), url (null when the activity has no page, such as a
-     *     text and media area) and uservisible (for the current user).
+     * @return array<int, \stdClass> Rows in the order of the course with name (formatted), url (null when the activity
+     *     has no page, such as a text and media area), uservisible (for the current user), modname, instance and
+     *     visible (to students, Feature 005).
      */
     public function get_activities(int $courseid): array {
         $activities = [];
@@ -41,6 +42,9 @@ class course_structure {
                 'name' => $cm->get_formatted_name(),
                 'url' => $cm->url ? $cm->url->out(false) : null,
                 'uservisible' => (bool)$cm->uservisible,
+                'modname' => $cm->modname,
+                'instance' => (int)$cm->instance,
+                'visible' => (bool)$cm->visible,
             ];
         }
         return $activities;

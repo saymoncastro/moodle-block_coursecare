@@ -5,7 +5,7 @@ Regra da spec ("Metodologia validada", FR-010 a FR-015) dividida entre leitura (
 
 ## Coletor: `\block_coursecare\local\collector\assign_settings::for_course(int $courseid, array $cmids): array`
 
-Lê, para as tarefas indicadas (`cmid` → instância), e devolve por `cmid`:
+Lê, para as tarefas indicadas (`cmid` → instância), e devolve em `assigns`, por `cmid`:
 
 ```text
 [
@@ -49,7 +49,7 @@ Saída por tarefa:
   'units'      => int,
   'files'      => int,
   'filebytes'  => int,           // limite efetivo por arquivo
-  'limitsource'=> 'activity' | 'default' | 'course' | 'site' | 'server',
+  'limitsource'=> 'activity' | 'default' | 'course' | 'site' | 'server' | null, // null sem limite determinado
   'attempts'   => ?int,          // null = ilimitado
   'perattempt' => int,           // units × files × filebytes
   'potential'  => ?int,          // perattempt × attempts; null quando ilimitado ou sem número
@@ -61,7 +61,8 @@ Regras:
 2. Limite efetivo: menor valor > 0 entre `server`, `site`, `course` e (`activitybytes` > 0 ? ele : `default`);
    origem = nível do mínimo; empate na ordem tarefa, padrão, sala, site, servidor. Sem nenhum valor > 0
    → `unknown`.
-3. Tentativas: `maxattempts = 1` ou `reopenmethod = none` → 1; `-1` → ilimitado; senão `maxattempts`.
+3. Tentativas: `maxattempts = 1` ou `reopenmethod = none` → 1; `-1` → ilimitado; `> 1` → `maxattempts`;
+   outro valor (0 ou negativo diferente de −1) → `unknown`. Ordem de precedência: `nofiles`, `unknown`, `nobody`.
 4. Unidades: sem envio em grupo → número de participantes; em grupo, regra de research R3 (grupos com
    participantes do agrupamento, ou dos participantes em exatamente um grupo; + grupo padrão quando
    houver participante sem grupo único e `preventnogroup` falso).
