@@ -21,6 +21,7 @@ use block_coursecare\local\analysis\overview_builder;
 use block_coursecare\local\analysis\state_resolver;
 use block_coursecare\local\collector\course_structure;
 use block_coursecare\local\collector\diagnostic_store;
+use block_coursecare\local\recommendation\large_materials;
 
 /**
  * The "Your course in numbers" page (contracts/overview-page.md).
@@ -91,6 +92,8 @@ class course_overview implements \renderable, \templatable {
             'backurl' => $this->courseurl->out(false),
             'backtext' => get_string('overview:back', 'block_coursecare'),
             'hero' => $this->hero_data(),
+            'hassuggestionsection' => (bool)$this->view['hasresult'],
+            'suggestions' => $this->suggestions_data(),
             'hascategories' => $this->view['categories'] !== null,
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
@@ -100,6 +103,61 @@ class course_overview implements \renderable, \templatable {
             'hastechnical' => $this->view['technical'] !== null,
             'technical' => $this->technical_data(),
         ];
+    }
+
+    /**
+     * The suggestions section (Feature 004): suggestion S1 when it applies, otherwise one neutral sentence. Only with
+     * a result; without one the section is not shown.
+     *
+     * @return array heading, and either the suggestion (basedon, title, labels, observed, places, more, truncated,
+     *     why, todo, options) or none.
+     */
+    private function suggestions_data(): array {
+        if (!$this->view['hasresult']) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
+        $data = ['heading' => $str('suggestions:heading'), 'hassuggestion' => false, 'none' => $str('suggestions:none')];
+        $suggestion = large_materials::evaluate($this->view['large']);
+        if ($suggestion === null) {
+            return $data;
+        }
+        $places = [];
+        foreach ($suggestion['places'] as $place) {
+            $places[] = $place['kind'] === 'courselevel'
+                ? ['name' => $str('overview:courselevel'), 'url' => $this->courseurl->out(false), 'hasurl' => true]
+                : ['name' => $place['name'], 'url' => $place['url'], 'hasurl' => $place['url'] !== null];
+        }
+        $threshold = diagnostic_line::size($suggestion['threshold']);
+        $size = diagnostic_line::size($suggestion['bytes']);
+        $date = userdate($this->view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
+        return [
+            'hassuggestion' => true,
+            'none' => '',
+            'basedon' => $str('suggestions:basedon', $date),
+            'title' => $str('suggestion:large:title'),
+            'observedlabel' => $str('suggestion:observed'),
+            'whylabel' => $str('suggestion:why'),
+            'todolabel' => $str('suggestion:todo'),
+            'observed' => $suggestion['count'] === 1
+                ? $str('suggestion:large:observed_one', (object)['threshold' => $threshold, 'size' => $size])
+                : $str('suggestion:large:observed', (object)['count' => $suggestion['count'], 'threshold' => $threshold,
+                    'size' => $size]),
+            'places' => $places,
+            'more' => match ($suggestion['more']) {
+                0 => '',
+                1 => $str('suggestion:large:more_one'),
+                default => $str('suggestion:large:more', $suggestion['more']),
+            },
+            'truncated' => $suggestion['truncated'] ? $str('overview:large_truncated') : '',
+            'why' => $str('suggestion:large:why'),
+            'todo' => $str('suggestion:large:todo'),
+            'options' => [
+                ['text' => $str('suggestion:large:option1')],
+                ['text' => $str('suggestion:large:option2')],
+                ['text' => $str('suggestion:large:option3')],
+            ],
+        ] + $data;
     }
 
     /**

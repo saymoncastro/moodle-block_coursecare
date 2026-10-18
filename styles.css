@@ -221,6 +221,45 @@
     font-size: 0.9375rem;
 }
 
+/* Suggestions (Feature 004): a discreet card, the facts and the options told apart by their labels. */
+.block_coursecare-overview .block_coursecare-overview-suggestions {
+    margin-bottom: 1.5rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestion {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--block-coursecare-border);
+    border-radius: 1rem;
+    background-color: var(--block-coursecare-panel);
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestiontitle {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestion dt {
+    margin-top: 0.75rem;
+    font-weight: 600;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestion dt:first-child {
+    margin-top: 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestion dd {
+    margin: 0.25rem 0 0;
+}
+
+.block_coursecare-overview .block_coursecare-overview-suggestion ul {
+    padding-left: 1.25rem;
+}
+
+.block_coursecare-overview .block_coursecare-overview-places {
+    margin-bottom: 0.25rem;
+    overflow-wrap: anywhere;
+}
+
 /* Stacked bar of the categories (decorative; the legend carries the numbers). */
 .block_coursecare-overview .block_coursecare-overview-stack {
     display: flex;
@@ -332,7 +371,8 @@
     }
 
     .block_coursecare-overview .block_coursecare-overview-distribution,
-    .block_coursecare-overview .block_coursecare-overview-large {
+    .block_coursecare-overview .block_coursecare-overview-large,
+    .block_coursecare-overview .block_coursecare-overview-suggestion {
         padding: 1rem 1.125rem;
     }
 

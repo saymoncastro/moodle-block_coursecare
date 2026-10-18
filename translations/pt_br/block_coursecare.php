@@ -22,6 +22,7 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['block:suggestion'] = 'Há uma sugestão sobre os arquivos da sua sala.';
 $string['cli:alreadypending'] = 'Já há uma análise pendente para a sala {$a}.';
 $string['cli:help'] = 'Diagnóstico de armazenamento do bloco AVA Consciente (administradores).
 
@@ -112,6 +113,22 @@ $string['size:gb'] = 'GB';
 $string['size:kb'] = 'KB';
 $string['size:mb'] = 'MB';
 $string['size:tb'] = 'TB';
+$string['suggestion:large:more'] = 'e mais {$a} lugares, listados em Arquivos de grande porte.';
+$string['suggestion:large:more_one'] = 'e mais 1 lugar, listado em Arquivos de grande porte.';
+$string['suggestion:large:observed'] = '{$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em:';
+$string['suggestion:large:observed_one'] = '1 material da sala de {$a->threshold} ou mais, com {$a->size}, em:';
+$string['suggestion:large:option1'] = 'uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens na resolução adequada para a tela ou um vídeo na resolução necessária;';
+$string['suggestion:large:option2'] = 'dividir um conteúdo longo em partes menores;';
+$string['suggestion:large:option3'] = 'um link para onde o conteúdo já está publicado.';
+$string['suggestion:large:title'] = 'Materiais de grande porte';
+$string['suggestion:large:todo'] = 'Ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material. Nem todas se aplicam a todos os casos:';
+$string['suggestion:large:why'] = 'Arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material.';
+$string['suggestion:observed'] = 'O que observamos';
+$string['suggestion:todo'] = 'O que você pode fazer, se quiser';
+$string['suggestion:why'] = 'Por que pode merecer atenção';
+$string['suggestions:basedon'] = 'Estas sugestões usam a análise de {$a}.';
+$string['suggestions:heading'] = 'Sugestões para a sua sala';
+$string['suggestions:none'] = 'Não há sugestões para esta sala no momento.';
 $string['tagline'] = 'Pequenas escolhas, um AVA melhor para todos.';
 $string['task:analysecourse'] = 'Analisar o armazenamento de arquivos de uma sala';
 $string['task:queueanalyses'] = 'Enfileirar as análises de armazenamento de arquivos das salas';

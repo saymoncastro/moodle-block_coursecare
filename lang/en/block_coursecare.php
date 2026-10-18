@@ -22,6 +22,7 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['block:suggestion'] = 'There is a suggestion about the files of your course.';
 $string['cli:alreadypending'] = 'An analysis is already pending for course {$a}.';
 $string['cli:help'] = 'Storage diagnostic of the CourseCare block (administrators).
 
@@ -112,6 +113,22 @@ $string['size:gb'] = 'GB';
 $string['size:kb'] = 'KB';
 $string['size:mb'] = 'MB';
 $string['size:tb'] = 'TB';
+$string['suggestion:large:more'] = 'and {$a} more places, listed under Large files.';
+$string['suggestion:large:more_one'] = 'and 1 more place, listed under Large files.';
+$string['suggestion:large:observed'] = '{$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in:';
+$string['suggestion:large:observed_one'] = '1 course material of {$a->threshold} or more, {$a->size}, in:';
+$string['suggestion:large:option1'] = 'an optimised version of the file that stays readable and accessible, such as a PDF with images at a resolution suited to the screen, or a video at the resolution it needs;';
+$string['suggestion:large:option2'] = 'splitting long content into shorter parts;';
+$string['suggestion:large:option3'] = 'a link to where the content is already published.';
+$string['suggestion:large:title'] = 'Large materials';
+$string['suggestion:large:todo'] = 'When you review the activity, consider whether any of these options suits your material. Not all of them apply to every case:';
+$string['suggestion:large:why'] = 'Large files can take longer to open, especially on slow connections or on a phone. Size alone says nothing about the quality or the importance of a material.';
+$string['suggestion:observed'] = 'What we noticed';
+$string['suggestion:todo'] = 'What you can do, if you wish';
+$string['suggestion:why'] = 'Why it may deserve attention';
+$string['suggestions:basedon'] = 'These suggestions use the analysis of {$a}.';
+$string['suggestions:heading'] = 'Suggestions for your course';
+$string['suggestions:none'] = 'There are no suggestions for this course at the moment.';
 $string['tagline'] = 'Small choices, a better learning space for everyone.';
 $string['task:analysecourse'] = 'Analyse the file storage of a course';
 $string['task:queueanalyses'] = 'Queue the file storage analyses of the courses';
