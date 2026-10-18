@@ -18,7 +18,7 @@ Ambiente local dos testes: Moodle 4.5.15, PHP 8.1, PostgreSQL 17 (stack de desen
 | CT-08 | `course_overview_test::test_suggestion_privacy` (en e pt_br); revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
 | CT-09 | `block_coursecare_test::test_render_reads_no_files` (+1 leitura por índice só com resultado e arquivos) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
 | CT-10 | Behat `@accessibility` (desktop e celular); verificações de T028 (axe, teclado, zoom, 320 px) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)); leitor de tela pendente |
-| CT-11 | Capturas de T028 | | | | pendente (aprovação) |
+| CT-11 | Capturas de T028 (refeitas sobre `0771cde`) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: aprovadas pelo proprietário do produto |
 | CT-12 | `course_overview_test::test_suggestion_large_materials`; revisão de tom (T027) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: testes verdes e revisão aprovada pelo proprietário do produto |
 | CT-13 | Avaliação com professores, junto da 003 (T031) | | | | pendente |
 | SC-001 | `test_suggestion_states`, `test_block_suggestion`, Behat | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
@@ -27,7 +27,7 @@ Ambiente local dos testes: Moodle 4.5.15, PHP 8.1, PostgreSQL 17 (stack de desen
 | SC-004 | Revisão de tom (T027) | 2026-10-18 | — | — | atendido: aprovada pelo proprietário do produto |
 | SC-005 | Medições (T026) e investigação | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido em condições normais de operação (decisão do proprietário do produto de 2026-10-18): bloco +0,06 ms; página com mediana de 0,69 s. A primeira abertura após limpar todos os caches (> 2 s, também na 0.3.0 e no core) não está aprovada: limitação documentada |
 | SC-006 | Behat `@accessibility`; verificações de T028 | 2026-10-18 | 4.5.15 | PostgreSQL 17 | verde (CI [39136215602](#runs-de-ci-t030)) |
-| SC-007 | Capturas de T028 | | | | pendente (aprovação) |
+| SC-007 | Capturas de T028 (refeitas sobre `0771cde`) | 2026-10-18 | 4.5.15 | PostgreSQL 17 | atendido: aprovadas pelo proprietário do produto |
 | SC-008 | CI da branch (T030) | 2026-10-18 | 4.5 | PostgreSQL e MariaDB | atendido: `moodle-plugin-ci`, PHPUnit e Behat em 8.1/pgsql e 8.3/mariadb, `i18n-package` verdes ([run](#runs-de-ci-t030)) |
 | SC-009 | Avaliação com professores (T031) | | | | pendente |
 
@@ -169,7 +169,8 @@ em en e pt_BR, conferidas contra FR-005 e os Princípios I a IV:
 ## Validação visual (T028)
 
 **Direção visual aprovada pelo proprietário do produto em 2026-10-18**, com um refinamento pontual do
-cartão de sugestão, feito no mesmo dia e com capturas finais **aguardando a confirmação dele**:
+cartão de sugestão, feito no mesmo dia. **O cartão refinado e as capturas finais foram confirmados pelo
+proprietário do produto em 2026-10-18** (validação visual concluída):
 
 - as três partes mantidas; em telas largas, os fatos ("O que observamos") num painel tingido à
   esquerda e o motivo e as possibilidades à direita; em telas pequenas, empilhados, fatos primeiro;
@@ -215,8 +216,10 @@ demonstração, temas Boost e Classic, en e pt_BR.
   | 7 | Percorrer com Tab a partir de "Voltar à sala" | Os links da sugestão vêm antes dos da distribuição e das atividades, na ordem visual |
   | 8 | Abrir uma sala sem sugestão (*Química geral*) | O bloco não anuncia sugestão; na página, a frase neutra é lida sob o título da seção |
   | 9 | Itens da 003 (T048) | Estado recolhido/expandido de "Mostrar todas" e "Detalhes técnicos" anunciado; proporções lidas em texto; volta à sala |
-- **Pendente para fechar T028:** aprovação das capturas pelo proprietário do produto e o teste com
-  leitor de tela.
+- **T028 (validação visual) concluída** com a aprovação do proprietário do produto (2026-10-18). **Continua
+  pendente e obrigatório o teste humano com leitor de tela** (roteiro acima; formulário em
+  `specs/003-teacher-experience/evidence/evaluation/SCREENREADER-TEMPLATE.md`), que fecha CT-10 e o
+  critério de leitor de tela de FR-042.
 
 ## Runs de CI (T030)
 
