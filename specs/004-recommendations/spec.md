@@ -5,7 +5,7 @@ integrada à `main`; a integração da 004 só acontece depois da 003)
 
 **Created**: 2026-10-18
 
-**Status**: Draft (para revisão do proprietário do produto)
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-18; pronta para `/speckit-plan`)
 
 **Input**: User description: "Feature 004 — Recomendações do CourseCare / AVA Consciente: transformar
 o diagnóstico de arquivos produzido pela Feature 002 e apresentado pela 003 em orientações
@@ -64,10 +64,11 @@ Como esta especificação atende a cada item, sem ampliar o escopo:
 
 **Sugestões novas desta especificação** (não estavam no roadmap; marcadas para decisão):
 
-- **S1** — materiais de grande porte (a única orientação desta entrega).
-- **S2** — materiais de grande porte em atividades ocultas para os estudantes. Ela só entra na
-  primeira entrega se for aprovada: [NEEDS CLARIFICATION: Q1 — a primeira entrega inclui S2 ou só S1?]
+- **S1** — materiais de grande porte, com boas práticas vinculadas (a única orientação desta
+  entrega; aprovada em 2026-10-18).
 - Seção "Sugestões para a sua sala" na página, logo depois da abertura (FR-001).
+- S2 (materiais de grande porte em atividades ocultas para os estudantes) foi proposta e ficou para
+  depois (ver "Orientações deixadas para depois").
 
 **Conflito com a constituição e como foi resolvido**: o Princípio III exige que limiares e critérios
 de recomendação sejam configuráveis pela administração do site. O pedido desta feature exclui novas
@@ -77,11 +78,34 @@ configurável** pela administração desde a Feature 002. Toda orientação que 
 (por exemplo, "envios acima de X% da sala") fica fora e está registrada em "Orientações deixadas
 para depois".
 
+## Clarifications
+
+### Session 2026-10-18
+
+- Q: A primeira entrega inclui S2 (atividade oculta para os estudantes com material de grande porte)?
+  → A: Não. Só S1. S2 fica para depois: uma atividade oculta pode estar em preparação, e esse sinal
+  não demonstra necessidade de intervenção.
+- Q: As boas práticas da 004 entram nesta entrega? → A: Sim, vinculadas à S1, como um texto curto na
+  própria sugestão. Elas vão além de repetir o diagnóstico e oferecem caminhos concretos quando
+  pertinentes (por exemplo, otimizar o arquivo preservando legibilidade e acessibilidade), sem
+  afirmar que o material precisa de correção nem que as alternativas necessariamente se aplicam. O
+  fato observado fica separado das possibilidades que o professor pode avaliar. Sem biblioteca nova,
+  outro mecanismo de recomendações ou configurações.
+- Q: Como validar as sugestões com professores? → A: Na mesma avaliação com cinco professores da
+  Feature 003, acrescentando perguntas sobre compreensão e utilidade da sugestão. A avaliação fica
+  registrada como pendente e não bloqueia a implementação nem o teste local da 004.
+- O reaproveitamento do limite de grande porte existente e a exclusão das orientações sem dados
+  suficientes foram confirmados.
+
 ## Definições
 
 - **Sugestão**: orientação opcional mostrada ao professor, com três partes: o que foi observado na
   sala; por que pode merecer atenção; o que o professor pode fazer, se quiser. Ignorá-la não tem
   consequência.
+- **Fato observado**: o que o diagnóstico mediu na sala (quantidade, volume, atividades). É dito como
+  fato, com a data da análise.
+- **Possibilidades**: caminhos que o professor pode avaliar (boas práticas). São ditos como
+  possibilidades, nunca como correção necessária, e podem não se aplicar ao material.
 - **Condição de exibição**: regra objetiva e testável, aplicada ao resultado vigente, que decide se
   a sugestão aparece.
 - **Resultado vigente**, **nível da sala**, **materiais de grande porte**: como na Feature 003.
@@ -95,7 +119,8 @@ para depois".
 Na página "Sua sala em números", o professor encontra uma seção de sugestões. Quando a sala tem
 materiais de grande porte, há uma sugestão que diz quais atividades os têm e quanto somam, explica
 por que isso pode merecer atenção sem tratar o tamanho como problema e indica o que ele pode fazer,
-se quiser, com um link para a atividade.
+se quiser: algumas possibilidades concretas (boas práticas), apresentadas como opções a avaliar, e um
+link para a atividade.
 
 **Why this priority**: é a primeira orientação prática do produto e a razão de existir da feature.
 
@@ -112,13 +137,17 @@ a atividade). Numa sala sem materiais acima do limite, conferir que a sugestão 
 2. **Given** a mesma sala, **When** o professor lê a sugestão, **Then** ela diz explicitamente que
    o tamanho, sozinho, não indica problema nem qualidade do material, e nenhuma frase fala em
    excluir, economizar espaço ou benefício ambiental.
-3. **Given** uma sala com materiais de grande porte em mais de três atividades, **When** o professor
+3. **Given** a mesma sala, **When** o professor lê "O que você pode fazer, se quiser", **Then**
+   encontra possibilidades concretas (por exemplo, uma versão otimizada que preserve legibilidade e
+   acessibilidade, ou um link para onde o conteúdo já está publicado), apresentadas como opções que
+   podem não se aplicar, separadas do fato observado.
+4. **Given** uma sala com materiais de grande porte em mais de três atividades, **When** o professor
    abre a página, **Then** a sugestão cita as três de maior volume e informa quantas outras existem,
    remetendo à seção "Arquivos de grande porte".
-4. **Given** uma sala cujos materiais de grande porte estão numa atividade que o professor não pode
+5. **Given** uma sala cujos materiais de grande porte estão numa atividade que o professor não pode
    ver ou que foi removida depois da análise, **When** ele abre a página, **Then** essa atividade
    aparece só agregada, sem nome, como na Feature 003.
-5. **Given** uma sala com envios de estudantes acima do limite e nenhum material acima do limite,
+6. **Given** uma sala com envios de estudantes acima do limite e nenhum material acima do limite,
    **When** o professor abre a página, **Then** a sugestão S1 não aparece.
 
 ---
@@ -189,26 +218,29 @@ conforme a tabela de FR-020.
 
 | ID | Condição de exibição | Dados necessários (todos já existentes) | Exemplo de mensagem (pt_BR) | Ação disponível |
 | --- | --- | --- | --- | --- |
-| S1 | O resultado vigente tem pelo menos uma ligação a material de grande porte (material da sala ≥ limite registrado no resultado) | Ligações a materiais grandes por atividade (Feature 002); limite do resultado; nomes, links e visibilidade atuais das atividades (estrutura da sala) | **O que observamos:** 3 materiais de 1,0 MB ou mais, somando 5,1 MB, em *Aula 1 — A célula* e *Vídeo de laboratório*. **Por que pode merecer atenção:** arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. **O que você pode fazer, se quiser:** ao revisar a atividade, veja se uma versão mais leve ou um link para onde o conteúdo já está publicado atende igualmente aos seus objetivos. | Link "Abrir a atividade" para cada atividade citada (página nativa do Moodle); o professor decide e age no Moodle |
-| S2 | [NEEDS CLARIFICATION: Q1] Pelo menos uma atividade oculta para os estudantes tem material de grande porte | Os mesmos de S1, mais a visibilidade da atividade para os estudantes (estrutura da sala) | **O que observamos:** *Vídeo antigo* está oculto para os estudantes e tem 1 material de 1,0 MB ou mais (1,6 MB). **Por que pode merecer atenção:** materiais ocultos continuam guardados na sala e voltam com ela quando a sala é reutilizada. **O que você pode fazer, se quiser:** confira se ele ainda é útil para você; mantê-lo oculto é uma escolha válida. | Link "Abrir a atividade" |
+| S1 | O resultado vigente tem pelo menos uma ligação a material de grande porte (material da sala ≥ limite registrado no resultado) | Ligações a materiais grandes por atividade (Feature 002); limite do resultado; nomes, links e visibilidade atuais das atividades (estrutura da sala) | **O que observamos** (fato): 3 materiais de 1,0 MB ou mais, somando 5,1 MB, em *Aula 1 — A célula* e *Vídeo de laboratório*, na análise de 17/10/26. **Por que pode merecer atenção:** arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material. **O que você pode fazer, se quiser** (possibilidades): ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material — nem todas se aplicam a todos os casos: (1) uma versão otimizada do arquivo que continue legível e acessível, como um PDF com imagens em resolução adequada para a tela ou um vídeo na resolução necessária; (2) dividir um conteúdo longo em partes menores; (3) um link para onde o conteúdo já está publicado. | Link "Abrir a atividade" para cada atividade citada (página nativa do Moodle); o professor decide e age no Moodle |
 
 Em en, S1: "**What we noticed:** 3 materials of 1.0 MB or more, 5.1 MB in total, in *Lesson 1 — The
-cell* and *Lab video*. **Why it may deserve attention:** large files can take longer to open,
-especially on slow connections or on a phone. Size alone says nothing about the quality or the
-importance of a material. **What you can do, if you wish:** when you review the activity, see whether
-a lighter version or a link to where the content is already published works just as well for your
-goals." O texto final passa pela revisão de tom (SC-004).
+cell* and *Lab video*, in the analysis of 17/10/26. **Why it may deserve attention:** large files can
+take longer to open, especially on slow connections or on a phone. Size alone says nothing about the
+quality or the importance of a material. **What you can do, if you wish:** when you review the
+activity, consider whether any of these options suits your material — not all of them apply to every
+case: (1) an optimised version of the file that stays readable and accessible, such as a PDF with
+images at a resolution suited to the screen, or a video at the resolution it needs; (2) splitting long
+content into shorter parts; (3) a link to where the content is already published." O texto final
+passa pela revisão de tom (SC-004).
 
 ### Orientações deixadas para depois (dependências registradas)
 
 | Orientação candidata | Por que fica fora | Dependência |
 | --- | --- | --- |
+| S2 — materiais de grande porte em atividades ocultas para os estudantes | Decisão de 2026-10-18: uma atividade oculta pode estar em preparação, e esse sinal não demonstra necessidade de intervenção | Um sinal que diferencie preparação de material fora de uso (decisão de produto futura) |
 | Cópias de segurança guardadas na sala | O agregado da 002 mistura backups feitos pelo professor com backups automáticos do site, que o professor em geral não pode gerenciar; a sugestão poderia apontar para algo fora do alcance dele | Separar, no diagnóstico, os backups manuais (sala, seção, atividade) dos automáticos |
 | Itens na lixeira da sala | Saem sozinhos no prazo do site; não há ação útil para o professor, e incentivar a limpeza seria pressão por exclusão | Nenhuma; reavaliar só se houver necessidade observada |
 | Mesmo conteúdo enviado várias vezes na sala | A 002 só guarda os totais da sala (Conteúdo único); não há como dizer onde estão as repetições, então a orientação não seria acionável. Além disso, o Moodle já guarda conteúdo idêntico uma vez só, então não há espaço a ganhar | Repetições por atividade no diagnóstico |
 | Envios de estudantes e limites de envio das tarefas | Exige limiar novo (configuração) e é o tema da Feature 005 (potencial de armazenamento); por atividade, violaria a privacidade (FR-030 da 003) | Feature 005 |
 | Tipos de arquivo (vídeo, imagem, PDF) | A 002 não guarda tipo nem nome de arquivo | Novo dado no diagnóstico |
-| Boas práticas gerais, sem relação com a sala | O pedido limita as orientações às situações que os dados sustentam | Decisão de produto futura |
+| Boas práticas gerais, sem relação com a sala | As boas práticas desta entrega ficam vinculadas à S1; as orientações só aparecem quando os dados as sustentam | Decisão de produto futura |
 
 ## Requirements *(mandatory)*
 
@@ -220,8 +252,9 @@ goals." O texto final passa pela revisão de tom (SC-004).
   sala" logo depois da abertura e antes de "Onde estão os arquivos". Sem resultado, a seção MUST NOT
   aparecer.
 - **FR-002**: Cada sugestão MUST ter as três partes do Princípio III, cada uma com seu rótulo visível
-  ("O que observamos", "Por que pode merecer atenção", "O que você pode fazer, se quiser"), e o
-  primeiro conteúdo MUST citar os números da sala de que ela parte.
+  ("O que observamos", "Por que pode merecer atenção", "O que você pode fazer, se quiser"). A primeira
+  parte MUST trazer só fatos medidos na sala (números, atividades, data da análise); a terceira MUST
+  trazer só possibilidades a avaliar, apresentadas como tais e separadas visualmente dos fatos.
 - **FR-003**: Uma sugestão MUST aparecer somente quando sua condição de exibição (tabela
   "Orientações iniciais") for verdadeira no resultado vigente. A condição MUST ser objetiva,
   testável e descrita nesta especificação; nenhuma sugestão MUST aparecer por padrão, sorteio ou
@@ -235,7 +268,12 @@ goals." O texto final passa pela revisão de tom (SC-004).
     remetendo à seção "Arquivos de grande porte";
   - tratar atividades que o professor não pode ver, ou removidas depois da análise, só de forma
     agregada e sem nome, e o nível da sala como "Página da sala, seções e blocos";
-  - informar quando a lista de ligações foi truncada nos 1.000 maiores materiais.
+  - informar quando a lista de ligações foi truncada nos 1.000 maiores materiais;
+  - oferecer, em "O que você pode fazer, se quiser", boas práticas concretas e curtas: uma versão
+    otimizada do arquivo que preserve legibilidade e acessibilidade; dividir um conteúdo longo em
+    partes; um link para onde o conteúdo já está publicado. Elas MUST ser apresentadas como opções que
+    podem não se aplicar ao material, MUST NOT afirmar que o material precisa de correção e MUST
+    caber num texto curto da própria sugestão (sem página, biblioteca ou mecanismo à parte).
 - **FR-005**: Os textos das sugestões MUST:
   - apresentar a ação como opcional ("se quiser"), sem "deve", "é preciso" ou prazos;
   - dizer, na sugestão S1, que o tamanho sozinho não indica problema nem qualidade do material;
@@ -305,8 +343,11 @@ goals." O texto final passa pela revisão de tom (SC-004).
   tom com aprovação registrada do proprietário do produto antes da conclusão.
 - **FR-051**: Bloco e seção MUST ser validados em capturas reais (en e pt_BR, desktop e celular,
   Boost e Classic, com e sem sugestão), com aprovação registrada do proprietário do produto.
-- **FR-052**: A validação com professores MUST seguir a decisão do proprietário do produto:
-  [NEEDS CLARIFICATION: Q2 — como validar as sugestões com professores?]
+- **FR-052**: A sugestão MUST ser avaliada na mesma avaliação com cinco professores da Feature 003
+  (protocolo de `specs/003-teacher-experience/evaluation/protocol.md`), acrescida de perguntas sobre a
+  compreensão e a utilidade da sugestão. A avaliação fica registrada como pendente; ela não bloqueia
+  a implementação nem o teste local da 004, mas a feature só é considerada concluída depois dela, sem
+  problema crítico em aberto (critério de FR-071a da 003).
 - **FR-053**: O README MUST descrever as sugestões, a condição de cada uma, o que elas não significam
   e o que fica para depois.
 
@@ -315,8 +356,8 @@ goals." O texto final passa pela revisão de tom (SC-004).
 - **Sugestão**: identificador (S1), condição de exibição, dados observados que ela cita, texto das
   três partes e links de ação. Não é persistida: é calculada a cada exibição a partir do resultado
   vigente.
-- **Lista de sugestões da sala**: as sugestões cuja condição é verdadeira no resultado vigente, em
-  ordem fixa (S1, depois S2 se aprovada), com a data da análise.
+- **Lista de sugestões da sala**: as sugestões cuja condição é verdadeira no resultado vigente (nesta
+  entrega, só S1), com a data da análise.
 
 ## Cenários de teste
 
@@ -333,6 +374,8 @@ goals." O texto final passa pela revisão de tom (SC-004).
 | CT-09 | Renderização do bloco e da página | Nenhuma consulta aos registros de arquivos |
 | CT-10 | Acessibilidade automática e teclado | Nenhuma violação; sugestão e links alcançados pelo teclado |
 | CT-11 | Capturas (FR-051) | Aprovadas pelo proprietário do produto |
+| CT-12 | Leitura de "O que você pode fazer, se quiser" | Possibilidades concretas, apresentadas como opções que podem não se aplicar; nenhuma afirmação de que o material precisa de correção; fatos só na primeira parte |
+| CT-13 | Avaliação com professores (manual, junto da 003) | Perguntas de compreensão e utilidade da sugestão registradas; nenhum problema crítico em aberto |
 
 ## Success Criteria *(mandatory)*
 
@@ -354,6 +397,9 @@ goals." O texto final passa pela revisão de tom (SC-004).
 - **SC-007**: As capturas de FR-051 são aprovadas pelo proprietário do produto.
 - **SC-008**: Os quality gates da constituição passam no CI (PHPUnit, Behat, paridade de strings,
   verificação do pacote) nas bases suportadas.
+- **SC-009**: Na avaliação com cinco professores (FR-052), cada um responde às perguntas sobre a
+  sugestão e nenhum problema crítico permanece em aberto no encerramento (pendente; não bloqueia a
+  implementação).
 
 ## Limitações reconhecidas
 
@@ -386,9 +432,11 @@ goals." O texto final passa pela revisão de tom (SC-004).
 ## Assumptions
 
 - O público é o mesmo da Feature 003: professor com edição e gerente (capability existente).
-- A ordem das sugestões é fixa (S1, depois S2 se aprovada); não há priorização por relevância.
+- Há uma única sugestão nesta entrega; não há ordenação nem priorização entre sugestões.
 - Os textos de exemplo são propostas; o texto final sai da revisão de tom (FR-050).
 - A seção usa os componentes visuais da Feature 003; um elemento visual novo, se houver, passa pela
   aprovação de FR-051.
-- A camada de regras de recomendação prevista no Princípio IX passa a existir com a regra de S1 (e
-  de S2, se aprovada), sem estrutura para orientações futuras.
+- A camada de regras de recomendação prevista no Princípio IX passa a existir com a regra de S1, sem
+  estrutura para orientações futuras.
+- As boas práticas são um texto curto da própria sugestão, no catálogo de strings; não há biblioteca
+  de boas práticas, outro mecanismo de recomendações ou configuração.

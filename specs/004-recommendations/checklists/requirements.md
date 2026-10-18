@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,9 +31,9 @@
 
 ## Notes
 
-- Two product decisions remain open (Q1: S2 in the first delivery; Q2: validation with teachers).
-  They change the scope and are presented to the product owner; the spec is updated after the
-  answers.
+- Product decisions of 2026-10-18 recorded in the spec (Clarifications): only S1, with its good
+  practices as short text in the suggestion; S2 deferred; validation with teachers in the same
+  five-teacher evaluation of Feature 003 (pending, not blocking implementation).
 - Terms such as "capability", "registros de arquivos" and "camada de regras de recomendação" come
   from the constitution and the earlier specs; they name product constraints, not an implementation.
 - Constitution conflict (Principle III, configurable thresholds × no new administrative settings)
