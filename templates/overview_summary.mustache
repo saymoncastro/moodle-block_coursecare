@@ -17,7 +17,8 @@
 {{!
     @template block_coursecare/overview_summary
 
-    Opening of the overview page: the sprout and the title, a short introduction and, beside them on wide
+    Opening of the overview page: the title of the diagnostic area (a level 3 heading under the identity of the
+    plugin, Feature 008), a short introduction and, beside them on wide
     screens, the volume of the course apart from its label so that it is seen at once, with the date of the
     analysis; below, the notes of the out-of-date and failed states and the partial coverage. Without a
     result, only the sentence of the state, under the introduction.
@@ -50,10 +51,7 @@
 }}
 <section class="block_coursecare-overview-hero{{#hero.date}} block_coursecare-overview-hero-result{{/hero.date}}">
     <div class="block_coursecare-overview-herotext">
-        <div class="block_coursecare-overview-heading">
-            <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
-            <h2 class="block_coursecare-overview-title">{{title}}</h2>
-        </div>
+        <h3 class="block_coursecare-overview-title">{{title}}</h3>
         <p class="block_coursecare-overview-intro">{{intro}}</p>
         {{#hero}}
         {{^date}}

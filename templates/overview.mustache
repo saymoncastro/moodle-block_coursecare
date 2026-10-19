@@ -17,22 +17,31 @@
 {{!
     @template block_coursecare/overview
 
-    The "Your course in numbers" page of the CourseCare block (Feature 003, contracts/overview-page.md).
-    Every sentence comes already translated from the course_overview renderable; this template only lays
-    them out: the way back, the opening with the volume of the course, the suggestions (Feature 004), then where
-    the files are and the large files side by side on wide screens, how the files changed (Feature 006), the
-    materials by activity, the potential of the assignments (Feature 005) and the technical details.
-    Sections without data are left out (states A, B, C and G).
+    The "Your course in numbers" page of the CourseCare block (Feature 003, contracts/overview-page.md), as an
+    educational experience (Feature 008, contracts/ui.md). Every sentence comes already translated from the
+    course_overview renderable; this template only lays them out: the way back, the identity of the plugin with
+    its tagline and a decorative illustration, the opening with the volume of the course, then, with a result
+    that has files, two areas: "Suggestions for you" (the band of the educational state and the suggestions of
+    Feature 004) and "Details" (where the files are and the large files, how the files changed, the materials by
+    activity, the potential of the assignments and the technical details), and a closing sentence. Without
+    JavaScript, both areas are shown one after the other; with it, they become accessible tabs. Without a result
+    with files the sections follow each other as before, without tabs. Sections without data are left out.
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
-    * none
+    * data-region="block_coursecare-overview", data-initialtab - the tabs (block_coursecare/tabs)
+    * data-region="block_coursecare-tablist", data-tab - the list of tabs and each tab
+    * data-panel - each area
 
     Context variables required for this template:
-    * title, intro, backurl, backtext - page title, introduction and the way back to the course
+    * identity - object with name and tagline
+    * title, intro, backurl, backtext - title of the diagnostic area, introduction and the way back to the course
     * hero - the opening, see block_coursecare/overview_summary
+    * hastabs, initialtab (suggestions or details), tabs (label, suggestions, details)
+    * band - optional educational state: title, message, note, isidea, isallgood
+    * closing - closing sentence (only with the tabs)
     * hassuggestionsection, suggestions - see block_coursecare/overview_suggestions
     * hascategories, categories - see block_coursecare/overview_categories
     * hashistory, history - see block_coursecare/overview_history
@@ -43,6 +52,7 @@
 
     Example context (json):
     {
+        "identity": {"name": "CourseCare", "tagline": "Small choices, a better learning space for everyone."},
         "title": "Your course in numbers",
         "intro": "See where the files of your course are and when they were measured.",
         "backurl": "https://example.com/course/view.php?id=2",
@@ -56,6 +66,12 @@
             "notes": [],
             "coverage": ""
         },
+        "hastabs": true,
+        "initialtab": "details",
+        "tabs": {"label": "Sections of the page", "suggestions": "Suggestions for you", "details": "Details"},
+        "band": {"title": "All good here!", "message": "We found no suggestions for the criteria checked in this analysis.",
+            "note": "", "isidea": false, "isallgood": true},
+        "closing": "Each suggestion is a possibility. The decision is always yours, based on what your students need.",
         "hassuggestionsection": false,
         "hascategories": false,
         "hashistory": false,
@@ -65,30 +81,61 @@
         "hastechnical": false
     }
 }}
-<div class="block_coursecare-overview">
+<div class="block_coursecare-overview" data-region="block_coursecare-overview"{{#hastabs}} data-initialtab="{{initialtab}}"{{/hastabs}}>
     <p class="block_coursecare-overview-back"><a href="{{backurl}}">{{backtext}}</a></p>
+    {{#identity}}
+    <div class="block_coursecare-overview-identity">
+        <div class="block_coursecare-overview-identitytext">
+            <span class="block_coursecare-overview-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</span>
+            <div>
+                <h2 class="block_coursecare-overview-name">{{name}}</h2>
+                <p class="block_coursecare-overview-tagline mb-0">{{tagline}}</p>
+            </div>
+        </div>
+        <span class="block_coursecare-overview-scene">{{#pix}} illustration, block_coursecare {{/pix}}</span>
+    </div>
+    {{/identity}}
     {{> block_coursecare/overview_summary }}
+    {{#hastabs}}
+    <div class="block_coursecare-overview-tablist" data-region="block_coursecare-tablist" aria-label="{{tabs.label}}" hidden>
+        <button type="button" class="block_coursecare-overview-tab" id="block_coursecare-tabbutton-suggestions"
+            data-tab="suggestions" aria-controls="block_coursecare-tab-suggestions">{{tabs.suggestions}}</button>
+        <button type="button" class="block_coursecare-overview-tab" id="block_coursecare-tabbutton-details"
+            data-tab="details" aria-controls="block_coursecare-tab-details">{{tabs.details}}</button>
+    </div>
+    <section id="block_coursecare-tab-suggestions" class="block_coursecare-overview-panel" data-panel="suggestions">
+        <h2 class="block_coursecare-overview-panelheading">{{tabs.suggestions}}</h2>
+        {{#band}}
+        <div class="block_coursecare-overview-band{{#isidea}} block_coursecare-overview-band-idea{{/isidea}}">
+            <span class="block_coursecare-overview-bandicon">{{#pix}} sprout, block_coursecare {{/pix}}</span>
+            <div class="block_coursecare-overview-bandtext">
+                <p class="block_coursecare-overview-bandtitle mb-0">{{title}}</p>
+                <p class="block_coursecare-overview-bandmessage mb-0">{{message}}</p>
+            </div>
+            {{#note}}
+            <p class="block_coursecare-overview-bandnote mb-0">{{note}}</p>
+            {{/note}}
+        </div>
+        {{/band}}
+        {{#hassuggestionsection}}
+        {{> block_coursecare/overview_suggestions }}
+        {{/hassuggestionsection}}
+    </section>
+    <section id="block_coursecare-tab-details" class="block_coursecare-overview-panel" data-panel="details">
+        <h2 class="block_coursecare-overview-panelheading">{{tabs.details}}</h2>
+        {{> block_coursecare/overview_details }}
+    </section>
+    <p class="block_coursecare-overview-closing">{{closing}}</p>
+    {{#js}}
+    require(['block_coursecare/tabs'], function(tabs) {
+        tabs.init('[data-region="block_coursecare-overview"]');
+    });
+    {{/js}}
+    {{/hastabs}}
+    {{^hastabs}}
     {{#hassuggestionsection}}
     {{> block_coursecare/overview_suggestions }}
     {{/hassuggestionsection}}
-    {{#hascategories}}
-    <div class="block_coursecare-overview-grid">
-        {{> block_coursecare/overview_categories }}
-        {{#haslarge}}
-        {{> block_coursecare/overview_large }}
-        {{/haslarge}}
-    </div>
-    {{/hascategories}}
-    {{#hashistory}}
-    {{> block_coursecare/overview_history }}
-    {{/hashistory}}
-    {{#hasactivities}}
-    {{> block_coursecare/overview_activities }}
-    {{/hasactivities}}
-    {{#haspotential}}
-    {{> block_coursecare/overview_potential }}
-    {{/haspotential}}
-    {{#hastechnical}}
-    {{> block_coursecare/overview_technical }}
-    {{/hastechnical}}
+    {{> block_coursecare/overview_details }}
+    {{/hastabs}}
 </div>

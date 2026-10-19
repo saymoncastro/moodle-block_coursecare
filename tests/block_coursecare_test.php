@@ -394,8 +394,9 @@ final class block_coursecare_test extends \advanced_testcase {
     }
 
     /**
-     * The sentence of the suggestion in the block, and the link to the suggestions section, only when a large
-     * course material exists in the result (Feature 004, FR-010).
+     * The educational state of the block (Feature 008): "An idea for your course" and the action "See the suggestion"
+     * to the suggestions section only when a large course material exists in the result (Feature 004, FR-010);
+     * otherwise "All good here!" for a complete, current result, with the usual link.
      */
     public function test_block_suggestion(): void {
         global $DB;
@@ -408,7 +409,8 @@ final class block_coursecare_test extends \advanced_testcase {
         ]);
         /** @var \block_coursecare_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
-        $sentence = s(get_string('block:suggestion', 'block_coursecare'));
+        $sentence = s(get_string('state:idea_message', 'block_coursecare'));
+        $allgood = s(get_string('state:allgood_title', 'block_coursecare'));
         $url = (new \moodle_url('/blocks/coursecare/overview.php', ['id' => $instance->id]))->out(false);
 
         // With a result and a large course material.
@@ -416,12 +418,17 @@ final class block_coursecare_test extends \advanced_testcase {
             'logicalbytes' => 3145728, 'filecount' => 1, 'largelinks' => [['cmid' => 0, 'filesize' => 3145728]]]);
         $html = $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
         $this->assertStringContainsString($sentence, $html);
+        $this->assertStringContainsString(s(get_string('state:idea_title', 'block_coursecare')), $html);
+        $this->assertStringContainsString(s(get_string('state:idea_action', 'block_coursecare')), $html);
         $this->assertStringContainsString('href="' . s($url . '#block_coursecare-suggestions') . '"', $html);
+        $this->assertStringNotContainsString($allgood, $html);
 
         // With a result and no large course material: as in Feature 003.
         $DB->delete_records('block_coursecare_large', ['diagid' => $diag->id]);
         $html = $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
         $this->assertStringNotContainsString($sentence, $html);
+        $this->assertStringContainsString($allgood, $html);
+        $this->assertStringContainsString(s(get_string('overview:link', 'block_coursecare')), $html);
         $this->assertStringContainsString('href="' . s($url) . '"', $html);
         $this->assertStringNotContainsString('#block_coursecare-suggestions', $html);
 

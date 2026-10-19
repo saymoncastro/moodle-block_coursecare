@@ -25,16 +25,16 @@ entregue junto com a reorganização da página da US2, pois as duas mexem nos m
 
 ## Phase 1: Setup
 
-- [ ] T001 Em `version.php`: `version = 2026102100`, `release = '0.8.0'`, `MATURITY_BETA`, `supported` [405, 503]; entrada 0.8.0 (unreleased) em `CHANGES.md`.
-- [ ] T002 [P] Criar `specs/008-educational-experience/evidence/README.md` com as seções: inventário de preservação, estados do bloco, abas, acessibilidade, desempenho, capturas, validações humanas.
+- [X] T001 Em `version.php`: `version = 2026102100`, `release = '0.8.0'`, `MATURITY_BETA`, `supported` [405, 503]; entrada 0.8.0 (unreleased) em `CHANGES.md`.
+- [X] T002 [P] Criar `specs/008-educational-experience/evidence/README.md` com as seções: inventário de preservação, estados do bloco, abas, acessibilidade, desempenho, capturas, validações humanas.
 
 ---
 
 ## Phase 2: Foundational
 
-- [ ] T003 Inventário de preservação "antes" (FR-031, SC-002): na sala DEMO-COMPLETE (4.5), registrar cada seção, rótulo e número visível da página e do bloco da 0.7.0 em `specs/008-educational-experience/evidence/preservation-before.md` (texto da página via `get_page_text`/`checks.py`), e as medidas de `tools/dev/bench/render.php` (bloco e página).
-- [ ] T004 Strings novas em `lang/en/block_coursecare.php` e `translations/pt_br/block_coursecare.php` (contracts/ui.md, research R8): `state:allgood_title`, `state:allgood_message`, `state:idea_title`, `state:idea_message`, `state:idea_action`, `block:partial`, `tabs:label`, `tabs:suggestions`, `tabs:details`, `suggestions:band_note`, `overview:closing`; remover as que perderem uso no fim (T020); `php tools/i18n/check.php` sem erro.
-- [ ] T005 Estado educativo puro (data-model.md, invariantes: "`allgood` ⇒ `state = complete` ∧ `filecount > 0` ∧ ¬`partial` ∧ ¬`hassuggestion`"; "`idea` ⇒ `hasresult` ∧ `filecount > 0` ∧ `hassuggestion`"; "Nenhum estado positivo com nota de falha, desatualização ou parcial") em `classes/output/diagnostic_line.php` (método estático `educational(diagnostic_state $state, bool $hassuggestion): array` com `kind`, `title`, `message`, `notes`, `action`), com testes de tabela em `tests/output/diagnostic_line_test.php` cobrindo todas as combinações de estado × arquivos × parcial × sugestão.
+- [X] T003 Inventário de preservação "antes" (FR-031, SC-002): na sala DEMO-COMPLETE (4.5), registrar cada seção, rótulo e número visível da página e do bloco da 0.7.0 em `specs/008-educational-experience/evidence/preservation-before.md` (texto da página via `get_page_text`/`checks.py`), e as medidas de `tools/dev/bench/render.php` (bloco e página).
+- [X] T004 Strings novas em `lang/en/block_coursecare.php` e `translations/pt_br/block_coursecare.php` (contracts/ui.md, research R8): `state:allgood_title`, `state:allgood_message`, `state:idea_title`, `state:idea_message`, `state:idea_action`, `block:partial`, `tabs:label`, `tabs:suggestions`, `tabs:details`, `suggestions:band_note`, `overview:closing`; remover as que perderem uso no fim (T020); `php tools/i18n/check.php` sem erro.
+- [X] T005 Estado educativo puro (data-model.md, invariantes: "`allgood` ⇒ `state = complete` ∧ `filecount > 0` ∧ ¬`partial` ∧ ¬`hassuggestion`"; "`idea` ⇒ `hasresult` ∧ `filecount > 0` ∧ `hassuggestion`"; "Nenhum estado positivo com nota de falha, desatualização ou parcial") em `classes/output/diagnostic_line.php` (método estático `educational(diagnostic_state $state, bool $hassuggestion): array` com `kind`, `title`, `message`, `notes`, `action`), com testes de tabela em `tests/output/diagnostic_line_test.php` cobrindo todas as combinações de estado × arquivos × parcial × sugestão.
 
 ---
 
@@ -44,9 +44,9 @@ entregue junto com a reorganização da página da US2, pois as duas mexem nos m
 
 **Independent Test**: em cada sala de demonstração, o bloco mostra o estado de contracts/ui.md, em en e pt_BR.
 
-- [ ] T006 [US1] `block_coursecare.php` e `classes/output/diagnostic_line.php`: passar ao template o estado educativo (T005), as notas e a ação ("Ver sugestão" para `#block_coursecare-suggestions`, link atual sem sugestão, nenhum sem resultado); sem leitura nova do banco.
-- [ ] T007 [US1] `templates/content.mustache`: identidade → título e mensagem do estado (parágrafos, não títulos) → cartão do indicador (rótulo, volume, data) → notas → acesso como botão (`btn btn-outline-primary`); ilustração pequena só nos estados `idea` e `allgood` (`pix/sprout.svg`, decorativa); exemplo de contexto do template atualizado.
-- [ ] T008 [US1] `styles.css`: bloco compacto, painel verde para `allgood`/neutro e amarelo discreto para `idea`, texto `#1d2125` nos painéis, sem rolagem horizontal em 320 px, foco visível.
+- [X] T006 [US1] `block_coursecare.php` e `classes/output/diagnostic_line.php`: passar ao template o estado educativo (T005), as notas e a ação ("Ver sugestão" para `#block_coursecare-suggestions`, link atual sem sugestão, nenhum sem resultado); sem leitura nova do banco.
+- [X] T007 [US1] `templates/content.mustache`: identidade → título e mensagem do estado (parágrafos, não títulos) → cartão do indicador (rótulo, volume, data) → notas → acesso como botão (`btn btn-outline-primary`); ilustração pequena só nos estados `idea` e `allgood` (`pix/sprout.svg`, decorativa); exemplo de contexto do template atualizado.
+- [X] T008 [US1] `styles.css`: bloco compacto, painel verde para `allgood`/neutro e amarelo discreto para `idea`, texto `#1d2125` nos painéis, sem rolagem horizontal em 320 px, foco visível.
 - [ ] T009 [US1] Testes: atualizar `tests/block_coursecare_test.php` e os cenários Behat que conferem textos do bloco (`tests/behat/*.feature`) para os novos estados; novo cenário Behat por estado (`idea`, `allgood`, neutro desatualizado, neutro parcial, falha com resultado, sem arquivos, sem análise, em preparação) com axe no bloco.
 
 **Checkpoint**: bloco completo e testado; página ainda como na 0.7.0.
@@ -62,11 +62,11 @@ acessíveis, com fragmentos, histórico, sem JavaScript e na impressão; todo o 
 de tela, `#block_coursecare-history` abre "Em detalhes", sem JavaScript tudo aparece, e o inventário bate
 com o T003.
 
-- [ ] T010 [P] [US2] `pix/illustration.svg`: ilustração original (plantas e uma tela simples, paleta do broto, sem pessoas, mascotes ou texto), comentário de origem e licença GPL v3+ no arquivo; registrar origem e direitos em `specs/008-educational-experience/evidence/illustration.md`.
-- [ ] T011 [US2] `classes/output/course_overview.php`: contexto do cabeçalho (identidade = `pluginname`, `tagline`, ilustração), cartão do indicador com título `overview:title` (h3), faixa da aba de sugestões (estado educativo de T005 + `suggestions:band_note` só com sugestão), `initialtab` (`suggestions` com sugestão, `details` sem), nomes das abas, mensagem de fechamento; sem resultado, sem abas.
-- [ ] T012 [US2] `templates/overview.mustache` e `templates/overview_summary.mustache`: estrutura de contracts/ui.md (h2 identidade, cartão h3, `nav` de abas com `hidden`, duas `section` com `h2` próprios, seções existentes movidas sem mudança de conteúdo para a área certa, fechamento); `{{#js}}` chama `block_coursecare/tabs`.
-- [ ] T013 [US2] `amd/src/tabs.js`: padrão de abas APG (roles, `aria-selected`, `aria-controls`, `aria-labelledby`, `tabindex` itinerante, setas/Home/End com ativação automática, painel inativo `hidden`, `h2` das áreas ocultos visualmente com `sr-only`), aba inicial (fragmento > `data-initialtab`), fragmentos de seção ativam a aba e focam a seção, `pushState` na troca e `popstate`/`hashchange` restauram.
-- [ ] T014 [US2] Compilar `amd/build/tabs.min.js` e `.map` com o `grunt amd` do Moodle (contêiner `node:22`, research R5); `moodle-plugin-ci`-equivalente local: eslint sem aviso.
+- [X] T010 [P] [US2] `pix/illustration.svg`: ilustração original (plantas e uma tela simples, paleta do broto, sem pessoas, mascotes ou texto), comentário de origem e licença GPL v3+ no arquivo; registrar origem e direitos em `specs/008-educational-experience/evidence/illustration.md`.
+- [X] T011 [US2] `classes/output/course_overview.php`: contexto do cabeçalho (identidade = `pluginname`, `tagline`, ilustração), cartão do indicador com título `overview:title` (h3), faixa da aba de sugestões (estado educativo de T005 + `suggestions:band_note` só com sugestão), `initialtab` (`suggestions` com sugestão, `details` sem), nomes das abas, mensagem de fechamento; sem resultado, sem abas.
+- [X] T012 [US2] `templates/overview.mustache` e `templates/overview_summary.mustache`: estrutura de contracts/ui.md (h2 identidade, cartão h3, `nav` de abas com `hidden`, duas `section` com `h2` próprios, seções existentes movidas sem mudança de conteúdo para a área certa, fechamento); `{{#js}}` chama `block_coursecare/tabs`.
+- [X] T013 [US2] `amd/src/tabs.js`: padrão de abas APG (roles, `aria-selected`, `aria-controls`, `aria-labelledby`, `tabindex` itinerante, setas/Home/End com ativação automática, painel inativo `hidden`, `h2` das áreas ocultos visualmente com `sr-only`), aba inicial (fragmento > `data-initialtab`), fragmentos de seção ativam a aba e focam a seção, `pushState` na troca e `popstate`/`hashchange` restauram.
+- [X] T014 [US2] Compilar `amd/build/tabs.min.js` e `.map` com o `grunt amd` do Moodle (contêiner `node:22`, research R5); `moodle-plugin-ci`-equivalente local: eslint sem aviso.
 - [ ] T015 [US2] `styles.css`: cabeçalho (identidade, tagline, ilustração que reduz ou some em telas estreitas), cartão do indicador, lista de abas (alvos ≥ 24 px, foco visível, aba ativa indicada também por borda/peso, não só cor), faixa amarela discreta, fechamento; `@media print` mostra todos os painéis e esconde as abas; 320 px e zoom 200% sem rolagem horizontal.
 - [ ] T016 [US2] Testes: PHPUnit do contexto da página (`tests/output/course_overview_test.php`: aba inicial, faixa por estado, sem abas sem resultado); Behat `@javascript` (abas, setas, Home/End, `#block_coursecare-history`, voltar do navegador, axe) e sem JavaScript (as duas áreas e todas as seções visíveis) em `tests/behat/block_coursecare_tabs.feature`; cenários existentes da página (002–006) ajustados só para clicar na aba quando necessário.
 
@@ -81,7 +81,7 @@ com o T003.
 **Independent Test**: na sala com materiais grandes, o cartão mostra o que observamos, por que, o que fazer
 e as atividades com link, com os mesmos números e critérios da 004.
 
-- [ ] T017 [US3] `templates/overview_suggestions.mustache` e `classes/output/course_overview.php`: cartão com ícone decorativo, título, quatro blocos com títulos visíveis (o que observamos, por que pode merecer atenção, o que você pode fazer se quiser, onde estão as atividades), links das atividades; mesmos textos e números da 004; sem selo, ranking ou valores.
+- [X] T017 [US3] `templates/overview_suggestions.mustache` e `classes/output/course_overview.php`: cartão com ícone decorativo, título, quatro blocos com títulos visíveis (o que observamos, por que pode merecer atenção, o que você pode fazer se quiser, onde estão as atividades), links das atividades; mesmos textos e números da 004; sem selo, ranking ou valores.
 - [ ] T018 [US3] `styles.css` do cartão e testes: Behat de `tests/behat/block_coursecare_suggestions.feature` ajustado e conferindo as quatro partes; axe.
 
 ---

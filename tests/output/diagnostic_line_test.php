@@ -16,14 +16,18 @@
 
 namespace block_coursecare\output;
 
+use block_coursecare\local\analysis\diagnostic_state;
+
 /**
- * Sizes shown to teachers: the rule of display_size() with the decimal separator of the language.
+ * Sizes shown to teachers (the rule of display_size() with the decimal separator of the language) and the educational
+ * state of the block (Feature 008).
  *
  * @package    block_coursecare
  * @category   test
  * @copyright  2026 Saymon Castro
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \block_coursecare\output\diagnostic_line::size
+ * @covers     \block_coursecare\output\diagnostic_line::educational
  */
 final class diagnostic_line_test extends \advanced_testcase {
     /**
@@ -55,5 +59,98 @@ final class diagnostic_line_test extends \advanced_testcase {
             force_current_language('en');
             get_string_manager()->reset_caches();
         }
+    }
+
+    /**
+     * Every combination of the resolved state, files, partial coverage and suggestion (data-model.md).
+     *
+     * @return array<string, array{0: string, 1: bool, 2: ?int, 3: bool, 4: bool, 5: string}>
+     */
+    public static function educational_provider(): array {
+        $cases = [];
+        foreach ([diagnostic_state::NOT_ANALYSED, diagnostic_state::QUEUED, diagnostic_state::RUNNING] as $state) {
+            foreach ([false, true] as $suggestion) {
+                $expected = $state === diagnostic_state::NOT_ANALYSED ? 'notavailable' : 'preparing';
+                $cases["{$state} suggestion=" . (int)$suggestion] = [$state, false, null, false, $suggestion, $expected];
+            }
+        }
+        $withresult = [diagnostic_state::COMPLETE, diagnostic_state::OUTDATED, diagnostic_state::FAILED,
+            diagnostic_state::NO_FILES];
+        foreach ($withresult as $state) {
+            foreach ([0, 5] as $files) {
+                foreach ([false, true] as $partial) {
+                    foreach ([false, true] as $suggestion) {
+                        if ($files === 0) {
+                            $expected = 'nofiles';
+                        } else if ($suggestion) {
+                            $expected = 'idea';
+                        } else if ($state === diagnostic_state::COMPLETE && !$partial) {
+                            $expected = 'allgood';
+                        } else {
+                            $expected = 'neutral';
+                        }
+                        $name = "{$state} files={$files} partial=" . (int)$partial . ' suggestion=' . (int)$suggestion;
+                        $cases[$name] = [$state, true, $files, $partial, $suggestion, $expected];
+                    }
+                }
+            }
+        }
+        return $cases;
+    }
+
+    /**
+     * The educational state: "allgood" only for a complete, current, fully classified result with files and no
+     * suggestion; a title and a message only for "idea" and "allgood".
+     *
+     * @dataProvider educational_provider
+     * @param string $state Resolved state.
+     * @param bool $hasresult Whether a result exists.
+     * @param int|null $files Records of the main scope.
+     * @param bool $partial H marker.
+     * @param bool $suggestion Whether the suggestion applies.
+     * @param string $expected Expected kind.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('educational_provider')]
+    public function test_educational_state(string $state, bool $hasresult, ?int $files, bool $partial, bool $suggestion,
+            string $expected): void {
+        $resolved = new diagnostic_state($state, $hasresult, $partial, $hasresult ? 1000 : null,
+            $hasresult ? 1792300000 : null, $files);
+        $result = diagnostic_line::educational($resolved, $suggestion);
+        $this->assertSame($expected, $result['kind']);
+        $this->assertSame($expected === 'idea', $result['isidea']);
+        $this->assertSame($expected === 'allgood', $result['isallgood']);
+        if (in_array($expected, ['idea', 'allgood'], true)) {
+            $this->assertSame(get_string("state:{$expected}_title", 'block_coursecare'), $result['title']);
+            $this->assertSame(get_string("state:{$expected}_message", 'block_coursecare'), $result['message']);
+        } else {
+            $this->assertSame('', $result['title']);
+            $this->assertSame('', $result['message']);
+        }
+    }
+
+    /**
+     * The block: the partial coverage note (without numbers) and the action "See the suggestion" to the suggestions.
+     */
+    public function test_block_notes_and_action(): void {
+        $this->resetAfterTest();
+        $url = new \moodle_url('/blocks/coursecare/overview.php', ['id' => 7]);
+        $renderer = $GLOBALS['PAGE']->get_renderer('core');
+
+        $partialoutdated = new diagnostic_state(diagnostic_state::OUTDATED, true, true, 2048, 1792300000, 3);
+        $data = (new diagnostic_line($partialoutdated, $url, false))->export_for_template($renderer);
+        $this->assertSame('neutral', $data['kind']);
+        $this->assertSame([get_string('diagnostic:mayoutdated', 'block_coursecare'),
+            get_string('block:partial', 'block_coursecare')], array_column($data['notes'], 'text'));
+        $this->assertTrue($data['hasnotes']);
+        $this->assertSame(get_string('overview:link', 'block_coursecare'), $data['overviewlink']);
+        $this->assertStringNotContainsString('#', $data['overviewurl']);
+
+        $idea = new diagnostic_state(diagnostic_state::COMPLETE, true, false, 2048, 1792300000, 3);
+        $data = (new diagnostic_line($idea, $url, true))->export_for_template($renderer);
+        $this->assertSame('idea', $data['kind']);
+        $this->assertFalse($data['hasnotes']);
+        $this->assertSame(get_string('state:idea_action', 'block_coursecare'), $data['overviewlink']);
+        $this->assertStringEndsWith('#block_coursecare-suggestions', $data['overviewurl']);
+        $this->assertDoesNotMatchRegularExpression('/\d/', $data['message'], 'No number in the message of the block.');
     }
 }

@@ -22,7 +22,7 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['block:suggestion'] = 'There is a suggestion about the files of your course.';
+$string['block:partial'] = 'Part of the files could not be classified; they are included in the total.';
 $string['cli:alreadypending'] = 'An analysis is already pending for course {$a}.';
 $string['cli:help'] = 'Storage diagnostic of the CourseCare block (administrators).
 
@@ -91,6 +91,7 @@ $string['overview:category:submission'] = 'Files submitted in activities';
 $string['overview:category:submission_help'] = 'Files sent by participants in assignments and quizzes, shown only for the whole course.';
 $string['overview:category:unclassified'] = 'Not classified';
 $string['overview:category:unclassified_help'] = 'Files from areas the overview does not recognise yet; they count in the total.';
+$string['overview:closing'] = 'Each suggestion is a possibility. The decision is always yours, based on what your students need.';
 $string['overview:copies'] = 'Backups and recycle bin recorded in Moodle for this course';
 $string['overview:copies_backup'] = 'Backups: {$a->count} ({$a->size})';
 $string['overview:copies_help'] = 'Measured apart, not added to the total; backups kept outside Moodle are not included.';
@@ -177,6 +178,11 @@ $string['size:gb'] = 'GB';
 $string['size:kb'] = 'KB';
 $string['size:mb'] = 'MB';
 $string['size:tb'] = 'TB';
+$string['state:allgood_message'] = 'We found no suggestions for the criteria checked in this analysis.';
+$string['state:allgood_title'] = 'All good here!';
+$string['state:idea_action'] = 'See the suggestion';
+$string['state:idea_message'] = 'We found a suggestion about large materials.';
+$string['state:idea_title'] = 'An idea for your course';
 $string['suggestion:large:more'] = 'and {$a} more places, listed under Large files.';
 $string['suggestion:large:more_one'] = 'and 1 more place, listed under Large files.';
 $string['suggestion:large:observed'] = '{$a->count} course materials of {$a->threshold} or more, {$a->size} in total, in:';
@@ -191,11 +197,16 @@ $string['suggestion:large:title'] = 'Large materials';
 $string['suggestion:large:todo'] = 'When you review the activity, consider whether any of these options suits your material. Not all of them apply to every case:';
 $string['suggestion:large:why'] = 'Large files can take longer to open, especially on slow connections or on a phone. Size alone says nothing about the quality or the importance of a material.';
 $string['suggestion:observed'] = 'What we noticed';
+$string['suggestion:places'] = 'Related activities';
 $string['suggestion:todo'] = 'What you can do, if you wish';
 $string['suggestion:why'] = 'Why it may deserve attention';
+$string['suggestions:band_note'] = 'Suggestions are possibilities. They do not mean that anything is wrong, and they do not limit how you use Moodle.';
 $string['suggestions:basedon'] = 'These suggestions use the analysis of {$a}.';
 $string['suggestions:heading'] = 'Suggestions for your course';
 $string['suggestions:none'] = 'There are no suggestions for this course at the moment.';
+$string['tabs:details'] = 'Details';
+$string['tabs:label'] = 'Sections of the page';
+$string['tabs:suggestions'] = 'Suggestions for you';
 $string['tagline'] = 'Small choices, a better learning space for everyone.';
 $string['task:analysecourse'] = 'Analyse the file storage of a course';
 $string['task:queueanalyses'] = 'Queue the file storage analyses of the courses';

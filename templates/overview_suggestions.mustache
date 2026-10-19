@@ -32,7 +32,7 @@
 
     Context variables required for this template:
     * suggestions - object with heading, hassuggestion and none; with a suggestion also basedon, title,
-      observedlabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url, size), more,
+      observedlabel, placeslabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url, size), more,
       truncated, why, todo and options (objects with "text" and "example")
 
     Example context (json):
@@ -44,6 +44,7 @@
             "basedon": "These suggestions use the analysis of 17/10/26, 19:21.",
             "title": "Large materials",
             "observedlabel": "What we noticed",
+            "placeslabel": "Related activities",
             "whylabel": "Why it may deserve attention",
             "todolabel": "What you can do, if you wish",
             "observed": "<strong>2</strong> course materials of 1.0 MB or more, <strong>3.9 MB</strong> in total, in:",
@@ -66,13 +67,19 @@
     {{#hassuggestion}}
     <p class="block_coursecare-overview-help">{{basedon}}</p>
     <div class="block_coursecare-overview-suggestion">
-        <h4 class="block_coursecare-overview-suggestiontitle">{{title}}</h4>
+        <div class="block_coursecare-overview-suggestionhead">
+            <span class="block_coursecare-overview-suggestionicon">{{#pix}} f/document, core {{/pix}}</span>
+            <h4 class="block_coursecare-overview-suggestiontitle">{{title}}</h4>
+        </div>
         <div class="block_coursecare-overview-suggestionparts">
             <dl class="block_coursecare-overview-suggestionfacts mb-0">
                 <dt>{{observedlabel}}</dt>
                 <dd>
-                    <p class="mb-2">{{{observed}}}</p>
-                    {{#hasplaces}}
+                    <p class="mb-0">{{{observed}}}</p>
+                </dd>
+                {{#hasplaces}}
+                <dt>{{placeslabel}}</dt>
+                <dd>
                     <ul class="block_coursecare-overview-places list-unstyled">
                         {{#places}}
                         <li>
@@ -81,7 +88,6 @@
                         </li>
                         {{/places}}
                     </ul>
-                    {{/hasplaces}}
                     {{#more}}
                     <p class="mb-0">{{more}}</p>
                     {{/more}}
@@ -89,6 +95,12 @@
                     <p class="block_coursecare-overview-help mt-1 mb-0">{{truncated}}</p>
                     {{/truncated}}
                 </dd>
+                {{/hasplaces}}
+                {{^hasplaces}}
+                {{#truncated}}
+                <dd><p class="block_coursecare-overview-help mt-1 mb-0">{{truncated}}</p></dd>
+                {{/truncated}}
+                {{/hasplaces}}
             </dl>
             <dl class="block_coursecare-overview-suggestionadvice mb-0">
                 <dt>{{whylabel}}</dt>
@@ -107,7 +119,9 @@
     </div>
     {{/hassuggestion}}
     {{^hassuggestion}}
+    {{#none}}
     <p class="mb-0">{{none}}</p>
+    {{/none}}
     {{/hassuggestion}}
 </section>
 {{/suggestions}}

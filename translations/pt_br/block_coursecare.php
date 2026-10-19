@@ -22,7 +22,7 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['block:suggestion'] = 'Há uma sugestão sobre os arquivos da sua sala.';
+$string['block:partial'] = 'Parte dos arquivos não pôde ser classificada; ela está incluída no total.';
 $string['cli:alreadypending'] = 'Já há uma análise pendente para a sala {$a}.';
 $string['cli:help'] = 'Diagnóstico de armazenamento do bloco AVA Consciente (administradores).
 
@@ -91,6 +91,7 @@ $string['overview:category:submission'] = 'Arquivos enviados em atividades';
 $string['overview:category:submission_help'] = 'Arquivos enviados por participantes em tarefas e questionários, mostrados só para a sala inteira.';
 $string['overview:category:unclassified'] = 'Não classificados';
 $string['overview:category:unclassified_help'] = 'Arquivos de áreas que o panorama ainda não reconhece; eles contam no total.';
+$string['overview:closing'] = 'Cada sugestão é uma possibilidade. A decisão é sempre sua, a partir do que os seus estudantes precisam.';
 $string['overview:copies'] = 'Cópias de segurança e lixeira registradas no Moodle para esta sala';
 $string['overview:copies_backup'] = 'Cópias de segurança: {$a->count} ({$a->size})';
 $string['overview:copies_help'] = 'Medidas à parte, não somadas ao total; cópias guardadas fora do Moodle não entram.';
@@ -177,6 +178,11 @@ $string['size:gb'] = 'GB';
 $string['size:kb'] = 'KB';
 $string['size:mb'] = 'MB';
 $string['size:tb'] = 'TB';
+$string['state:allgood_message'] = 'Não identificamos sugestões nos critérios avaliados nesta análise.';
+$string['state:allgood_title'] = 'Tudo bem por aqui!';
+$string['state:idea_action'] = 'Ver sugestão';
+$string['state:idea_message'] = 'Encontramos uma sugestão sobre materiais de grande porte.';
+$string['state:idea_title'] = 'Há uma ideia para a sua sala';
 $string['suggestion:large:more'] = 'e mais {$a} lugares, listados em Arquivos de grande porte.';
 $string['suggestion:large:more_one'] = 'e mais 1 lugar, listado em Arquivos de grande porte.';
 $string['suggestion:large:observed'] = '{$a->count} materiais da sala de {$a->threshold} ou mais, somando {$a->size}, em:';
@@ -191,11 +197,16 @@ $string['suggestion:large:title'] = 'Materiais de grande porte';
 $string['suggestion:large:todo'] = 'Ao revisar a atividade, avalie se alguma destas opções faz sentido para o seu material. Nem todas se aplicam a todos os casos:';
 $string['suggestion:large:why'] = 'Arquivos grandes podem demorar mais para abrir, sobretudo em conexões lentas ou no celular. O tamanho, sozinho, não diz nada sobre a qualidade ou a importância do material.';
 $string['suggestion:observed'] = 'O que observamos';
+$string['suggestion:places'] = 'Atividades relacionadas';
 $string['suggestion:todo'] = 'O que você pode fazer, se quiser';
 $string['suggestion:why'] = 'Por que pode merecer atenção';
+$string['suggestions:band_note'] = 'Sugestões são possibilidades. Elas não indicam que algo esteja errado e não limitam o seu uso do Moodle.';
 $string['suggestions:basedon'] = 'Estas sugestões usam a análise de {$a}.';
 $string['suggestions:heading'] = 'Sugestões para a sua sala';
 $string['suggestions:none'] = 'Não há sugestões para esta sala no momento.';
+$string['tabs:details'] = 'Em detalhes';
+$string['tabs:label'] = 'Seções da página';
+$string['tabs:suggestions'] = 'Sugestões para você';
 $string['tagline'] = 'Pequenas escolhas, um AVA melhor para todos.';
 $string['task:analysecourse'] = 'Analisar o armazenamento de arquivos de uma sala';
 $string['task:queueanalyses'] = 'Enfileirar as análises de armazenamento de arquivos das salas';

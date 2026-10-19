@@ -188,7 +188,7 @@ Feature: CourseCare "Your course in numbers" page
       | course | activity | filesize |
       | C1     | lab      | 62914560 |
     When I am on the "C1" "Course" page logged in as "teacher1"
-    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    And I click on "See the suggestion" "link" in the "CourseCare" "block"
     Then I should see "Large files"
     And I should see "Large materials by activity"
     And I should see "The threshold is a screening value set by the site, not a teaching rule."

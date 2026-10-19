@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.8.0 BETA (unreleased)
+
+- Educational experience: the block shows the identity of the plugin, an educational state ("All good
+  here!" only when the latest analysis is complete, current and fully classified and no suggestion
+  applies; "An idea for your course" when a suggestion applies), the volume of the course files with
+  the date, discreet notes (update failed, may be out of date, partly classified) and one action.
+- The "Your course in numbers" page opens with the plugin identity, its tagline, an original
+  illustration and the volume, and organises its content in two accessible tabs, "Suggestions for you"
+  and "Details", with links to sections, browser history, printing and use without JavaScript.
+- The large materials suggestion card answers what was noticed, why it may deserve attention, what you
+  can do if you wish, and where the related activities are.
+- No new data, setting, capability, recommendation or indicator; no database change.
+
 ## 0.7.0 BETA (unreleased)
 
 - Moodle 5.3 LTS supported alongside Moodle 4.5 LTS (`supported` = [405, 503]), verified on PHP 8.3
