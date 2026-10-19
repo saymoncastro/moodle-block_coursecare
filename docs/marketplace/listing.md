@@ -18,9 +18,12 @@ numbers, a history and optional suggestions. It never changes or deletes anythin
 
 ## Long description
 
-CourseCare adds a small block to the main page of a course. It shows the size of the files Moodle
-records for the course, with the date of the calculation, and links to a page, "Your course in
-numbers", where teachers who edit the course can see:
+CourseCare adds a small block to the main page of a course. It welcomes the teacher with a short
+educational state ("An idea for your course" when a suggestion applies, "All good here!" only when the
+latest analysis is complete, recent and finds nothing to suggest), shows the size of the files Moodle
+records for the course with the date of the calculation, and leads to a page, "Your course in numbers",
+organised in two accessible tabs, "Suggestions for you" and "Details", where teachers who edit the
+course can see:
 
 - where the files are: course materials, files submitted in activities (only as the total of the
   course, never per student), other associated files and files not classified;
@@ -58,7 +61,7 @@ and 8.4 (5.3), with PostgreSQL 17 and MariaDB 11.4.
 
 ## Maturity and version
 
-0.7.0 BETA.
+0.8.0 BETA.
 
 ## Links
 
@@ -84,7 +87,8 @@ GNU GPL v3 or later.
 
 ## Screenshots
 
-Real screenshots of demonstration sites with fictitious courses and people, interface in English, in
+Screenshots of 0.7.0, to be replaced by screenshots of 0.8.0 once the product owner approves them. Real
+screenshots of demonstration sites with fictitious courses and people, interface in English, in
 [`screenshots/`](screenshots/). The fictitious course content is in Portuguese ("Biologia celular").
 They show no personal data.
 

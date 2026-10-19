@@ -10,19 +10,31 @@ Your site administrator decides whether CourseCare is available. Teachers who ca
 ## 1. The block
 
 Add the block "CourseCare" to the main page of your course (Turn editing on > Add a block). After the
-first analysis, which runs in the background and can take a little while, the block shows:
+first analysis, which runs in the background and can take a little while, the block shows a short
+welcome, the size of the files Moodle records for your course (**Course files recorded in Moodle**, such
+as `8.0 MB`) with the date of the calculation, and one button to the page described below:
 
-- **Course files recorded in Moodle**, a size such as `8.0 MB`, and **Calculated on** a date;
-- a link, **Learn more about the files in your course**, to the page described below;
-- sometimes one sentence, **There is a suggestion about the files of your course.**
+- **An idea for your course** — *"We found a suggestion about large materials."* The button **See the
+  suggestion** opens it. A suggestion is a possibility, not a sign that something is wrong.
+- **All good here!** — *"We found no suggestions for the criteria checked in this analysis."* This only
+  means that the checks CourseCare makes found nothing to suggest; it is not a grade of your course. It
+  appears only when the latest analysis is complete, recent and fully classified.
+- Without either welcome, the block simply shows the size and the date, with **Learn more about the files
+  in your course**.
 
-If the block says *"The file overview for this course is being prepared"*, the first analysis has not
-finished yet. *"This information may be out of date"* means the latest calculation is older than your
-site expects; the number shown is still the last one measured.
+Small notes may follow the date: *"This information may be out of date"* (the latest calculation is
+older than your site expects; the number is still the last one measured), *"The latest update could not
+be completed"* (the previous result is kept) and *"Part of the files could not be classified; they are
+included in the total."* If the block says *"The file overview for this course is being prepared"*, the
+first analysis has not finished yet.
 
 ## 2. "Your course in numbers"
 
-The page linked from the block has these parts, from top to bottom.
+The page linked from the block starts with the name CourseCare, its tagline and the size of your
+course's files. Its content is in two tabs: **Suggestions for you** (opened first when there is a
+suggestion) and **Details** (opened first otherwise), which you can switch with the mouse or with the
+arrow keys. Each part below is in one of them; when printed, or without JavaScript, both are shown one
+after the other.
 
 ### Opening: how much your course keeps
 
@@ -32,13 +44,19 @@ The size of all the files Moodle records for your course, with the date of the c
 (4 MB), because it is recorded in two places. That is **logical storage**: what the course has,
 place by place.
 
-### Suggestions for your course
+### Suggestions for your course (tab "Suggestions for you")
+
+The tab starts with a short welcome: **An idea for your course** with a suggestion, **All good here!**
+when the latest analysis found none, as in the block.
 
 When some course materials are at or above the size your site considers "large" (50 MB by default),
 a card shows what was noticed, why it may deserve attention and what you could do, **if you wish**.
 Large files are not a problem in themselves: a long video may be exactly what your students need. The
 options (an optimised version that stays readable, splitting long content, a link to where the content
-is already published) are possibilities, never instructions.
+is already published) are possibilities, never instructions. Under **Related activities** each
+activity is linked, so you can open it.
+
+The following parts are in the tab **Details**.
 
 ### Where the files are
 

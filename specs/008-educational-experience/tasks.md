@@ -47,7 +47,7 @@ entregue junto com a reorganização da página da US2, pois as duas mexem nos m
 - [X] T006 [US1] `block_coursecare.php` e `classes/output/diagnostic_line.php`: passar ao template o estado educativo (T005), as notas e a ação ("Ver sugestão" para `#block_coursecare-suggestions`, link atual sem sugestão, nenhum sem resultado); sem leitura nova do banco.
 - [X] T007 [US1] `templates/content.mustache`: identidade → título e mensagem do estado (parágrafos, não títulos) → cartão do indicador (rótulo, volume, data) → notas → acesso como botão (`btn btn-outline-primary`); ilustração pequena só nos estados `idea` e `allgood` (`pix/sprout.svg`, decorativa); exemplo de contexto do template atualizado.
 - [X] T008 [US1] `styles.css`: bloco compacto, painel verde para `allgood`/neutro e amarelo discreto para `idea`, texto `#1d2125` nos painéis, sem rolagem horizontal em 320 px, foco visível.
-- [ ] T009 [US1] Testes: atualizar `tests/block_coursecare_test.php` e os cenários Behat que conferem textos do bloco (`tests/behat/*.feature`) para os novos estados; novo cenário Behat por estado (`idea`, `allgood`, neutro desatualizado, neutro parcial, falha com resultado, sem arquivos, sem análise, em preparação) com axe no bloco.
+- [X] T009 [US1] Testes: atualizar `tests/block_coursecare_test.php` e os cenários Behat que conferem textos do bloco (`tests/behat/*.feature`) para os novos estados; novo cenário Behat por estado (`idea`, `allgood`, neutro desatualizado, neutro parcial, falha com resultado, sem arquivos, sem análise, em preparação) com axe no bloco.
 
 **Checkpoint**: bloco completo e testado; página ainda como na 0.7.0.
 
@@ -67,8 +67,8 @@ com o T003.
 - [X] T012 [US2] `templates/overview.mustache` e `templates/overview_summary.mustache`: estrutura de contracts/ui.md (h2 identidade, cartão h3, `nav` de abas com `hidden`, duas `section` com `h2` próprios, seções existentes movidas sem mudança de conteúdo para a área certa, fechamento); `{{#js}}` chama `block_coursecare/tabs`.
 - [X] T013 [US2] `amd/src/tabs.js`: padrão de abas APG (roles, `aria-selected`, `aria-controls`, `aria-labelledby`, `tabindex` itinerante, setas/Home/End com ativação automática, painel inativo `hidden`, `h2` das áreas ocultos visualmente com `sr-only`), aba inicial (fragmento > `data-initialtab`), fragmentos de seção ativam a aba e focam a seção, `pushState` na troca e `popstate`/`hashchange` restauram.
 - [X] T014 [US2] Compilar `amd/build/tabs.min.js` e `.map` com o `grunt amd` do Moodle (contêiner `node:22`, research R5); `moodle-plugin-ci`-equivalente local: eslint sem aviso.
-- [ ] T015 [US2] `styles.css`: cabeçalho (identidade, tagline, ilustração que reduz ou some em telas estreitas), cartão do indicador, lista de abas (alvos ≥ 24 px, foco visível, aba ativa indicada também por borda/peso, não só cor), faixa amarela discreta, fechamento; `@media print` mostra todos os painéis e esconde as abas; 320 px e zoom 200% sem rolagem horizontal.
-- [ ] T016 [US2] Testes: PHPUnit do contexto da página (`tests/output/course_overview_test.php`: aba inicial, faixa por estado, sem abas sem resultado); Behat `@javascript` (abas, setas, Home/End, `#block_coursecare-history`, voltar do navegador, axe) e sem JavaScript (as duas áreas e todas as seções visíveis) em `tests/behat/block_coursecare_tabs.feature`; cenários existentes da página (002–006) ajustados só para clicar na aba quando necessário.
+- [X] T015 [US2] `styles.css`: cabeçalho (identidade, tagline, ilustração que reduz ou some em telas estreitas), cartão do indicador, lista de abas (alvos ≥ 24 px, foco visível, aba ativa indicada também por borda/peso, não só cor), faixa amarela discreta, fechamento; `@media print` mostra todos os painéis e esconde as abas; 320 px e zoom 200% sem rolagem horizontal.
+- [X] T016 [US2] Testes: PHPUnit do contexto da página (`tests/output/course_overview_test.php`: aba inicial, faixa por estado, sem abas sem resultado); Behat `@javascript` (abas, setas, Home/End, `#block_coursecare-history`, voltar do navegador, axe) e sem JavaScript (as duas áreas e todas as seções visíveis) em `tests/behat/block_coursecare_tabs.feature`; cenários existentes da página (002–006) ajustados só para clicar na aba quando necessário.
 
 **Checkpoint**: página reorganizada; regressão 002–006 verde.
 
@@ -82,14 +82,14 @@ com o T003.
 e as atividades com link, com os mesmos números e critérios da 004.
 
 - [X] T017 [US3] `templates/overview_suggestions.mustache` e `classes/output/course_overview.php`: cartão com ícone decorativo, título, quatro blocos com títulos visíveis (o que observamos, por que pode merecer atenção, o que você pode fazer se quiser, onde estão as atividades), links das atividades; mesmos textos e números da 004; sem selo, ranking ou valores.
-- [ ] T018 [US3] `styles.css` do cartão e testes: Behat de `tests/behat/block_coursecare_suggestions.feature` ajustado e conferindo as quatro partes; axe.
+- [X] T018 [US3] `styles.css` do cartão e testes: Behat de `tests/behat/block_coursecare_suggestions.feature` ajustado e conferindo as quatro partes; axe.
 
 ---
 
 ## Phase 6: Polish
 
 - [ ] T019 Inventário de preservação "depois" (`evidence/preservation-after.md`) comparado ao T003: mesmas seções, rótulos e números; medidas de `render.php` com as mesmas leituras e tempo dentro de 10% (SC-004).
-- [ ] T020 Limpeza: strings sem uso removidas (`block:suggestion` e outras), paridade de i18n, `tools/package/check.php` aceita `amd/` (ajustar a lista de permissão se preciso) e o pacote passa.
+- [X] T020 Limpeza: strings sem uso removidas (`block:suggestion` e outras), paridade de i18n, `tools/package/check.php` aceita `amd/` (ajustar a lista de permissão se preciso) e o pacote passa.
 - [ ] T021 Suítes locais (PHPUnit, Behat em 4.5), push e CI verde nas quatro combinações (inclui `grunt` e `mustache`); registrar em `evidence/README.md`.
 - [ ] T022 Auditoria de acessibilidade e responsividade com `tools/dev/demo/checks.py` (axe, teclado, zoom 200%, 320 px, árvore de acessibilidade) em 4.5 Boost, 4.5 Classic e 5.3 Boost, gaveta aberta e tours concluídos; corrigir só defeitos reais.
 - [ ] T023 Capturas reais (en e pt_BR; 4.5 e 5.3; bloco em cada estado principal, página nas duas abas; desktop e celular) e comparação lado a lado com o mockup aprovado em `evidence/screenshots/` e `evidence/comparison.md`; **aprovação do proprietário do produto pendente**.
