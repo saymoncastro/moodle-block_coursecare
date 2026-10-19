@@ -31,7 +31,8 @@ Um cartão por tarefa, depois do cartão da 004, na ordem da sala; componentes d
 | Por que pode merecer atenção | This setting can make sense in activities that allow continuous revision and improvement. | Essa configuração pode fazer sentido em atividades que permitem revisão e aperfeiçoamento contínuo. |
 | O que você pode fazer, se quiser | If you wish, check how the attempts work and consider whether this setting matches the purpose of the activity. | Se quiser, confira como as tentativas funcionam e avalie se essa configuração corresponde à proposta da atividade. |
 | Como revisar | link para a orientação da tarefa (aba "Em detalhes") e, com permissão, para as configurações | idem |
-| Base | "These suggestions use the analysis of {date}." (A) | idem |
+| Base | "These suggestions use the analysis of {date}." | idem |
+| Mudou desde a análise | "The settings of this assignment changed after the analysis of {date}; the suggestion will be reviewed in the next analysis." | "As configurações desta tarefa mudaram depois da análise de {data}; a sugestão será revista na próxima análise." |
 
 Textos em inglês propostos; revisão de tom pelo proprietário do produto.
 

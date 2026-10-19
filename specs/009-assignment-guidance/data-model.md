@@ -1,21 +1,21 @@
 # Data model: Assignment Guidance (Feature 009)
 
-## (A) Tabela `block_coursecare_assignidea`
+## (B2) Campo `assignideas` em `block_coursecare_diag`
 
 | Campo | Tipo | Regra |
 | --- | --- | --- |
-| `id` | int(10), sequência | |
-| `diagid` | int(10), FK `block_coursecare_diag.id`, índice | substituída a cada análise, na mesma transação do resultado (como `_cat`, `_act`, `_large`) |
-| `cmid` | int(10) | tarefa que atendia ao critério R1 no momento da análise |
+| `assignideas` | TEXT, anulável, sem índice | `cmid` das tarefas que atendiam ao critério de configuração na análise, separados por vírgula; `NULL` = ainda não avaliado (após a atualização, até a próxima análise); `''` = avaliado, nenhuma |
 
-Sem dado pessoal; apagada com o diagnóstico (sala excluída, último bloco removido) e na desinstalação.
-Depois da atualização para 0.9.0, vazia até a próxima análise de cada sala.
+Gravado no mesmo `save_result` (transação e trava da 002), com a mesma data `timecompleted`; falha mantém o
+valor anterior; apagado com o registro da sala e na desinstalação. Sem dado pessoal. Exibição: filtrado ao
+vivo pelo `modinfo` (atividade existe, é tarefa, `visible`).
 
 ## Critério (derivado, R1)
 
 Entrada: as configurações da 005 de uma tarefa (`maxfiles`, `maxattempts`, `reopenmethod`, item de nota,
-participantes, grupos) e a visibilidade da atividade. Verdadeiro sse `files > 0` ∧ `maxattempts = -1` ∧
-reabre (manual, automatic, ou untilpass com critério de aprovação) ∧ `units > 0` ∧ visível para estudantes.
+participantes, grupos) e o resultado de `evaluate()`. Na análise: `files > 0` ∧ `maxattempts = -1` ∧ reabre
+(manual, automatic, ou untilpass com critério de aprovação) ∧ `units > 0`. Na exibição: ∧ a atividade
+existe e está visível para os estudantes.
 
 ## Orientação informativa (derivada, por tarefa)
 
