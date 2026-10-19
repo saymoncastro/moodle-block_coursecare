@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,7 @@
 
 ## Notes
 
-- Three product-owner decisions are open: FR-008 (where the guidance of each assignment appears), FR-010
-  (which approved criteria, if any, make an assignment a contextualised suggestion), FR-013 (whether the
-  assignment suggestions change the block's educational state).
+- The three product-owner decisions were integrated on 2026-10-19 (Clarifications): FR-008, FR-010 to
+  FR-010b, FR-013, FR-014. The architecture for FR-014 is chosen in the plan, with the product owner.
 - The state names of Feature 005 (`potential`, `unlimited`, ...) are kept as references to existing
   behaviour, not as implementation choices.

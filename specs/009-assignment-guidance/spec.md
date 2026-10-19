@@ -5,7 +5,7 @@ pelo PR #12; versão de partida 0.8.0 BETA, Moodle 4.5 LTS e 5.3 LTS)
 
 **Created**: 2026-10-19
 
-**Status**: Draft
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-19: Q1 A, Q2 B com condições, Q3 A com condições); arquitetura de consistência bloco × página pendente de escolha (plan)
 
 **Input**: User description: "Feature 009 — Assignment Guidance: transformar as informações da Feature 005
 sobre as configurações de envio das tarefas (mod_assign) em orientações práticas, contextualizadas e
@@ -24,6 +24,26 @@ nunca somado ao Armazenamento lógico ou ao Conteúdo único.
 **Dados (Princípio VII)**: os mesmos da 005 (configurações da tarefa, da sala e do site; contagem
 agregada de quem pode enviar). Nenhum envio, arquivo, nota ou nome de estudante; nenhum volume real por
 tarefa (decisão de privacidade da 003, mantida na 005).
+
+## Clarifications
+
+### Session 2026-10-19
+
+- Q: Onde aparece a orientação de cada tarefa? → A: recolhida dentro de cada tarefa da seção "Potencial
+  das tarefas", na aba "Em detalhes", reutilizando os componentes existentes; nenhuma página nova por
+  tarefa (FR-008).
+- Q: Que critério gera uma recomendação contextualizada? → A: um só nesta feature: **tarefa com envio de
+  arquivos que efetivamente admite novas tentativas sem limite máximo**, conforme o comportamento real do
+  Moodle (envio de arquivos habilitado, método de reabertura, limite efetivo de tentativas, participantes
+  elegíveis e demais condições), nunca pelo valor isolado do campo de tentativas. Tentativas ilimitadas
+  não são um problema: a sugestão explica e convida a avaliar; não recomenda impor limite, não sugere
+  valores, não fala em desperdício, aumento efetivo de armazenamento ou desempenho. O limite por arquivo
+  herdado do site continua só informativo (FR-010, FR-010a, FR-011).
+- Q: As sugestões de tarefas mudam o bloco? → A: sim; o bloco reflete qualquer sugestão contextualizada
+  aplicável (004 ou 009), sem números novos e compacto, sem incoerência com a página; com os dois tipos,
+  mensagem genérica. Sem recalcular o potencial de todas as tarefas a cada renderização, sem varrer
+  arquivos, sem consultas pesadas; mudança de contrato, persistência ou processamento é apresentada com
+  alternativas e custos antes da implementação (FR-013, FR-014).
 
 ## Ponto de partida (Feature 005, main em `b38963c`)
 
@@ -143,18 +163,41 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
 - **FR-007**: A orientação MUST incluir perguntas de reflexão sem valores ("Que tipo de arquivo a atividade
   pede?", "Quantos arquivos uma entrega completa precisa ter?") e MUST NOT sugerir valores (nenhum "10 MB",
   "20 MB", "dois arquivos" ou equivalente).
-- **FR-008**: [NEEDS CLARIFICATION: onde a orientação de cada tarefa aparece — (A) recolhida em cada tarefa da seção "Potencial das tarefas" na aba "Em detalhes", (B) numa página de orientação própria por tarefa, ligada a partir da seção, ou (C) outra forma?]
+- **FR-008**: A orientação de cada tarefa MUST aparecer recolhida dentro da própria tarefa na seção
+  "Potencial das tarefas" (aba "Em detalhes"), com os componentes existentes; nenhuma página nova por
+  tarefa.
 
 **Recomendação contextualizada (História 2)**
 
-- **FR-010**: Um cartão de tarefa em "Sugestões para você" MUST aparecer só quando um critério aprovado se
-  aplica: [NEEDS CLARIFICATION: quais critérios objetivos e já calculáveis pela 005 geram o cartão — (A) nenhum nesta feature (só orientação informativa), (B) tentativas ilimitadas com envio de arquivos, (C) tentativas ilimitadas e limite por arquivo vindo do padrão do site sem escolha na tarefa, ou outro?]
+- **FR-010**: Um cartão de tarefa em "Sugestões para você" MUST aparecer só quando o critério aprovado se
+  aplica: **tentativas efetivamente ilimitadas numa tarefa com envio de arquivos** (FR-010a). Nenhum outro
+  critério nesta feature; o limite por arquivo herdado do site é só informativo (FR-003).
+- **FR-010a**: O critério MUST seguir o comportamento efetivo do Moodle (o mesmo de
+  `assign::reopen_submission_if_required()` no 4.5 e no 5.3) e só se aplicar quando, ao mesmo tempo: o
+  envio de arquivos está habilitado e aceita ao menos um arquivo; o número máximo de tentativas é
+  ilimitado; o método de reabertura abre novas tentativas (manual ou automática; "até passar" só com nota
+  para aprovação definida, como na 005); há ao menos um participante ou grupo que pode enviar; e a tarefa
+  está visível para os estudantes. Sem qualquer uma dessas condições, nenhuma recomendação.
+- **FR-010b**: Texto da recomendação (direção aprovada): título "Conheça as possibilidades de envio desta
+  tarefa"; fato "Esta tarefa permite novas tentativas sem um limite máximo definido."; explicação "Essa
+  configuração pode fazer sentido em atividades que permitem revisão e aperfeiçoamento contínuo."; ação
+  "Se quiser, confira como as tentativas funcionam e avalie se essa configuração corresponde à proposta da
+  atividade." MUST NOT recomendar impor um limite de tentativas, sugerir valores ou afirmar desperdício,
+  aumento efetivo de armazenamento ou prejuízo ao desempenho.
 - **FR-011**: O cartão MUST seguir o padrão da 008 (o que observamos, por que pode merecer atenção, o que
   você pode fazer se quiser, como revisar) e nomear a tarefa real, com link; MUST NOT trazer selo
   "principal", ranking, comparação entre tarefas ou professores, nem valores sugeridos.
 - **FR-012**: Com mais de uma sugestão, a ordem MUST ser fixa e documentada (materiais grandes da 004
   primeiro, depois as tarefas na ordem da sala); isso não é priorização.
-- **FR-013**: O estado educativo do bloco e a faixa da página (008) [NEEDS CLARIFICATION: as sugestões de tarefas também fazem o bloco e a faixa dizerem "Há uma ideia para a sua sala" (com mensagem genérica, sem números, nomeando os tipos de sugestão), ou o bloco continua só com materiais grandes e as tarefas aparecem apenas na página?]
+- **FR-013**: O estado educativo do bloco e a faixa da página (008) MUST refletir qualquer sugestão
+  contextualizada aplicável (004 ou 009), sem incoerência entre bloco e página: sem sugestão, o estado da
+  008 conforme a validade do diagnóstico; só materiais grandes, a mensagem da 008; só tarefas, uma
+  mensagem sobre as tarefas; os dois tipos, uma mensagem genérica sobre sugestões para a sala. Nenhum
+  número novo no bloco; bloco compacto.
+- **FR-014**: A renderização do bloco MUST NOT recalcular o potencial de todas as tarefas, varrer
+  arquivos ou fazer consultas pesadas (Princípio VI); bloco e página MUST usar a mesma fonte para decidir
+  se a sugestão de tarefa se aplica. A escolha da arquitetura (persistência ou cálculo) é apresentada com
+  alternativas e custos ao proprietário do produto antes da implementação.
 
 **Preservação, idiomas e qualidade**
 
