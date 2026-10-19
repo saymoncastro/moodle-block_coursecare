@@ -4,9 +4,8 @@
 
 **Input**: Feature specification from `specs/009-assignment-guidance/spec.md` (clarificada em 2026-10-19)
 
-**Pending decision**: aprovação da mudança de persistência (research R4). Este plano descreve a
-arquitetura recomendada **B2**: pré-cálculo na análise da 002, guardado em um campo do registro da sala;
-nada de persistência é implementado antes da aprovação.
+**Architecture**: **B2 aprovada pelo proprietário do produto em 2026-10-19** (research R4, commit `8f62c26`):
+pré-cálculo na análise da 002, guardado em um campo do registro da sala.
 
 ## Summary
 

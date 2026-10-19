@@ -5,7 +5,7 @@ pelo PR #12; versão de partida 0.8.0 BETA, Moodle 4.5 LTS e 5.3 LTS)
 
 **Created**: 2026-10-19
 
-**Status**: Clarified (decisões do proprietário do produto de 2026-10-19: Q1 A, Q2 B com condições, Q3 A com condições); arquitetura de consistência bloco × página pendente de escolha (plan)
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-19: Q1 A, Q2 B com condições, Q3 A com condições); arquitetura B2 aprovada em 2026-10-19 (research R4)
 
 **Input**: User description: "Feature 009 — Assignment Guidance: transformar as informações da Feature 005
 sobre as configurações de envio das tarefas (mod_assign) em orientações práticas, contextualizadas e

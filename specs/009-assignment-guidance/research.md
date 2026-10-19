@@ -179,7 +179,8 @@ mais simples que mantém bloco e página na mesma referência, não acrescenta l
 processamento da 002 e as regras da 005, distingue "não calculado" de "nenhuma sugestão" e aceita novas
 categorias sem nova tabela.
 
-**Status**: aguardando aprovação do proprietário do produto para a mudança de persistência.
+**Status**: **aprovada pelo proprietário do produto em 2026-10-19** (B2 conforme o commit `8f62c26`, incluindo
+a mudança de persistência).
 
 ## R5 — Mensagens do bloco e da faixa (FR-013)
 
