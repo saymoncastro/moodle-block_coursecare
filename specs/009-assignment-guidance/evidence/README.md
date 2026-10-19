@@ -55,7 +55,10 @@ PHPUnit: 315 testes verdes (4.5). Behat do plugin: 92 cenários verdes (4.5). i1
 
 ## CI
 
-CI_PLACEHOLDER
+Execução 39300422837 (commit `ff9f7c7`): **verde** nas quatro combinações — 4.5 (PHP 8.1 pgsql, PHP 8.3
+mariadb) e 5.3 (PHP 8.3 pgsql, PHP 8.4 mariadb) — e no `i18n-package` (phpcs sem aviso, phpdoc, grunt,
+mustache, PHPUnit, Behat). Execuções anteriores falharam só no phpcs (ordem de docblock, linhas longas e
+namespace do teste novo), corrigidos em `9c67efd` e `e2d1283`.
 
 ## Acessibilidade e capturas (T019)
 

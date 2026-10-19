@@ -52,7 +52,7 @@ description: "Task list for Feature 009 — Assignment Guidance"
 
 - [X] T016 Gerador de testes (campo `suggestions`) e ferramenta de demonstração (tarefa com tentativas ilimitadas), ambos fora do pacote ou só de teste.
 - [X] T017 Documentação: guia do professor en e pt_BR, `docs/privacy.md`, `docs/indicators.md` (critério), README, CHANGES.
-- [ ] T018 Suítes locais (PHPUnit, Behat, i18n, pacote), atualização 0.8.0 → 0.9.0 com dados (campo `NULL`, sem perda), desempenho (`render.php`: bloco e página com as leituras da 0.8.0; consultas da análise com e sem candidata), push e CI verde.
+- [X] T018 Suítes locais (PHPUnit, Behat, i18n, pacote), atualização 0.8.0 → 0.9.0 com dados (campo `NULL`, sem perda), desempenho (`render.php`: bloco e página com as leituras da 0.8.0; consultas da análise com e sem candidata), push e CI verde.
 - [ ] T019 Auditoria de acessibilidade (`checks.py`, três combinações) e capturas reais (en e pt_BR, 4.5 e 5.3) para a avaliação do proprietário do produto; aprovação pendente.
 - [X] T020 Constitution Check e matriz de prontidão em `evidence/README.md`.
 
