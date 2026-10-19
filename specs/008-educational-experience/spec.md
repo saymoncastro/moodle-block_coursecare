@@ -5,7 +5,7 @@
 
 **Created**: 2026-10-19
 
-**Status**: Draft
+**Status**: Clarified (decisões do proprietário do produto de 2026-10-19: Q1 personalizada, Q2 A, Q3 A; premissas confirmadas)
 
 **Input**: User description: "Feature 008 — Educational Experience (CourseCare / AVA Consciente): evoluir a
 apresentação dos dados existentes para a experiência educativa aprovada (canvas de proposta
@@ -27,6 +27,27 @@ orientação sobre limites de tarefas, vídeos, "Principal sugestão") ficam for
 
 **Categorias de indicador (Princípio IV)**: inalteradas. Armazenamento lógico, Conteúdo único e Potencial
 teórico continuam com os nomes, as definições e as fórmulas das Features 002, 005 e 006.
+
+## Clarifications
+
+### Session 2026-10-19
+
+- Q: A frase do bloco com sugestão traz números? → A: não. Título "Há uma ideia para a sua sala",
+  mensagem "Encontramos uma sugestão sobre materiais de grande porte.", ação "Ver sugestão"; só o volume
+  registrado é número no bloco; inglês com redação equivalente e natural (FR-002, FR-003, FR-005).
+- Q: Quando "Tudo bem por aqui!" pode aparecer? → A: só com resultado válido, atual, completo (sem falha
+  da última atualização, sem desatualização, sem cobertura parcial), com arquivos e sem sugestão; nenhuma
+  mensagem positiva esconde falha, desatualização ou cobertura parcial (FR-002).
+- Q: Título da página? → A: a identidade (CourseCare / AVA Consciente) com o slogan é o elemento
+  principal do cabeçalho; "Your course in numbers" / "Sua sala em números" continua identificando a área
+  de diagnóstico e o texto do link; um único h1, na hierarquia de títulos do Moodle (FR-014).
+- Q: Alternância entre as áreas? → A: abas reais e acessíveis, "Sugestões para você" e "Em detalhes";
+  sem aba vazia; com sugestão abre "Sugestões para você", sem sugestão abre "Em detalhes"; âncora de
+  seção ativa a aba certa e posiciona o foco; histórico do navegador, funcionamento sem scripts,
+  impressão e responsividade preservados (FR-032 a FR-036).
+- Premissas confirmadas: estado neutro sem arquivos, nota discreta de cobertura parcial, notas de falha e
+  desatualização preservadas, ilustração original e discreta sem mascotes (com origem e direitos de uso
+  documentados), versão 0.8.0 BETA, sem link externo "Como funciona?".
 
 ## Tipos de texto (decisão do proprietário do produto, 2026-10-19)
 
@@ -64,20 +85,21 @@ correto, com título, mensagem, indicador e acesso, sem nenhuma outra parte dest
    **Then** o bloco mostra "Tudo bem por aqui!", a frase "Não identificamos sugestões nos critérios
    avaliados nesta análise", o volume registrado, a data e o acesso à página.
 2. **Given** uma sala com resultado válido e a sugestão de materiais grandes aplicável, **When** o professor
-   abre a sala, **Then** o bloco mostra "Há uma ideia para a sua sala", uma frase curta sobre a sugestão
-   realmente disponível, o volume, a data e um acesso que abre as sugestões.
+   abre a sala, **Then** o bloco mostra "Há uma ideia para a sua sala", "Encontramos uma sugestão sobre
+   materiais de grande porte.", o volume, a data e o acesso "Ver sugestão".
 3. **Given** uma sala ainda sem análise, **When** o professor abre a sala, **Then** o bloco diz que o
    panorama ainda não está disponível, sem volume e sem acesso à página (como hoje).
 4. **Given** uma sala com análise na fila ou em andamento e sem resultado anterior, **When** o professor
    abre a sala, **Then** o bloco diz que o panorama está sendo preparado.
 5. **Given** um resultado mais antigo que o limite de desatualização, **When** o professor abre a sala,
-   **Then** o bloco mostra o estado educativo desse resultado e uma nota discreta de que a informação pode
-   estar desatualizada.
+   **Then** o bloco mostra a nota discreta de que a informação pode estar desatualizada e nunca "Tudo bem
+   por aqui!" (com sugestão, continua "Há uma ideia para a sua sala").
 6. **Given** uma falha na última atualização com resultado anterior, **When** o professor abre a sala,
-   **Then** o bloco mostra o estado educativo do resultado anterior e uma nota discreta de que a última
-   atualização não foi concluída.
+   **Then** o bloco mostra o resultado anterior com a nota de que a última atualização não foi concluída e
+   nunca "Tudo bem por aqui!".
 7. **Given** um resultado com cobertura parcial, **When** o professor abre a sala, **Then** o bloco mostra
-   uma nota discreta de que parte dos arquivos não pôde ser classificada e está incluída no total.
+   uma nota discreta de que parte dos arquivos não pôde ser classificada e está incluída no total, e nunca
+   "Tudo bem por aqui!".
 8. **Given** uma sala analisada sem nenhum arquivo, **When** o professor abre a sala, **Then** o bloco
    mostra um estado neutro dizendo que nenhum arquivo foi encontrado, sem "Tudo bem por aqui!".
 
@@ -100,12 +122,13 @@ salas com e sem sugestão, em en e pt_BR, e todo o conteúdo das Features 002–
 1. **Given** uma sala com sugestão, **When** o professor abre a página, **Then** vê o cabeçalho com nome,
    slogan e ilustração, o volume com a data, e uma faixa "Há uma ideia para a sua sala" com a nota de que
    sugestões são possibilidades e não limitam o uso do Moodle.
-2. **Given** uma sala sem sugestão, **When** o professor abre a página, **Then** a faixa diz "Tudo bem por
-   aqui!" com "Não identificamos sugestões nos critérios avaliados nesta análise".
+2. **Given** uma sala sem sugestão, com resultado completo, atual e sem cobertura parcial, **When** o
+   professor abre a aba "Sugestões para você", **Then** a faixa diz "Tudo bem por aqui!" com "Não
+   identificamos sugestões nos critérios avaliados nesta análise".
 3. **Given** a página em inglês, **When** carregada, **Then** a identidade é "CourseCare"; em pt_BR, "AVA
    Consciente"; nenhum texto fixo em outra língua.
-4. **Given** a página aberta pelo acesso de sugestão do bloco, **When** carregada, **Then** a área
-   "Sugestões para você" está visível e em foco de leitura.
+4. **Given** a página aberta pelo acesso "Ver sugestão" do bloco, **When** carregada, **Then** a aba
+   "Sugestões para você" está ativa e o foco está nela; sem sugestão, a página abre em "Em detalhes".
 5. **Given** um resultado ausente, em preparação ou sem arquivos, **When** a página é aberta, **Then** ela
    mostra o estado como hoje, sem faixa de sugestões e sem as duas áreas vazias.
 
@@ -185,21 +208,28 @@ indicador da página atual existe na nova, com os mesmos valores.
 
   | Situação | Título (en / pt_BR) | Mensagem essencial |
   | --- | --- | --- |
-  | Resultado válido, sem sugestão | "All good here!" / "Tudo bem por aqui!" | "No suggestions were found for the criteria checked in this analysis." / "Não identificamos sugestões nos critérios avaliados nesta análise." |
-  | Resultado válido, com sugestão | "An idea for your course" / "Há uma ideia para a sua sala" | Frase curta sobre a sugestão disponível (FR-003) |
-  | Sem arquivos | Neutro, sem título positivo | Texto atual "Nenhum arquivo…" |
+  | Situação | Título (pt_BR) | Mensagem essencial (pt_BR) |
+  | --- | --- | --- |
+  | Com sugestão aplicável (resultado completo, desatualizado, parcial ou com falha da última atualização) | "Há uma ideia para a sua sala" | "Encontramos uma sugestão sobre materiais de grande porte." |
+  | Resultado completo, atual, sem cobertura parcial, com arquivos, sem sugestão | "Tudo bem por aqui!" | "Não identificamos sugestões nos critérios avaliados nesta análise." |
+  | Resultado sem sugestão, mas desatualizado, com falha da última atualização ou com cobertura parcial | Neutro (sem título positivo) | Só o indicador e a nota correspondente (FR-004) |
+  | Sem arquivos | Neutro | Texto atual "Nenhum arquivo…" |
   | Sem análise | Neutro | Texto atual "ainda não está disponível" |
   | Em preparação, sem resultado | Neutro | Texto atual "está sendo preparado" |
 
-  Os textos finais em inglês são revisados no plano; os pt_BR acima são os aprovados.
-- **FR-003**: A frase do estado com sugestão MUST descrever só a sugestão realmente aplicável (hoje, a de
-  materiais grandes da 004) e MUST NOT inventar oportunidades, nomear uma "principal" atividade ou
-  prometer benefício. [NEEDS CLARIFICATION: a frase pode trazer a quantidade de materiais grandes ("Encontramos 2 materiais de 1,0 MB ou mais"), contrariando a decisão da 004 de não pôr números na frase do bloco, ou continua sem números ("Alguns materiais da sua sala têm 1,0 MB ou mais")?]
+  Em inglês, redações equivalentes e naturais, definidas no plano e revisadas pelo proprietário do
+  produto (grupo B). O primeiro título vale só quando a sugestão é efetivamente aplicável.
+- **FR-003**: A mensagem do estado com sugestão MUST nomear só o tipo de sugestão realmente aplicável
+  (hoje, materiais de grande porte, da 004), MUST NOT conter números (nem quantidade de materiais, nem o
+  limite de grande porte), MUST NOT inventar oportunidades, nomear uma "principal" atividade ou prometer
+  benefício. O único número do bloco é o volume registrado.
 - **FR-004**: Desatualização, falha com resultado anterior e cobertura parcial MUST aparecer como notas
-  discretas abaixo do indicador, sem trocar o estado educativo do resultado exibido; a cobertura parcial
-  passa a aparecer no bloco (hoje só na página).
-- **FR-005**: O acesso MUST levar à área "Sugestões para você" quando houver sugestão e à página no início
-  quando não houver; sem resultado, não há acesso (como hoje).
+  discretas abaixo do indicador; a cobertura parcial passa a aparecer no bloco (hoje só na página). Com
+  qualquer uma delas e sem sugestão, o estado é neutro (FR-002).
+- **FR-005**: O acesso MUST ser "Ver sugestão" / equivalente em inglês, levando à aba "Sugestões para
+  você", quando houver sugestão; sem sugestão, o acesso atual à página ("Learn more about the files in
+  your course" / "Conheça melhor os arquivos da sua sala"), que abre "Em detalhes"; sem resultado, não há
+  acesso (como hoje).
 - **FR-006**: O bloco MUST continuar compacto: largura de bloco padrão, sem rolagem horizontal, no máximo
   um indicador numérico principal (Princípio II) e nenhum estado de dica genérica.
 
@@ -208,14 +238,21 @@ indicador da página atual existe na nova, com os mesmos valores.
 - **FR-010**: A página MUST ter um cabeçalho com a identidade (nome e slogan do plugin), uma ilustração
   discreta e o indicador essencial com a data.
 - **FR-011**: A ilustração MUST ser original do projeto, vetorial, incluída no pacote, sem pessoas nem
-  mascotes, sem carregamento externo, com licença GPL v3 ou posterior declarada no próprio arquivo, e
-  decorativa (ignorada por tecnologias assistivas).
-- **FR-012**: A página MUST mostrar, logo após o cabeçalho, uma faixa de contexto: com sugestão, "Há uma
-  ideia para a sua sala" e a nota "Sugestões são possibilidades. Elas não indicam que algo esteja errado e
-  não limitam o seu uso do Moodle"; sem sugestão, "Tudo bem por aqui!" com a mensagem do FR-002.
+  mascotes, sem carregamento externo, com licença GPL v3 ou posterior declarada no próprio arquivo, origem
+  e direitos de uso documentados (relatório de titularidade da 007) e decorativa (ignorada por
+  tecnologias assistivas).
+- **FR-012**: A aba "Sugestões para você" MUST começar por uma faixa de contexto: com sugestão, "Há uma
+  ideia para a sua sala", "Encontramos uma sugestão sobre materiais de grande porte." e a nota "Sugestões
+  são possibilidades. Elas não indicam que algo esteja errado e não limitam o seu uso do Moodle."; sem
+  sugestão, o mesmo título e mensagem do estado do bloco (FR-002), nunca "Tudo bem por aqui!" quando o
+  resultado estiver desatualizado, com falha ou parcial.
 - **FR-013**: A identidade MUST vir das strings do plugin: "CourseCare" em inglês e "AVA Consciente" em
   pt_BR; nenhum nome fixo no código ou nos templates.
-- **FR-014**: [NEEDS CLARIFICATION: o título principal da página passa a ser a identidade do produto ("CourseCare" / "AVA Consciente", com o slogan), mantendo "Your course in numbers" / "Sua sala em números" como subtítulo e nome do link, ou o título continua "Your course in numbers" com a identidade como marca acima dele?]
+- **FR-014**: O elemento principal do cabeçalho MUST ser a identidade do produto (CourseCare / AVA
+  Consciente) com o slogan aprovado. "Your course in numbers" / "Sua sala em números" MUST continuar
+  identificando a área de diagnóstico (título da janela, trilha de navegação e texto dos links e guias
+  existentes). A página MUST ter um único título de nível 1, respeitando a hierarquia de títulos do
+  Moodle.
 - **FR-015**: A página MUST ter uma mensagem de fechamento sem promessa ("Each suggestion is a
   possibility; the decision is always yours, based on what your students need." / "Cada sugestão é uma
   possibilidade. A decisão é sempre sua, a partir do que os seus estudantes precisam.").
@@ -238,9 +275,17 @@ indicador da página atual existe na nova, com os mesmos valores.
 - **FR-031**: Cada seção, número, rótulo, explicação, gráfico, tabela e conteúdo recolhido da página atual
   MUST continuar presente, com os mesmos valores e o mesmo texto (ou texto revisado com o mesmo
   significado). Nenhuma informação é duplicada e não há segunda página de diagnóstico.
-- **FR-032**: A alternância entre as duas áreas MUST funcionar com teclado e leitor de tela, anunciar a área
-  ativa e permitir chegar a qualquer seção. [NEEDS CLARIFICATION: as duas áreas são abas reais (só uma visível por vez, padrão de abas acessível, todo o conteúdo visível sem scripts e na impressão) ou duas seções sempre visíveis com uma navegação no topo que leva a cada uma?]
-- **FR-033**: Não haverá aba ou área "Boas práticas" nem qualquer área vazia.
+- **FR-032**: As duas áreas MUST ser abas reais no padrão acessível de abas: lista de abas com nomes,
+  uma área visível por vez, seleção com clique, teclado (setas, Home, End, ativação) e leitor de tela
+  anunciando a aba ativa.
+- **FR-033a**: Aba inicial: com sugestão aplicável, "Sugestões para você"; sem sugestão, "Em detalhes".
+- **FR-035**: Endereço com âncora de uma seção (por exemplo, o acesso "Ver sugestão" do bloco ou um link
+  para o histórico) MUST ativar a aba que contém a seção e posicionar o foco nela; trocar de aba MUST
+  atualizar o endereço, de modo que voltar e avançar no navegador restaurem a aba.
+- **FR-036**: Sem scripts, MUST aparecer todo o conteúdo das duas áreas, em sequência, com os seus
+  títulos; na impressão também. A lista de abas só aparece quando funciona.
+- **FR-033**: Não haverá aba ou área "Boas práticas" nem qualquer área vazia: sem sugestão aplicável, a
+  aba "Sugestões para você" mostra a faixa "Tudo bem por aqui!" ou a mensagem neutra da Feature 004.
 - **FR-034**: Sem resultado (sem análise, em preparação sem resultado, sem arquivos), a página MUST mostrar
   o estado como hoje, sem a navegação entre áreas.
 
