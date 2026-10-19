@@ -41,7 +41,7 @@
     * hero - the opening, see block_coursecare/overview_summary
     * hastabs, initialtab (suggestions or details), tabs (label, suggestions, details)
     * band - optional educational state: title, message, note, isidea, isallgood
-    * closing - closing sentence (only with the tabs)
+    * closing - closing sentence (with a result, empty otherwise)
     * hassuggestionsection, suggestions - see block_coursecare/overview_suggestions
     * hascategories, categories - see block_coursecare/overview_categories
     * hashistory, history - see block_coursecare/overview_history
@@ -125,7 +125,6 @@
         <h2 class="block_coursecare-overview-panelheading">{{tabs.details}}</h2>
         {{> block_coursecare/overview_details }}
     </section>
-    <p class="block_coursecare-overview-closing">{{closing}}</p>
     {{#js}}
     require(['block_coursecare/tabs'], function(tabs) {
         tabs.init('[data-region="block_coursecare-overview"]');
@@ -138,4 +137,7 @@
     {{/hassuggestionsection}}
     {{> block_coursecare/overview_details }}
     {{/hastabs}}
+    {{#closing}}
+    <p class="block_coursecare-overview-closing">{{closing}}</p>
+    {{/closing}}
 </div>

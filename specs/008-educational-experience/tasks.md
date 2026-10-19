@@ -129,3 +129,8 @@ fim o refinamento do cartão (US3). Cada fase deixa a suíte verde.
 | SC-004 | T003, T019 |
 | SC-005 | T004 |
 | SC-006 | T023 |
+
+## Phase 7: Convergence
+
+- [X] T026 Show the closing message on every page that has a result (also without files), not only with the tabs, in `classes/output/course_overview.php` and `templates/overview.mustache`, with its PHPUnit assertion, per FR-015 (partial)
+- [X] T027 Record the text type (fato observado, possibilidade, orientação prática, recomendação fundamentada) of each of the 12 new strings in `specs/008-educational-experience/evidence/strings.md` per FR-051 (partial)

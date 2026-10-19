@@ -162,7 +162,8 @@ class course_overview implements \renderable, \templatable {
             'band' => $educational['title'] === '' ? null : $educational + [
                 'note' => $educational['isidea'] ? $str('suggestions:band_note') : '',
             ],
-            'closing' => $hastabs ? $str('overview:closing') : '',
+            // FR-015: the closing sentence on every page with a result; without one there is nothing to suggest.
+            'closing' => $state->hasresult ? $str('overview:closing') : '',
             'hassuggestionsection' => (bool)$this->view['hasresult'],
             'suggestions' => $suggestions,
             'hascategories' => $this->view['categories'] !== null,

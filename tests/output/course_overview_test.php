@@ -1218,6 +1218,15 @@ final class course_overview_test extends \advanced_testcase {
             $this->assertStringNotContainsString($allgood, $this->render((int)$course->id));
         }
 
+        // A result without files: no tabs, but the closing sentence (FR-015).
+        $nofiles = ['logicalbytes' => 0, 'filecount' => 0, 'categories' => [], 'activities' => []];
+        [$course] = $this->course_with_diagnostic([], [], $nofiles);
+        $page = $data((int)$course->id);
+        $closing = get_string('overview:closing', 'block_coursecare');
+        $this->assertFalse($page['hastabs']);
+        $this->assertSame($closing, $page['closing']);
+        $this->assertStringContainsString(s($closing), $this->render((int)$course->id));
+
         // Without a result: no tabs, no band, no closing sentence.
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
