@@ -39,6 +39,7 @@
         <FIELD NAME="bruniquebytes" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Backup and recycle bin aggregate: unique volume"/>
         <FIELD NAME="partial" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="1 if unclassified files or undetermined references exist"/>
         <FIELD NAME="largelinkstruncated" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="1 if the large-file link list was limited"/>
+        <FIELD NAME="suggestions" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Suggestions found by the analysis, JSON {v, items: [{kind, cmid}]}; null when not calculated yet"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>

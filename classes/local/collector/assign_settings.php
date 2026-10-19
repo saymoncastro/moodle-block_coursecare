@@ -34,6 +34,36 @@ class assign_settings {
     private const SUBMIT = 'mod/assign:submit';
 
     /**
+     * Assignments of the course whose stored maximum of attempts is unlimited (-1), in the order of the course: the
+     * candidates of the Feature 009 suggestion. A necessary condition only, read in one indexed query; every other
+     * condition is decided by storage_potential with the settings of for_course().
+     *
+     * @param int $courseid Course id.
+     * @return int[] Course module ids.
+     */
+    public function unlimited_attempts(int $courseid): array {
+        global $DB;
+        $modinfo = get_fast_modinfo($courseid);
+        $cms = $modinfo->get_instances_of('assign');
+        if (!$cms) {
+            return [];
+        }
+        $ids = array_flip(array_map('intval', $DB->get_fieldset_select(
+            'assign',
+            'id',
+            'course = :course AND maxattempts = :unlimited',
+            ['course' => $courseid, 'unlimited' => -1]
+        )));
+        $cmids = [];
+        foreach ($modinfo->get_cms() as $cm) {
+            if ($cm->modname === 'assign' && isset($ids[(int)$cm->instance])) {
+                $cmids[] = (int)$cm->id;
+            }
+        }
+        return $cmids;
+    }
+
+    /**
      * Settings of the given assignments and of their course.
      *
      * @param int $courseid Course id.

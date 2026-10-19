@@ -560,7 +560,7 @@ final class course_overview_test extends \advanced_testcase {
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'suggestion')
             || str_starts_with($key, 'state:'), ARRAY_FILTER_USE_KEY);
-        $this->assertCount(26, $new);
+        $this->assertCount(36, $new);
         $this->assertDoesNotMatchRegularExpression(
             '/\b(deve|desperdício|excluir|economia|economizar)\b/iu',
             implode(' ', $new)
@@ -1235,5 +1235,66 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertNull($page['band']);
         $this->assertSame('', $page['closing']);
         $this->assertStringNotContainsString('block_coursecare-tablist', $this->render((int)$course->id));
+    }
+
+    /**
+     * Feature 009: the card of a stored suggestion about an assignment (FR-010 to FR-011a) and the guidance of the
+     * assignment (FR-001 to FR-008); after a change of the settings the card stays with a dated note (layer 3); with
+     * file submissions disabled the card keeps its actions but not the link to the guidance; hidden, no card.
+     */
+    public function test_assignment_suggestion_and_guidance(): void {
+        global $DB, $PAGE;
+        $this->resetAfterTest();
+        [$course] = $this->course_with_diagnostic(['Slides' => 2048], ['material' => 2048]);
+        $assign = $this->create_assign($course, 'Lab report', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $DB->set_field('block_coursecare_diag', 'suggestions', \block_coursecare\local\analysis\stored_suggestions::encode(
+            [['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => $assign->cmid]]
+        ), ['courseid' => $course->id]);
+        $str = fn(string $key, $a = null): string => s(get_string($key, 'block_coursecare', $a));
+        $guidanceid = 'block_coursecare-guidance-' . $assign->cmid;
+
+        $html = $this->render((int)$course->id);
+        $section = self::suggestions_section($html);
+        $this->assertStringContainsString('data-initialtab="suggestions"', $html);
+        $this->assertStringContainsString($str('state:idea_message_attempts'), $html);
+        $this->assertStringContainsString($str('suggestion:attempts:title'), $section);
+        $this->assertStringContainsString('Lab report', $section);
+        $this->assertStringContainsString($str('suggestion:attempts:observed'), $section);
+        $this->assertStringContainsString(s(get_string('maxattempts', 'assign')), $section);
+        $this->assertStringContainsString('/course/modedit.php?update=' . $assign->cmid, $section);
+        $this->assertStringContainsString('href="#' . $guidanceid . '"', $section);
+        $this->assertStringNotContainsString($str('suggestion:attempts:changed', ''), $section);
+        $this->assertStringContainsString('id="' . $guidanceid . '"', $html);
+
+        // The guidance: Moodle's own names of the fields, no number, no judgement.
+        $start = strpos($html, '>', strpos($html, 'id="' . $guidanceid . '"')) + 1;
+        $guidance = strip_tags(substr($html, $start, strpos($html, '</details>', $start) - $start));
+        $this->assertStringContainsString(get_string('maxfilessubmission', 'assignsubmission_file'), $guidance);
+        $this->assertStringContainsString(get_string('attemptreopenmethod', 'assign'), $guidance);
+        $this->assertDoesNotMatchRegularExpression('/\\d/', $guidance);
+        $this->assertDoesNotMatchRegularExpression('/\\b(must|should|waste|saving|too much|adequate|inadequate)\\b/i',
+            $guidance);
+
+        // Settings changed after the analysis: the card stays, with the dated note; the guidance still exists.
+        $DB->set_field('assign', 'maxattempts', 3, ['id' => $assign->id]);
+        $section = self::suggestions_section($this->render((int)$course->id));
+        $date = userdate($DB->get_field('block_coursecare_diag', 'timecompleted', ['courseid' => $course->id]),
+            get_string('strftimedatetimeshort', 'langconfig'));
+        $this->assertStringContainsString($str('suggestion:attempts:changed', $date), $section);
+        $this->assertStringContainsString('href="#' . $guidanceid . '"', $section);
+
+        // File submissions disabled: still the card and its actions, without the link to the guidance.
+        $DB->set_field('assign_plugin_config', 'value', 0, ['assignment' => $assign->id, 'plugin' => 'file',
+            'subtype' => 'assignsubmission', 'name' => 'enabled']);
+        $section = self::suggestions_section($this->render((int)$course->id));
+        $this->assertStringContainsString($str('suggestion:attempts:changed', $date), $section);
+        $this->assertStringContainsString('/course/modedit.php?update=' . $assign->cmid, $section);
+        $this->assertStringNotContainsString('href="#' . $guidanceid . '"', $section);
+
+        // Hidden: no card, at once.
+        set_coursemodule_visible($assign->cmid, 0);
+        $section = self::suggestions_section($this->render((int)$course->id));
+        $this->assertStringNotContainsString($str('suggestion:attempts:title'), $section);
     }
 }

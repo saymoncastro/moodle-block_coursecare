@@ -214,4 +214,48 @@ final class storage_potential_test extends \basic_testcase {
         $this->assertIsInt($result['potential']);
         $this->assertSame(214748364800000, $result['potential']);
     }
+
+    /**
+     * Assignments that effectively allow new attempts without a maximum, and those that do not (Feature 009, R1).
+     *
+     * @return array
+     */
+    public static function unlimited_attempts_provider(): array {
+        $unlimited = ['maxattempts' => -1];
+        $team = ['teamsubmission' => true, 'participants' => range(1, 12)];
+        return [
+            'manual reopening' => [self::settings($unlimited + ['reopenmethod' => 'manual']), self::course(), true],
+            'automatic reopening' => [self::settings($unlimited + ['reopenmethod' => 'automatic']), self::course(), true],
+            'until pass with a grade to pass' => [self::settings($unlimited + self::pass(1, 50.0, 0.0)), self::course(), true],
+            'until pass without a grade to pass' => [self::settings($unlimited + self::pass(1, null, 0.0)), self::course(), false],
+            'until pass without a grade' => [self::settings($unlimited), self::course(), false],
+            'reopening none (before Moodle 4.4)' => [self::settings($unlimited + ['reopenmethod' => 'none']), self::course(), false],
+            'one attempt' => [self::settings(['maxattempts' => 1, 'reopenmethod' => 'manual']), self::course(), false],
+            'five attempts' => [self::settings(['maxattempts' => 5, 'reopenmethod' => 'manual']), self::course(), false],
+            'file submissions disabled' => [self::settings($unlimited + ['reopenmethod' => 'manual', 'enabled' => false]),
+                self::course(), false],
+            'no file can be submitted' => [self::settings($unlimited + ['reopenmethod' => 'manual', 'maxfiles' => 0]),
+                self::course(), false],
+            'nobody can submit' => [self::settings($unlimited + ['reopenmethod' => 'manual', 'participants' => []]),
+                self::course(), false],
+            'groups' => [self::settings($unlimited + ['reopenmethod' => 'manual'] + $team),
+                self::course([], ['memberships' => self::six_groups()]), true],
+            'limit in bytes undetermined' => [self::settings($unlimited + ['reopenmethod' => 'manual', 'activitybytes' => 0]),
+                self::course(['server' => 0]), true],
+        ];
+    }
+
+    /**
+     * The criterion of the suggestion reads the result of evaluate(), never the field of attempts alone.
+     *
+     * @dataProvider unlimited_attempts_provider
+     * @param array $settings Settings of the assignment.
+     * @param array $course Settings of the course.
+     * @param bool $expected Whether new attempts without a maximum are effectively allowed.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unlimited_attempts_provider')]
+    public function test_allows_unlimited_attempts(array $settings, array $course, bool $expected): void {
+        $evaluation = storage_potential::evaluate($settings, $course);
+        $this->assertSame($expected, storage_potential::allows_unlimited_attempts($settings, $evaluation));
+    }
 }

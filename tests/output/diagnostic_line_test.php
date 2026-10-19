@@ -80,10 +80,11 @@ final class diagnostic_line_test extends \advanced_testcase {
             foreach ([0, 5] as $files) {
                 foreach ([false, true] as $partial) {
                     foreach ([false, true] as $suggestion) {
-                        if ($files === 0) {
-                            $expected = 'nofiles';
-                        } else if ($suggestion) {
+                        // Feature 009: a suggestion (an assignment one can apply without files) comes first.
+                        if ($suggestion) {
                             $expected = 'idea';
+                        } else if ($files === 0) {
+                            $expected = 'nofiles';
                         } else if ($state === diagnostic_state::COMPLETE && !$partial) {
                             $expected = 'allgood';
                         } else {

@@ -238,8 +238,10 @@ class diagnostic_store {
      * @param int $courseid Course id.
      * @param diagnostic_result $result New result.
      * @param int $now Current time.
+     * @param string|null $suggestions Stored suggestions (Feature 009, stored_suggestions::encode()); null when they
+     *     could not be calculated, which is never read as "no suggestion".
      */
-    public function save_result(int $courseid, diagnostic_result $result, int $now): void {
+    public function save_result(int $courseid, diagnostic_result $result, int $now, ?string $suggestions = null): void {
         global $DB;
 
         $transaction = $DB->start_delegated_transaction();
@@ -277,6 +279,7 @@ class diagnostic_store {
                 'lastattemptfailed' => 0,
                 'failurecount' => 0,
                 'failurereason' => null,
+                'suggestions' => $suggestions,
                 'timemodified' => $now,
             ]);
             $DB->update_record(self::TABLE, $update);

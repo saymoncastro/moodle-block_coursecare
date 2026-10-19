@@ -23,6 +23,7 @@
  */
 
 use block_coursecare\local\analysis\state_resolver;
+use block_coursecare\local\analysis\stored_suggestions;
 use block_coursecare\local\collector\diagnostic_store;
 use block_coursecare\local\collector\eligibility;
 use block_coursecare\output\diagnostic_line;
@@ -160,8 +161,11 @@ class block_coursecare extends block_base {
         $state = state_resolver::resolve($record, time(), $staleness > 0 ? $staleness : 3 * DAYSECS);
         // Feature 004: the suggestion about large course materials applies when the result has at least one of them.
         $hassuggestion = $state->hasresult && $state->filecount > 0 && $store->has_large_materials((int)$record->id);
+        // Feature 009: the suggestions about assignments stored by the analysis that apply now, through the same
+        // reference as the page (no new read: the field comes with the record, the filter uses the cached modinfo).
+        $assignments = stored_suggestions::current($record, $state->hasresult, $courseid);
         $overviewurl = new moodle_url('/blocks/coursecare/overview.php', ['id' => $this->instance->id]);
-        return (new diagnostic_line($state, $overviewurl, $hassuggestion))
+        return (new diagnostic_line($state, $overviewurl, $hassuggestion, $assignments))
             ->export_for_template($this->page->get_renderer('core'));
     }
 

@@ -63,12 +63,21 @@ class block_coursecare_generator extends testing_block_generator {
             'methodversion' => \block_coursecare\local\analysis\indicator_calculator::METHOD_VERSION,
         ];
         if (isset($record['timecompleted'])) {
-            $defaults += ['filecount' => 1, 'logicalbytes' => 0, 'timeattempted' => $record['timecompleted'], 'partial' => 0];
+            $defaults += ['filecount' => 1, 'logicalbytes' => 0, 'timeattempted' => $record['timecompleted'], 'partial' => 0,
+                // Feature 009: a 0.9.0 analysis always stores its suggestions; calculated, none, unless given.
+                'suggestions' => \block_coursecare\local\analysis\stored_suggestions::encode([])];
         }
         if (!empty($record['lastattemptfailed'])) {
             $defaults['failurecount'] = 1;
             $defaults['failurereason'] = 'moodle_exception';
             $defaults['timeattempted'] = $now;
+        }
+        if (isset($record['suggestions']) && is_array($record['suggestions'])) {
+            // Feature 009: a list of assignment course module ids found by the analysis.
+            $record['suggestions'] = \block_coursecare\local\analysis\stored_suggestions::encode(array_map(
+                fn($cmid): array => ['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => (int)$cmid],
+                $record['suggestions']
+            ));
         }
         $record = (object)($record + $defaults);
         $record->id = $DB->insert_record('block_coursecare_diag', $record);

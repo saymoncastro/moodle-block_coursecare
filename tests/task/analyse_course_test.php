@@ -395,4 +395,35 @@ final class analyse_course_test extends \advanced_testcase {
         $this->assertSame(1, substr_count($output, "course {$course->id}, outcome done"));
         $this->assertSame(1, substr_count($output, "course {$course->id}, outcome fresh"));
     }
+
+    /**
+     * Feature 009: the analysis stores, with the result and its date, the assignments that effectively allow new
+     * attempts without a maximum, through the rules of Feature 005; a course without assignments stores an empty
+     * list (calculated, none), never null.
+     */
+    public function test_run_stores_assignment_suggestions(): void {
+        $this->resetAfterTest();
+        $course = $this->requested_course();
+        $assign = fn(array $values) => $this->getDataGenerator()->create_module('assign', $values + ['course' => $course->id,
+            'assignsubmission_file_enabled' => 1, 'assignsubmission_file_maxfiles' => 2,
+            'assignsubmission_file_maxsizebytes' => 1048576, 'assignsubmission_onlinetext_enabled' => 0]);
+        $manual = $assign(['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $assign(['maxattempts' => 1, 'attemptreopenmethod' => 'manual']);
+        $assign(['maxattempts' => -1, 'attemptreopenmethod' => 'untilpass']);
+        $assign(['maxattempts' => -1, 'attemptreopenmethod' => 'manual', 'assignsubmission_file_enabled' => 0]);
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $this->run_task($course->id);
+        $record = (new diagnostic_store())->get_summary($course->id);
+        $this->assertSame(
+            [['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => (int)$manual->cmid]],
+            \block_coursecare\local\analysis\stored_suggestions::decode($record->suggestions)
+        );
+
+        $empty = $this->requested_course();
+        $this->run_task($empty->id);
+        $this->assertSame([], \block_coursecare\local\analysis\stored_suggestions::decode(
+            (new diagnostic_store())->get_summary($empty->id)->suggestions
+        ));
+    }
 }

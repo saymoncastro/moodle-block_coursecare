@@ -21,6 +21,7 @@ use block_coursecare\local\analysis\history_view;
 use block_coursecare\local\analysis\overview_builder;
 use block_coursecare\local\analysis\state_resolver;
 use block_coursecare\local\analysis\storage_potential;
+use block_coursecare\local\analysis\stored_suggestions;
 use block_coursecare\local\collector\assign_settings;
 use block_coursecare\local\collector\course_structure;
 use block_coursecare\local\collector\diagnostic_store;
@@ -50,6 +51,9 @@ class course_overview implements \renderable, \templatable {
     /** @var array History points of the course within the retention, oldest first (Feature 006). */
     private array $history;
 
+    /** @var array|null Suggestions about assignments that apply now (Feature 009); null when not calculated yet. */
+    private ?array $assignments;
+
     /**
      * Constructor.
      *
@@ -59,12 +63,21 @@ class course_overview implements \renderable, \templatable {
      *     url, visible (to students) and result (storage_potential::evaluate()); null when the course has no
      *     assignment the user can see.
      * @param array $history History points (diagnostic_store::get_history()), oldest first.
+     * @param array|null $assignments Suggestions about assignments that apply now (stored_suggestions::current());
+     *     null when not calculated yet (Feature 009).
      */
-    public function __construct(array $view, \moodle_url $courseurl, ?array $potential = null, array $history = []) {
+    public function __construct(
+        array $view,
+        \moodle_url $courseurl,
+        ?array $potential = null,
+        array $history = [],
+        ?array $assignments = []
+    ) {
         $this->view = $view;
         $this->courseurl = $courseurl;
         $this->potential = $potential;
         $this->history = $history;
+        $this->assignments = $assignments;
     }
 
     /**
@@ -102,7 +115,8 @@ class course_overview implements \renderable, \templatable {
             $view,
             new \moodle_url('/course/view.php', ['id' => $courseid]),
             self::potential_for($courseid, $structure),
-            $store->get_history($courseid, $since)
+            $store->get_history($courseid, $since),
+            stored_suggestions::current($record, $state->hasresult, $courseid)
         );
     }
 
@@ -125,7 +139,7 @@ class course_overview implements \renderable, \templatable {
             $assign = $settings['assigns'][$cmid] ?? null;
             if ($assign !== null && $assign['enabled']) {
                 $potential[] = ['name' => $cm->name, 'url' => $cm->url, 'visible' => $cm->visible,
-                    'result' => storage_potential::evaluate($assign, $settings)];
+                    'cmid' => (int)$cmid, 'settings' => $assign, 'result' => storage_potential::evaluate($assign, $settings)];
             }
         }
         return $potential;
@@ -141,13 +155,16 @@ class course_overview implements \renderable, \templatable {
         $str = fn(string $key): string => get_string($key, 'block_coursecare');
         $suggestions = $this->suggestions_data();
         $state = $this->state();
-        $educational = diagnostic_line::educational($state, !empty($suggestions['hassuggestion']));
+        $assignments = $this->assignments === null ? 0 : count($this->assignments);
+        $educational = diagnostic_line::educational($state, !empty($suggestions['hassuggestion']), $assignments,
+            $this->assignments !== null);
         if ($educational['isallgood']) {
             // The band already says that no suggestion was found (Feature 008, FR-033): no second sentence.
             $suggestions['none'] = '';
         }
-        // Feature 008 (FR-030 to FR-036): the two tabs only with a result that has files.
-        $hastabs = $state->hasresult && $state->filecount !== 0;
+        // Feature 008 (FR-030 to FR-036): the two tabs with a result that has files; Feature 009 (FR-013a): also
+        // without files when a suggestion applies.
+        $hastabs = $state->hasresult && ($state->filecount !== 0 || $educational['isidea']);
         return [
             'identity' => ['name' => $str('pluginname'), 'tagline' => $str('tagline')],
             'title' => $str('overview:title'),
@@ -211,7 +228,20 @@ class course_overview implements \renderable, \templatable {
             return [];
         }
         $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
-        $data = ['heading' => $str('suggestions:heading'), 'hassuggestion' => false, 'none' => $str('suggestions:none')];
+        $date = userdate($this->view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
+        $cards = $this->assignment_cards($date);
+        $data = [
+            'heading' => $str('suggestions:heading'),
+            'hassuggestion' => false,
+            'hasassignments' => $cards !== [],
+            'assignments' => $cards,
+            'hasany' => $cards !== [],
+            'basedon' => $cards !== [] ? $str('suggestions:basedon', $date) : '',
+            'observedlabel' => $str('suggestion:observed'),
+            'whylabel' => $str('suggestion:why'),
+            'todolabel' => $str('suggestion:todo'),
+            'none' => $cards !== [] ? '' : $str('suggestions:none'),
+        ];
         $suggestion = large_materials::evaluate($this->view['large']);
         if ($suggestion === null) {
             return $data;
@@ -225,9 +255,9 @@ class course_overview implements \renderable, \templatable {
         }
         $threshold = diagnostic_line::size($suggestion['threshold']);
         $size = diagnostic_line::size($suggestion['bytes']);
-        $date = userdate($this->view['timecompleted'], get_string('strftimedatetimeshort', 'langconfig'));
         return [
             'hassuggestion' => true,
+            'hasany' => true,
             'none' => '',
             'basedon' => $str('suggestions:basedon', $date),
             'title' => $str('suggestion:large:title'),
@@ -253,6 +283,61 @@ class course_overview implements \renderable, \templatable {
                 ['text' => $str('suggestion:large:option3'), 'example' => ''],
             ],
         ] + $data;
+    }
+
+    /**
+     * The cards of the suggestions about assignments (Feature 009, FR-010 to FR-011a): from the reference stored by
+     * the analysis and filtered now (stored_suggestions::current()), never from the current settings alone. Each card
+     * is self-sufficient: the assignment, the short steps to review its attempts and, for those who can edit it, the
+     * link to its settings; the link to its guidance only when that guidance exists now. When the current settings no
+     * longer meet the criterion, the card stays, with a dated note (layer 3).
+     *
+     * @param string $date Date of the analysis.
+     * @return array Cards, in the order of the course.
+     */
+    private function assignment_cards(string $date): array {
+        if (!$this->assignments) {
+            return [];
+        }
+        $str = fn(string $key, $a = null): string => get_string($key, 'block_coursecare', $a);
+        $live = [];
+        foreach ($this->potential ?? [] as $item) {
+            if (isset($item['cmid'])) {
+                $live[$item['cmid']] = $item;
+            }
+        }
+        $steps = $str('suggestion:attempts:steps', (object)[
+            'settings' => get_string('settings'),
+            'section' => get_string('submissionsettings', 'assign'),
+            'max' => get_string('maxattempts', 'assign'),
+            'reopen' => get_string('attemptreopenmethod', 'assign'),
+        ]);
+        $cards = [];
+        foreach ($this->assignments as $suggestion) {
+            $cm = $suggestion['cm'];
+            $item = $live[$suggestion['cmid']] ?? null;
+            $holds = $item !== null && storage_potential::allows_unlimited_attempts($item['settings'], $item['result']);
+            $hasguidance = $item !== null && in_array($item['result']['status'], ['potential', 'unlimited'], true);
+            $canedit = has_capability('moodle/course:manageactivities', \context_module::instance($suggestion['cmid']));
+            $cards[] = [
+                'name' => $cm->get_formatted_name(),
+                'url' => $cm->url ? $cm->url->out(false) : '',
+                'hasurl' => (bool)$cm->url,
+                'title' => $str('suggestion:attempts:title'),
+                'observed' => $str('suggestion:attempts:observed'),
+                'why' => $str('suggestion:attempts:why'),
+                'todo' => $str('suggestion:attempts:todo'),
+                'reviewlabel' => $str('suggestion:attempts:review'),
+                'steps' => $steps,
+                'changed' => $holds ? '' : $str('suggestion:attempts:changed', $date),
+                'guidanceurl' => $hasguidance ? '#block_coursecare-guidance-' . $suggestion['cmid'] : '',
+                'guidancetext' => $str('guidance:link'),
+                'settingsurl' => $canedit
+                    ? (new \moodle_url('/course/modedit.php', ['update' => $suggestion['cmid']]))->out(false) : '',
+                'settingstext' => $str('guidance:settingslink'),
+            ];
+        }
+        return $cards;
     }
 
     /**
@@ -455,6 +540,71 @@ class course_overview implements \renderable, \templatable {
             'hidden' => $item['visible'] ? '' : $str('hidden'),
             'factors' => array_map(fn(string $factor): array => ['text' => $factor], $factors),
             'result' => $text,
+            'guidance' => in_array($status, ['potential', 'unlimited'], true) ? $this->guidance($item) : null,
+        ];
+    }
+
+    /**
+     * The informative guidance of one assignment (Feature 009, FR-001 to FR-008): what the current settings mean,
+     * possible implications in both directions, where the limit comes from, attempts, the steps in Moodle with
+     * Moodle's own names of the sections and fields (so they match the version and the language of the site), the
+     * link to the settings for those who can edit them and questions to reflect on. No value is suggested.
+     *
+     * @param array $item Potential item: result, settings and cmid (Feature 005).
+     * @return array
+     */
+    private function guidance(array $item): array {
+        $str = fn(string $key, $a = null): string => get_string('guidance:' . $key, 'block_coursecare', $a);
+        $result = $item['result'];
+        $settings = $item['settings'] ?? [];
+        $cmid = (int)($item['cmid'] ?? 0);
+        $notes = [];
+        if ($result['limitsource'] === 'default') {
+            $notes[] = $str('source_default', get_string('maximumsubmissionsize', 'assignsubmission_file'));
+        } else if (in_array($result['limitsource'], ['course', 'site', 'server'], true)) {
+            $notes[] = $str('source_above');
+        }
+        if ($result['attempts'] === null) {
+            $notes[] = $str('attempts_unlimited');
+        }
+        if (($settings['reopenmethod'] ?? '') === 'untilpass' && $result['attempts'] !== 1) {
+            $notes[] = $str('attempts_untilpass');
+        }
+        $steps = [
+            $str('step_open', get_string('settings')),
+            $str('step_files', (object)[
+                'section' => get_string('submissiontypes', 'assign'),
+                'files' => get_string('maxfilessubmission', 'assignsubmission_file'),
+                'size' => get_string('maximumsubmissionsize', 'assignsubmission_file'),
+            ]),
+            $str('step_attempts', (object)[
+                'section' => get_string('submissionsettings', 'assign'),
+                'max' => get_string('maxattempts', 'assign'),
+                'reopen' => get_string('attemptreopenmethod', 'assign'),
+            ]),
+        ];
+        if (!empty($settings['teamsubmission'])) {
+            $steps[] = $str('step_groups', (object)[
+                'section' => get_string('groupsubmissionsettings', 'assign'),
+                'field' => get_string('teamsubmission', 'assign'),
+            ]);
+        }
+        $steps[] = $str('step_save');
+        $canedit = $cmid > 0 && has_capability('moodle/course:manageactivities', \context_module::instance($cmid));
+        $text = fn(array $list): array => array_map(fn(string $t): array => ['text' => $t], $list);
+        return [
+            'id' => 'block_coursecare-guidance-' . $cmid,
+            'title' => $str('title'),
+            'meaning' => $str('meaning'),
+            'implications' => $text([$str('implication_wide'), $str('implication_close')]),
+            'notes' => $text($notes),
+            'stepstitle' => $str('stepstitle'),
+            'steps' => $text($steps),
+            'settingsurl' => $canedit ? (new \moodle_url('/course/modedit.php', ['update' => $cmid]))->out(false) : '',
+            'settingstext' => $str('settingslink'),
+            'questionstitle' => $str('questionstitle'),
+            'questions' => $text([$str('question_type'), $str('question_count'), $str('question_size')]),
+            'novalue' => $str('novalue'),
         ];
     }
 

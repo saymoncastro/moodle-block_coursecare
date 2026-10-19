@@ -17,6 +17,9 @@
 namespace block_coursecare\local;
 
 use block_coursecare\local\analysis\indicator_calculator;
+use block_coursecare\local\analysis\storage_potential;
+use block_coursecare\local\analysis\stored_suggestions;
+use block_coursecare\local\collector\assign_settings;
 use block_coursecare\local\collector\course_files;
 use block_coursecare\local\collector\diagnostic_store;
 use block_coursecare\local\collector\eligibility;
@@ -124,7 +127,7 @@ class course_analysis {
                     $this->fail($courseid, self::REASON_INCONSISTENT);
                     return self::FAILED;
                 }
-                $this->store->save_result($courseid, $result, time());
+                $this->store->save_result($courseid, $result, time(), $this->suggestions($courseid));
                 return self::DONE;
             } catch (\Throwable $e) {
                 $this->fail($courseid, (new \ReflectionClass($e))->getShortName());
@@ -150,6 +153,38 @@ class course_analysis {
      * @param int $courseid Course id.
      * @return \block_coursecare\local\analysis\diagnostic_result
      */
+    /**
+     * The suggestions about assignments found now (Feature 009, research R4): the candidates of one indexed query,
+     * then the settings of Feature 005 and its rules for them only. A failure here does not fail the diagnostic of
+     * the files: the suggestions are then stored as not calculated (null).
+     *
+     * @param int $courseid Course id.
+     * @return string|null Value to store, or null when it could not be calculated.
+     */
+    private function suggestions(int $courseid): ?string {
+        try {
+            $collector = new assign_settings();
+            $items = [];
+            $candidates = $collector->unlimited_attempts($courseid);
+            if ($candidates) {
+                $settings = $collector->for_course($courseid, $candidates);
+                foreach ($candidates as $cmid) {
+                    $assign = $settings['assigns'][$cmid] ?? null;
+                    if ($assign === null) {
+                        continue;
+                    }
+                    $evaluation = storage_potential::evaluate($assign, $settings);
+                    if (storage_potential::allows_unlimited_attempts($assign, $evaluation)) {
+                        $items[] = ['kind' => stored_suggestions::ATTEMPTS, 'cmid' => $cmid];
+                    }
+                }
+            }
+            return stored_suggestions::encode($items);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     private function analyse(int $courseid): \block_coursecare\local\analysis\diagnostic_result {
         $context = \context_course::instance($courseid);
         $threshold = self::large_file_threshold();
