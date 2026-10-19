@@ -83,8 +83,9 @@ Recognised limitations of the page:
 
 ## 3. Suggestions
 
-Right after its opening, the page has a section "Suggestions for your course". This version has one
-suggestion, **Large materials**. It is shown only when the latest result has at least one course
+Right after its opening, the page has a section "Suggestions for your course". There are two
+suggestions: **Large materials** (below) and **assignments that allow new attempts without a maximum**
+(after it). The first, **Large materials**, It is shown only when the latest result has at least one course
 material at or above the site's large-file threshold (the setting described below; no other setting
 is involved). It has three labelled parts:
 
@@ -101,8 +102,22 @@ is involved). It has three labelled parts:
 The suggestion is optional and can be ignored; there is nothing to dismiss and nothing is recorded.
 The plugin never acts on files: the links lead to Moodle's own activity and course pages. With a
 result and no suggestion, the section says so in one neutral sentence; without a result there is no
-section. Other ideas (backups, recycle bin, repeated content, submission limits, file types) are left
-for later because the diagnostic does not yet have the data to support them.
+section. Other ideas (backups, recycle bin, repeated content, file types) are left for later because
+the diagnostic does not yet have the data to support them.
+
+**Assignments that allow new attempts without a maximum** (since 0.9.0). The background analysis
+checks each assignment with the same rules as the potential of assignments (section 5) and records,
+with the date of the analysis, those that at the same time: accept file submissions (at least one
+file); have an unlimited maximum of attempts; grant new attempts (manually, automatically, or
+automatically until pass only when the grade item has a grade to pass — the rule Moodle itself
+applies); and have at least one participant or group who can submit. The card is shown only while the
+assignment still exists and is visible to students. It says that the assignment "allows new attempts
+without a maximum defined", that this "can make sense in activities that allow continuous revision and
+improvement", invites the teacher to check how the attempts work if they wish, and shows where to
+review them in Moodle. It never suggests a number of attempts and never presents unlimited attempts as
+a problem. If the settings change after the analysis, the card stays, with a dated note, until the next
+analysis. Before the first analysis after upgrading to 0.9.0, this suggestion is not calculated yet,
+and "All good here!" is not shown.
 
 ## 4. History of measurements
 
@@ -129,6 +144,15 @@ last CourseCare block removed), its history is removed with its current result; 
 a new course, or copied, starts without history.
 
 ## 5. Potential of assignments
+
+Each assignment of this section also has a collapsed guide, "How to read and review these settings"
+(since 0.9.0): what the limits mean (a ceiling, not the space used or a forecast), possible
+implications in both directions, where the limit per file comes from (the assignment, the site default,
+or a course, site or server limit that is not changed in the assignment), what unlimited or "until
+pass" attempts mean, the steps in Moodle with Moodle's own names of the sections and fields, a link to
+the settings for those who can edit the assignment, and questions to reflect on. It never suggests a
+value.
+
 
 Before the technical details, the page has a section "Potential of assignments". For each
 assignment of the course that accepts file submissions, in the order of the course, it says what the

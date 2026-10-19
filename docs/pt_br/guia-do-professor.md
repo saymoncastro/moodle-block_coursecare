@@ -55,6 +55,15 @@ JavaScript, as duas aparecem em sequência.
   participantes, até 3 arquivos de até 10 MB, 1 tentativa → potencial teórico de 900 MB. É um teto das
   configurações, não o espaço usado nem uma previsão; configurações diferentes atendem objetivos
   pedagógicos diferentes.
+  Em cada tarefa, **Como entender e revisar estas configurações** (recolhido) explica o que os limites
+  significam, implicações possíveis nos dois sentidos, de onde vem o limite, o que as tentativas
+  permitem, os passos no Moodle (com os nomes dos campos do próprio Moodle) e, se você pode editar a
+  tarefa, um link para as configurações, com perguntas para ajudar a decidir. Nunca sugere valores.
+- **Tarefas com novas tentativas sem limite máximo**: um cartão em "Sugestões para você" diz isso e
+  convida você, se quiser, a conferir como as tentativas funcionam e se a configuração corresponde à
+  proposta da atividade. Tentativas ilimitadas podem fazer sentido em atividades de revisão contínua; o
+  cartão nunca pede um limite. Ele se baseia na última análise, com a data; se a tarefa mudar, o cartão
+  avisa até a próxima análise.
 - **Detalhes técnicos** (recolhidos): conteúdo único (no exemplo do PDF, 2 MB), ligações a arquivos
   guardados em outros lugares, cópias de segurança e lixeira, e o que os números não significam.
 

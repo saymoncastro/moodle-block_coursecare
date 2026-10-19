@@ -8,7 +8,7 @@ CourseCare never changes, deletes, downloads or blocks anything, does not evalua
 ignored. It is meant for teachers who edit a course and for the site administrators who make it
 available.
 
-Status: **0.8.0 BETA**.
+Status: **0.9.0 BETA**.
 
 ## Features
 
@@ -24,7 +24,10 @@ Status: **0.8.0 BETA**.
 - **Suggestion about large materials**: what was noticed, why it may deserve attention and options the
   teacher may consider; never an instruction.
 - **Potential of assignments**: what the current settings of each assignment that accepts files allow
-  (a theoretical ceiling, not a forecast).
+  (a theoretical ceiling, not a forecast), with a collapsed guide to read and review those settings in
+  Moodle, without any suggested value.
+- **Suggestion about attempts**: when an assignment with file submissions allows new attempts without a
+  maximum, a card explains it and invites the teacher to consider it, if they wish.
 - **History**: one measurement per course and day, a chart of the last 90 days and the full table.
 - Background analysis of file **metadata** only (never file contents), by Moodle's own scheduled and ad
   hoc tasks; a command-line tool for administrators.
