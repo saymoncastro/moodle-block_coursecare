@@ -60,6 +60,8 @@ mariadb) e 5.3 (PHP 8.3 pgsql, PHP 8.4 mariadb) — e no `i18n-package` (phpcs s
 mustache, PHPUnit, Behat). Execuções anteriores falharam só no phpcs (ordem de docblock, linhas longas e
 namespace do teste novo), corrigidos em `9c67efd` e `e2d1283`.
 
+Depois da convergência: execução 39317895437 (commit `e81351f`), **verde** nas cinco tarefas.
+
 ## Acessibilidade e capturas (T019)
 
 `checks.py` nos sites de demonstração (4.5 Boost en, 4.5 Boost pt_br, 4.5 Classic pt_br, 5.3 Boost en);
