@@ -54,6 +54,9 @@ class course_overview implements \renderable, \templatable {
     /** @var array|null Suggestions about assignments that apply now (Feature 009); null when not calculated yet. */
     private ?array $assignments;
 
+    /** @var array|null Texts shared by the guidance of every assignment, built once per page (Feature 009). */
+    private ?array $guidancetexts = null;
+
     /**
      * Constructor.
      *
@@ -555,58 +558,79 @@ class course_overview implements \renderable, \templatable {
      */
     private function guidance(array $item): array {
         $str = fn(string $key, $a = null): string => get_string('guidance:' . $key, 'block_coursecare', $a);
+        $text = fn(array $list): array => array_map(fn(string $t): array => ['text' => $t], $list);
+        if ($this->guidancetexts === null) {
+            $this->guidancetexts = [
+                'title' => $str('title'),
+                'meaning' => $str('meaning'),
+                'implications' => $text([$str('implication_wide'), $str('implication_close')]),
+                'stepstitle' => $str('stepstitle'),
+                'steps' => [
+                    $str('step_open', get_string('settings')),
+                    $str('step_files', (object)[
+                        'section' => get_string('submissiontypes', 'assign'),
+                        'files' => get_string('maxfilessubmission', 'assignsubmission_file'),
+                        'size' => get_string('maximumsubmissionsize', 'assignsubmission_file'),
+                    ]),
+                    $str('step_attempts', (object)[
+                        'section' => get_string('submissionsettings', 'assign'),
+                        'max' => get_string('maxattempts', 'assign'),
+                        'reopen' => get_string('attemptreopenmethod', 'assign'),
+                    ]),
+                ],
+                'groups' => $str('step_groups', (object)[
+                    'section' => get_string('groupsubmissionsettings', 'assign'),
+                    'field' => get_string('teamsubmission', 'assign'),
+                ]),
+                'save' => $str('step_save'),
+                'sourcedefault' => $str('source_default', get_string('maximumsubmissionsize', 'assignsubmission_file')),
+                'sourceabove' => $str('source_above'),
+                'unlimited' => $str('attempts_unlimited'),
+                'untilpass' => $str('attempts_untilpass'),
+                'settingstext' => $str('settingslink'),
+                'questionstitle' => $str('questionstitle'),
+                'questions' => $text([$str('question_type'), $str('question_count'), $str('question_size')]),
+                'novalue' => $str('novalue'),
+            ];
+        }
+        $shared = $this->guidancetexts;
         $result = $item['result'];
         $settings = $item['settings'] ?? [];
         $cmid = (int)($item['cmid'] ?? 0);
         $notes = [];
         if ($result['limitsource'] === 'default') {
-            $notes[] = $str('source_default', get_string('maximumsubmissionsize', 'assignsubmission_file'));
+            $notes[] = $shared['sourcedefault'];
         } else if (in_array($result['limitsource'], ['course', 'site', 'server'], true)) {
-            $notes[] = $str('source_above');
+            $notes[] = $shared['sourceabove'];
         }
         if ($result['attempts'] === null) {
-            $notes[] = $str('attempts_unlimited');
+            $notes[] = $shared['unlimited'];
         }
         if (($settings['reopenmethod'] ?? '') === 'untilpass' && $result['attempts'] !== 1) {
-            $notes[] = $str('attempts_untilpass');
+            $notes[] = $shared['untilpass'];
         }
-        $steps = [
-            $str('step_open', get_string('settings')),
-            $str('step_files', (object)[
-                'section' => get_string('submissiontypes', 'assign'),
-                'files' => get_string('maxfilessubmission', 'assignsubmission_file'),
-                'size' => get_string('maximumsubmissionsize', 'assignsubmission_file'),
-            ]),
-            $str('step_attempts', (object)[
-                'section' => get_string('submissionsettings', 'assign'),
-                'max' => get_string('maxattempts', 'assign'),
-                'reopen' => get_string('attemptreopenmethod', 'assign'),
-            ]),
-        ];
+        $steps = $shared['steps'];
         if (!empty($settings['teamsubmission'])) {
-            $steps[] = $str('step_groups', (object)[
-                'section' => get_string('groupsubmissionsettings', 'assign'),
-                'field' => get_string('teamsubmission', 'assign'),
-            ]);
+            $steps[] = $shared['groups'];
         }
-        $steps[] = $str('step_save');
+        $steps[] = $shared['save'];
         $canedit = $cmid > 0 && has_capability('moodle/course:manageactivities', \context_module::instance($cmid));
-        $text = fn(array $list): array => array_map(fn(string $t): array => ['text' => $t], $list);
         return [
             'id' => 'block_coursecare-guidance-' . $cmid,
-            'title' => $str('title'),
-            'meaning' => $str('meaning'),
-            'implications' => $text([$str('implication_wide'), $str('implication_close')]),
+            'title' => $shared['title'],
+            'meaning' => $shared['meaning'],
+            'implications' => $shared['implications'],
             'notes' => $text($notes),
-            'stepstitle' => $str('stepstitle'),
+            'stepstitle' => $shared['stepstitle'],
             'steps' => $text($steps),
             'settingsurl' => $canedit ? (new \moodle_url('/course/modedit.php', ['update' => $cmid]))->out(false) : '',
-            'settingstext' => $str('settingslink'),
-            'questionstitle' => $str('questionstitle'),
-            'questions' => $text([$str('question_type'), $str('question_count'), $str('question_size')]),
-            'novalue' => $str('novalue'),
+            'settingstext' => $shared['settingstext'],
+            'questionstitle' => $shared['questionstitle'],
+            'questions' => $shared['questions'],
+            'novalue' => $shared['novalue'],
         ];
     }
+
 
     /**
      * Template data of the large files: totals of the course and large materials per activity.
