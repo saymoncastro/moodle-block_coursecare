@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace block_coursecare\local\analysis;
+namespace block_coursecare\analysis;
+
+use block_coursecare\local\analysis\stored_suggestions;
 
 /**
  * The suggestions stored with the diagnostic (Feature 009, research R4): format, "not calculated" and the filter that
