@@ -610,7 +610,8 @@ class course_overview implements \renderable, \templatable {
         if ($result['attempts'] === null) {
             $notes[] = $shared['unlimited'];
         }
-        if (($settings['reopenmethod'] ?? '') === 'untilpass' && $result['attempts'] !== 1) {
+        // Reopening "until pass" is explained also with a single attempt: without a grade to pass, none opens (FR-004).
+        if (($settings['reopenmethod'] ?? '') === 'untilpass' && (int)($settings['maxattempts'] ?? 1) !== 1) {
             $notes[] = $shared['untilpass'];
         }
         $steps = $shared['steps'];
@@ -634,7 +635,6 @@ class course_overview implements \renderable, \templatable {
             'novalue' => $shared['novalue'],
         ];
     }
-
 
     /**
      * Template data of the large files: totals of the course and large materials per activity.

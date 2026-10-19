@@ -53,7 +53,7 @@ description: "Task list for Feature 009 — Assignment Guidance"
 - [X] T016 Gerador de testes (campo `suggestions`) e ferramenta de demonstração (tarefa com tentativas ilimitadas), ambos fora do pacote ou só de teste.
 - [X] T017 Documentação: guia do professor en e pt_BR, `docs/privacy.md`, `docs/indicators.md` (critério), README, CHANGES.
 - [X] T018 Suítes locais (PHPUnit, Behat, i18n, pacote), atualização 0.8.0 → 0.9.0 com dados (campo `NULL`, sem perda), desempenho (`render.php`: bloco e página com as leituras da 0.8.0; consultas da análise com e sem candidata), push e CI verde.
-- [ ] T019 Auditoria de acessibilidade (`checks.py`, três combinações) e capturas reais (en e pt_BR, 4.5 e 5.3) para a avaliação do proprietário do produto; aprovação pendente.
+- [X] T019 Auditoria de acessibilidade (`checks.py`, três combinações) e capturas reais (en e pt_BR, 4.5 e 5.3) para a avaliação do proprietário do produto; aprovadas em 2026-10-19.
 - [X] T020 Constitution Check e matriz de prontidão em `evidence/README.md`.
 
 ## Dependencies
@@ -69,3 +69,9 @@ T001–T002 → T003–T007 → US1 (T008–T011) → US2 (T012–T015) → Poli
 | FR-013–FR-014 | T003, T005–T007, T012, T013, T018 |
 | FR-020–FR-023 | T004–T007, T010, T014, T018, T019 |
 | SC-001–SC-006 | T011, T015, T018, T019 |
+
+## Phase 6: Convergence
+
+- [X] T021 Explicar na orientação o "até passar" também sem nota para aprovação (uma tentativa): nota sempre que o método é "até passar" e o máximo não é 1, string en/pt_BR cobrindo os dois casos, teste em `tests/output/course_overview_test.php` per FR-004 (partial)
+- [X] T022 Testar a página sem `moodle/course:manageactivities`: cartão e orientação com os passos e sem o link `course/modedit.php` per US1/AC4, FR-006, FR-011a (partial)
+- [X] T023 Testar a página numa sala sem arquivos com sugestão de tarefa (abas, faixa "Há uma ideia", cartão, aba inicial) e com sugestões não calculadas (`NULL`: nunca "Tudo bem por aqui!") per FR-013a, FR-013b (partial)

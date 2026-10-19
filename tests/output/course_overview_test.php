@@ -1301,4 +1301,87 @@ final class course_overview_test extends \advanced_testcase {
         $section = self::suggestions_section($this->render((int)$course->id));
         $this->assertStringNotContainsString($str('suggestion:attempts:title'), $section);
     }
+
+    /**
+     * Feature 009, convergence: "until pass" explained also when it gives a single attempt (FR-004); without the
+     * capability to edit the assignment, the card and the guidance keep their steps without the link to the settings
+     * (US1/AC4, FR-006, FR-011a); a course without files with a suggestion shows the tabs, the band and the card
+     * (FR-013a); suggestions not calculated yet never give "All good here!" (FR-013b).
+     */
+    public function test_assignment_guidance_permissions_and_states(): void {
+        global $DB, $PAGE;
+        $this->resetAfterTest();
+        $output = $PAGE->get_renderer('core');
+        $PAGE->set_url('/blocks/coursecare/overview.php');
+        $data = fn(int $courseid): array => course_overview::for_course($courseid)->export_for_template($output);
+        $suggest = fn(\stdClass $course, int $cmid) => $DB->set_field(
+            'block_coursecare_diag',
+            'suggestions',
+            \block_coursecare\local\analysis\stored_suggestions::encode(
+                [['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => $cmid]]
+            ),
+            ['courseid' => $course->id]
+        );
+        $guidance = function (string $html, int $cmid): string {
+            $id = 'id="block_coursecare-guidance-' . $cmid . '"';
+            $this->assertStringContainsString($id, $html);
+            $start = strpos($html, $id);
+            return substr($html, $start, strpos($html, '</details>', $start) - $start);
+        };
+        $untilpass = s(get_string('guidance:attempts_untilpass', 'block_coursecare'));
+
+        // Reopening "until pass" without a grade to pass: one attempt, and the guidance says why.
+        [$course] = $this->course_with_diagnostic(['Slides' => 2048], ['material' => 2048]);
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $single = $this->create_assign($course, 'Until pass', ['maxattempts' => 3, 'attemptreopenmethod' => 'untilpass']);
+        $one = $this->create_assign($course, 'One attempt', ['attemptreopenmethod' => 'untilpass']);
+        $html = $this->render((int)$course->id);
+        $this->assertStringContainsString($untilpass, $guidance($html, (int)$single->cmid));
+        $this->assertStringNotContainsString($untilpass, $guidance($html, (int)$one->cmid));
+
+        // Without the capability to edit the assignment: the steps, never the link to the settings.
+        $assign = $this->create_assign($course, 'Lab report', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $suggest($course, (int)$assign->cmid);
+        $role = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        assign_capability('moodle/course:manageactivities', CAP_PROHIBIT, $role, \context_course::instance($course->id));
+        $html = $this->render((int)$course->id);
+        $section = self::suggestions_section($html);
+        $this->assertStringContainsString(s(get_string('suggestion:attempts:title', 'block_coursecare')), $section);
+        $this->assertStringContainsString(s(get_string('maxattempts', 'assign')), $section);
+        $this->assertStringContainsString('href="#block_coursecare-guidance-' . $assign->cmid . '"', $section);
+        $this->assertStringContainsString(
+            s(get_string('guidance:stepstitle', 'block_coursecare')),
+            $guidance($html, (int)$assign->cmid)
+        );
+        $this->assertStringNotContainsString('/course/modedit.php', $html);
+
+        // A course without files with a suggestion: the tabs, the band and the card, the suggestions first.
+        $nofiles = ['logicalbytes' => 0, 'filecount' => 0, 'categories' => [], 'activities' => []];
+        [$course] = $this->course_with_diagnostic([], [], $nofiles);
+        $this->setAdminUser();
+        $assign = $this->create_assign($course, 'Journal', ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $suggest($course, (int)$assign->cmid);
+        $page = $data((int)$course->id);
+        $this->assertTrue($page['hastabs']);
+        $this->assertSame('suggestions', $page['initialtab']);
+        $this->assertSame(get_string('state:idea_title', 'block_coursecare'), $page['band']['title']);
+        $this->assertSame(get_string('state:idea_message_attempts', 'block_coursecare'), $page['band']['message']);
+        $this->assertCount(1, $page['suggestions']['assignments']);
+        $this->assertStringContainsString(
+            s(get_string('diagnostic:nofiles', 'block_coursecare')),
+            $this->render((int)$course->id)
+        );
+
+        // Not calculated yet (a record from before the upgrade): no card and never "All good here!".
+        [$course] = $this->course_with_diagnostic(['Slides' => 2048], ['material' => 2048]);
+        $DB->set_field('block_coursecare_diag', 'suggestions', null, ['courseid' => $course->id]);
+        $page = $data((int)$course->id);
+        $this->assertNull($page['band']);
+        $this->assertSame([], $page['suggestions']['assignments']);
+        $this->assertStringNotContainsString(
+            s(get_string('state:allgood_title', 'block_coursecare')),
+            $this->render((int)$course->id)
+        );
+    }
 }

@@ -2,7 +2,7 @@
 
 Branch `009-assignment-guidance` (base `main` em `b38963c`). Arquitetura B2 aprovada pelo proprietário do
 produto em 2026-10-19 (`research.md` R4, commit `8f62c26`). Nenhum item marcado sem evidência; aprovação
-visual pendente da avaliação das capturas.
+visual registrada em 2026-10-19 (seção "Acessibilidade e capturas").
 
 ## Persistência e atualização
 
@@ -50,7 +50,7 @@ tarefas; o coletor da 005 só quando há candidata.
 
 ## Testes
 
-PHPUnit: 315 testes verdes (4.5). Behat do plugin: 92 cenários verdes (4.5). i18n: 0 erro. Pacote 0.9.0:
+PHPUnit: 316 testes verdes (4.5, depois da convergência). Behat do plugin: 92 cenários verdes (4.5). i18n: 0 erro. Pacote 0.9.0:
 94 arquivos, 0 erro.
 
 ## CI
@@ -73,7 +73,35 @@ registros em `logs/t019/<combinação>`:
 | 320 px e zoom 200% (640 px) | sem rolagem horizontal da página nem da região do plugin |
 
 Capturas reais em `screenshots/<combinação>`: bloco com a ideia, aba de sugestões (desktop e celular) e
-orientação aberta de "Diário de bordo". **Aprovação do proprietário do produto pendente.**
+orientação aberta de "Diário de bordo".
+
+**Aprovado pelo proprietário do produto em 2026-10-19**: direção visual e funcional aprovadas — sugestão
+contextualizada sobre tentativas efetivamente ilimitadas, linguagem não prescritiva, separação entre fatos,
+explicações e alternativas, orientações recolhíveis por tarefa, integração com o potencial da 005 e com
+bloco e página, desktop e celular, identidade da 008. Sem redesign; nenhum critério novo. Verificações finais
+pedidas na aprovação: seção "Verificações finais da aprovação".
+
+## Verificações finais da aprovação
+
+| Verificação pedida | Evidência |
+| --- | --- |
+| 1. Navegação do cartão para a orientação em "Em detalhes" | Behat "The link of the card opens the guidance…" (aba "Em detalhes" selecionada, `<details>` aberto pelo `tabs.js`); axe com a orientação aberta |
+| 2. Link de configurações só com permissão de edição | `moodle/course:manageactivities` no contexto da tarefa (cartão e orientação); teste sem a capacidade: passos presentes, nenhum `course/modedit.php` (T022) |
+| 3. Sala sem arquivos com sugestão | Bloco: teste do bloco e captura; página: abas, faixa "Há uma ideia", cartão, aba inicial "Sugestões" e a frase "nenhum arquivo" (T023) |
+| 4. Atividade oculta, excluída ou alterada depois da análise | Filtro comum (`stored_suggestions::current()`): oculta, inexistente, em exclusão e outra atividade some na hora (PHPUnit e Behat); alterada: cartão com aviso datado, sem link da orientação quando ela não existe mais |
+| 5. Resultados reais dos benchmarks | Seção "Desempenho", com a variação de +8% a +10% no tempo da página |
+| 6. Mesma referência no bloco e na página | `block_coursecare.php` e `course_overview::for_course()` chamam `stored_suggestions::current()` |
+| 7. Data, falha e desatualização | `diagnostic_line::parts()` da 008 inalterado; testes de estados do bloco e da página (desatualizado, falha, parcial) verdes; não calculado nunca vira "Tudo bem por aqui!" (T023) |
+
+## Convergência
+
+`/speckit-converge` em 2026-10-19: 23 requisitos, 11 cenários de aceitação, 6 critérios de sucesso, decisões B2
+e 12 princípios. Três achados parciais, nenhum bloqueante (Phase 6 de `tasks.md`), corrigidos:
+
+- T021 (FR-004): a orientação explica o "até passar" também quando ele resulta em uma tentativa (sem nota
+  para aprovação); string en/pt_br ajustada; teste.
+- T022 (US1/AC4, FR-006, FR-011a): teste da página sem permissão de edição.
+- T023 (FR-013a, FR-013b): testes da página sem arquivos com sugestão e com sugestões não calculadas.
 
 ## Validações humanas
 
@@ -101,5 +129,6 @@ Resultado: **PASSA**.
 
 ## Prontidão
 
-Implementação completa e testada. Falta a aprovação das capturas pelo proprietário do produto (T019) antes
-de concluir a experiência visual; nenhum PR ou merge sem pedido.
+Implementação completa e testada, CI verde e aprovação visual registrada (2026-10-19). Pendências humanas
+que seguem abertas, sem evidência: revisão de tom das strings novas além do cartão (B), leitor de tela (D),
+avaliação com professores (C); bloqueios de publicação abertos.
