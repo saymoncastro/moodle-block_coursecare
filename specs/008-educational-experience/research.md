@@ -37,7 +37,7 @@
   com o atributo `hidden`. Um módulo AMD próprio (`block_coursecare/tabs`) ativa o padrão de abas da WAI-ARIA
   APG: `role="tablist"`, `role="tab"` com `aria-selected`, `aria-controls` e `tabindex` itinerante,
   `role="tabpanel"` com `aria-labelledby`; setas esquerda/direita, Home e End com **ativação automática**
-  (os painéis já estão no DOM); o painel inativo recebe `hidden`. Sem scripts, a lista de abas continua
+  (os painéis já estão no DOM); o painel inativo recebe uma classe do plugin que o oculta só na tela (o atributo `hidden` é forçado com `!important` pelos temas e impediria a impressão). Sem scripts, a lista de abas continua
   oculta e as duas seções aparecem em sequência (FR-036). Impressão: CSS `@media print` mostra todos os
   painéis e esconde a lista de abas.
 - **Endereços e histórico**: cada aba tem um fragmento (`#block_coursecare-tab-suggestions`,

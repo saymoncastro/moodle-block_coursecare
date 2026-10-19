@@ -1,0 +1,25 @@
+{
+ "check": "history",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Sua sala em números | DEMO-COMPLETE | ccdemo",
+ "load": {
+  "detailshidden": true,
+  "hash": "",
+  "selected": "block_coursecare-tabbutton-suggestions"
+ },
+ "click details": {
+  "detailshidden": false,
+  "hash": "#block_coursecare-tab-details",
+  "selected": "block_coursecare-tabbutton-details"
+ },
+ "back": {
+  "detailshidden": true,
+  "hash": "",
+  "selected": "block_coursecare-tabbutton-suggestions"
+ },
+ "forward": {
+  "detailshidden": false,
+  "hash": "#block_coursecare-tab-details",
+  "selected": "block_coursecare-tabbutton-details"
+ }
+}

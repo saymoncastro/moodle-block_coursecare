@@ -41,7 +41,7 @@ h1 (tema)  nome da sala
   visível no topo de cada seção, que o módulo oculta visualmente quando as abas estão ativas, pois o nome
   da aba já o anuncia).
 - Com scripts: `role="tablist"`/`tab`/`tabpanel`, `aria-selected`, `aria-controls`, `aria-labelledby`,
-  `tabindex` itinerante; setas, Home, End; painel inativo `hidden`.
+  `tabindex` itinerante; setas, Home, End; painel inativo com a classe `block_coursecare-overview-panel-inactive` (oculto só na tela).
 - Aba inicial: fragmento > `data-initialtab`.
 - Fragmentos: `#block_coursecare-tab-suggestions`, `#block_coursecare-tab-details` e os ids das seções
   (`#block_coursecare-suggestions` → aba de sugestões; `#block_coursecare-history`,

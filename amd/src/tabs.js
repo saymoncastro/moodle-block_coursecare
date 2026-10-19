@@ -91,7 +91,8 @@ export const init = (selector) => {
             const active = i === index;
             tab.setAttribute('aria-selected', active ? 'true' : 'false');
             tab.setAttribute('tabindex', active ? '0' : '-1');
-            panels[i].hidden = !active;
+            // A class, not the hidden attribute: themes force [hidden] off with !important, also when printing.
+            panels[i].classList.toggle('block_coursecare-overview-panel-inactive', !active);
         });
     };
 

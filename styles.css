@@ -236,7 +236,7 @@
     font-size: 1.375rem;
 }
 
-.block_coursecare-overview .block_coursecare-overview-panel[hidden] {
+.block_coursecare-overview .block_coursecare-overview-panel-inactive {
     display: none;
 }
 
@@ -309,7 +309,7 @@
         display: none;
     }
 
-    .block_coursecare-overview .block_coursecare-overview-panel[hidden] {
+    .block_coursecare-overview .block_coursecare-overview-panel-inactive {
         display: block;
     }
 }

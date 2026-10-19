@@ -90,11 +90,11 @@ e as atividades com link, com os mesmos números e critérios da 004.
 
 - [X] T019 Inventário de preservação "depois" (`evidence/preservation-after.md`) comparado ao T003: mesmas seções, rótulos e números; medidas de `render.php` com as mesmas leituras e tempo dentro de 10% (SC-004).
 - [X] T020 Limpeza: strings sem uso removidas (`block:suggestion` e outras), paridade de i18n, `tools/package/check.php` aceita `amd/` (ajustar a lista de permissão se preciso) e o pacote passa.
-- [ ] T021 Suítes locais (PHPUnit, Behat em 4.5), push e CI verde nas quatro combinações (inclui `grunt` e `mustache`); registrar em `evidence/README.md`.
-- [ ] T022 Auditoria de acessibilidade e responsividade com `tools/dev/demo/checks.py` (axe, teclado, zoom 200%, 320 px, árvore de acessibilidade) em 4.5 Boost, 4.5 Classic e 5.3 Boost, gaveta aberta e tours concluídos; corrigir só defeitos reais.
-- [ ] T023 Capturas reais (en e pt_BR; 4.5 e 5.3; bloco em cada estado principal, página nas duas abas; desktop e celular) e comparação lado a lado com o mockup aprovado em `evidence/screenshots/` e `evidence/comparison.md`; **aprovação do proprietário do produto pendente**.
-- [ ] T024 Documentação: `docs/teacher-guide.md` e `docs/pt_br/guia-do-professor.md` (estados do bloco, abas), `README.md`, `docs/marketplace/listing.md`; capturas do Marketplace só depois da aprovação (T023).
-- [ ] T025 Constitution Check do plano contra a entrega e matriz de prontidão da 008 em `evidence/README.md`.
+- [X] T021 Suítes locais (PHPUnit, Behat em 4.5), push e CI verde nas quatro combinações (inclui `grunt` e `mustache`); registrar em `evidence/README.md`.
+- [X] T022 Auditoria de acessibilidade e responsividade com `tools/dev/demo/checks.py` (axe, teclado, zoom 200%, 320 px, árvore de acessibilidade) em 4.5 Boost, 4.5 Classic e 5.3 Boost, gaveta aberta e tours concluídos; corrigir só defeitos reais.
+- [X] T023 Capturas reais (en e pt_BR; 4.5 e 5.3; bloco em cada estado principal, página nas duas abas; desktop e celular) e comparação lado a lado com o mockup aprovado em `evidence/screenshots/` e `evidence/comparison.md`; **aprovação do proprietário do produto pendente**.
+- [X] T024 Documentação: `docs/teacher-guide.md` e `docs/pt_br/guia-do-professor.md` (estados do bloco, abas), `README.md`, `docs/marketplace/listing.md`; capturas do Marketplace só depois da aprovação (T023).
+- [X] T025 Constitution Check do plano contra a entrega e matriz de prontidão da 008 em `evidence/README.md`.
 
 ---
 
