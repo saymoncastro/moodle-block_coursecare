@@ -545,7 +545,9 @@ final class course_overview_test extends \advanced_testcase {
         $section = self::suggestions_section($html);
         $this->assertNotNull($section);
         $this->assertStringNotContainsString(s(get_string('suggestion:large:title', 'block_coursecare')), $section);
-        $this->assertStringContainsString(s(get_string('suggestions:none', 'block_coursecare')), $section);
+        // Complete and current without a suggestion: the band says so (Feature 008), not a second sentence.
+        $this->assertStringContainsString(s(get_string('state:allgood_message', 'block_coursecare')), $html);
+        $this->assertStringNotContainsString(s(get_string('suggestions:none', 'block_coursecare')), $section);
         $this->assertStringNotContainsString('Quixote', $html);
 
         // Words of obligation, judgement or promise, in the rendered English suggestion.
@@ -557,8 +559,8 @@ final class course_overview_test extends \advanced_testcase {
         $string = [];
         include($CFG->dirroot . '/blocks/coursecare/translations/pt_br/block_coursecare.php');
         $new = array_filter($string, fn(string $key): bool => str_starts_with($key, 'suggestion')
-            || $key === 'block:suggestion', ARRAY_FILTER_USE_KEY);
-        $this->assertCount(20, $new);
+            || str_starts_with($key, 'state:'), ARRAY_FILTER_USE_KEY);
+        $this->assertCount(26, $new);
         $this->assertDoesNotMatchRegularExpression(
             '/\b(deve|desperdício|excluir|economia|economizar)\b/iu',
             implode(' ', $new)
@@ -600,9 +602,16 @@ final class course_overview_test extends \advanced_testcase {
         ];
         foreach ($cases as $name => [$materials, $categories, $extra]) {
             [$course] = $this->course_with_diagnostic($materials, $categories, $extra);
-            $section = self::suggestions_section($this->render((int)$course->id));
+            $html = $this->render((int)$course->id);
+            $section = self::suggestions_section($html);
             $this->assertNotNull($section, $name);
-            $this->assertStringContainsString($none, $section, $name);
+            if ($name === 'D') {
+                // Complete, current and fully classified: the band of Feature 008 instead of the neutral sentence.
+                $this->assertStringContainsString(s(get_string('state:allgood_message', 'block_coursecare')), $html);
+                $this->assertStringNotContainsString($none, $section, $name);
+            } else {
+                $this->assertStringContainsString($none, $section, $name);
+            }
             $this->assertStringNotContainsString($title, $section, $name);
             // Neither praise nor blame, and no date repeated in the neutral case.
             $this->assertDoesNotMatchRegularExpression(
@@ -1159,5 +1168,72 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertSame(array_map('s', $expected), $cells[1]);
         $this->assertStringNotContainsString('Quixote', $section);
         $this->assertStringNotContainsString('Reading', $section);
+    }
+
+    /**
+     * Feature 008: the identity heads the page; with a result that has files, the two areas and the opening tab
+     * ("Suggestions for you" with a suggestion, "Details" otherwise); the band never says "All good here!" for an
+     * old, failed or partial result; without a result, no tabs (contracts/ui.md).
+     */
+    public function test_educational_page(): void {
+        global $PAGE;
+        $this->resetAfterTest();
+        $mb = 1048576;
+        $output = $PAGE->get_renderer('core');
+        $PAGE->set_url('/blocks/coursecare/overview.php');
+        $data = fn(int $courseid): array => course_overview::for_course($courseid)->export_for_template($output);
+        $allgood = get_string('state:allgood_title', 'block_coursecare');
+        $idea = get_string('state:idea_title', 'block_coursecare');
+
+        // With a suggestion: the suggestions open, with the band and its note.
+        [$course] = $this->course_with_large_links(['Lab video' => 3 * $mb]);
+        $page = $data((int)$course->id);
+        $this->assertSame(get_string('pluginname', 'block_coursecare'), $page['identity']['name']);
+        $this->assertTrue($page['hastabs']);
+        $this->assertSame('suggestions', $page['initialtab']);
+        $this->assertSame($idea, $page['band']['title']);
+        $this->assertSame(get_string('suggestions:band_note', 'block_coursecare'), $page['band']['note']);
+        $html = $this->render((int)$course->id);
+        $this->assertStringContainsString('data-initialtab="suggestions"', $html);
+        $this->assertStringContainsString('id="block_coursecare-tab-suggestions"', $html);
+        $this->assertStringContainsString('id="block_coursecare-tab-details"', $html);
+        $this->assertSame(1, substr_count($html, '<h2 class="block_coursecare-overview-name"'));
+        $this->assertStringContainsString('<h3 class="block_coursecare-overview-title">', $html);
+
+        // Complete and current, no suggestion: details open; all good, without the second sentence.
+        [$course] = $this->course_with_diagnostic(['Slides' => 2048], ['material' => 2048]);
+        $page = $data((int)$course->id);
+        $this->assertSame('details', $page['initialtab']);
+        $this->assertSame($allgood, $page['band']['title']);
+        $this->assertSame('', $page['band']['note']);
+        $this->assertSame('', $page['suggestions']['none']);
+
+        // Old, failed or partial: neutral, the sentence of Feature 004 instead of a band.
+        foreach ([['timecompletedago' => 400000], ['lastattemptfailed' => 1], ['partial' => 1]] as $extra) {
+            [$course] = $this->course_with_diagnostic(['Slides' => 2048], ['material' => 2048], $extra);
+            $page = $data((int)$course->id);
+            $this->assertNull($page['band'], json_encode($extra));
+            $this->assertSame('details', $page['initialtab']);
+            $this->assertSame(get_string('suggestions:none', 'block_coursecare'), $page['suggestions']['none']);
+            $this->assertStringNotContainsString($allgood, $this->render((int)$course->id));
+        }
+
+        // A result without files: no tabs, but the closing sentence (FR-015).
+        $nofiles = ['logicalbytes' => 0, 'filecount' => 0, 'categories' => [], 'activities' => []];
+        [$course] = $this->course_with_diagnostic([], [], $nofiles);
+        $page = $data((int)$course->id);
+        $closing = get_string('overview:closing', 'block_coursecare');
+        $this->assertFalse($page['hastabs']);
+        $this->assertSame($closing, $page['closing']);
+        $this->assertStringContainsString(s($closing), $this->render((int)$course->id));
+
+        // Without a result: no tabs, no band, no closing sentence.
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $page = $data((int)$course->id);
+        $this->assertFalse($page['hastabs']);
+        $this->assertNull($page['band']);
+        $this->assertSame('', $page['closing']);
+        $this->assertStringNotContainsString('block_coursecare-tablist', $this->render((int)$course->id));
     }
 }

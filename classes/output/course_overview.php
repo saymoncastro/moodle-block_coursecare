@@ -138,14 +138,34 @@ class course_overview implements \renderable, \templatable {
      * @return array
      */
     public function export_for_template(\renderer_base $output): array {
+        $str = fn(string $key): string => get_string($key, 'block_coursecare');
+        $suggestions = $this->suggestions_data();
+        $state = $this->state();
+        $educational = diagnostic_line::educational($state, !empty($suggestions['hassuggestion']));
+        if ($educational['isallgood']) {
+            // The band already says that no suggestion was found (Feature 008, FR-033): no second sentence.
+            $suggestions['none'] = '';
+        }
+        // Feature 008 (FR-030 to FR-036): the two tabs only with a result that has files.
+        $hastabs = $state->hasresult && $state->filecount !== 0;
         return [
-            'title' => get_string('overview:title', 'block_coursecare'),
-            'intro' => get_string('overview:intro', 'block_coursecare'),
+            'identity' => ['name' => $str('pluginname'), 'tagline' => $str('tagline')],
+            'title' => $str('overview:title'),
+            'intro' => $str('overview:intro'),
             'backurl' => $this->courseurl->out(false),
-            'backtext' => get_string('overview:back', 'block_coursecare'),
+            'backtext' => $str('overview:back'),
             'hero' => $this->hero_data(),
+            'hastabs' => $hastabs,
+            'initialtab' => $educational['isidea'] ? 'suggestions' : 'details',
+            'tabs' => ['label' => $str('tabs:label'), 'suggestions' => $str('tabs:suggestions'),
+                'details' => $str('tabs:details')],
+            'band' => $educational['title'] === '' ? null : $educational + [
+                'note' => $educational['isidea'] ? $str('suggestions:band_note') : '',
+            ],
+            // FR-015: the closing sentence on every page with a result; without one there is nothing to suggest.
+            'closing' => $state->hasresult ? $str('overview:closing') : '',
             'hassuggestionsection' => (bool)$this->view['hasresult'],
-            'suggestions' => $this->suggestions_data(),
+            'suggestions' => $suggestions,
             'hascategories' => $this->view['categories'] !== null,
             'categories' => $this->categories_data(),
             'hasactivities' => $this->view['activities'] !== null,
@@ -212,6 +232,7 @@ class course_overview implements \renderable, \templatable {
             'basedon' => $str('suggestions:basedon', $date),
             'title' => $str('suggestion:large:title'),
             'observedlabel' => $str('suggestion:observed'),
+            'placeslabel' => $str('suggestion:places'),
             'whylabel' => $str('suggestion:why'),
             'todolabel' => $str('suggestion:todo'),
             'observed' => $this->observed_sentence($suggestion['count'], $threshold, $size, $places !== []),
@@ -602,15 +623,7 @@ class course_overview implements \renderable, \templatable {
      */
     private function hero_data(): array {
         $view = $this->view;
-        $state = new diagnostic_state(
-            $view['state'],
-            $view['hasresult'],
-            $view['partial'],
-            $view['total'],
-            $view['timecompleted'],
-            $view['filecount']
-        );
-        $hero = diagnostic_line::parts($state) + ['coverage' => ''];
+        $hero = diagnostic_line::parts($this->state()) + ['coverage' => ''];
         if ($view['partial'] && $view['technical'] !== null && $view['technical']['coverage']['bytes'] > 0) {
             $coverage = $view['technical']['coverage'];
             $hero['coverage'] = get_string('overview:partial', 'block_coursecare', (object)[
@@ -619,6 +632,23 @@ class course_overview implements \renderable, \templatable {
             ]);
         }
         return $hero;
+    }
+
+    /**
+     * The resolved state of the result shown on the page, as the block resolves it.
+     *
+     * @return diagnostic_state
+     */
+    private function state(): diagnostic_state {
+        $view = $this->view;
+        return new diagnostic_state(
+            $view['state'],
+            $view['hasresult'],
+            $view['partial'],
+            $view['total'],
+            $view['timecompleted'],
+            $view['filecount']
+        );
     }
 
     /**

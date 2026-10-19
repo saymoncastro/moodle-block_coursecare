@@ -1,0 +1,15 @@
+{
+ "check": "narrow",
+ "path": "/course/view.php?id=2",
+ "title": "Course: Biologia celular (demonstração) | cc53",
+ "pagescroll": false,
+ "pagescrollwidth": 320,
+ "regions": [
+  {
+   "clientwidth": 300,
+   "region": "",
+   "scrollwidth": 300
+  }
+ ],
+ "viewport": 320
+}

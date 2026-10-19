@@ -18,9 +18,12 @@ numbers, a history and optional suggestions. It never changes or deletes anythin
 
 ## Long description
 
-CourseCare adds a small block to the main page of a course. It shows the size of the files Moodle
-records for the course, with the date of the calculation, and links to a page, "Your course in
-numbers", where teachers who edit the course can see:
+CourseCare adds a small block to the main page of a course. It welcomes the teacher with a short
+educational state ("An idea for your course" when a suggestion applies, "All good here!" only when the
+latest analysis is complete, recent and finds nothing to suggest), shows the size of the files Moodle
+records for the course with the date of the calculation, and leads to a page, "Your course in numbers",
+organised in two accessible tabs, "Suggestions for you" and "Details", where teachers who edit the
+course can see:
 
 - where the files are: course materials, files submitted in activities (only as the total of the
   course, never per student), other associated files and files not classified;
@@ -58,7 +61,7 @@ and 8.4 (5.3), with PostgreSQL 17 and MariaDB 11.4.
 
 ## Maturity and version
 
-0.7.0 BETA.
+0.8.0 BETA.
 
 ## Links
 
@@ -84,18 +87,18 @@ GNU GPL v3 or later.
 
 ## Screenshots
 
-Real screenshots of demonstration sites with fictitious courses and people, interface in English, in
-[`screenshots/`](screenshots/). The fictitious course content is in Portuguese ("Biologia celular").
-They show no personal data.
+Real screenshots of 0.8.0 (approved by the product owner on 2026-10-19) on demonstration sites with
+fictitious courses and people, interface in English, in [`screenshots/`](screenshots/). The fictitious
+course content is in Portuguese ("Biologia celular"). They show no personal data.
 
 | File | Shows |
 | --- | --- |
-| `01-block.png` | The block on a course page (Moodle 5.3, Boost) |
-| `02-page.png` | "Your course in numbers" with the suggestion (Moodle 5.3, Boost) |
-| `03-potential.png` | The potential of assignments |
-| `04-history.png` | How the files of the course have changed |
-| `05-mobile.png` | The page on a phone-sized screen |
-| `06-moodle45.png` | The page on Moodle 4.5 |
+| `01-block.png` | The block with a suggestion, "An idea for your course" (Moodle 5.3, Boost) |
+| `02-page.png` | "Your course in numbers", tab "Suggestions for you" (Moodle 5.3, Boost) |
+| `03-details.png` | Tab "Details": where the files are, large files, history, materials, potential (Moodle 5.3) |
+| `04-block-allgood.png` | The block when the latest analysis finds nothing to suggest, "All good here!" (Moodle 5.3) |
+| `05-mobile.png` | The page on a phone-sized screen (Moodle 5.3) |
+| `06-moodle45.png` | The page on Moodle 4.5 (Boost) |
 
 ## Claims checked
 

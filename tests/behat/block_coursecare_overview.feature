@@ -188,7 +188,7 @@ Feature: CourseCare "Your course in numbers" page
       | course | activity | filesize |
       | C1     | lab      | 62914560 |
     When I am on the "C1" "Course" page logged in as "teacher1"
-    And I click on "Learn more about the files in your course" "link" in the "CourseCare" "block"
+    And I click on "See the suggestion" "link" in the "CourseCare" "block"
     Then I should see "Large files"
     And I should see "Large materials by activity"
     And I should see "The threshold is a screening value set by the site, not a teaching rule."
@@ -281,6 +281,9 @@ Feature: CourseCare "Your course in numbers" page
     And I press the enter key
     Then I should see "Your course in numbers"
     And I set the focus on the "Back to the course" "link"
+    # Feature 008: the selected tab ("Details", as no suggestion applies) comes before the content of its area.
+    And I press the tab key
+    And the focused element is "Details" "button"
     And I press the tab key
     And the focused element is "//div[contains(@class, 'block_coursecare-overview')]//a[normalize-space(.)='Reading 11']" "xpath_element"
     And I set the focus on the "//div[contains(@class, 'block_coursecare-overview')]//a[normalize-space(.)='Reading 02']" "xpath_element"
@@ -294,6 +297,8 @@ Feature: CourseCare "Your course in numbers" page
     And I press the enter key
     And I should see "These numbers show the files Moodle records for this course."
     And I set the focus on the "//div[contains(@class, 'block_coursecare-overview')]//a[normalize-space(.)='Reading 11']" "xpath_element"
+    And I press the shift tab key
+    And the focused element is "Details" "button"
     And I press the shift tab key
     And the focused element is "Back to the course" "link"
     And I press the enter key

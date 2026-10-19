@@ -19,10 +19,11 @@ namespace block_coursecare\output;
 use block_coursecare\local\analysis\diagnostic_state;
 
 /**
- * The single line of the block about the course file overview (contracts/block-ui.md).
+ * The block about the course file overview (contracts/block-ui.md; Feature 008, contracts/ui.md).
  *
  * At most one number, the logical storage, always with the date of the analysis; no evaluation of the course.
- * Each sentence is a complete string with at most one parameter.
+ * Each sentence is a complete string with at most one parameter. The educational state (Feature 008) is derived
+ * from the resolved state and the suggestion flag only: nothing new is read.
  *
  * @package    block_coursecare
  * @copyright  2026 Saymon Castro
@@ -58,7 +59,48 @@ class diagnostic_line implements \renderable, \templatable {
      * @return array
      */
     public function export_for_template(\renderer_base $output): array {
-        return self::parts($this->state) + $this->link();
+        $parts = self::parts($this->state);
+        if ($this->state->hasresult && $this->state->partial) {
+            // Feature 008: the partial coverage is a note of the block too, without numbers (the volume is the only one).
+            $parts['notes'][] = ['text' => get_string('block:partial', 'block_coursecare')];
+        }
+        $parts['hasnotes'] = $parts['notes'] !== [];
+        return $parts + self::educational($this->state, $this->hassuggestion) + $this->link();
+    }
+
+    /**
+     * The educational state of a result (Feature 008, data-model.md): which welcome the block and the page give.
+     *
+     * "idea" when the suggestion of the Feature 004 applies; "allgood" only for a complete, current and fully
+     * classified result with files and no suggestion; "neutral" for any other result with files (out of date, last
+     * update failed or partial coverage), so that a positive message never hides them. Without files or without a
+     * result, the existing sentences of parts() stay the message.
+     *
+     * @param diagnostic_state $state Resolved state.
+     * @param bool $hassuggestion Whether a suggestion applies to the result.
+     * @return array{kind: string, isidea: bool, isallgood: bool, title: string, message: string}
+     */
+    public static function educational(diagnostic_state $state, bool $hassuggestion): array {
+        if (!$state->hasresult) {
+            $kind = in_array($state->state, [diagnostic_state::QUEUED, diagnostic_state::RUNNING], true)
+                ? 'preparing' : 'notavailable';
+        } else if ($state->filecount === 0) {
+            $kind = 'nofiles';
+        } else if ($hassuggestion) {
+            $kind = 'idea';
+        } else if ($state->state === diagnostic_state::COMPLETE && !$state->partial) {
+            $kind = 'allgood';
+        } else {
+            $kind = 'neutral';
+        }
+        $titled = in_array($kind, ['idea', 'allgood'], true);
+        return [
+            'kind' => $kind,
+            'isidea' => $kind === 'idea',
+            'isallgood' => $kind === 'allgood',
+            'title' => $titled ? get_string('state:' . $kind . '_title', 'block_coursecare') : '',
+            'message' => $titled ? get_string('state:' . $kind . '_message', 'block_coursecare') : '',
+        ];
     }
 
     /**
@@ -123,23 +165,22 @@ class diagnostic_line implements \renderable, \templatable {
     }
 
     /**
-     * The way to the overview page, only when it has something to show. With a suggestion (Feature 004), one sentence
-     * announces it, without any number, and the link opens the page at the suggestions section.
+     * The way to the overview page, only when it has something to show. With a suggestion (Feature 004), the action
+     * "See the suggestion" opens the page at the suggestions (Feature 008, FR-005); otherwise the usual link.
      *
-     * @return array overviewurl, overviewlink and suggestion (empty strings when not shown).
+     * @return array overviewurl and overviewlink (empty strings when not shown).
      */
     private function link(): array {
         if (!$this->state->hasresult || $this->overviewurl === null) {
-            return ['overviewurl' => '', 'overviewlink' => '', 'suggestion' => ''];
+            return ['overviewurl' => '', 'overviewlink' => ''];
         }
         $url = new \moodle_url($this->overviewurl);
-        if ($this->hassuggestion) {
+        if ($this->hassuggestion && $this->state->filecount !== 0) {
             $url->set_anchor('block_coursecare-suggestions');
+            $text = get_string('state:idea_action', 'block_coursecare');
+        } else {
+            $text = get_string('overview:link', 'block_coursecare');
         }
-        return [
-            'overviewurl' => $url->out(false),
-            'overviewlink' => get_string('overview:link', 'block_coursecare'),
-            'suggestion' => $this->hassuggestion ? get_string('block:suggestion', 'block_coursecare') : '',
-        ];
+        return ['overviewurl' => $url->out(false), 'overviewlink' => $text];
     }
 }

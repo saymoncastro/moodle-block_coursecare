@@ -1,0 +1,29 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Sua sala em números | DEMO-COMPLETE | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    ""
+   ],
+   "targets": [
+    "div[data-region=\"popover-region-toggle\"]",
+    "#user-menu-toggle"
+   ]
+  },
+  {
+   "id": "color-contrast",
+   "reasons": [
+    "Element's background color could not be determined because it partially overlaps other elements"
+   ],
+   "targets": [
+    ".block_coursecare-overview-bandnote"
+   ]
+  }
+ ],
+ "passes": 32,
+ "violations": []
+}

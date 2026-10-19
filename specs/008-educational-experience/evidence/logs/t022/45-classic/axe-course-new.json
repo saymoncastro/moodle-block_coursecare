@@ -1,0 +1,22 @@
+{
+ "check": "axe",
+ "path": "/course/view.php?id=10",
+ "title": "Curso: Artes (demonstração) | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad6092da8b696ad6092da3c8b61",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  }
+ ],
+ "passes": 28,
+ "violations": []
+}

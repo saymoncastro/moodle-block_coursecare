@@ -1,0 +1,48 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=22",
+ "title": "Sua sala em números | DEMO-HISTORY-YEAR | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Voltar à sala"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "button",
+   "text": "Em detalhes"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Medições e categorias",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "div",
+   "text": "Medições e categorias Data Arquivos registrados Materiais da sala Arquivos envia"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Apostila de estatística"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Detalhes técnicos",
+   "openafterenter": true
+  }
+ ],
+ "count": 6,
+ "allindicated": true,
+ "summariesopen": true
+}

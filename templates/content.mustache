@@ -17,11 +17,11 @@
 {{!
     @template block_coursecare/content
 
-    Educational content of the CourseCare block: a decorative icon, the identity sentence and one
-    line about the course file overview (Feature 002). The line holds at most one number, the files
-    recorded by Moodle for the course, with the date of the analysis; its sentences come already
-    translated from the diagnostic_line renderable. When a result exists, a link leads to the
-    "Your course in numbers" page (Feature 003).
+    Educational content of the CourseCare block (Feature 008, contracts/ui.md): the educational state
+    with a title and a message when the result allows it ("idea", "allgood"), otherwise the identity
+    sentence; then the file overview (Feature 002) with at most one number, the files recorded by Moodle
+    for the course, and the date of the analysis; discreet notes; and one action to the "Your course in
+    numbers" page (Feature 003), "See the suggestion" when a suggestion applies (Feature 004).
 
     Classes required for JS:
     * none
@@ -30,33 +30,48 @@
     * none
 
     Context variables required for this template:
-    * diagnostic - optional object: with a result and files, "hasvolume", "volumelabel" and "volume"
-      (the volume apart, to be seen at once); otherwise "sentences" (objects with "text"); then
-      "date", "notes" (objects with "text") and, when a result exists, "overviewurl" and
-      "overviewlink" (the link to the overview page) and "suggestion" (Feature 004: one sentence when a
-      suggestion applies, otherwise empty)
+    * diagnostic - optional object: "kind" (idea, allgood, neutral, nofiles, preparing, notavailable),
+      "title" and "message" (only for idea and allgood); with a result and files, "hasvolume",
+      "volumelabel" and "volume"; otherwise "sentences" (objects with "text"); then "date", "notes"
+      (objects with "text") with "hasnotes", and, when a result exists, "overviewurl" and "overviewlink"
 
     Example context (json):
     {
         "diagnostic": {
+            "kind": "idea",
+            "isidea": true,
+            "isallgood": false,
+            "title": "An idea for your course",
+            "message": "We found a suggestion about large materials.",
             "hasvolume": true,
             "volumelabel": "Course files recorded in Moodle",
             "volume": "6.0 MB",
             "sentences": [],
             "date": "Calculated on 16/10/26, 10:12.",
             "notes": [],
-            "overviewurl": "https://example.com/blocks/coursecare/overview.php?id=4",
-            "overviewlink": "Learn more about the files in your course",
-        "suggestion": ""
+            "hasnotes": false,
+            "overviewurl": "https://example.com/blocks/coursecare/overview.php?id=4#block_coursecare-suggestions",
+            "overviewlink": "See the suggestion"
         }
     }
 }}
 <div class="block_coursecare-content">
+    {{#diagnostic}}
+    {{#title}}
+    <div class="block_coursecare-state block_coursecare-state-{{kind}}">
+        <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
+        <div class="block_coursecare-statetext">
+            <p class="block_coursecare-statetitle mb-0">{{title}}</p>
+            <p class="block_coursecare-statemessage mb-0">{{message}}</p>
+        </div>
+    </div>
+    {{/title}}
+    {{^title}}
     <div class="block_coursecare-identity">
         <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
         <p class="block_coursecare-tagline mb-0">{{#str}} tagline, block_coursecare {{/str}}</p>
     </div>
-    {{#diagnostic}}
+    {{/title}}
     <div class="block_coursecare-overviewbox">
         {{#hasvolume}}
         <p class="block_coursecare-volumelabel mb-0">{{volumelabel}}</p>
@@ -68,15 +83,22 @@
         {{#date}}
         <p class="block_coursecare-date mb-0">{{date}}</p>
         {{/date}}
-        {{#notes}}
-        <p class="block_coursecare-note mb-0">{{text}}</p>
-        {{/notes}}
-        {{#suggestion}}
-        <p class="block_coursecare-suggestionline mb-0">{{suggestion}}</p>
-        {{/suggestion}}
-        {{#overviewurl}}
-        <p class="block_coursecare-overviewlink mb-0"><a href="{{overviewurl}}">{{overviewlink}}</a></p>
-        {{/overviewurl}}
+        {{#hasnotes}}
+        <ul class="block_coursecare-notes list-unstyled mb-0">
+            {{#notes}}
+            <li class="block_coursecare-note">{{text}}</li>
+            {{/notes}}
+        </ul>
+        {{/hasnotes}}
+    </div>
+    {{#overviewurl}}
+    <p class="block_coursecare-action mb-0"><a class="btn btn-outline-primary" href="{{overviewurl}}">{{overviewlink}}</a></p>
+    {{/overviewurl}}
+    {{/diagnostic}}
+    {{^diagnostic}}
+    <div class="block_coursecare-identity">
+        <div class="block_coursecare-illustration">{{#pix}} sprout, block_coursecare {{/pix}}</div>
+        <p class="block_coursecare-tagline mb-0">{{#str}} tagline, block_coursecare {{/str}}</p>
     </div>
     {{/diagnostic}}
 </div>

@@ -11,23 +11,36 @@ estudantes não.
 ## 1. O bloco
 
 Adicione o bloco "AVA Consciente" à página principal da sala (Ativar edição > Adicionar um bloco). Depois
-da primeira análise, que roda em segundo plano, o bloco mostra:
+da primeira análise, que roda em segundo plano, o bloco mostra uma acolhida curta, o tamanho dos arquivos
+que o Moodle registra para a sala (**Arquivos da sala registrados no Moodle**, como `8,0 MB`) com a data
+do cálculo, e um botão para a página descrita abaixo:
 
-- **Arquivos da sala registrados no Moodle**, um tamanho como `8,0 MB`, e **Calculado em** uma data;
-- o link **Conheça melhor os arquivos da sua sala**;
-- às vezes, a frase **Há uma sugestão sobre os arquivos da sua sala.**
+- **Há uma ideia para a sua sala** — "Encontramos uma sugestão sobre materiais de grande porte." O botão
+  **Ver sugestão** abre a sugestão. Uma sugestão é uma possibilidade, não um sinal de que algo está errado.
+- **Tudo bem por aqui!** — "Não identificamos sugestões nos critérios avaliados nesta análise." Só quer
+  dizer que as verificações do AVA Consciente não encontraram o que sugerir; não é uma nota da sala.
+  Aparece apenas quando a última análise está completa, recente e toda classificada.
+- Sem nenhuma das duas, o bloco mostra só o tamanho e a data, com **Conheça melhor os arquivos da sua
+  sala**.
 
-"O panorama de arquivos desta sala está sendo preparado" significa que a primeira análise ainda não
-terminou. "Esta informação pode estar desatualizada" significa que o último cálculo é mais antigo do
-que o site espera; o número mostrado é o último medido.
+Notas discretas podem aparecer depois da data: "Esta informação pode estar desatualizada", "A atualização
+mais recente não pôde ser concluída" (o resultado anterior é mantido) e "Parte dos arquivos não pôde ser
+classificada; ela está incluída no total." "O panorama de arquivos desta sala está sendo preparado"
+significa que a primeira análise ainda não terminou.
 
 ## 2. "Sua sala em números"
 
+A página começa com o nome AVA Consciente, o slogan e o tamanho dos arquivos da sala. O conteúdo fica em
+duas abas: **Sugestões para você** (aberta primeiro quando há sugestão) e **Em detalhes** (aberta primeiro
+nos demais casos), que você alterna com o mouse ou com as setas do teclado. Na impressão, ou sem
+JavaScript, as duas aparecem em sequência.
+
 - **Abertura**: o tamanho de todos os arquivos que o Moodle registra para a sala, com a data. Exemplo: um
   PDF de 2 MB usado em duas atividades conta duas vezes (4 MB): isso é o **armazenamento lógico**.
-- **Sugestões para a sua sala**: quando há materiais grandes (50 MB ou mais, por padrão), um cartão com o
-  que observamos, por que pode merecer atenção e o que você pode fazer, **se quiser**. Arquivos grandes
-  não são um problema por si só.
+- **Sugestões para a sua sala** (aba "Sugestões para você"): quando há materiais grandes (50 MB ou mais,
+  por padrão), um cartão com o que observamos, por que pode merecer atenção, o que você pode fazer, **se
+  quiser**, e as **atividades relacionadas**, com link. Arquivos grandes não são um problema por si só.
+  As seções seguintes ficam na aba "Em detalhes".
 - **Onde estão os arquivos**: materiais da sala, arquivos enviados em atividades (só o total da sala,
   nunca por atividade ou por estudante), outros arquivos associados e não classificados.
 - **Arquivos de grande porte**: quantos arquivos da sala estão no limite do site ou acima dele, com o

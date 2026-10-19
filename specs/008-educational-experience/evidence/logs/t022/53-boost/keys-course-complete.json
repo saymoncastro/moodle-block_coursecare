@@ -1,0 +1,16 @@
+{
+ "check": "keys",
+ "path": "/course/view.php?id=2",
+ "title": "Course: Biologia celular (demonstração) | cc53",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "See the suggestion"
+  }
+ ],
+ "count": 1,
+ "allindicated": true,
+ "summariesopen": true
+}

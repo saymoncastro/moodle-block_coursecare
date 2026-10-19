@@ -8,15 +8,19 @@ CourseCare never changes, deletes, downloads or blocks anything, does not evalua
 ignored. It is meant for teachers who edit a course and for the site administrators who make it
 available.
 
-Status: **0.7.0 BETA**.
+Status: **0.8.0 BETA**.
 
 ## Features
 
-- **Block** on the course main page: the size of the files Moodle records for the course, the date of
-  the calculation and a link to the course's page.
-- **"Your course in numbers"**: where the files are (course materials, files submitted in activities,
-  other associated files, not classified), the materials of each activity, large files, and technical
-  details (unique content, references, backups and recycle bin).
+- **Block** on the course main page: a short educational welcome ("An idea for your course" when a
+  suggestion applies; "All good here!" only when the latest analysis is complete, recent and fully
+  classified and finds nothing to suggest), the size of the files Moodle records for the course with the
+  date of the calculation, discreet notes, and one button to the course's page.
+- **"Your course in numbers"**: the CourseCare identity and two accessible tabs, "Suggestions for you" and
+  "Details" (they also work without JavaScript and when printed). The details: where the files are
+  (course materials, files submitted in activities, other associated files, not classified), the
+  materials of each activity, large files, and technical details (unique content, references, backups
+  and recycle bin).
 - **Suggestion about large materials**: what was noticed, why it may deserve attention and options the
   teacher may consider; never an instruction.
 - **Potential of assignments**: what the current settings of each assignment that accepts files allow
