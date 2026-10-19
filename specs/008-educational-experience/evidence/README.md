@@ -49,7 +49,9 @@ de arquivos grandes da 006. Teste com leitor de tela: **pendente** (grupo D).
   de teclado; aba "Em detalhes" aberta pelo endereço recebe o foco na aba (não mais no painel inteiro, que
   ganhava um contorno preto).
 - CI: run 39249839494 falhou (o build AMD não estava versionado porque `.gitignore` ignorava `build/` em
-  qualquer pasta; e estilo de uma assinatura de teste); corrigido em `cb5640e`, run 39251480884.
+  qualquer pasta; e estilo de uma assinatura de teste); corrigido em `cb5640e`. Run **39252274665** em
+  `4192c0b` (código final): **verde** nos 5 jobs (4.5 PHP 8.1 pgsql e PHP 8.3 mariadb, 5.3 PHP 8.3 pgsql e
+  PHP 8.4 mariadb, i18n-package), com `grunt` e `mustache`. Behat local final: 86 cenários verdes.
 
 ## Capturas e comparação com o mockup
 
