@@ -51,6 +51,12 @@ The total divided into four kinds of files:
 - **Other associated files**: feedback, forum attachments, question and content banks;
 - **Not classified**: areas CourseCare does not recognise yet; they still count in the total.
 
+### Large files
+
+How many files of the course are at or above the site's threshold, with their total size, and the
+**large materials by activity** (only course materials, never submissions). The threshold is a
+screening value set by the site, not a teaching rule.
+
 ### How the files of your course have changed
 
 Each day the course is analysed, CourseCare keeps one measurement. This section shows the latest

@@ -30,6 +30,9 @@ que o site espera; o número mostrado é o último medido.
   não são um problema por si só.
 - **Onde estão os arquivos**: materiais da sala, arquivos enviados em atividades (só o total da sala,
   nunca por atividade ou por estudante), outros arquivos associados e não classificados.
+- **Arquivos de grande porte**: quantos arquivos da sala estão no limite do site ou acima dele, com o
+  tamanho total, e os **materiais de grande porte por atividade** (só materiais, nunca envios). O limite
+  é um valor de triagem definido pelo site, não uma regra pedagógica.
 - **Evolução dos arquivos da sua sala**: a última medição, uma frase sobre a mudança desde a anterior, um
   gráfico dos últimos 90 dias e, recolhida, a tabela com todas as medições guardadas. Exemplo: "O volume
   dos arquivos registrados nesta sala aumentou 182,8 KB desde a análise de 16 de outubro de 2026 (de
