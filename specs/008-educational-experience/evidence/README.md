@@ -52,6 +52,9 @@ de arquivos grandes da 006. Teste com leitor de tela: **pendente** (grupo D).
   qualquer pasta; e estilo de uma assinatura de teste); corrigido em `cb5640e`. Run **39252274665** em
   `4192c0b` (código final): **verde** nos 5 jobs (4.5 PHP 8.1 pgsql e PHP 8.3 mariadb, 5.3 PHP 8.3 pgsql e
   PHP 8.4 mariadb, i18n-package), com `grunt` e `mustache`. Behat local final: 86 cenários verdes.
+- Convergência final (2026-10-19, depois da aprovação visual): 2 lacunas LOW (FR-015 fechamento sem arquivos;
+  FR-051 tipo de cada string), resolvidas em T026 e T027 (`strings.md`); nova verificação sem lacunas.
+  CI do código final: run **39258075696** em `585c37e`, **verde** nos 5 jobs.
 
 ## Capturas e comparação com o mockup
 
