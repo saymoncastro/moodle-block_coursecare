@@ -37,8 +37,9 @@ estados do bloco, axe), checagem dos nomes dos campos no 4.5 e no 5.3, CI.
 **Project Type**: plugin de bloco Moodle.
 
 **Performance Goals**: bloco e página sem leitura nova (o campo vem no registro já lido; o filtro usa o
-`modinfo` em cache); análise com o coletor da 005 (5 a 7 consultas) em salas com tarefas que aceitam
-arquivos, sem SQL novo sobre o `mod_assign`.
+`modinfo` em cache; o coletor que a página já roda não muda); análise: +1 consulta (pré-filtro) em salas
+com tarefas e o coletor da 005 só para as candidatas (5 de base, +1 por candidata com sobreposição ou papel
+local, +2 com envio em grupo).
 
 **Constraints**: nenhum valor sugerido; nenhum dado de estudante; Princípios I, III, IV, VI; WCAG 2.2 AA.
 
@@ -82,9 +83,10 @@ specs/009-assignment-guidance/
 ```text
 classes/local/analysis/storage_potential.php     critério (método puro, junto do evaluate() da 005)
 classes/local/analysis/assignment_guidance.php   orientação informativa (fatos da 005 → frases e passos)
-classes/local/...                                seleção das tarefas extraída de course_overview (mesma lógica)
 classes/local/course_analysis.php                (B2) seleção + coletor + evaluate + critério, na mesma execução
+classes/local/collector/assign_settings.php      (B2) pré-filtro: cmid com tentativas -1 (leitura; regras no evaluate)
 classes/local/collector/diagnostic_store.php     (B2) grava `suggestions` no save_result; função de leitura + filtro
+classes/output/diagnostic_line.php               estado educativo: idea antes de nofiles; allgood só com sugestões calculadas
 db/install.xml, db/upgrade.php, version.php       (B2) campo e passo de atualização; 0.9.0
 block_coursecare.php, classes/output/diagnostic_line.php   estado do bloco por tipo de sugestão
 classes/output/course_overview.php               cartão da tarefa, orientação por tarefa, faixa

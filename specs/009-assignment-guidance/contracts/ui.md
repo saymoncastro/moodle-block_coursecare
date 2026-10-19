@@ -21,7 +21,8 @@ Em cada tarefa com estado `potential` ou `unlimited`, depois do resultado da 005
 
 ## Cartão em "Sugestões para você" (critério R1)
 
-Um cartão por tarefa, depois do cartão da 004, na ordem da sala; componentes da 008.
+Um cartão por tarefa guardada pela análise e visível agora (FR-010a, camadas 1 e 2), depois do cartão da
+004, na ordem da sala; componentes da 008. Autossuficiente (FR-011a): não depende da orientação existir.
 
 | Parte | en | pt_BR |
 | --- | --- | --- |
@@ -30,7 +31,8 @@ Um cartão por tarefa, depois do cartão da 004, na ordem da sala; componentes d
 | O que observamos | This assignment allows new attempts without a maximum defined. | Esta tarefa permite novas tentativas sem um limite máximo definido. |
 | Por que pode merecer atenção | This setting can make sense in activities that allow continuous revision and improvement. | Essa configuração pode fazer sentido em atividades que permitem revisão e aperfeiçoamento contínuo. |
 | O que você pode fazer, se quiser | If you wish, check how the attempts work and consider whether this setting matches the purpose of the activity. | Se quiser, confira como as tentativas funcionam e avalie se essa configuração corresponde à proposta da atividade. |
-| Como revisar | link para a orientação da tarefa (aba "Em detalhes") e, com permissão, para as configurações | idem |
+| Como revisar (sempre) | passos curtos com as strings do Moodle: "Submission settings" › "Allowed attempts", "Grant attempts"; link para a tarefa; com permissão, "Open the settings of this assignment" | idem |
+| Ver a orientação (só se existir agora) | link para `#block_coursecare-guidance-{cmid}` na aba "Em detalhes" | idem |
 | Base | "These suggestions use the analysis of {date}." | idem |
 | Mudou desde a análise | "The settings of this assignment changed after the analysis of {date}; the suggestion will be reviewed in the next analysis." | "As configurações desta tarefa mudaram depois da análise de {data}; a sugestão será revista na próxima análise." |
 
@@ -39,4 +41,5 @@ Textos em inglês propostos; revisão de tom pelo proprietário do produto.
 ## Bloco e faixa
 
 Conforme data-model.md, "Estado do bloco e da faixa". Nenhum número novo; o único número continua o
-volume.
+volume. Sala sem arquivos com sugestão de tarefa: "Há uma ideia" (FR-013a); sugestões de tarefas não
+calculadas: nunca "Tudo bem por aqui!" (FR-013b).

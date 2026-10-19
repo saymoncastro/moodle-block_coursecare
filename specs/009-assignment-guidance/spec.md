@@ -113,12 +113,21 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
 
 **Acceptance Scenarios**:
 
-1. **Given** uma tarefa que atende a um critério aprovado, **When** o professor abre "Sugestões para
-   você", **Then** vê o cartão da tarefa com as quatro partes e o link para a tarefa e para a orientação.
+1. **Given** uma tarefa que atendia ao critério na última análise, **When** o professor abre "Sugestões
+   para você", **Then** vê o cartão da tarefa com as quatro partes, a data da análise, o link para a
+   tarefa, os passos para revisar as tentativas e, quando existe, o link para a orientação.
 2. **Given** uma tarefa com potencial teórico muito alto que não atende a nenhum critério, **When** o
    professor abre a página, **Then** não há cartão para ela.
 3. **Given** várias sugestões (materiais grandes da 004 e tarefas), **When** a aba é aberta, **Then** elas
    aparecem numa ordem fixa e documentada, sem selo "principal" nem ranking.
+4. **Given** a tarefa da sugestão passou a ter 3 tentativas depois da análise, **When** o professor abre a
+   página, **Then** o cartão continua, com a nota datada de que as configurações mudaram, e o bloco continua
+   indicando a sugestão até a próxima análise.
+5. **Given** a tarefa da sugestão foi excluída ou ocultada, **When** o professor abre a sala ou a página,
+   **Then** a sugestão não aparece em nenhum dos dois.
+6. **Given** uma sala sem arquivos registrados e uma tarefa que atende ao critério, **When** o professor
+   abre a sala, **Then** o bloco diz "Há uma ideia para a sua sala" e a página mostra as duas abas com o
+   cartão.
 
 ---
 
@@ -127,7 +136,13 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
 - Tarefa sem envio de arquivos, com envio desativado no site, sem arquivos permitidos (`nofiles`), sem
   ninguém que possa enviar (`nobody`) ou com fator desconhecido (`unknown`): sem orientação de revisão de
   limites; a explicação da 005 continua.
-- Tarefa oculta ou ainda indisponível: mesma marcação da 005; a orientação aparece para quem pode vê-la.
+- Tarefa oculta ou ainda indisponível: mesma marcação da 005; a orientação aparece para quem pode vê-la;
+  a sugestão contextualizada não aparece enquanto a tarefa estiver oculta (FR-010a, camada 2).
+- Envio de arquivos desabilitado depois da análise: a tarefa sai da seção da 005; o cartão continua com o
+  aviso de divergência e sem o link para a orientação (FR-011a).
+- Sala sem arquivos com tarefa que atende ao critério: abas e "Há uma ideia" (FR-013a).
+- Sugestões ainda não calculadas depois da atualização: sem cartão de tarefa e sem "Tudo bem por aqui!"
+  (FR-013b).
 - Envio em grupo: a unidade é o grupo, como na 005; os passos citam a seção de envio em grupo só quando
   ela se aplica.
 - Reabertura "até passar" sem nota para aprovação: uma tentativa, como na 005; a orientação explica.
@@ -172,12 +187,22 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
 - **FR-010**: Um cartão de tarefa em "Sugestões para você" MUST aparecer só quando o critério aprovado se
   aplica: **tentativas efetivamente ilimitadas numa tarefa com envio de arquivos** (FR-010a). Nenhum outro
   critério nesta feature; o limite por arquivo herdado do site é só informativo (FR-003).
-- **FR-010a**: O critério MUST seguir o comportamento efetivo do Moodle (o mesmo de
-  `assign::reopen_submission_if_required()` no 4.5 e no 5.3) e só se aplicar quando, ao mesmo tempo: o
-  envio de arquivos está habilitado e aceita ao menos um arquivo; o número máximo de tentativas é
-  ilimitado; o método de reabertura abre novas tentativas (manual ou automática; "até passar" só com nota
-  para aprovação definida, como na 005); há ao menos um participante ou grupo que pode enviar; e a tarefa
-  está visível para os estudantes. Sem qualquer uma dessas condições, nenhuma recomendação.
+- **FR-010a**: A decisão sobre a recomendação MUST ocorrer em **três camadas distintas**:
+  1. **Avaliação na análise** (data de referência = data da análise): a análise da 002 avalia, com as
+     regras da 005 e o comportamento efetivo do Moodle (o de `assign::reopen_submission_if_required()` no
+     4.5 e no 5.3), se a tarefa atende, ao mesmo tempo: envio de arquivos habilitado e aceitando ao menos
+     um arquivo; número máximo de tentativas ilimitado; método de reabertura que abre novas tentativas
+     (manual ou automática; "até passar" só com nota para aprovação definida); ao menos um participante ou
+     grupo que pode enviar. Sem qualquer uma dessas condições **na análise**, a tarefa não entra nas
+     sugestões guardadas.
+  2. **Filtro imediato** (na exibição, no bloco e na página, iguais): uma sugestão guardada só aparece se
+     a atividade ainda existe, ainda é uma tarefa e está visível para os estudantes. Exclusão e ocultação
+     valem na hora; visibilidade não se confunde com participantes elegíveis, que só a análise avalia.
+  3. **Aviso de divergência** (só na página): quando a configuração atual (calculada ao vivo pela 005) já
+     não atende às condições da camada 1 — inclusive envio de arquivos desabilitado ou estados `nofiles`,
+     `nobody` e `unknown` —, o cartão **permanece** (coerente com o bloco, que usa a mesma referência) com a
+     nota datada "As configurações desta tarefa mudaram depois da análise de {data}; a sugestão será revista
+     na próxima análise." A próxima análise retira a sugestão.
 - **FR-010b**: Texto da recomendação (direção aprovada): título "Conheça as possibilidades de envio desta
   tarefa"; fato "Esta tarefa permite novas tentativas sem um limite máximo definido."; explicação "Essa
   configuração pode fazer sentido em atividades que permitem revisão e aperfeiçoamento contínuo."; ação
@@ -187,6 +212,13 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
 - **FR-011**: O cartão MUST seguir o padrão da 008 (o que observamos, por que pode merecer atenção, o que
   você pode fazer se quiser, como revisar) e nomear a tarefa real, com link; MUST NOT trazer selo
   "principal", ranking, comparação entre tarefas ou professores, nem valores sugeridos.
+- **FR-011a**: O cartão MUST ser autossuficiente, sem depender da orientação informativa existir: sempre
+  traz o link para a tarefa, os passos curtos para revisar as tentativas (com os nomes do Moodle:
+  "Submission settings" › "Allowed attempts" e "Grant attempts") e, para quem pode editar, o link para as
+  configurações; o link "ver a orientação desta tarefa" (na aba "Em detalhes") só aparece quando essa
+  orientação existe agora (tarefa listada na seção da 005 nos estados `potential` ou `unlimited`). Nos
+  demais casos (envio de arquivos desabilitado, `nofiles`, `nobody`, `unknown`) o cartão mostra o aviso
+  de divergência (FR-010a, camada 3) e mantém as outras ações.
 - **FR-012**: Com mais de uma sugestão, a ordem MUST ser fixa e documentada (materiais grandes da 004
   primeiro, depois as tarefas na ordem da sala); isso não é priorização.
 - **FR-013**: O estado educativo do bloco e a faixa da página (008) MUST refletir qualquer sugestão
@@ -194,10 +226,22 @@ cartão; nenhuma tarefa gera cartão só por ter potencial alto.
   008 conforme a validade do diagnóstico; só materiais grandes, a mensagem da 008; só tarefas, uma
   mensagem sobre as tarefas; os dois tipos, uma mensagem genérica sobre sugestões para a sala. Nenhum
   número novo no bloco; bloco compacto.
+- **FR-013a**: Uma sugestão de tarefa MUST ser refletida também numa sala **sem arquivos registrados**
+  (uma tarefa nova pode atender ao critério antes de qualquer envio): no bloco, "Há uma ideia para a sua
+  sala" com a mensagem sobre as tarefas, mantendo a frase "nenhum arquivo foi encontrado" no lugar do
+  volume; na página, as abas aparecem quando há resultado **e** (arquivos registrados **ou** sugestão
+  aplicável), com "Sugestões para você" (faixa e cartão) e "Em detalhes" (o conteúdo atual de uma sala sem
+  arquivos). Isso altera, só para esse caso, a regra da 008 de abas apenas com arquivos (FR-034 da 008).
+  "Tudo bem por aqui!" continua exigindo arquivos registrados (008).
+- **FR-013b**: Enquanto as sugestões de tarefas da sala ainda não foram calculadas (registro anterior à
+  atualização, até a próxima análise), o bloco e a página MUST NOT mostrar "Tudo bem por aqui!"; não
+  calculado nunca equivale a "nenhuma sugestão".
 - **FR-014**: A renderização do bloco MUST NOT recalcular o potencial de todas as tarefas, varrer
   arquivos ou fazer consultas pesadas (Princípio VI); bloco e página MUST usar a mesma fonte para decidir
   se a sugestão de tarefa se aplica. A escolha da arquitetura (persistência ou cálculo) é apresentada com
-  alternativas e custos ao proprietário do produto antes da implementação.
+  alternativas e custos ao proprietário do produto antes da implementação. O custo na análise MUST ficar
+  restrito às tarefas candidatas (tentativas ilimitadas), sem rodar o coletor da 005 para todas as tarefas
+  da sala.
 
 **Preservação, idiomas e qualidade**
 

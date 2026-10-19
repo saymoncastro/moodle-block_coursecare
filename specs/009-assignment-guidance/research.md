@@ -76,7 +76,8 @@ tarefa.
 
 ```
 Análise da 002 (tarefa ad hoc, trava por sala)
-  → arquivos (como hoje) + tarefas da sala (seleção e coletor da 005) → evaluate() da 005
+  → arquivos (como hoje) + pré-filtro: 1 consulta às tarefas da sala com maxattempts = -1
+  → só para as candidatas: coletor da 005 → evaluate() da 005
   → regra do critério (método puro da 005) → itens {kind, cmid}
   → save_result: resultado + histórico + sugestões, numa transação, com a data timecompleted
 Bloco  → registro da sala → função de leitura (campo + filtro) → estado educativo (008/009)
@@ -101,6 +102,8 @@ mesma sugestão.
 | Análise falha | Nada é gravado: lista e data anteriores; nota de falha da 008 | Igual |
 | Sala sem diagnóstico | Sem resultado: estados da 008, sem sugestão | Sem abas nem cartões (008) |
 | Campo `NULL` (antes da primeira análise depois da atualização) | Sem sugestão de tarefa e **sem "Tudo bem por aqui!"** (o critério ainda não foi avaliado); se houver materiais grandes, "Há uma ideia" | Sem cartão de tarefa; a orientação informativa já aparece |
+| Envio de arquivos desabilitado depois da análise (ou `nofiles`, `nobody`, `unknown` agora) | Inalterado até a próxima análise | A tarefa sai da seção da 005 (ou fica sem orientação); o cartão continua com o aviso de divergência, o link para a tarefa, os passos das tentativas e o link de configurações; **sem** o link para a orientação |
+| Sala sem arquivos registrados e tarefa que atende ao critério | "Há uma ideia para a sua sala" + mensagem das tarefas; no lugar do volume, "nenhum arquivo foi encontrado" | Abas aparecem (resultado e sugestão aplicável); "Em detalhes" com o conteúdo atual de sala sem arquivos |
 
 A data de referência é sempre `timecompleted` do registro: as sugestões nunca aparecem como verificadas
 agora.
@@ -109,12 +112,37 @@ agora.
 
 | Reutilizado sem mudança de regra | Acrescentado |
 | --- | --- |
-| `assign_settings::for_course()` (coletor) | Extração, sem mudança de lógica, da seleção das tarefas que hoje está em `course_overview::potential_for()`, para que página e análise usem a mesma (na análise, sem o filtro do usuário atual) |
+| `assign_settings::for_course()` (coletor), chamado só com as candidatas | No mesmo coletor, um pré-filtro de leitura: os `cmid` da sala cujo valor guardado de tentativas é `-1` (`ASSIGN_UNLIMITED_ATTEMPTS`); é uma condição necessária, não uma interpretação: todas as demais condições continuam no `evaluate()` |
 | `storage_potential::evaluate()` (arquivos, limite, tentativas, reabertura, "até passar", participantes, grupos) | Um método puro na própria `storage_potential`: critério = `files > 0` ∧ `maxattempts = -1` ∧ `attempts = null` (o `evaluate()` já resolveu reabertura e "até passar") ∧ `units > 0` |
 | Frases dos fatores da 005 na página | Leitura/escrita do campo (formato v1) e a função de leitura com o filtro (item 2) |
 
-Nenhuma consulta SQL nova sobre as configurações do `mod_assign`: a análise chama o mesmo coletor que a
-página.
+A única leitura nova é o pré-filtro (uma consulta indexada por `assign.course`); a interpretação das
+configurações continua toda no coletor e no `evaluate()` da 005, os mesmos da página.
+
+**Por que o pré-filtro (revisão P3)**: chamar o coletor para todas as tarefas da sala custaria, a cada
+análise, 5 consultas de base (tarefas, configuração de envio, itens de nota, participantes da sala,
+sobreposições), **+1 para cada tarefa com sobreposição de permissão ou papel local**, **+2 com envio em
+grupo** (membros e agrupamentos), mesmo para tarefas só de texto, pois o coletor descobre o envio de
+arquivos depois de ler tudo. Com o pré-filtro, a análise faz 1 consulta e só roda o coletor, apenas para
+as candidatas, quando há tarefa de tentativas ilimitadas.
+
+### 4a. Salas sem arquivos registrados (revisão P1)
+
+Hoje `diagnostic_line::educational()` decide `nofiles` antes de olhar sugestões, e a página só mostra as
+abas com arquivos. Com a 009, uma tarefa nova pode atender ao critério sem envio algum. Ordem nova da
+decisão do estado educativo: sem resultado → `preparing`/`notavailable`; **sugestão aplicável (004 ou
+009, já filtrada) → `idea`**; sem arquivos → `nofiles`; completo, atual, classificado **e sugestões de
+tarefas calculadas** → `allgood`; demais → `neutral`. A sugestão da 004 só existe com arquivos, então nada
+muda para ela. Na `idea` sem arquivos, a frase "nenhum arquivo foi encontrado" continua no lugar do volume
+(o único número continua ausente). Página: abas quando há resultado e (arquivos ou sugestão aplicável).
+
+### 4b. Ações do cartão (revisão P2)
+
+O cartão não depende da orientação informativa: sempre o link para a tarefa (a atividade existe, pelo
+filtro), os passos curtos das tentativas (strings do Moodle) e, para quem edita, o link de configurações;
+o link para a orientação da aba "Em detalhes" (âncora `#block_coursecare-guidance-{cmid}`) só quando ela
+existe agora. Se a tarefa saiu da seção da 005 (envio desabilitado) ou está em `nofiles`, `nobody` ou
+`unknown`, a camada 3 vale: aviso de divergência datado, sem o link para a orientação.
 
 ### 5. Evolução futura
 
@@ -133,14 +161,14 @@ regras genérico nesta feature.
 | Concorrência e atomicidade | Gravado no mesmo `save_result` da 002 (transação delegada) sob a trava por sala; leitores veem o registro antes ou depois, nunca pela metade |
 | PostgreSQL e MariaDB | TEXT do XMLDB (text/longtext); JSON codificado e lido em PHP, sem função JSON do banco |
 | Desinstalação | O campo some com a tabela |
-| Desempenho | Bloco e página: 0 leituras novas. Análise: o coletor da 005 (5 a 7 consultas) em salas com tarefas que aceitam arquivos; nenhuma leitura da tabela de arquivos além da 002 |
+| Desempenho | Bloco: 0 leituras novas (continua 5). Página: 0 leituras novas (o coletor da 005 que ela já roda ao vivo não muda; cartões e faixa vêm do registro já lido). Análise: salas sem tarefas, 0; com tarefas, +1 consulta indexada; só com candidatas, o coletor da 005 apenas para elas (5 de base, +1 por candidata com sobreposição ou papel local, +2 com envio em grupo); nenhuma leitura da tabela de arquivos além da 002 |
 | Privacidade | Só `cmid` e tipo; nenhum dado pessoal; `privacy:metadata` atualizado |
 
 ### 7. Comparação final
 
 | Critério | A. Sob demanda | B1. Tabela auxiliar | **B2. Campo no diagnóstico** | C. Cache independente |
 | --- | --- | --- | --- | --- |
-| Simplicidade | Simples no código; custo escondido na renderização | Tabela, índice, limpeza, consulta própria | **1 campo, 1 formato, 1 função de leitura** | Definição de cache, chaves e invalidação |
+| Simplicidade | Simples no código; custo escondido na renderização | Tabela, índice, limpeza, consulta própria | **1 campo, 1 formato, 1 função de leitura, 1 pré-filtro** | Definição de cache, chaves e invalidação |
 | Consistência | Total, ao vivo | Total | **Total (mesma referência e mesmo filtro)** | Depende da invalidação; perde tudo em cada limpeza de cache |
 | Desempenho | Pior no caminho mais visitado (participantes, notas a cada renderização) | +1 leitura por renderização | **0 leituras por renderização** | +1 leitura de cache; recálculo após limpeza |
 | Evolução futura | Cada critério novo pesa na renderização | Nova coluna ou tabela por categoria | **Novo `kind`, mesmo campo** | Novas chaves e eventos |
