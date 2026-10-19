@@ -1,0 +1,34 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Sua sala em números | DEMO-COMPLETE | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Voltar à sala"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "button",
+   "text": "Sugestões para você"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Aula 1 — A célula"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Vídeo de laboratório"
+  }
+ ],
+ "count": 4,
+ "allindicated": true,
+ "summariesopen": true
+}

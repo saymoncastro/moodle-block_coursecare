@@ -43,7 +43,7 @@ const fromAddress = (panels) => {
 };
 
 /**
- * Move the focus to an element that is not focusable by itself, without leaving it in the tab order.
+ * Move the focus to an element that is not focusable by itself (a section), without leaving it in the tab order.
  *
  * @param {HTMLElement} element The element.
  */
@@ -97,11 +97,16 @@ export const init = (selector) => {
 
     const restore = () => {
         const found = fromAddress(panels);
-        if (found) {
-            select(found.index);
-            focusElement(found.target);
-        } else {
+        if (!found) {
             select(initial);
+            return;
+        }
+        select(found.index);
+        // The address of an area puts the focus on its tab; the address of a section, on the section.
+        if (found.target === panels[found.index]) {
+            tabs[found.index].focus();
+        } else {
+            focusElement(found.target);
         }
     };
 

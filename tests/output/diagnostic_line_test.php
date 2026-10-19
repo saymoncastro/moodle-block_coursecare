@@ -111,10 +111,22 @@ final class diagnostic_line_test extends \advanced_testcase {
      * @param string $expected Expected kind.
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('educational_provider')]
-    public function test_educational_state(string $state, bool $hasresult, ?int $files, bool $partial, bool $suggestion,
-            string $expected): void {
-        $resolved = new diagnostic_state($state, $hasresult, $partial, $hasresult ? 1000 : null,
-            $hasresult ? 1792300000 : null, $files);
+    public function test_educational_state(
+        string $state,
+        bool $hasresult,
+        ?int $files,
+        bool $partial,
+        bool $suggestion,
+        string $expected
+    ): void {
+        $resolved = new diagnostic_state(
+            $state,
+            $hasresult,
+            $partial,
+            $hasresult ? 1000 : null,
+            $hasresult ? 1792300000 : null,
+            $files
+        );
         $result = diagnostic_line::educational($resolved, $suggestion);
         $this->assertSame($expected, $result['kind']);
         $this->assertSame($expected === 'idea', $result['isidea']);

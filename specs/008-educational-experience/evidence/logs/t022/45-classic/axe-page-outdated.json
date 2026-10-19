@@ -1,0 +1,22 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=10",
+ "title": "Sua sala em números | DEMO-OUTDATED | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "#drop-down-6ad60921a98f46ad60921a6f4e60",
+    "div[data-region=\"popover-region-toggle\"]",
+    "#action-menu-toggle-0"
+   ]
+  }
+ ],
+ "passes": 29,
+ "violations": []
+}

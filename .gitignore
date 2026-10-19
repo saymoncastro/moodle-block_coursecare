@@ -8,7 +8,7 @@
 .vscode/
 
 # Pacotes gerados localmente (tools/package/build.sh)
-build/
+/build/
 
 # Gerados pelo PHPUnit do Moodle (admin/tool/phpunit/cli/util.php --buildcomponentconfigs)
 phpunit.xml

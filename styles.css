@@ -240,6 +240,11 @@
     display: none;
 }
 
+/* A section reached by its address receives the focus only to place the reading there (it is not a control). */
+.block_coursecare-overview .block_coursecare-overview-section[tabindex="-1"]:focus {
+    outline: 0;
+}
+
 /* The band of the educational state, at the top of "Suggestions for you". */
 .block_coursecare-overview .block_coursecare-overview-band {
     display: flex;
