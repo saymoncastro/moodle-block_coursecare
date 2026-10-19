@@ -3,8 +3,18 @@
 Capturas reais em `screenshots/approval/`, tiradas em 2026-10-19 nos sites de demonstração (dados
 fictícios): `53-boost-en` (Moodle 5.3, Boost, inglês), `45-boost-ptbr` (Moodle 4.5, Boost, português) e
 `45-classic-ptbr` (Moodle 4.5, Classic). Referência: o mockup original aprovado e a proposta visual de
-2026-10-19 (https://claude.ai/artifact/G2ZMgZoDgV6L8DxL1YCn1H). **Aprovação visual pendente do
-proprietário do produto.**
+2026-10-19 (https://claude.ai/artifact/G2ZMgZoDgV6L8DxL1YCn1H).
+
+## Aprovação do proprietário do produto (2026-10-19)
+
+**APROVADO**, sem nova rodada de redesign, como evolução da identidade e da experiência educativa do
+CourseCare / AVA Consciente, alinhada à direção visual aprovada. Pontos aprovados: estados educativos do
+bloco; indicador essencial de armazenamento; mensagens contextualizadas; identidade visual e ilustração;
+cabeçalho da página; abas "Sugestões para você" e "Em detalhes"; apresentação das recomendações;
+preservação dos indicadores anteriores; responsividade; linguagem educativa e não fiscalizatória.
+
+Observações não bloqueantes, **fora do escopo desta feature** (não implementadas): simplificar no futuro a
+apresentação das recomendações no celular; ampliar as orientações educativas (roadmap).
 
 ## Bloco
 

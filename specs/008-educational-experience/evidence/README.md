@@ -56,8 +56,9 @@ de arquivos grandes da 006. Teste com leitor de tela: **pendente** (grupo D).
 ## Capturas e comparação com o mockup
 
 [comparison.md](comparison.md) e `screenshots/approval/` (5.3 en, 4.5 pt_br Boost e Classic; desktop e
-celular). **Aprovação do proprietário do produto pendente.** As capturas do Marketplace (`docs/marketplace`)
-só são trocadas depois dessa aprovação.
+celular). **Aprovado pelo proprietário do produto em 2026-10-19** (registro e observações não bloqueantes em
+`comparison.md`). As capturas do Marketplace (`docs/marketplace/screenshots`) foram trocadas pelas da 0.8.0
+depois da aprovação.
 
 ## Ilustração
 
@@ -66,7 +67,8 @@ mesma situação do restante do projeto (pendente, relatório da 007).
 
 ## Validações humanas
 
-- Aprovação das capturas finais e do tom das strings novas (grupo B): pendente.
+- Aprovação das capturas finais e das mensagens novas (grupo B): **aprovada em 2026-10-19** (pontos 3 e 10
+  da aprovação cobrem as mensagens contextualizadas e a linguagem).
 - Teste com leitor de tela das abas e do bloco (grupo D): pendente.
 - Avaliação com professores (grupo C): pendente, pode usar esta versão.
 
@@ -91,5 +93,5 @@ Resultado: **PASSA**.
 
 ## Prontidão
 
-Implementação completa e testada; **pronta para a sua avaliação das capturas**. Não está pronta para merge
-antes dessa aprovação e do CI verde.
+Implementação completa, testada, com CI verde e aprovação visual registrada. Pendências humanas que seguem
+abertas, sem evidência: teste com leitor de tela (D) e avaliação com professores (C).

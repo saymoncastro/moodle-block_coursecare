@@ -87,19 +87,18 @@ GNU GPL v3 or later.
 
 ## Screenshots
 
-Screenshots of 0.7.0, to be replaced by screenshots of 0.8.0 once the product owner approves them. Real
-screenshots of demonstration sites with fictitious courses and people, interface in English, in
-[`screenshots/`](screenshots/). The fictitious course content is in Portuguese ("Biologia celular").
-They show no personal data.
+Real screenshots of 0.8.0 (approved by the product owner on 2026-10-19) on demonstration sites with
+fictitious courses and people, interface in English, in [`screenshots/`](screenshots/). The fictitious
+course content is in Portuguese ("Biologia celular"). They show no personal data.
 
 | File | Shows |
 | --- | --- |
-| `01-block.png` | The block on a course page (Moodle 5.3, Boost) |
-| `02-page.png` | "Your course in numbers" with the suggestion (Moodle 5.3, Boost) |
-| `03-potential.png` | The potential of assignments |
-| `04-history.png` | How the files of the course have changed |
-| `05-mobile.png` | The page on a phone-sized screen |
-| `06-moodle45.png` | The page on Moodle 4.5 |
+| `01-block.png` | The block with a suggestion, "An idea for your course" (Moodle 5.3, Boost) |
+| `02-page.png` | "Your course in numbers", tab "Suggestions for you" (Moodle 5.3, Boost) |
+| `03-details.png` | Tab "Details": where the files are, large files, history, materials, potential (Moodle 5.3) |
+| `04-block-allgood.png` | The block when the latest analysis finds nothing to suggest, "All good here!" (Moodle 5.3) |
+| `05-mobile.png` | The page on a phone-sized screen (Moodle 5.3) |
+| `06-moodle45.png` | The page on Moodle 4.5 (Boost) |
 
 ## Claims checked
 
