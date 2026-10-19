@@ -36,8 +36,10 @@ final class stored_suggestions_test extends \advanced_testcase {
         $this->assertSame('{"v":1,"items":[{"kind":"attempts","cmid":12},{"kind":"attempts","cmid":7}]}', $value);
         $this->assertSame($items, stored_suggestions::decode($value));
         $this->assertSame([], stored_suggestions::decode(stored_suggestions::encode([])));
-        foreach ([null, '', 'not json', '{"v":2,"items":[]}', '{"v":1}', '{"v":1,"items":[{"kind":"attempts"}]}',
-                '{"v":1,"items":[{"kind":"attempts","cmid":"12"}]}'] as $invalid) {
+        foreach (
+            [null, '', 'not json', '{"v":2,"items":[]}', '{"v":1}', '{"v":1,"items":[{"kind":"attempts"}]}',
+                '{"v":1,"items":[{"kind":"attempts","cmid":"12"}]}'] as $invalid
+        ) {
             $this->assertNull(stored_suggestions::decode($invalid), (string)$invalid);
         }
     }
@@ -63,15 +65,19 @@ final class stored_suggestions_test extends \advanced_testcase {
         $this->assertNull(stored_suggestions::applicable(null, get_fast_modinfo($course->id)));
 
         $record = (object)['suggestions' => stored_suggestions::encode($stored)];
-        $this->assertSame([(int)$first->cmid, (int)$last->cmid],
-            array_column(stored_suggestions::current($record, true, $course->id), 'cmid'));
+        $this->assertSame(
+            [(int)$first->cmid, (int)$last->cmid],
+            array_column(stored_suggestions::current($record, true, $course->id), 'cmid')
+        );
         $this->assertSame([], stored_suggestions::current($record, false, $course->id), 'Without a result, none.');
         $this->assertSame([], stored_suggestions::current(null, true, $course->id), 'Without a record, none.');
         $this->assertNull(stored_suggestions::current((object)['suggestions' => null], true, $course->id));
 
         // Showing the hidden assignment again brings its suggestion back at once.
         set_coursemodule_visible($hidden->cmid, 1);
-        $this->assertSame([(int)$first->cmid, (int)$hidden->cmid, (int)$last->cmid],
-            array_column(stored_suggestions::current($record, true, $course->id), 'cmid'));
+        $this->assertSame(
+            [(int)$first->cmid, (int)$hidden->cmid, (int)$last->cmid],
+            array_column(stored_suggestions::current($record, true, $course->id), 'cmid')
+        );
     }
 }

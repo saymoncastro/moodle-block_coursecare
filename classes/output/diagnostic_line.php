@@ -76,8 +76,12 @@ class diagnostic_line implements \renderable, \templatable {
             $parts['notes'][] = ['text' => get_string('block:partial', 'block_coursecare')];
         }
         $parts['hasnotes'] = $parts['notes'] !== [];
-        return $parts + self::educational($this->state, $this->hassuggestion, max(0, $this->assignments),
-            $this->assignments >= 0) + $this->link();
+        return $parts + self::educational(
+            $this->state,
+            $this->hassuggestion,
+            max(0, $this->assignments),
+            $this->assignments >= 0
+        ) + $this->link();
     }
 
     /**

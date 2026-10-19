@@ -1273,14 +1273,18 @@ final class course_overview_test extends \advanced_testcase {
         $this->assertStringContainsString(get_string('maxfilessubmission', 'assignsubmission_file'), $guidance);
         $this->assertStringContainsString(get_string('attemptreopenmethod', 'assign'), $guidance);
         $this->assertDoesNotMatchRegularExpression('/\\d/', $guidance);
-        $this->assertDoesNotMatchRegularExpression('/\\b(must|should|waste|saving|too much|adequate|inadequate)\\b/i',
-            $guidance);
+        $this->assertDoesNotMatchRegularExpression(
+            '/\\b(must|should|waste|saving|too much|adequate|inadequate)\\b/i',
+            $guidance
+        );
 
         // Settings changed after the analysis: the card stays, with the dated note; the guidance still exists.
         $DB->set_field('assign', 'maxattempts', 3, ['id' => $assign->id]);
         $section = self::suggestions_section($this->render((int)$course->id));
-        $date = userdate($DB->get_field('block_coursecare_diag', 'timecompleted', ['courseid' => $course->id]),
-            get_string('strftimedatetimeshort', 'langconfig'));
+        $date = userdate(
+            $DB->get_field('block_coursecare_diag', 'timecompleted', ['courseid' => $course->id]),
+            get_string('strftimedatetimeshort', 'langconfig')
+        );
         $this->assertStringContainsString($str('suggestion:attempts:changed', $date), $section);
         $this->assertStringContainsString('href="#' . $guidanceid . '"', $section);
 

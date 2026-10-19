@@ -159,8 +159,12 @@ class course_overview implements \renderable, \templatable {
         $suggestions = $this->suggestions_data();
         $state = $this->state();
         $assignments = $this->assignments === null ? 0 : count($this->assignments);
-        $educational = diagnostic_line::educational($state, !empty($suggestions['hassuggestion']), $assignments,
-            $this->assignments !== null);
+        $educational = diagnostic_line::educational(
+            $state,
+            !empty($suggestions['hassuggestion']),
+            $assignments,
+            $this->assignments !== null
+        );
         if ($educational['isallgood']) {
             // The band already says that no suggestion was found (Feature 008, FR-033): no second sentence.
             $suggestions['none'] = '';

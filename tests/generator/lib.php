@@ -212,7 +212,11 @@ class block_coursecare_generator extends testing_block_generator {
         $diag = $DB->get_record('block_coursecare_diag', ['courseid' => $record['courseid']], 'id, suggestions', MUST_EXIST);
         $items = \block_coursecare\local\analysis\stored_suggestions::decode($diag->suggestions) ?? [];
         $items[] = ['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => (int)$record['cmid']];
-        $DB->set_field('block_coursecare_diag', 'suggestions', \block_coursecare\local\analysis\stored_suggestions::encode($items),
-            ['id' => $diag->id]);
+        $DB->set_field(
+            'block_coursecare_diag',
+            'suggestions',
+            \block_coursecare\local\analysis\stored_suggestions::encode($items),
+            ['id' => $diag->id]
+        );
     }
 }

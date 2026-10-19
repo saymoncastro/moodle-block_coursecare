@@ -148,12 +148,6 @@ class course_analysis {
     }
 
     /**
-     * Collect and calculate the indicators of a course.
-     *
-     * @param int $courseid Course id.
-     * @return \block_coursecare\local\analysis\diagnostic_result
-     */
-    /**
      * The suggestions about assignments found now (Feature 009, research R4): the candidates of one indexed query,
      * then the settings of Feature 005 and its rules for them only. A failure here does not fail the diagnostic of
      * the files: the suggestions are then stored as not calculated (null).
@@ -185,6 +179,12 @@ class course_analysis {
         }
     }
 
+    /**
+     * Collect and calculate the indicators of a course.
+     *
+     * @param int $courseid Course id.
+     * @return \block_coursecare\local\analysis\diagnostic_result
+     */
     private function analyse(int $courseid): \block_coursecare\local\analysis\diagnostic_result {
         $context = \context_course::instance($courseid);
         $threshold = self::large_file_threshold();
