@@ -1,0 +1,16 @@
+{
+ "check": "tree",
+ "path": "/course/view.php?id=2",
+ "title": "Curso: Biologia celular (demonstração) | ccdemo",
+ "tree": [
+  "region: AVA Consciente",
+  "  heading: AVA Consciente [level=3]",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "  paragraph",
+  "    link: Conheça melhor os arquivos da sua sala"
+ ]
+}

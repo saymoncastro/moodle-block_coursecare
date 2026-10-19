@@ -51,7 +51,9 @@ Feature: CourseCare block initial experience
 
   @javascript @accessibility
   Scenario: The block works with the Classic theme
-    Given the following config values are set as admin:
+    # Classic is no longer part of Moodle 5.3 core: the scenario runs where the theme is installed (4.5).
+    Given the "theme_classic" plugin is installed
+    And the following config values are set as admin:
       | theme | classic |
     When I am on the "C1" "Course" page logged in as "teacher1"
     Then I should see "Small choices, a better learning space for everyone." in the "CourseCare" "block"

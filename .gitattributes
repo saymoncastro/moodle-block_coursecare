@@ -3,10 +3,12 @@
 /translations export-ignore
 /tools export-ignore
 /specs export-ignore
+/docs export-ignore
 /.specify export-ignore
 /.claude export-ignore
 /.github export-ignore
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /CONTRIBUTING.md export-ignore
+/SECURITY.md export-ignore
 /build export-ignore

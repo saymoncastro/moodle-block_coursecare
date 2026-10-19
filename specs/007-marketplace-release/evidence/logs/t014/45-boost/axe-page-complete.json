@@ -1,0 +1,49 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=6",
+ "title": "Sua sala em números | DEMO-COMPLETE | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    "",
+    ""
+   ],
+   "targets": [
+    "div[data-region=\"popover-region-toggle\"]",
+    "#user-menu-toggle",
+    "#courseindexdrawercontrolsmenubutton"
+   ]
+  },
+  {
+   "id": "target-size",
+   "reasons": [
+    "Element with negative tabindex has insufficient size (20.5px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (83.4px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (20.5px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (83.4px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (20.5px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (83.4px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (20.5px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (83.4px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (20.5px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?",
+    "Element with negative tabindex has insufficient size (83.4px by 22.5px, should be at least 24px by 24px). Is this a target? Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0px instead of at least 24px. Is the neighbor a target?"
+   ],
+   "targets": [
+    "a[href$=\"#courseindexcollapse1\"]",
+    "#courseindexsection1-title",
+    "a[href$=\"#courseindexcollapse2\"]",
+    "#courseindexsection2-title",
+    "a[href$=\"#courseindexcollapse3\"]",
+    "#courseindexsection3-title",
+    "a[href$=\"#courseindexcollapse4\"]",
+    "#courseindexsection4-title",
+    "a[href$=\"#courseindexcollapse5\"]",
+    "#courseindexsection5-title"
+   ]
+  }
+ ],
+ "passes": 34,
+ "violations": []
+}

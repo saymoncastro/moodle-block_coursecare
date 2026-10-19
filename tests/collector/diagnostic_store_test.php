@@ -35,7 +35,7 @@ final class diagnostic_store_test extends \advanced_testcase {
      * @param int $bytes Logical bytes.
      * @return diagnostic_result
      */
-    private static function result(int $bytes): diagnostic_result {
+    private static function sample_result(int $bytes): diagnostic_result {
         $summary = array_fill_keys(diagnostic_result::SUMMARY_FIELDS, null);
         $summary = ['methodversion' => 1, 'largethreshold' => 100, 'filecount' => 1, 'logicalbytes' => $bytes] + $summary;
         $category = array_fill_keys(diagnostic_result::CATEGORY_FIELDS, 1);
@@ -70,9 +70,9 @@ final class diagnostic_store_test extends \advanced_testcase {
         $this->resetAfterTest();
         $store = new diagnostic_store();
         $store->request(42, 1000);
-        $store->save_result(42, self::result(500), 1100);
+        $store->save_result(42, self::sample_result(500), 1100);
         $store->save_failure(42, 'dml_read_exception', 1150);
-        $store->save_result(42, self::result(800), 1200);
+        $store->save_result(42, self::sample_result(800), 1200);
 
         $record = $store->get_summary(42);
         $this->assertSame(800, (int)$record->logicalbytes);
@@ -95,10 +95,10 @@ final class diagnostic_store_test extends \advanced_testcase {
         // The test must run without the outer test transaction, so that the store's own transaction is real.
         $this->preventResetByRollback();
         $store = new diagnostic_store();
-        $store->save_result(42, self::result(500), 1100);
+        $store->save_result(42, self::sample_result(500), 1100);
 
         // A category name longer than the column makes the insert fail inside the transaction.
-        $summary = self::result(900)->summary;
+        $summary = self::sample_result(900)->summary;
         $bad = new diagnostic_result($summary, [str_repeat('x', 40) => array_fill_keys(diagnostic_result::CATEGORY_FIELDS, 1)]);
         try {
             $store->save_result(42, $bad, 1300);
@@ -145,7 +145,7 @@ final class diagnostic_store_test extends \advanced_testcase {
     public function test_save_failure_keeps_result(): void {
         $this->resetAfterTest();
         $store = new diagnostic_store();
-        $store->save_result(42, self::result(500), 1100);
+        $store->save_result(42, self::sample_result(500), 1100);
         $store->save_failure(42, 'first', 1200);
         $store->save_failure(42, str_repeat('y', 45), 1300);
 
@@ -165,7 +165,7 @@ final class diagnostic_store_test extends \advanced_testcase {
         global $DB;
         $this->resetAfterTest();
         $store = new diagnostic_store();
-        $store->save_result(42, self::result(500), 1100);
+        $store->save_result(42, self::sample_result(500), 1100);
         $store->delete_for_course(42);
         $this->assertNull($store->get_summary(42));
         foreach (diagnostic_store::CHILD_TABLES as $table) {

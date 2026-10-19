@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.0 BETA (unreleased)
+
+- Moodle 5.3 LTS supported alongside Moodle 4.5 LTS (`supported` = [405, 503]), verified on PHP 8.3
+  and 8.4 with PostgreSQL 17 and MariaDB 11.4; on 5.3 the plugin lives in `public/blocks/coursecare`.
+- Text on the block's green panel keeps its contrast when Moodle 5.3 shows the block in the block
+  drawer.
+- The privacy declaration also describes the history.
+- International documentation (installation, upgrading, configuration, teacher guide, indicators,
+  privacy, troubleshooting), security policy and contribution guide; the README describes the product
+  for the public.
+- Maturity BETA. No new feature, setting, capability, table or data; no database change.
+
 ## 0.6.0 (unreleased)
 
 - History of the files of a course: each successful analysis keeps one point per course and day

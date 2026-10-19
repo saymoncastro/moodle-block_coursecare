@@ -196,3 +196,24 @@ O código vigente é o de `964d960`; os commits seguintes só mudam documentaç�
 vazio). As capturas e verificações de T030 foram feitas antes da revisão de código; os resultados
 renderizados das tarefas de demonstração foram conferidos depois das correções e são idênticos (seção
 "Revisão de código"); a formatação de `964d960` não muda comportamento.
+
+## Constitution Check reavaliado (T033) — reavaliação técnica, aguardando as aprovações
+
+Verificação técnica sobre o código de `main` em `91f1aa0` (2026-10-19, Feature 007, grupo A): `$DB` só em `local\collector`, nas tarefas, no CLI e em `db/`; `local\analysis` e `local\recommendation` sem `$DB`, `$CFG` ou `get_string`; nenhuma consulta à tabela `files` em `classes/output`, `block_coursecare.php` ou `overview.php` (testes de leitura das features); acesso por `require_login` + `require_capability('block/coursecare:view')` em `overview_access`; `null_provider`; en e pt_br com 162 chaves cada; CI verde em 4.5.
+
+| Princípio | Verificação | Situação |
+| --- | --- | --- |
+| I. Educação | Nenhuma configuração dita adequada ou inadequada; sem ranking | ✅ |
+| II. Simplicidade | Uma linha por tarefa; cálculo e limites recolhidos | ✅ |
+| III. Recomendações | Nenhuma nova | ✅ N/A |
+| IV. Honestidade | Potencial teórico rotulado, nunca somado; sem número quando um fator é desconhecido | ✅ |
+| V. Integração nativa | Regras do Moodle 4.5 conferidas no código; revisão de código corrigiu "até passar" e o plugin desativado | ✅ |
+| VI. Desempenho | Medido (T028): 62 ms no pior caso | ✅ |
+| VII. Segurança e privacidade | Só configurações e contagens; nenhum envio por tarefa | ✅ |
+| VIII. Internacionalização | Paridade; revisão de tom (T029) aguardando aprovação | ⏳ |
+| IX. Qualidade e camadas | Coletor `assign_settings`; regra pura `storage_potential` | ✅ |
+| X. Experiência visual | Capturas (T030) aguardando aprovação; teste com leitor de tela pendente | ⏳ |
+| XI. Evolução incremental | Só `mod_assign` | ✅ |
+| XII. Software livre | GPL v3+, cabeçalhos; titularidade em apuração (Feature 007, Q3) | ⏳ |
+
+**Pendente para fechar a tarefa**: T029 e T030 (aprovações do proprietário do produto) e o teste com leitor de tela.
