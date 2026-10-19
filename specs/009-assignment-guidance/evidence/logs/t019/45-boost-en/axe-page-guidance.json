@@ -1,0 +1,20 @@
+{
+ "check": "axe",
+ "path": "/blocks/coursecare/overview.php?id=21#block_coursecare-guidance-233",
+ "title": "Your course in numbers | DEMO-POTENTIAL | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    ""
+   ],
+   "targets": [
+    "div[data-region=\"popover-region-toggle\"]",
+    "#user-menu-toggle"
+   ]
+  }
+ ],
+ "passes": 32,
+ "violations": []
+}

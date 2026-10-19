@@ -1,0 +1,195 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=21#block_coursecare-tab-details",
+ "title": "Your course in numbers | DEMO-POTENTIAL | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Measurements and categories",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "div",
+   "text": "Measurements and categories Date Files recorded Course materials Files submitted"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Trabalho final"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Relatório parcial"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Pôster do projeto"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Exercícios"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Diário de bordo"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo (agrupamento)"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Entrega sem arquivos"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Rascunho"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How to read and review these settings",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "How the potential is calculated, and its limits",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Technical details",
+   "openafterenter": true
+  }
+ ],
+ "count": 29,
+ "allindicated": true,
+ "summariesopen": true
+}
