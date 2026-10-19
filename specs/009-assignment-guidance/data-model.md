@@ -1,14 +1,15 @@
 # Data model: Assignment Guidance (Feature 009)
 
-## (B2) Campo `assignideas` em `block_coursecare_diag`
+## (B2) Campo `suggestions` em `block_coursecare_diag`
 
 | Campo | Tipo | Regra |
 | --- | --- | --- |
-| `assignideas` | TEXT, anulável, sem índice | `cmid` das tarefas que atendiam ao critério de configuração na análise, separados por vírgula; `NULL` = ainda não avaliado (após a atualização, até a próxima análise); `''` = avaliado, nenhuma |
+| `suggestions` | TEXT, anulável, sem índice | JSON `{"v":1,"items":[{"kind":"attempts","cmid":<int>}]}`; `NULL` (ou ilegível) = **não calculado**; `items: []` = calculado, nenhuma |
 
 Gravado no mesmo `save_result` (transação e trava da 002), com a mesma data `timecompleted`; falha mantém o
-valor anterior; apagado com o registro da sala e na desinstalação. Sem dado pessoal. Exibição: filtrado ao
-vivo pelo `modinfo` (atividade existe, é tarefa, `visible`).
+valor anterior; apagado com o registro da sala e na desinstalação. Sem dado pessoal. Lido por **uma**
+função usada pelo bloco e pela página, que aplica o filtro ao vivo pelo `modinfo` (atividade existe, é
+tarefa, `visible`). Detalhes e comportamento por situação: research R4.
 
 ## Critério (derivado, R1)
 
@@ -27,7 +28,8 @@ Moodle) → link (só com `moodle/course:manageactivities`) → perguntas de ref
 
 | Sugestões aplicáveis | Título | Mensagem | Ação |
 | --- | --- | --- | --- |
-| nenhuma | 008 (allgood/neutral) | 008 | 008 |
+| nenhuma (campo calculado) | 008 (allgood/neutral) | 008 | 008 |
+| nenhuma, campo `NULL` (não calculado) | 008, mas **nunca allgood** (neutro) | 008 | 008 |
 | só materiais grandes | Há uma ideia para a sua sala | 008 | Ver sugestão |
 | só tarefas | Há uma ideia para a sua sala | Encontramos sugestões sobre as tentativas das tarefas. | Ver sugestão / Ver sugestões |
 | as duas | Há uma ideia para a sua sala | Encontramos sugestões para a sua sala. | Ver sugestões |

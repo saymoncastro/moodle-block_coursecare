@@ -25,8 +25,9 @@ visibilidade da atividade e lida pelo bloco e pela página, que passam a refleti
 
 **Primary Dependencies**: APIs do núcleo; `mod_assign` e `assignsubmission_file` (constantes e strings).
 
-**Storage**: (B2) um campo de texto anulável `assignideas` em `block_coursecare_diag` (lista de `cmid`),
-gravado no mesmo `save_result` da 002; nenhuma tabela nova.
+**Storage**: (B2) um campo de texto anulável `suggestions` em `block_coursecare_diag` (estrutura versionada
+`{"v":1,"items":[{kind,cmid}]}`; `NULL` = não calculado), gravado no mesmo `save_result` da 002; nenhuma
+tabela nova.
 
 **Testing**: PHPUnit (regra R1 em tabela, guarda na análise, bloco e página), Behat (orientação, cartão,
 estados do bloco, axe), checagem dos nomes dos campos no 4.5 e no 5.3, CI.
@@ -36,8 +37,8 @@ estados do bloco, axe), checagem dos nomes dos campos no 4.5 e no 5.3, CI.
 **Project Type**: plugin de bloco Moodle.
 
 **Performance Goals**: bloco e página sem leitura nova (o campo vem no registro já lido; o filtro usa o
-`modinfo` em cache); análise com +1 consulta indexada por sala e o coletor da 005 só em salas com tarefa
-candidata.
+`modinfo` em cache); análise com o coletor da 005 (5 a 7 consultas) em salas com tarefas que aceitam
+arquivos, sem SQL novo sobre o `mod_assign`.
 
 **Constraints**: nenhum valor sugerido; nenhum dado de estudante; Princípios I, III, IV, VI; WCAG 2.2 AA.
 
@@ -79,10 +80,11 @@ specs/009-assignment-guidance/
 ### Source Code (repository root)
 
 ```text
-classes/local/analysis/storage_potential.php     regra do critério (método puro, junto da 005)
+classes/local/analysis/storage_potential.php     critério (método puro, junto do evaluate() da 005)
 classes/local/analysis/assignment_guidance.php   orientação informativa (fatos da 005 → frases e passos)
-classes/local/course_analysis.php                (B2) candidatas + coletor da 005 + regra, na mesma execução
-classes/local/collector/diagnostic_store.php     (B2) grava/lê `assignideas` no `save_result`
+classes/local/...                                seleção das tarefas extraída de course_overview (mesma lógica)
+classes/local/course_analysis.php                (B2) seleção + coletor + evaluate + critério, na mesma execução
+classes/local/collector/diagnostic_store.php     (B2) grava `suggestions` no save_result; função de leitura + filtro
 db/install.xml, db/upgrade.php, version.php       (B2) campo e passo de atualização; 0.9.0
 block_coursecare.php, classes/output/diagnostic_line.php   estado do bloco por tipo de sugestão
 classes/output/course_overview.php               cartão da tarefa, orientação por tarefa, faixa
