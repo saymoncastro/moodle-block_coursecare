@@ -105,6 +105,18 @@ The theoretical potential is a ceiling set by the settings. It is not the space 
 and not the amount that will be submitted. Different settings serve different teaching goals, and
 CourseCare never says a setting is right or wrong.
 
+Under each assignment, **How to read and review these settings** (collapsed) explains what the limits
+mean, possible implications in both directions, where the limit comes from, what the attempts allow,
+the steps in Moodle (with Moodle's own field names) and, if you can edit the assignment, a link to its
+settings, with questions that may help you decide. It never suggests a value: there is no right value,
+the choice depends on the purpose of the activity.
+
+When an assignment **allows new attempts without a maximum**, a card in "Suggestions for you" says so
+and invites you, if you wish, to check how the attempts work and whether this matches the purpose of
+the activity. Unlimited attempts can make sense in activities of continuous revision; the card never
+asks you to set a limit. It is based on the latest analysis, shown with its date; if you change the
+assignment, the card says so until the next analysis.
+
 ### Technical details (collapsed)
 
 Unique content, links to files kept elsewhere, backups and recycle bin recorded in Moodle, and what

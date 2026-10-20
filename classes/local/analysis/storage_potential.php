@@ -113,6 +113,25 @@ class storage_potential {
     }
 
     /**
+     * Whether an assignment effectively allows new attempts without a maximum (Feature 009, research R1): file
+     * submissions enabled and accepting at least one file, an unlimited maximum of attempts, a reopening method
+     * that opens new attempts (as evaluate() resolves it, including "until pass" only with a pass criterion, the
+     * rule of assign::reopen_submission_if_required()) and at least one participant or group who can submit.
+     * It reads the result of evaluate() and does not depend on the limit in bytes.
+     *
+     * @param array $settings Settings of the assignment, as for evaluate(), with enabled.
+     * @param array $evaluation Result of evaluate() for these settings.
+     * @return bool
+     */
+    public static function allows_unlimited_attempts(array $settings, array $evaluation): bool {
+        return !empty($settings['enabled'])
+            && (int)($settings['maxattempts'] ?? 1) === -1
+            && $evaluation['files'] > 0
+            && $evaluation['attempts'] === null
+            && $evaluation['units'] > 0;
+    }
+
+    /**
      * Whether "until pass" can reopen: the assignment is graded with points or a scale and its grade item has a grade
      * to pass (not empty, not the minimum grade, not zero on a scale).
      *

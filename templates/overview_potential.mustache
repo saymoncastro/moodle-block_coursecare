@@ -29,7 +29,8 @@
 
     Context variables required for this template:
     * potential - object with heading, intro, meaning, scope, recorded, hasitems, items (name, url, hasurl, hidden,
-      factors, result), none, howtitle and how
+      factors, result and guidance), none, howtitle and how; guidance (Feature 009, optional, collapsed): id, title,
+      meaning, implications, notes, stepstitle, steps, settingsurl, settingstext, questionstitle, questions and novalue
 
     Example context (json):
     {
@@ -74,6 +75,38 @@
             <p class="mb-1">{{text}}</p>
             {{/factors}}
             <p class="block_coursecare-overview-potentialresult mb-0">{{result}}</p>
+            {{#guidance}}
+            <details class="block_coursecare-overview-guidance" id="{{id}}">
+                <summary>{{title}}</summary>
+                <div class="block_coursecare-overview-guidancebody">
+                    <p class="mb-2">{{meaning}}</p>
+                    <ul class="mb-2">
+                        {{#implications}}
+                        <li>{{text}}</li>
+                        {{/implications}}
+                    </ul>
+                    {{#notes}}
+                    <p class="mb-2">{{text}}</p>
+                    {{/notes}}
+                    <h5 class="block_coursecare-overview-guidancetitle">{{stepstitle}}</h5>
+                    <ol class="mb-2">
+                        {{#steps}}
+                        <li>{{text}}</li>
+                        {{/steps}}
+                    </ol>
+                    {{#settingsurl}}
+                    <p class="mb-2"><a class="btn btn-outline-primary btn-sm" href="{{settingsurl}}">{{settingstext}}</a></p>
+                    {{/settingsurl}}
+                    <h5 class="block_coursecare-overview-guidancetitle">{{questionstitle}}</h5>
+                    <ul class="mb-2">
+                        {{#questions}}
+                        <li>{{text}}</li>
+                        {{/questions}}
+                    </ul>
+                    <p class="block_coursecare-overview-help mb-0">{{novalue}}</p>
+                </div>
+            </details>
+            {{/guidance}}
         </li>
         {{/items}}
     </ul>

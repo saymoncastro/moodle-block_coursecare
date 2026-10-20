@@ -11,12 +11,15 @@ no network request and sends nothing outside your site.
 - When the "Your course in numbers" page is opened: the plugin's own tables, the course structure, and,
   for the potential of assignments, the assignments' settings, the number of participants or groups who
   can submit, and the site's upload limits.
+- During the background analysis (since 0.9.0), for assignments whose maximum of attempts is unlimited:
+  the same settings and counts as the page, to find the suggestion about attempts. Only the identifiers
+  of the assignments found are stored.
 
 ## What CourseCare stores
 
 | Table | Content | Personal data |
 | --- | --- | --- |
-| `block_coursecare_diag` | One row per course: totals, dates, state of the last analysis | No |
+| `block_coursecare_diag` | One row per course: totals, dates, state of the last analysis and, since 0.9.0, the identifiers of the assignments whose settings were the basis of a suggestion | No |
 | `block_coursecare_cat` | Totals per category of the course | No |
 | `block_coursecare_act` | Totals per activity (`cmid`) | No |
 | `block_coursecare_large` | Up to 1,000 links to large **course material** files: file identifier, `cmid`, recorded size | No (materials, never submissions) |

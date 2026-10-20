@@ -553,4 +553,57 @@ final class block_coursecare_test extends \advanced_testcase {
             $names
         );
     }
+
+    /**
+     * Feature 009 (FR-013 to FR-013b): the block reflects the stored suggestions about assignments that apply now,
+     * alone or with the one about large materials, also without files; hiding the assignment hides the suggestion;
+     * not calculated yet is never "All good here!".
+     */
+    public function test_block_assignment_suggestions(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $this->setUser($this->getDataGenerator()->create_and_enrol($course, 'editingteacher'));
+        $instance = $this->getDataGenerator()->create_block('coursecare', [
+            'parentcontextid' => context_course::instance($course->id)->id,
+            'pagetypepattern' => 'course-view-*',
+        ]);
+        $assign = $this->getDataGenerator()->create_module('assign', ['course' => $course->id]);
+        /** @var \block_coursecare_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('block_coursecare');
+        $str = fn(string $key): string => s(get_string($key, 'block_coursecare'));
+        $render = function (array $values) use ($DB, $course, $instance, $generator): string {
+            $DB->delete_records('block_coursecare_large');
+            $DB->delete_records('block_coursecare_diag', ['courseid' => $course->id]);
+            $generator->create_diagnostic($values + ['courseid' => $course->id, 'timecompletedago' => 600,
+                'logicalbytes' => 3145728, 'filecount' => 1]);
+            return $this->get_block($course, 'course-view-topics', $instance)->get_content()->text;
+        };
+
+        $html = $render(['suggestions' => [$assign->cmid]]);
+        $this->assertStringContainsString($str('state:idea_title'), $html);
+        $this->assertStringContainsString($str('state:idea_message_attempts'), $html);
+        $this->assertStringContainsString($str('state:idea_action'), $html);
+        $this->assertStringContainsString('#block_coursecare-suggestions', $html);
+
+        $html = $render(['suggestions' => [$assign->cmid], 'largelinks' => [['cmid' => 0, 'filesize' => 3145728]]]);
+        $this->assertStringContainsString($str('state:idea_message_both'), $html);
+        $this->assertStringContainsString($str('state:idea_action_plural'), $html);
+
+        // Without files: the suggestion about the assignment still applies.
+        $html = $render(['suggestions' => [$assign->cmid], 'logicalbytes' => 0, 'filecount' => 0]);
+        $this->assertStringContainsString($str('state:idea_title'), $html);
+        $this->assertStringContainsString($str('diagnostic:nofiles'), $html);
+
+        // Hidden assignment: no suggestion at once; the result is complete and calculated, so all good.
+        set_coursemodule_visible($assign->cmid, 0);
+        $html = $render(['suggestions' => [$assign->cmid]]);
+        $this->assertStringNotContainsString($str('state:idea_title'), $html);
+        $this->assertStringContainsString($str('state:allgood_title'), $html);
+
+        // Not calculated yet (null): never "All good here!".
+        $html = $render(['suggestions' => null]);
+        $this->assertStringNotContainsString($str('state:allgood_title'), $html);
+        $this->assertStringNotContainsString($str('state:idea_title'), $html);
+    }
 }

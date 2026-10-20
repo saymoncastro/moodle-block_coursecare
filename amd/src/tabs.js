@@ -103,10 +103,14 @@ export const init = (selector) => {
             return;
         }
         select(found.index);
-        // The address of an area puts the focus on its tab; the address of a section, on the section.
+        // The address of an area puts the focus on its tab; the address of a section, on the section. A collapsed
+        // guidance reached by its address (Feature 009) is opened.
         if (found.target === panels[found.index]) {
             tabs[found.index].focus();
         } else {
+            if (found.target.tagName === 'DETAILS') {
+                found.target.open = true;
+            }
             focusElement(found.target);
         }
     };

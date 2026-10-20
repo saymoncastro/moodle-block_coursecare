@@ -1,0 +1,195 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=21#block_coursecare-tab-details",
+ "title": "Sua sala em números | DEMO-POTENTIAL | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Medições e categorias",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "div",
+   "text": "Medições e categorias Data Arquivos registrados Materiais da sala Arquivos envia"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Trabalho final"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Relatório parcial"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Pôster do projeto"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Exercícios"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Diário de bordo"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Projeto em grupo (agrupamento)"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Entrega sem arquivos"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Rascunho"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como entender e revisar estas configurações",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Como o potencial é calculado e seus limites",
+   "openafterenter": true
+  },
+  {
+   "indicator": true,
+   "open": false,
+   "tag": "summary",
+   "text": "Detalhes técnicos",
+   "openafterenter": true
+  }
+ ],
+ "count": 29,
+ "allindicated": true,
+ "summariesopen": true
+}

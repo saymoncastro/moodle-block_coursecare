@@ -63,12 +63,21 @@ class block_coursecare_generator extends testing_block_generator {
             'methodversion' => \block_coursecare\local\analysis\indicator_calculator::METHOD_VERSION,
         ];
         if (isset($record['timecompleted'])) {
-            $defaults += ['filecount' => 1, 'logicalbytes' => 0, 'timeattempted' => $record['timecompleted'], 'partial' => 0];
+            $defaults += ['filecount' => 1, 'logicalbytes' => 0, 'timeattempted' => $record['timecompleted'], 'partial' => 0,
+                // Feature 009: a 0.9.0 analysis always stores its suggestions; calculated, none, unless given.
+                'suggestions' => \block_coursecare\local\analysis\stored_suggestions::encode([])];
         }
         if (!empty($record['lastattemptfailed'])) {
             $defaults['failurecount'] = 1;
             $defaults['failurereason'] = 'moodle_exception';
             $defaults['timeattempted'] = $now;
+        }
+        if (isset($record['suggestions']) && is_array($record['suggestions'])) {
+            // Feature 009: a list of assignment course module ids found by the analysis.
+            $record['suggestions'] = \block_coursecare\local\analysis\stored_suggestions::encode(array_map(
+                fn($cmid): array => ['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => (int)$cmid],
+                $record['suggestions']
+            ));
         }
         $record = (object)($record + $defaults);
         $record->id = $DB->insert_record('block_coursecare_diag', $record);
@@ -189,5 +198,25 @@ class block_coursecare_generator extends testing_block_generator {
         $row['logicalbytes'] = $row['logicalbytes'] ?? array_sum(array_intersect_key($row, array_flip($categories)));
         $row['id'] = $DB->insert_record('block_coursecare_hist', (object)$row);
         return (object)$row;
+    }
+
+    /**
+     * Add a suggestion about an assignment to the stored suggestions of the diagnostic of a course (Feature 009).
+     *
+     * @param array|stdClass $record courseid and cmid.
+     */
+    public function create_diagnostic_suggestion($record): void {
+        global $DB;
+
+        $record = (array)$record;
+        $diag = $DB->get_record('block_coursecare_diag', ['courseid' => $record['courseid']], 'id, suggestions', MUST_EXIST);
+        $items = \block_coursecare\local\analysis\stored_suggestions::decode($diag->suggestions) ?? [];
+        $items[] = ['kind' => \block_coursecare\local\analysis\stored_suggestions::ATTEMPTS, 'cmid' => (int)$record['cmid']];
+        $DB->set_field(
+            'block_coursecare_diag',
+            'suggestions',
+            \block_coursecare\local\analysis\stored_suggestions::encode($items),
+            ['id' => $diag->id]
+        );
     }
 }

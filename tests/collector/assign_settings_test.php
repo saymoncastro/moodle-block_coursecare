@@ -207,4 +207,25 @@ final class assign_settings_test extends \advanced_testcase {
         }
         $this->assertSame($reads[5], $reads[20]);
     }
+
+    /**
+     * Feature 009: the candidates are the assignments of the course whose stored maximum of attempts is unlimited, in
+     * the order of the course, read in one query.
+     */
+    public function test_unlimited_attempts(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $other = $this->getDataGenerator()->create_course();
+        $unlimited = $this->assign($course, ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+        $this->assign($course, ['maxattempts' => 1]);
+        $second = $this->assign($course, ['maxattempts' => -1, 'attemptreopenmethod' => 'untilpass']);
+        $this->assign($other, ['maxattempts' => -1, 'attemptreopenmethod' => 'manual']);
+
+        get_fast_modinfo($course->id);
+        $reads = $DB->perf_get_reads();
+        $this->assertSame([(int)$unlimited->cmid, (int)$second->cmid], (new assign_settings())->unlimited_attempts($course->id));
+        $this->assertSame(1, $DB->perf_get_reads() - $reads);
+        $this->assertSame([], (new assign_settings())->unlimited_attempts($this->getDataGenerator()->create_course()->id));
+    }
 }

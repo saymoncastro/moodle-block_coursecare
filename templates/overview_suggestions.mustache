@@ -31,9 +31,11 @@
     * none
 
     Context variables required for this template:
-    * suggestions - object with heading, hassuggestion and none; with a suggestion also basedon, title,
-      observedlabel, placeslabel, whylabel, todolabel, observed, hasplaces, places (name, hasurl, url, size), more,
-      truncated, why, todo and options (objects with "text" and "example")
+    * suggestions - object with heading, hasany, basedon, hassuggestion and none; with the suggestion about large
+      materials (Feature 004) also title, observedlabel, placeslabel, whylabel, todolabel, observed, hasplaces,
+      places (name, hasurl, url, size), more, truncated, why, todo and options (objects with "text" and "example");
+      assignments (Feature 009): cards with name, url, hasurl, title, observed, why, todo, reviewlabel, steps,
+      changed, guidanceurl, guidancetext, settingsurl and settingstext, after the suggestion of Feature 004
 
     Example context (json):
     {
@@ -64,8 +66,10 @@
 {{#suggestions}}
 <section id="block_coursecare-suggestions" class="block_coursecare-overview-section block_coursecare-overview-suggestions">
     <h3 class="block_coursecare-overview-sectiontitle">{{heading}}</h3>
-    {{#hassuggestion}}
+    {{#hasany}}
     <p class="block_coursecare-overview-help">{{basedon}}</p>
+    {{/hasany}}
+    {{#hassuggestion}}
     <div class="block_coursecare-overview-suggestion">
         <div class="block_coursecare-overview-suggestionhead">
             <span class="block_coursecare-overview-suggestionicon">{{#pix}} f/document, core {{/pix}}</span>
@@ -118,10 +122,42 @@
         </div>
     </div>
     {{/hassuggestion}}
-    {{^hassuggestion}}
+    {{#assignments}}
+    <div class="block_coursecare-overview-suggestion block_coursecare-overview-assignmentsuggestion">
+        <div class="block_coursecare-overview-suggestionhead">
+            <span class="block_coursecare-overview-suggestionicon">{{#pix}} f/document, core {{/pix}}</span>
+            <h4 class="block_coursecare-overview-suggestiontitle">{{title}}</h4>
+        </div>
+        <p class="block_coursecare-overview-suggestionactivity">{{#hasurl}}<a href="{{url}}">{{{name}}}</a>{{/hasurl}}{{^hasurl}}{{{name}}}{{/hasurl}}</p>
+        {{#changed}}
+        <p class="block_coursecare-overview-suggestionchanged">{{changed}}</p>
+        {{/changed}}
+        <div class="block_coursecare-overview-suggestionparts">
+            <dl class="block_coursecare-overview-suggestionfacts mb-0">
+                <dt>{{observedlabel}}</dt>
+                <dd><p class="mb-0">{{observed}}</p></dd>
+            </dl>
+            <dl class="block_coursecare-overview-suggestionadvice mb-0">
+                <dt>{{whylabel}}</dt>
+                <dd><p class="mb-0">{{why}}</p></dd>
+                <dt>{{todolabel}}</dt>
+                <dd><p class="mb-0">{{todo}}</p></dd>
+                <dt>{{reviewlabel}}</dt>
+                <dd class="mb-0">
+                    <p class="mb-2">{{steps}}</p>
+                    <p class="block_coursecare-overview-suggestionactions mb-0">
+                        {{#settingsurl}}<a class="btn btn-outline-primary btn-sm" href="{{settingsurl}}">{{settingstext}}</a>{{/settingsurl}}
+                        {{#guidanceurl}}<a href="{{guidanceurl}}">{{guidancetext}}</a>{{/guidanceurl}}
+                    </p>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    {{/assignments}}
+    {{^hasany}}
     {{#none}}
     <p class="mb-0">{{none}}</p>
     {{/none}}
-    {{/hassuggestion}}
+    {{/hasany}}
 </section>
 {{/suggestions}}

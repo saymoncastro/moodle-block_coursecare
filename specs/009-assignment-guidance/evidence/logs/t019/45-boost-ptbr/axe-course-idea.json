@@ -1,0 +1,20 @@
+{
+ "check": "axe",
+ "path": "/course/view.php?id=12",
+ "title": "Curso: Projeto integrador (demonstração) | ccdemo",
+ "incomplete": [
+  {
+   "id": "aria-valid-attr-value",
+   "reasons": [
+    "",
+    ""
+   ],
+   "targets": [
+    "div[data-region=\"popover-region-toggle\"]",
+    "#user-menu-toggle"
+   ]
+  }
+ ],
+ "passes": 31,
+ "violations": []
+}

@@ -36,20 +36,31 @@ class diagnostic_line implements \renderable, \templatable {
     /** @var \moodle_url|null Overview page of the course (Feature 003), linked only when a result exists. */
     private ?\moodle_url $overviewurl;
 
-    /** @var bool Whether a suggestion applies to the result (Feature 004). */
+    /** @var bool Whether the suggestion about large materials applies to the result (Feature 004). */
     private bool $hassuggestion;
+
+    /** @var int Suggestions about assignments that apply now (Feature 009); -1 when not calculated yet. */
+    private int $assignments;
 
     /**
      * Constructor.
      *
      * @param diagnostic_state $state Resolved state.
      * @param \moodle_url|null $overviewurl Overview page of the course.
-     * @param bool $hassuggestion Whether a suggestion applies to the result (Feature 004).
+     * @param bool $hassuggestion Whether the suggestion about large materials applies to the result (Feature 004).
+     * @param array|null $assignments Suggestions about assignments that apply now (stored_suggestions::current());
+     *     null when not calculated yet (Feature 009).
      */
-    public function __construct(diagnostic_state $state, ?\moodle_url $overviewurl = null, bool $hassuggestion = false) {
+    public function __construct(
+        diagnostic_state $state,
+        ?\moodle_url $overviewurl = null,
+        bool $hassuggestion = false,
+        ?array $assignments = []
+    ) {
         $this->state = $state;
         $this->overviewurl = $overviewurl;
         $this->hassuggestion = $hassuggestion;
+        $this->assignments = $assignments === null ? -1 : count($assignments);
     }
 
     /**
@@ -65,33 +76,59 @@ class diagnostic_line implements \renderable, \templatable {
             $parts['notes'][] = ['text' => get_string('block:partial', 'block_coursecare')];
         }
         $parts['hasnotes'] = $parts['notes'] !== [];
-        return $parts + self::educational($this->state, $this->hassuggestion) + $this->link();
+        return $parts + self::educational(
+            $this->state,
+            $this->hassuggestion,
+            max(0, $this->assignments),
+            $this->assignments >= 0
+        ) + $this->link();
     }
 
     /**
      * The educational state of a result (Feature 008, data-model.md): which welcome the block and the page give.
      *
-     * "idea" when the suggestion of the Feature 004 applies; "allgood" only for a complete, current and fully
-     * classified result with files and no suggestion; "neutral" for any other result with files (out of date, last
-     * update failed or partial coverage), so that a positive message never hides them. Without files or without a
-     * result, the existing sentences of parts() stay the message.
+     * "idea" when a suggestion applies (large materials of Feature 004, or assignments of Feature 009, which can
+     * apply in a course without files too); "allgood" only for a complete, current and fully classified result with
+     * files, no suggestion and the suggestions about assignments already calculated; "neutral" for any other result
+     * with files (out of date, last update failed, partial coverage, assignments not calculated yet), so that a
+     * positive message never hides them. Without files or without a result, the existing sentences of parts() stay
+     * the message.
      *
      * @param diagnostic_state $state Resolved state.
-     * @param bool $hassuggestion Whether a suggestion applies to the result.
-     * @return array{kind: string, isidea: bool, isallgood: bool, title: string, message: string}
+     * @param bool $large Whether the suggestion about large materials applies.
+     * @param int $assignments Suggestions about assignments that apply now.
+     * @param bool $calculated Whether the suggestions about assignments were calculated.
+     * @return array{kind: string, isidea: bool, isallgood: bool, title: string, message: string, total: int}
      */
-    public static function educational(diagnostic_state $state, bool $hassuggestion): array {
+    public static function educational(
+        diagnostic_state $state,
+        bool $large,
+        int $assignments = 0,
+        bool $calculated = true
+    ): array {
+        $total = ($large ? 1 : 0) + $assignments;
         if (!$state->hasresult) {
             $kind = in_array($state->state, [diagnostic_state::QUEUED, diagnostic_state::RUNNING], true)
                 ? 'preparing' : 'notavailable';
+        } else if ($total > 0) {
+            $kind = 'idea';
         } else if ($state->filecount === 0) {
             $kind = 'nofiles';
-        } else if ($hassuggestion) {
-            $kind = 'idea';
-        } else if ($state->state === diagnostic_state::COMPLETE && !$state->partial) {
+        } else if ($state->state === diagnostic_state::COMPLETE && !$state->partial && $calculated) {
             $kind = 'allgood';
         } else {
             $kind = 'neutral';
+        }
+        $message = '';
+        if ($kind === 'allgood') {
+            $message = get_string('state:allgood_message', 'block_coursecare');
+        } else if ($kind === 'idea') {
+            $key = match (true) {
+                $large && $assignments > 0 => 'state:idea_message_both',
+                $large => 'state:idea_message',
+                default => 'state:idea_message_attempts',
+            };
+            $message = get_string($key, 'block_coursecare');
         }
         $titled = in_array($kind, ['idea', 'allgood'], true);
         return [
@@ -99,7 +136,8 @@ class diagnostic_line implements \renderable, \templatable {
             'isidea' => $kind === 'idea',
             'isallgood' => $kind === 'allgood',
             'title' => $titled ? get_string('state:' . $kind . '_title', 'block_coursecare') : '',
-            'message' => $titled ? get_string('state:' . $kind . '_message', 'block_coursecare') : '',
+            'message' => $message,
+            'total' => $kind === 'idea' ? $total : 0,
         ];
     }
 
@@ -175,9 +213,10 @@ class diagnostic_line implements \renderable, \templatable {
             return ['overviewurl' => '', 'overviewlink' => ''];
         }
         $url = new \moodle_url($this->overviewurl);
-        if ($this->hassuggestion && $this->state->filecount !== 0) {
+        $total = ($this->hassuggestion ? 1 : 0) + max(0, $this->assignments);
+        if ($total > 0) {
             $url->set_anchor('block_coursecare-suggestions');
-            $text = get_string('state:idea_action', 'block_coursecare');
+            $text = get_string($total === 1 ? 'state:idea_action' : 'state:idea_action_plural', 'block_coursecare');
         } else {
             $text = get_string('overview:link', 'block_coursecare');
         }

@@ -1,0 +1,40 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=21",
+ "title": "Sua sala em números | DEMO-POTENTIAL | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Voltar à sala"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "button",
+   "text": "Sugestões para você"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Diário de bordo"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Abrir as configurações desta tarefa"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Ver a orientação desta tarefa"
+  }
+ ],
+ "count": 5,
+ "allindicated": true,
+ "summariesopen": true
+}

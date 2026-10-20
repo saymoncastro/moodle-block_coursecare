@@ -193,5 +193,16 @@ function xmldb_block_coursecare_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2026101900, 'coursecare');
     }
 
+    if ($oldversion < 2026102200) {
+        // Feature 009: the suggestions found by the analysis (activity ids and kind, no personal data). Existing
+        // records stay null, meaning "not calculated yet", until the next analysis of each course.
+        $table = new xmldb_table('block_coursecare_diag');
+        $field = new xmldb_field('suggestions', XMLDB_TYPE_TEXT, null, null, null, null, null, 'largelinkstruncated');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2026102200, 'coursecare');
+    }
+
     return true;
 }

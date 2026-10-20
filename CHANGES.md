@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0 BETA (unreleased)
+
+- Assignment guidance: on the "Your course in numbers" page, each assignment that accepts files has a
+  collapsed guide to read and review its submission settings (what the limits mean, possible
+  implications in both directions, where the limit comes from, attempts, the steps in Moodle with
+  Moodle's own field names, a link to the settings for those who can edit them, questions to reflect on).
+  No value is ever suggested.
+- One new contextual suggestion: an assignment with file submissions that effectively allows new
+  attempts without a maximum (the same rules as the potential of assignments). Calculated by the
+  background analysis and stored with its date; the block and the page use the same stored reference,
+  filtered by whether the assignment still exists and is visible to students; a dated note appears when
+  the settings changed after the analysis.
+- The block and the band reflect suggestions about large materials, assignments or both, without new
+  numbers; "All good here!" only once the assignment suggestions have been calculated.
+- Database: one nullable text field in the course diagnostic (null = not calculated yet).
+
 ## 0.8.0 BETA (unreleased)
 
 - Educational experience: the block shows the identity of the plugin, an educational state ("All good

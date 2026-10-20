@@ -1,0 +1,40 @@
+{
+ "check": "keys",
+ "path": "/blocks/coursecare/overview.php?id=21",
+ "title": "Your course in numbers | DEMO-POTENTIAL | ccdemo",
+ "stops": [
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Back to the course"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "button",
+   "text": "Suggestions for you"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Diário de bordo"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "Open the settings of this assignment"
+  },
+  {
+   "indicator": true,
+   "open": null,
+   "tag": "a",
+   "text": "See the guidance for this assignment"
+  }
+ ],
+ "count": 5,
+ "allindicated": true,
+ "summariesopen": true
+}

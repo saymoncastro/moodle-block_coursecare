@@ -33,7 +33,9 @@ class behat_block_coursecare_generator extends behat_generator_base {
      * - "block_coursecare > diagnostic categories": course, category, filecount, logicalbytes, uniquecount, uniquebytes;
      * - "block_coursecare > diagnostic activities": course, activity (idnumber; omit it for the course level) and fields
      *   of block_coursecare_act such as materialbytes;
-     * - "block_coursecare > diagnostic large links": course, activity (idnumber; omit it for the course level), filesize.
+     * - "block_coursecare > diagnostic large links": course, activity (idnumber; omit it for the course level), filesize;
+     * - "block_coursecare > diagnostic suggestions" (Feature 009): course, activity (idnumber of an assignment found by
+     *   the analysis as allowing new attempts without a maximum).
      *
      * History points (Feature 006): "block_coursecare > diagnostic history points": course, daysago and fields of
      * block_coursecare_hist such as logicalbytes, materialbytes, submissionbytes, methodversion or partial.
@@ -65,6 +67,12 @@ class behat_block_coursecare_generator extends behat_generator_base {
                 'datagenerator' => 'diagnostic_history',
                 'required' => ['course'],
                 'switchids' => ['course' => 'courseid'],
+            ],
+            'diagnostic suggestions' => [
+                'singular' => 'diagnostic suggestion',
+                'datagenerator' => 'diagnostic_suggestion',
+                'required' => ['course', 'activity'],
+                'switchids' => ['course' => 'courseid', 'activity' => 'cmid'],
             ],
             'diagnostic large links' => [
                 'singular' => 'diagnostic large link',

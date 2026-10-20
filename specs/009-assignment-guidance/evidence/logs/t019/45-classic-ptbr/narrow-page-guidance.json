@@ -1,0 +1,15 @@
+{
+ "check": "narrow",
+ "path": "/blocks/coursecare/overview.php?id=21#block_coursecare-guidance-233",
+ "title": "Sua sala em números | DEMO-POTENTIAL | ccdemo",
+ "pagescroll": false,
+ "pagescrollwidth": 320,
+ "regions": [
+  {
+   "clientwidth": 288,
+   "region": "block_coursecare-overview",
+   "scrollwidth": 288
+  }
+ ],
+ "viewport": 320
+}
